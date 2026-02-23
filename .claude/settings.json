@@ -1,0 +1,63 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(npx agentlaunch *)",
+      "Bash(npx agent-launch-mcp)",
+      "Bash(node packages/mcp/dist/index.js)",
+      "Bash(npx *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(curl *)",
+      "Bash(make *)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf .)",
+      "Bash(sudo rm -rf *)",
+      "Bash(git push --force origin main)",
+      "Bash(git push --force origin master)",
+      "Bash(git reset --hard origin/*)"
+    ]
+  },
+  "mcpServers": {
+    "agent-launch": {
+      "command": "node",
+      "args": ["./packages/mcp/dist/index.js"],
+      "env": {
+        "AGENT_LAUNCH_API_KEY": "${AGENTVERSE_API_KEY}"
+      }
+    }
+  },
+  "settings": {
+    "project": {
+      "name": "AgentLaunch Toolkit",
+      "environment": "development"
+    },
+    "security": {
+      "require_tests_before_deploy": true,
+      "require_lint_before_commit": true,
+      "protected_branches": ["main", "master"]
+    }
+  },
+  "skills": {
+    "active": [
+      "build-all",
+      "test-all"
+    ]
+  },
+  "commands": {
+    "aliases": {
+      "b": "build-all",
+      "t": "test-all"
+    }
+  }
+}
