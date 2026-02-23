@@ -208,9 +208,9 @@ Default chain for all operations: BSC (56 in prod, 97 in dev).
 
 ## Resources
 
-- [Getting Started](docs/toolkit/getting-started.md)
-- [SDK Reference](docs/toolkit/sdk-reference.md)
-- [CLI Reference](docs/toolkit/cli-reference.md)
-- [MCP Tools](docs/toolkit/mcp-tools.md)
-- [Backend CLAUDE.md](backend/CLAUDE.md)
-- [Frontend CLAUDE.md](frontend/CLAUDE.md)
+- [Getting Started](docs/getting-started.md)
+- [SDK Reference](docs/sdk-reference.md)
+- [CLI Reference](docs/cli-reference.md)
+- [MCP Tools](docs/mcp-tools.md)
+- [Agent Integration](docs/AGENTS.md)
+- [Skill Definition](skill/skill.md)

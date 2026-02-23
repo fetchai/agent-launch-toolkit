@@ -18,11 +18,24 @@ const CONFIG_DIR = path.join(os.homedir(), ".agentlaunch");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 const DEV_API_URL = 'https://launchpad-backend-dev-1056182620041.us-central1.run.app';
+const DEV_FRONTEND_URL = 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
 const PROD_API_URL = 'https://agent-launch.ai/api';
+const PROD_FRONTEND_URL = 'https://agent-launch.ai';
 
 function resolveDefaultUrl(): string {
   if (process.env.AGENT_LAUNCH_API_URL) return process.env.AGENT_LAUNCH_API_URL.replace(/\/$/, '');
   return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_API_URL : DEV_API_URL;
+}
+
+/** Resolve the frontend URL from env or defaults. */
+export function resolveFrontendUrl(): string {
+  if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
+  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
+}
+
+/** Get the current environment name. */
+export function getEnvironment(): string {
+  return process.env.AGENT_LAUNCH_ENV || 'dev';
 }
 
 /** Default API base URL. Override with `agentlaunch config set-url`. */

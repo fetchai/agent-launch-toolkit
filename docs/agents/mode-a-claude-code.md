@@ -16,9 +16,9 @@ This Mode A guide builds the wallet-user UI path. Backend endpoints in Phases 1-
 ## Live API Spec
 
 Before building, fetch the canonical specs:
-- Skill: `https://fetch.ants-at-work.com/skill.md`
-- OpenAPI: `https://fetch.ants-at-work.com/docs/openapi`
-- Agent docs: `https://fetch.ants-at-work.com/docs/for-agents`
+- Skill: `https://agent-launch.ai/skill.md`
+- OpenAPI: `https://agent-launch.ai/docs/openapi`
+- Agent docs: `https://agent-launch.ai/docs/for-agents`
 - Platform: `https://agent-launch.ai`
 
 ## Phase Order

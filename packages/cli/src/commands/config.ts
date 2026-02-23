@@ -9,8 +9,10 @@
 import { Command } from "commander";
 import {
   DEFAULT_BASE_URL,
+  getEnvironment,
   maskKey,
   readConfig,
+  resolveFrontendUrl,
   writeConfig,
 } from "../config.js";
 
@@ -36,16 +38,23 @@ export function registerConfigCommand(program: Command): void {
   // agentlaunch config show
   config
     .command("show")
-    .description("Show current configuration")
+    .description("Show resolved environment configuration")
     .action(() => {
       const cfg = readConfig();
+      const env = getEnvironment();
+      const apiUrl = cfg.baseUrl ?? DEFAULT_BASE_URL;
+      const frontendUrl = resolveFrontendUrl();
+      const chainId = process.env.CHAIN_ID || '97';
       const keyDisplay = cfg.apiKey ? maskKey(cfg.apiKey) : "(not set)";
-      const urlDisplay = cfg.baseUrl ?? `${DEFAULT_BASE_URL} (default)`;
 
-      console.log("Current configuration:");
-      console.log(`  API Key:  ${keyDisplay}`);
-      console.log(`  Base URL: ${urlDisplay}`);
-      console.log(`  Config:   ~/.agentlaunch/config.json`);
+      console.log("\n  AgentLaunch Configuration\n");
+      console.log(`  Environment:  ${env}`);
+      console.log(`  API URL:      ${apiUrl}`);
+      console.log(`  Frontend URL: ${frontendUrl}`);
+      console.log(`  Chain ID:     ${chainId}`);
+      console.log(`  API Key:      ${keyDisplay}`);
+      console.log(`  Config file:  ~/.agentlaunch/config.json`);
+      console.log();
     });
 
   // agentlaunch config set-url <url>

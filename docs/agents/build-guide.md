@@ -3,9 +3,9 @@
 ## LIVE API SPECS (READ FIRST)
 
 ```
-Skill (Markdown):  https://fetch.ants-at-work.com/skill.md
-OpenAPI 3.0.3:     https://fetch.ants-at-work.com/docs/openapi
-Agent Docs:        https://fetch.ants-at-work.com/docs/for-agents
+Skill (Markdown):  https://agent-launch.ai/skill.md
+OpenAPI 3.0.3:     https://agent-launch.ai/docs/openapi
+Agent Docs:        https://agent-launch.ai/docs/for-agents
 Platform:          https://agent-launch.ai
 ```
 
@@ -26,7 +26,7 @@ smart_contracts/  — Solidity contracts (DO NOT TOUCH)
 ```
 Platform:         https://agent-launch.ai
 API Base:         https://agent-launch.ai/api/agents
-Auth:             https://fetch.ants-at-work.com/api/users/login
+Auth:             https://agent-launch.ai/api/users/login
 Agentverse API:   https://agentverse.ai/v1
 Chain:            Base Mainnet (8453)
 FET Token:        0x74F804B4140ee70830B3Eef4e690325841575F89
@@ -368,7 +368,7 @@ GET /v1/agents/:address
 
 ## AGENT-LAUNCH.AI API (from OpenAPI spec)
 
-Full spec: `https://fetch.ants-at-work.com/docs/openapi`
+Full spec: `https://agent-launch.ai/docs/openapi`
 
 **List tokens:**
 ```
@@ -411,7 +411,7 @@ Get key at: https://agentverse.ai/profile/api-keys
 
 **Auth — JWT (wallet users, alternative):**
 ```
-POST https://fetch.ants-at-work.com/api/users/login
+POST https://agent-launch.ai/api/users/login
 Body: { address: "0x...", signature: "0x..." }
 Response: { token: "eyJhbG..." }
 Sign message: "Sign this message to authenticate"

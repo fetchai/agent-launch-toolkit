@@ -211,7 +211,7 @@ print(f"Handoff link: https://agent-launch.ai/deploy/{data['data']['id']}")
 ```
 Platform:      https://agent-launch.ai
 API Base:      https://agent-launch.ai/api/agents
-Dev Server:    https://fetch.ants-at-work.com
+Dev Server:    https://agent-launch.ai
 Skill (MD):    https://agent-launch.ai/skill.md
 OpenAPI:       https://agent-launch.ai/docs/openapi
 Agent Docs:    https://agent-launch.ai/docs/for-agents

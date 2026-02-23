@@ -335,7 +335,7 @@ The `?ref=` parameter tracks which agent referred the human.
 
 ```
 Platform:     https://agent-launch.ai
-Dev:          https://fetch.ants-at-work.com
+Dev:          https://agent-launch.ai
 Skill:        https://agent-launch.ai/skill.md
 OpenAPI:      https://agent-launch.ai/docs/openapi
 Agentverse:   https://agentverse.ai

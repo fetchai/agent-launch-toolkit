@@ -250,5 +250,5 @@ When something goes wrong:
 
 If errors persist:
 - Platform: https://agent-launch.ai
-- Docs: https://fetch.ants-at-work.com/docs/for-agents
-- API Spec: https://fetch.ants-at-work.com/docs/openapi
+- Docs: https://agent-launch.ai/docs/for-agents
+- API Spec: https://agent-launch.ai/docs/openapi

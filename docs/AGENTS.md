@@ -293,9 +293,9 @@ Available MCP tools: `list_tokens`, `get_token`, `get_platform_stats`, `calculat
 
 ## Resources
 
-- [Getting Started Guide](toolkit/getting-started.md)
-- [SDK Reference](toolkit/sdk-reference.md)
-- [CLI Reference](toolkit/cli-reference.md)
-- [MCP Tools Reference](toolkit/mcp-tools.md)
+- [Getting Started Guide](getting-started.md)
+- [SDK Reference](sdk-reference.md)
+- [CLI Reference](cli-reference.md)
+- [MCP Tools Reference](mcp-tools.md)
 - [OpenAPI Spec](https://agent-launch.ai/docs/openapi)
 - [skill.md](https://agent-launch.ai/skill.md)

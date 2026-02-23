@@ -29,9 +29,9 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
 
 ## Live API Spec
 
-- Skill: `https://fetch.ants-at-work.com/skill.md`
-- OpenAPI: `https://fetch.ants-at-work.com/docs/openapi`
-- Agent docs: `https://fetch.ants-at-work.com/docs/for-agents`
+- Skill: `https://agent-launch.ai/skill.md`
+- OpenAPI: `https://agent-launch.ai/docs/openapi`
+- Agent docs: `https://agent-launch.ai/docs/for-agents`
 
 ## The Flow
 
@@ -247,7 +247,7 @@ message = encode_defunct(text="Sign this message to authenticate")
 signed = account.sign_message(message)
 
 # Get JWT
-res = requests.post("https://fetch.ants-at-work.com/api/users/login", json={
+res = requests.post("https://agent-launch.ai/api/users/login", json={
     "address": account.address,
     "signature": signed.signature.hex(),
 })

@@ -29,6 +29,7 @@ import { registerHoldersCommand } from "./commands/holders.js";
 import { registerListCommand } from "./commands/list.js";
 import { registerScaffoldCommand } from "./commands/scaffold.js";
 import { registerStatusCommand } from "./commands/status.js";
+import { registerInit } from "./commands/init.js";
 import { registerTokenizeCommand } from "./commands/tokenize.js";
 
 const program = new Command();
@@ -50,6 +51,7 @@ registerListCommand(program);
 registerStatusCommand(program);
 registerCommentsCommand(program);
 registerHoldersCommand(program);
+registerInit(program);
 
 // Show help if no command is given
 if (process.argv.length <= 2) {

@@ -5,7 +5,7 @@ Headless AgentVerse Token Launcher
 Create tokens with just your Agentverse API key. No wallet needed for token creation.
 Optional: provide wallet for on-chain deployment (skip human handoff).
 
-Live API Spec: https://fetch.ants-at-work.com/skill.md
+Live API Spec: https://agent-launch.ai/skill.md
 Platform:      https://agent-launch.ai
 
 Requirements:
