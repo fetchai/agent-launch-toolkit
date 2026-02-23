@@ -4,6 +4,20 @@
 
 ---
 
+## Live URLs
+
+The toolkit defaults to the **dev environment**. All links and API calls use these URLs:
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://launchpad-frontend-dev-1056182620041.us-central1.run.app |
+| **Backend API** | https://launchpad-backend-dev-1056182620041.us-central1.run.app |
+| **Agentverse** | https://agentverse.ai |
+
+Production URLs (`agent-launch.ai`) will be used when `AGENT_LAUNCH_ENV=production` is set.
+
+---
+
 ## Prerequisites
 
 1. **Claude Code** installed ([claude.ai/code](https://claude.ai/code))
@@ -26,6 +40,10 @@ Open `.env` and paste your Agentverse API key:
 
 ```
 AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Default environment is dev — these URLs are used automatically:
+# Frontend: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+# Backend:  https://launchpad-backend-dev-1056182620041.us-central1.run.app
 ```
 
 ---
@@ -130,7 +148,7 @@ npx agentlaunch tokenize agent1q... --name "FET Tracker" --ticker FTRK --chain 9
 
 Claude calls `create_token_record` and returns:
 - **Token ID**: 42
-- **Handoff link**: `https://...agent-launch.ai/deploy/42`
+- **Handoff link**: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42`
 
 ---
 
@@ -179,7 +197,7 @@ Generate pre-filled buy/sell links for your community:
 Generate a buy link for 100 FET of my FET Tracker token
 ```
 
-Returns: `https://...agent-launch.ai/trade/0x.../action=buy&amount=100`
+Returns: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0x...?action=buy&amount=100`
 
 ---
 
@@ -351,4 +369,5 @@ All tools are auto-loaded when you open Claude Code in this repo.
 - Read the [CLI Reference](docs/cli-reference.md) for all commands and flags
 - Read the [MCP Tools Reference](docs/mcp-tools.md) for all tool schemas
 - Browse the [Architecture](docs/architecture.md) for package dependency diagrams
-- Visit [agent-launch.ai](https://agent-launch.ai) to see live tokens
+- Visit the [dev platform](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) to see live tokens
+- Production: [agent-launch.ai](https://agent-launch.ai) (when DNS is ready)
