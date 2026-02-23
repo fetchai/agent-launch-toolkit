@@ -3,201 +3,353 @@
 > Build, deploy, and tokenize AI agents in one conversation.
 
 ```
-    +---------------------------------------------------+
-    |                                                     |
-    |   git clone agent-launch-toolkit                    |
-    |   echo "AGENTVERSE_API_KEY=av-xxx" > .env           |
-    |   claude                                            |
-    |                                                     |
-    |   > "Build a price monitoring agent, deploy it,     |
-    |      and tokenize it as $PMON"                      |
-    |                                                     |
-    |   Done. Agent running. Token live. Handoff ready.   |
-    |                                                     |
-    +---------------------------------------------------+
+  git clone agent-launch-toolkit && cd agent-launch-toolkit
+  npm install && cp .env.example .env
+  # Add your Agentverse API key
+  claude
+
+  > /build-agent
+  > "Build a price monitoring agent and tokenize it as $PMON"
+
+  Done. Agent running on Agentverse. Token live on-chain. Handoff link ready.
 ```
 
-## Quick Start (30 seconds)
+**[Full Tutorial: Launch Your First Token in 10 Minutes](TUTORIAL.md)**
 
-### Option A: Clone the repo
+---
 
+## Features
+
+### For Claude Code Users
+Open this repo in Claude Code and everything works out of the box:
+
+- **5 slash commands** — `/build-agent`, `/deploy`, `/tokenize`, `/market`, `/status`
+- **13+ MCP tools** — list tokens, calculate prices, deploy agents, create tokens, post comments
+- **3 auto-loaded rules** — platform constants, Agentverse API patterns, uAgent Chat Protocol
+- **Pre-configured MCP server** — `.claude/settings.json` already wired up
+
+### For CLI Users
 ```bash
-git clone https://github.com/anthropics/agent-launch-toolkit.git
-cd agent-launch-toolkit
-cp .env.example .env
-# Add your Agentverse API key: https://agentverse.ai/profile/api-keys
-npm install
-claude
+npx agentlaunch create               # Full interactive wizard
+npx agentlaunch scaffold MyBot       # Generate from template
+npx agentlaunch deploy agent.py      # Deploy to Agentverse
+npx agentlaunch tokenize agent1q...  # Create token + handoff link
+npx agentlaunch list --sort trending # Browse tokens
+npx agentlaunch status 0x...         # Check price and progress
+npx agentlaunch holders 0x...        # Holder distribution
+npx agentlaunch comments 0x...       # Read/post comments
+npx agentlaunch config show          # Current environment + URLs
+npx agent-launch init                # Install toolkit into any project
 ```
 
-### Option B: Add to an existing project
-
-```bash
-cd my-project
-npx agent-launch init
-cp .env.example .env
-# Add your Agentverse API key
-claude
-```
-
-Then say:
-
-> "Build a price monitoring agent and tokenize it as $PMON"
-
-## What's Inside
-
-| Package | Description | Install |
-|---------|-------------|---------|
-| **SDK** | TypeScript client for every API endpoint | `npm i agentlaunch-sdk` |
-| **CLI** | 10 commands, one-command full lifecycle | `npm i -g agentlaunch-cli` |
-| **MCP Server** | 13+ tools for Claude Code / Cursor | `npx agent-launch-mcp` |
-| **Templates** | 6 production-ready agent blueprints | `npm i agentlaunch-templates` |
-
-## The Lifecycle
-
-```
-  Scaffold          Deploy            Tokenize          Trade
-  --------          ------            --------          -----
-  Choose a      ->  Upload to     ->  Create token  ->  Human signs,
-  template          Agentverse        record            token is LIVE
-
-  Templates         Agentverse API    AgentLaunch API   Handoff link
-  generate code     hosts agent       creates record    -> wallet -> chain
-```
-
-## For Claude Code Users
-
-This repo comes pre-configured. Open Claude Code and you have:
-
-**Slash commands:**
-
-| Command | Action |
-|---------|--------|
-| `/build-agent` | Scaffold + deploy + tokenize (guided) |
-| `/deploy` | Deploy agent.py to Agentverse |
-| `/tokenize` | Create token for an existing agent |
-| `/market` | Browse tokens and check prices |
-| `/status` | Check agent/token deployment status |
-
-**MCP tools:** 13+ tools auto-loaded via `.claude/settings.json`. List tokens,
-calculate prices, deploy agents, create tokens -- all from the conversation.
-
-## For CLI Users
-
-```bash
-# Full lifecycle (interactive wizard)
-npx agentlaunch create
-
-# Step by step
-npx agentlaunch scaffold my-agent --template gifter
-npx agentlaunch deploy my-agent/agent.py --name "FET Gifter"
-npx agentlaunch tokenize agent1q... --name "FET Gifter" --ticker GIFT
-
-# Market data
-npx agentlaunch list --sort trending
-npx agentlaunch status 0x1234...
-npx agentlaunch holders 0x1234...
-```
-
-## For SDK Users
-
+### For SDK Users (TypeScript)
 ```typescript
 import { AgentLaunch } from 'agentlaunch-sdk';
 
-const al = new AgentLaunch();  // reads AGENTVERSE_API_KEY from .env
+const al = new AgentLaunch();
 
 // Tokenize an agent
 const token = await al.tokens.tokenize({
   name: 'PriceBot', symbol: 'PBOT',
   description: 'Monitors FET price',
   agentAddress: 'agent1q...',
-  chainId: 97
+  chainId: 97,
 });
 
-// Get market data
-const price = await al.market.calculateBuy('0x...', '100');
+// Market data
+const price = await al.market.getPrice('0x...');
+const buy = await al.market.calculateBuy('0x...', '100');
+const holders = await al.market.getHolders('0x...');
 
-// Generate handoff links
+// Generate links for humans
 const deployLink = al.handoff.generateDeployLink(42);
-const tradeLink = al.handoff.generateBuyLink('0x...', 100);
+const buyLink = al.handoff.generateBuyLink('0x...', 100);
+const sellLink = al.handoff.generateSellLink('0x...', 500);
 ```
 
-## Templates
+### For Any Language (Headless API)
+```bash
+curl -X POST $API_URL/agents/tokenize \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: av-xxx" \
+  -d '{"name":"MyBot","symbol":"MBOT","chainId":97}'
+```
+
+---
+
+## Quick Start (2 Minutes)
+
+### Option A: Clone This Repo
+
+```bash
+git clone https://github.com/tonyoconnell/agent-launch-toolkit.git
+cd agent-launch-toolkit
+npm install
+cp .env.example .env
+# Paste your Agentverse API key in .env
+claude
+```
+
+Then say: `/build-agent`
+
+### Option B: Add to Existing Project
+
+```bash
+cd my-project
+npx agent-launch init
+cp .env.example .env
+# Paste your Agentverse API key in .env
+claude
+```
+
+The `init` command installs `.claude/` rules, skills, MCP config, `.env.example`, and Cursor rules. It merges into existing config files without overwriting.
+
+---
+
+## What's Inside
+
+| Package | npm | Description |
+|---------|-----|-------------|
+| **SDK** | `agentlaunch-sdk` | TypeScript client for all API operations |
+| **CLI** | `agentlaunch-cli` | 10 commands, full lifecycle, JSON output mode |
+| **MCP Server** | `agent-launch-mcp` | 13+ tools for Claude Code and Cursor |
+| **Templates** | `agentlaunch-templates` | 6 production-ready agent code generators |
+
+### Agent Templates
 
 | Template | Description |
 |----------|-------------|
-| `custom` | Blank Chat Protocol boilerplate -- start from scratch |
-| `price-monitor` | Watches token prices, sends alerts |
+| `custom` | Blank Chat Protocol boilerplate |
+| `price-monitor` | Watch token prices, send alerts on thresholds |
 | `trading-bot` | Buy/sell signal generation |
-| `data-analyzer` | On-chain data analysis |
-| `research` | Deep dives and reports |
-| `gifter` | Treasury wallet + reward distribution |
+| `data-analyzer` | On-chain data analysis pipelines |
+| `research` | Deep dives, reports, knowledge retrieval |
+| `gifter` | Treasury wallet with FET reward distribution |
+
+---
+
+## The Lifecycle
+
+```
+  1. SCAFFOLD             2. DEPLOY              3. TOKENIZE            4. TRADE
+  ──────────             ─────────              ───────────            ─────────
+  Pick a template    ->  Upload to          ->  Create token       ->  Human opens
+  Generate agent.py      Agentverse             record on              handoff link,
+  Customize logic        Start agent            AgentLaunch            connects wallet,
+                         Get agent1q...         Get handoff link       signs deploy tx
+                                                                       Token is LIVE
+```
+
+---
+
+## Slash Commands (Claude Code)
+
+| Command | What It Does |
+|---------|-------------|
+| `/build-agent` | Full guided flow: ask requirements, pick template, scaffold, deploy, tokenize |
+| `/deploy` | Deploy an agent.py to Agentverse hosting |
+| `/tokenize` | Create a token record for an existing agent, return handoff link |
+| `/market` | Browse tokens, check prices, see trending, calculate buy/sell |
+| `/status` | Check token price, progress, holder count, deployment status |
+
+---
+
+## MCP Tools (Claude Code / Cursor)
+
+Pre-configured in `.claude/settings.json`. Available as soon as you open Claude Code.
+
+### Discovery
+| Tool | Description |
+|------|-------------|
+| `list_tokens` | Browse tokens with status/chain/category filters |
+| `get_token` | Full details for a token by address or ID |
+| `get_platform_stats` | Total volume, token count, trending |
+
+### Price Calculations
+| Tool | Description |
+|------|-------------|
+| `calculate_buy` | Preview buy: tokens received, fee, price impact |
+| `calculate_sell` | Preview sell: FET received, fee, price impact |
+
+### Token Operations
+| Tool | Description |
+|------|-------------|
+| `create_token_record` | Create pending token, get handoff link |
+| `create_and_tokenize` | Full lifecycle: scaffold + deploy + tokenize |
+| `update_token_metadata` | Update description, logo, links |
+
+### Handoff Links
+| Tool | Description |
+|------|-------------|
+| `get_deploy_instructions` | Structured deploy instructions for humans |
+| `get_trade_link` | Pre-filled buy/sell URL for humans |
+
+### Agentverse
+| Tool | Description |
+|------|-------------|
+| `deploy_to_agentverse` | Deploy Python agent, upload code, start |
+| `check_agent_logs` | Read agent execution logs |
+| `stop_agent` | Stop a running agent |
+
+### Code Generation
+| Tool | Description |
+|------|-------------|
+| `scaffold_agent` | Generate agent project from template |
+| `get_agent_templates` | List available templates |
+
+### Social
+| Tool | Description |
+|------|-------------|
+| `get_comments` | Read comments on a token |
+| `post_comment` | Post a comment on a token |
+
+---
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `agentlaunch create` | Interactive wizard: scaffold, deploy, tokenize in one flow |
+| `agentlaunch scaffold <name>` | Generate agent project from template |
+| `agentlaunch deploy [file]` | Deploy agent.py to Agentverse |
+| `agentlaunch tokenize <agent>` | Create token record + handoff link |
+| `agentlaunch list` | List tokens (filter, sort, paginate) |
+| `agentlaunch status <address>` | Token price, progress, holders |
+| `agentlaunch holders <address>` | Holder distribution |
+| `agentlaunch comments <address>` | Read or post comments |
+| `agentlaunch config show` | Show environment, URLs, chain, API key |
+| `agentlaunch config set-key <key>` | Store API key |
+| `agentlaunch init` | Install toolkit into any project |
+
+All commands support `--json` for machine-readable output.
+
+---
+
+## SDK API
+
+```typescript
+import { AgentLaunch } from 'agentlaunch-sdk';
+const al = new AgentLaunch({ apiKey: 'av-...' });
+```
+
+### Namespaces
+
+| Namespace | Methods |
+|-----------|---------|
+| `al.tokens` | `tokenize()`, `get()`, `list()` |
+| `al.market` | `getPrice()`, `getHolders()`, `calculateBuy()`, `calculateSell()`, `getStats()` |
+| `al.handoff` | `generateDeployLink()`, `generateTradeLink()`, `generateBuyLink()`, `generateSellLink()` |
+| `al.agents` | `authenticate()`, `getMyAgents()`, `importFromAgentverse()` |
+
+### Standalone Functions
+
+Every method is also available as a standalone function:
+
+```typescript
+import { tokenize, getToken, listTokens, getTokenPrice, generateDeployLink } from 'agentlaunch-sdk';
+```
+
+---
 
 ## Environment Configuration
 
-Copy `.env.example` to `.env` and set your Agentverse API key:
+Copy `.env.example` to `.env`:
 
 ```bash
 AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Environment: dev (default) or production
+AGENT_LAUNCH_ENV=dev
+
+# Override URLs directly (optional):
+# AGENT_LAUNCH_API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app
+# AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 ```
 
-**Switching environments:**
-- `AGENT_LAUNCH_ENV=dev` (default) -- uses Cloud Run dev URLs
-- `AGENT_LAUNCH_ENV=production` -- uses agent-launch.ai URLs
-- Set `AGENT_LAUNCH_API_URL` / `AGENT_LAUNCH_FRONTEND_URL` to override directly
+**URL resolution priority:**
+1. `AGENT_LAUNCH_API_URL` / `AGENT_LAUNCH_FRONTEND_URL` (direct override)
+2. `AGENT_LAUNCH_ENV=production` (uses agent-launch.ai)
+3. Default: dev Cloud Run URLs
+
+---
+
+## Platform Details
+
+| Property | Value |
+|----------|-------|
+| Deploy Fee | 120 FET (read dynamically, can change via governance) |
+| Graduation | 30,000 FET raised triggers auto DEX listing |
+| Trading Fee | 2% on every buy/sell, 100% to protocol treasury |
+| Token Supply | 800,000,000 per token |
+| Default Chain | BSC (Testnet: 97, Mainnet: 56) |
+| Auth | X-API-Key header with Agentverse API key |
+
+The 2% trading fee goes 100% to the protocol treasury (REVENUE_ACCOUNT). There is no creator fee split.
+
+---
 
 ## Architecture
 
 ```
   .env (AGENTVERSE_API_KEY)
     |
-    +---> SDK (TypeScript client)
-    |       |
-    |       +-- CLI (interactive + scripted commands)
-    |       +-- Templates (code generation)
-    |       +-- Examples (working demos)
+    +--- SDK (TypeScript HTTP client)
+    |      |
+    |      +-- CLI (interactive + scripted commands)
+    |      +-- MCP (13+ tools for Claude Code / Cursor)
+    |      +-- Templates (6 agent code generators)
     |
-    +---> MCP Server (13+ tools for Claude Code)
-    |
-    +---> Claude Code
-            reads CLAUDE.md, loads .claude/ rules + skills
-            has MCP tools, guided workflows
-            |
-            "Build me an agent"
-              1. Scaffold (templates)
-              2. Deploy (Agentverse API)
-              3. Tokenize (AgentLaunch API)
-              4. Handoff link -> Human signs -> Token LIVE
+    +--- Claude Code
+           reads CLAUDE.md
+           loads .claude/rules + skills
+           has MCP tools auto-configured
+           |
+           /build-agent
+             1. Scaffold (templates)
+             2. Deploy (Agentverse API)
+             3. Tokenize (AgentLaunch API)
+             4. Handoff link -> Human signs -> Token LIVE
 ```
 
-## Platform Details
+See [docs/architecture.md](docs/architecture.md) for package dependency diagrams.
 
-| Property | Value |
-|----------|-------|
-| Deploy Fee | 120 FET (read dynamically from contract) |
-| Graduation | 30,000 FET -- auto DEX listing |
-| Trading Fee | 2% -- 100% to protocol treasury (no creator fee) |
-| Total Supply | 800,000,000 tokens per token |
-| Default Chain | BSC (Testnet: 97, Mainnet: 56) |
+---
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| **[Tutorial](TUTORIAL.md)** | Step-by-step: launch your first token in 10 minutes |
+| [SDK Reference](docs/sdk-reference.md) | All TypeScript methods and types |
+| [CLI Reference](docs/cli-reference.md) | All commands, flags, and examples |
+| [MCP Tools](docs/mcp-tools.md) | All tools with input/output schemas |
+| [Getting Started](docs/getting-started.md) | Three paths: SDK, CLI, MCP |
+| [Architecture](docs/architecture.md) | Package diagrams and data flow |
+| [Agent Integration](docs/AGENTS.md) | Building agents that launch tokens |
+
+---
+
+## Development
+
+```bash
+npm install        # Install all workspace dependencies
+npm run build      # Build all 4 packages
+npm run test       # Run all tests (78 tests across SDK + CLI)
+npm run clean      # Clean all dist/ directories
+```
+
+---
 
 ## Links
 
 - [AgentLaunch Platform](https://agent-launch.ai)
 - [API Documentation](https://agent-launch.ai/docs/for-agents)
 - [OpenAPI Spec](https://agent-launch.ai/docs/openapi)
-- [Skill Manifest](https://agent-launch.ai/skill.md)
 - [Agentverse](https://agentverse.ai)
-- [Architecture](docs/architecture.md)
+- [Get an API Key](https://agentverse.ai/profile/api-keys)
 
-## Development
-
-```bash
-npm install        # Install all workspace dependencies
-npm run build      # Build all packages
-npm run test       # Test all packages
-npm run clean      # Clean all dist/ directories
-```
+---
 
 ## License
 
-MIT -- see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
