@@ -1,6 +1,7 @@
 # Agent-Human Handoff Protocol
 
-How AI agents bring humans into the loop for wallet-dependent actions on agent-launch.ai.
+How AI agents bring humans into the loop for wallet-dependent actions on the AgentLaunch platform.
+Platform URL is configured via `AGENT_LAUNCH_FRONTEND_URL` in `.env` (dev default: https://launchpad-frontend-dev-1056182620041.us-central1.run.app).
 
 ## The Core Insight
 
@@ -25,7 +26,7 @@ The human does the signing. Both benefit from the token economy.
 ├─────────────────────────────────────────────────────────┤
 │                   HANDOFF LINK                          │
 │                                                         │
-│  https://agent-launch.ai/deploy/{token_id}?ref={agent}  │
+│  ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}?ref={agent}  │
 │                                                         │
 │  Contains: token metadata, deploy instructions,         │
 │  pre-filled approval amounts, one-click deploy          │
@@ -58,11 +59,12 @@ The human does the signing. Both benefit from the token economy.
 An AI agent wants its own token. It creates the record, then recruits its owner (or any human) to complete the on-chain deployment.
 
 ```
-Agent: "I've created a token record for myself on agent-launch.ai.
+Agent: "I've created a token record for myself on the AgentLaunch platform.
         Name: WeatherBot, Ticker: WTR, Token ID: 42.
         I need a human to deploy it on-chain.
-        Click here to deploy: https://agent-launch.ai/deploy/42
-        You'll need 120 FET + gas on Base chain."
+        Click here to deploy: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+        (URL configured via AGENT_LAUNCH_FRONTEND_URL in .env)
+        You'll need 120 FET + gas on BSC chain."
 ```
 
 ### Scenario 2: Agent Launches for Another Agent
@@ -74,7 +76,7 @@ Agent: "I found agent1q... (DataAnalyzer) on Agentverse.
         It has 50K messages processed, growing 30% weekly.
         I've created a token: DataCoin (DC), Token ID: 87.
         Deploy it first and you'll be the creator + first holder.
-        Deploy here: https://agent-launch.ai/deploy/87"
+        Deploy here: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/87"
 ```
 
 ### Scenario 3: Agent Manages Portfolio
@@ -86,7 +88,7 @@ Agent: "WTR is up 40% in 24h on high volume.
         The bonding curve is at 67% (20,100/30,000 FET).
         Approaching Uniswap graduation.
         
-        Buy 50 FET worth: https://agent-launch.ai/trade/0xABC...?action=buy&amount=50
+        Buy 50 FET worth: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xABC...?action=buy&amount=50
         Or wait — I'll alert you at 80%."
 ```
 
@@ -94,12 +96,13 @@ Agent: "WTR is up 40% in 24h on high volume.
 
 ### Deploy Link
 ```
-https://agent-launch.ai/deploy/{token_id}
+${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}
   ?ref={agent_address}           — credits the agent as referrer
   &amount={buy_amount}           — optional: pre-fill buy-on-deploy amount
   &utm_source=agent              — tracking: came from an agent
   &utm_agent={agent_address}     — tracking: which agent
 ```
+> `AGENT_LAUNCH_FRONTEND_URL` is set in `.env`. Dev default: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
 
 When a human visits this link:
 1. Token metadata is displayed (name, ticker, description, image)
@@ -109,7 +112,7 @@ When a human visits this link:
 
 ### Trade Link
 ```
-https://agent-launch.ai/trade/{token_address}
+${AGENT_LAUNCH_FRONTEND_URL}/trade/{token_address}
   ?action={buy|sell}             — pre-select buy or sell tab
   &amount={fet_amount}           — pre-fill amount
   &ref={agent_address}           — agent referral tracking
@@ -117,7 +120,7 @@ https://agent-launch.ai/trade/{token_address}
 
 ### Portfolio Link
 ```
-https://agent-launch.ai/portfolio
+${AGENT_LAUNCH_FRONTEND_URL}/portfolio
   ?wallet={human_address}        — show specific wallet's holdings
   &ref={agent_address}           — agent that manages this portfolio
 ```
@@ -132,8 +135,8 @@ import requests
 class AgentLauncher:
     """Agent-side client for creating tokens and generating handoff links."""
 
-    BASE = "https://agent-launch.ai"
-    API = f"{BASE}/api/agents"
+    BASE = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://launchpad-frontend-dev-1056182620041.us-central1.run.app")
+    API = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app") + "/agents"
 
     def __init__(self, api_key: str, agent_address: str = ""):
         self.api_key = api_key
@@ -323,13 +326,13 @@ How does the agent reach the human with the handoff link?
 
 | Channel | How | Example |
 |---------|-----|---------|
-| ASI:One Chat | Agent responds with link in ChatMessage | "Click to deploy: https://agent-launch.ai/deploy/42" |
+| ASI:One Chat | Agent responds with link in ChatMessage | "Click to deploy: ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42" |
 | Telegram Bot | Agent sends message via Telegram API | Deep link in Telegram message |
 | Email | Agent composes email via SMTP/SendGrid | HTML email with CTA button |
 | SMS | Agent sends via Twilio/Vonage | Short link to deploy page |
 | Discord Bot | Agent posts in Discord channel | Embed with deploy button |
 | Browser Push | Agent triggers push notification | "Your token is ready to deploy" |
-| In-App | agent-launch.ai notification system | Bell icon → "Agent recommends: BUY" |
+| In-App | AgentLaunch notification system | Bell icon → "Agent recommends: BUY" |
 | Another Agent | Agent-to-agent → that agent's human | Chain of agents reaching the right human |
 
 ## Agent Referral Attribution
@@ -361,7 +364,7 @@ This is the part that's next-level. Instead of optimizing for Google, you optimi
 **Traditional SEO:** Human searches Google → finds your website → converts
 **Agent SEO:** Agent reads your skill.md → understands your API → acts
 
-How agents discover agent-launch.ai:
+How agents discover AgentLaunch:
 1. **skill.md** — any agent that fetches this URL knows how to use the platform
 2. **OpenAPI spec** — code generators auto-build clients
 3. **Agentverse registration** — agents discover the launcher agent via Almanac
@@ -379,7 +382,7 @@ AGENT NATIVE: skill.md → API Call → Handoff Link → Sign → Done
 ## Implementation Priority
 
 ### Phase 1: Deploy Handoff (NOW)
-- [ ] `/deploy/{token_id}` page on agent-launch.ai
+- [ ] `/deploy/{token_id}` page on the platform (`${AGENT_LAUNCH_FRONTEND_URL}`)
 - [ ] Pre-filled token metadata display
 - [ ] Connect wallet → approve → deploy flow
 - [ ] `?ref=` parameter tracking

@@ -42,11 +42,31 @@ AGENTVERSE_API_KEY=av-xxx CHAIN_ID=56 npm start
 AGENTVERSE_API_KEY=av-xxx CHAIN_ID=97 npm start
 ```
 
+### Option D: Override API URL (production or custom backend)
+
+```bash
+# Point at production backend
+AGENTVERSE_API_KEY=av-xxx \
+  AGENT_LAUNCH_API_URL=https://agent-launch.ai/api \
+  AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai \
+  npm start
+
+# Point at a local backend
+AGENTVERSE_API_KEY=av-xxx \
+  AGENT_LAUNCH_API_URL=http://localhost:3000 \
+  AGENT_LAUNCH_FRONTEND_URL=http://localhost:3001 \
+  npm start
+```
+
+Environment variables:
+- `AGENT_LAUNCH_API_URL` — Backend API base URL (default: dev Cloud Run backend)
+- `AGENT_LAUNCH_FRONTEND_URL` — Frontend base URL used for handoff/trade links (default: dev Cloud Run frontend)
+
 ## Expected Output
 
 ```
 AgentLaunch — Create and Tokenize Example
-Platform: https://agent-launch.ai
+Platform: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 
 ──────────────────────────────────────────────────
 Step 1: Authenticate
@@ -73,16 +93,16 @@ Token record created successfully.
   Name:       My Research Bot
   Symbol:     MYRE
   Status:     pending_deployment
-  Image:      https://agent-launch.ai/images/placeholder-42.png
+  Image:      https://launchpad-frontend-dev-1056182620041.us-central1.run.app/images/placeholder-42.png
 
 ──────────────────────────────────────────────────
 Step 4: Handoff Links
 ──────────────────────────────────────────────────
 Deploy handoff link (send to a human with FET wallet):
-  https://agent-launch.ai/deploy/42
+  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
 
 Trade link (share after deployment):
-  https://agent-launch.ai/trade/42?action=buy&amount=100
+  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/42?action=buy&amount=100
 
 ──────────────────────────────────────────────────
 Summary
@@ -91,7 +111,7 @@ The agent-human handoff is complete on the agent side.
 
 Next steps for the HUMAN:
   1. Open the deploy link in a browser
-     https://agent-launch.ai/deploy/42
+     https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
   2. Connect a wallet with 120+ FET and BNB for gas
   3. Click "Approve FET" (tx 1)
   4. Click "Deploy Token" (tx 2)
@@ -114,7 +134,7 @@ After the human deploys on-chain:
 
 ## Resources
 
-- [AgentLaunch Platform](https://agent-launch.ai)
+- [AgentLaunch Dev Platform](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
 - [SDK Reference](../../docs/toolkit/sdk-reference.md)
 - [Getting Started Guide](../../docs/toolkit/getting-started.md)
-- [OpenAPI Docs](https://agent-launch.ai/docs/openapi)
+- [OpenAPI Docs](https://launchpad-backend-dev-1056182620041.us-central1.run.app/docs/openapi)

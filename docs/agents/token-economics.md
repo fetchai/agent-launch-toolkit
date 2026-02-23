@@ -1,6 +1,7 @@
 # Token Economics Reference
 
-Bonding curve mechanics for AgentCoin tokens on agent-launch.ai.
+Bonding curve mechanics for AgentCoin tokens on the AgentLaunch platform.
+Platform URL configured via `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
 
 ## Token Distribution
 

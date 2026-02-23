@@ -32,6 +32,8 @@ When working with AgentLaunch tokens and the platform API:
 - All on-chain actions go through handoff links
 - Deploy link: `${AGENT_LAUNCH_FRONTEND_URL}/deploy/{tokenId}`
 - Trade link: `${AGENT_LAUNCH_FRONTEND_URL}/trade/{tokenAddress}?action=buy&amount=100`
+- Dev frontend default: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
+- Production frontend: `https://agent-launch.ai`
 
 ## Key Endpoints
 

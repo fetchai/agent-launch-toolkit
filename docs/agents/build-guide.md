@@ -3,11 +3,14 @@
 ## LIVE API SPECS (READ FIRST)
 
 ```
-Skill (Markdown):  https://agent-launch.ai/skill.md
-OpenAPI 3.0.3:     https://agent-launch.ai/docs/openapi
-Agent Docs:        https://agent-launch.ai/docs/for-agents
-Platform:          https://agent-launch.ai
+Skill (Markdown):  https://agent-launch.ai/skill.md  (production)
+OpenAPI 3.0.3:     https://agent-launch.ai/docs/openapi  (production)
+Agent Docs:        https://agent-launch.ai/docs/for-agents  (production)
+Platform (prod):   https://agent-launch.ai
+Platform (dev):    https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+API (dev):         https://launchpad-backend-dev-1056182620041.us-central1.run.app
 ```
+> Active URLs are set in `.env` via `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
 
 ## OBJECTIVE
 
@@ -21,14 +24,17 @@ frontend/         — Next.js app (React, wagmi/viem for Web3, Tailwind)
 smart_contracts/  — Solidity contracts (DO NOT TOUCH)
 ```
 
-## PRODUCTION ENDPOINTS
+## ENDPOINTS
+
+URLs are configured in `.env` via `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
 
 ```
-Platform:         https://agent-launch.ai
-API Base:         https://agent-launch.ai/api/agents
-Auth:             https://agent-launch.ai/api/users/login
+Platform (prod):  https://agent-launch.ai
+Platform (dev):   https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+API Base (prod):  https://agent-launch.ai/api/agents
+API Base (dev):   https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents
+Auth:             ${AGENT_LAUNCH_API_URL}/users/login
 Agentverse API:   https://agentverse.ai/v1
-Chain:            Base Mainnet (8453)
 FET Token:        0x74F804B4140ee70830B3Eef4e690325841575F89
 Deploy Fee:       120 FET
 Target Liquidity: 30,000 FET → auto Uniswap listing
@@ -366,13 +372,15 @@ GET /v1/agents
 GET /v1/agents/:address
 ```
 
-## AGENT-LAUNCH.AI API (from OpenAPI spec)
+## AGENTLAUNCH API (from OpenAPI spec)
 
-Full spec: `https://agent-launch.ai/docs/openapi`
+Full spec: `https://agent-launch.ai/docs/openapi` (production)
+Use `${AGENT_LAUNCH_API_URL}` as the base — configured in `.env`.
+Dev base: `https://launchpad-backend-dev-1056182620041.us-central1.run.app`
 
 **List tokens:**
 ```
-GET https://agent-launch.ai/api/agents/tokens
+GET ${AGENT_LAUNCH_API_URL}/agents/tokens
 Params: page, limit (max 100), search, categoryId, chainId,
         sortBy (created_at|name|price|market_cap|holders), sortOrder (ASC|DESC)
 Response: { success, data: [Token], meta: { page, limit, total, totalPages } }
@@ -380,7 +388,7 @@ Response: { success, data: [Token], meta: { page, limit, total, totalPages } }
 
 **Query token:**
 ```
-GET https://agent-launch.ai/api/agents/token/{address}
+GET ${AGENT_LAUNCH_API_URL}/agents/token/{address}
   address: 0x[a-fA-F0-9]{40}
 Response: { success, data: Token }
 
@@ -391,7 +399,7 @@ Token: { id, name, ticker, description, address, creator, price, price_usd,
 
 **Tokenize agent:**
 ```
-POST https://agent-launch.ai/api/agents/tokenize
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
 Auth: X-API-Key: YOUR_AGENTVERSE_API_KEY   ← primary for agents
   or: Authorization: Bearer JWT             ← alternative for wallet users
 Body: {
@@ -411,7 +419,7 @@ Get key at: https://agentverse.ai/profile/api-keys
 
 **Auth — JWT (wallet users, alternative):**
 ```
-POST https://agent-launch.ai/api/users/login
+POST ${AGENT_LAUNCH_API_URL}/users/login
 Body: { address: "0x...", signature: "0x..." }
 Response: { token: "eyJhbG..." }
 Sign message: "Sign this message to authenticate"

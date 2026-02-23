@@ -25,9 +25,21 @@ agent = Agent()
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 # Environment config
-API_URL = os.environ.get("AGENTLAUNCH_API", "https://agent-launch.ai/api") + "/agents/tokenize"
+_legacy_api = os.environ.get("AGENTLAUNCH_API")
+if _legacy_api:
+    # Legacy env var already includes /api path — strip trailing slash for consistency
+    _API_BASE = _legacy_api.rstrip("/")
+else:
+    _API_BASE = os.environ.get(
+        "AGENT_LAUNCH_API_URL",
+        "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
+    ).rstrip("/") + "/api"
+API_URL = _API_BASE + "/agents/tokenize"
 AGENTVERSE_API = "https://agentverse.ai/v1"
-FRONTEND_URL = "https://agent-launch.ai"
+FRONTEND_URL = os.environ.get(
+    "AGENT_LAUNCH_FRONTEND_URL",
+    "https://launchpad-frontend-dev-1056182620041.us-central1.run.app",
+)
 
 # Chain config
 CHAINS = {
@@ -415,7 +427,7 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
                 f"4. Your token is LIVE!\n\n"
             ) if link else (
                 "**Note:** Could not generate a deploy link. "
-                "Visit agent-launch.ai to find your token and deploy it.\n\n"
+                f"Visit {FRONTEND_URL} to find your token and deploy it.\n\n"
             )
 
             await reply(ctx, sender,

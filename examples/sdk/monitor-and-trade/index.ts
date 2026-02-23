@@ -262,11 +262,15 @@ function generateTradeLinks(address: string): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  const platformUrl = process.env['AGENT_LAUNCH_FRONTEND_URL'] ?? 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
   console.log('AgentLaunch — Monitor and Trade Example');
-  console.log('Platform: https://agent-launch.ai\n');
+  console.log(`Platform: ${platformUrl}\n`);
 
-  // Use a shared client instance (no API key needed for read-only operations)
-  const client = new AgentLaunchClient();
+  // Use a shared client instance (no API key needed for read-only operations).
+  // Set AGENT_LAUNCH_API_URL to override the default backend URL.
+  const client = new AgentLaunchClient({
+    ...(process.env['AGENT_LAUNCH_API_URL'] ? { baseUrl: process.env['AGENT_LAUNCH_API_URL'] } : {}),
+  });
 
   // Step 1: List top tokens
   let tokens: Token[];
@@ -322,7 +326,7 @@ async function main(): Promise<void> {
     console.log('  - Trading fee:       2% → 100% to protocol treasury');
     console.log('  - No creator fee');
     console.log('\nView on platform:');
-    console.log(`  https://agent-launch.ai/trade/${targetAddress}`);
+    console.log(`  ${platformUrl}/trade/${targetAddress}`);
   } catch (err) {
     if (err instanceof AgentLaunchError) {
       console.error(`\nAPI error (status ${err.status}): ${err.message}`);

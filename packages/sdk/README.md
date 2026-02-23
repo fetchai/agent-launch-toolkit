@@ -5,6 +5,7 @@
 [![Node.js Version](https://img.shields.io/node/v/agentlaunch-sdk.svg)](https://nodejs.org)
 
 TypeScript SDK for the [AgentLaunch](https://agent-launch.ai) platform — create AI agent tokens, query market data, and generate human handoff links.
+API and frontend URLs are configured via `.env` (`AGENT_LAUNCH_API_URL`, `AGENT_LAUNCH_FRONTEND_URL`).
 
 No external runtime dependencies. Uses the global `fetch()` available in Node.js 18+.
 
@@ -28,7 +29,8 @@ const { data } = await tokenize({
 
 // 2. Generate a deploy link for a human to complete on-chain deployment
 const link = generateDeployLink(data.token_id);
-console.log(link); // https://agent-launch.ai/deploy/42
+console.log(link); // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42
+                   // Dev default: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
 ```
 
 ## Authentication
@@ -73,7 +75,7 @@ const { data } = await tokenize({
 });
 
 console.log(data.token_id);      // 42
-console.log(data.handoff_link);  // https://agent-launch.ai/deploy/42
+console.log(data.handoff_link);  // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42
 console.log(data.status);        // 'pending_deployment'
 ```
 
@@ -232,9 +234,11 @@ Generate a deploy handoff link for a pending token.
 import { generateDeployLink } from 'agentlaunch-sdk';
 
 const link = generateDeployLink(42);
-// https://agent-launch.ai/deploy/42
+// Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+// Prod: https://agent-launch.ai/deploy/42
+// (URL from AGENT_LAUNCH_FRONTEND_URL in .env)
 
-// Custom platform URL (for testing)
+// Custom platform URL override (for staging / alternative environments)
 const devLink = generateDeployLink(42, 'https://staging.agent-launch.ai');
 // https://staging.agent-launch.ai/deploy/42
 ```
@@ -248,15 +252,15 @@ import { generateTradeLink } from 'agentlaunch-sdk';
 
 // Basic trade page
 generateTradeLink('0xAbCd...');
-// https://agent-launch.ai/trade/0xAbCd...
+// ${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...
 
 // Pre-filled buy
 generateTradeLink('0xAbCd...', { action: 'buy', amount: 100 });
-// https://agent-launch.ai/trade/0xAbCd...?action=buy&amount=100
+// ${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=buy&amount=100
 
 // Pre-filled sell
 generateTradeLink('0xAbCd...', { action: 'sell', amount: 500 });
-// https://agent-launch.ai/trade/0xAbCd...?action=sell&amount=500
+// ${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=sell&amount=500
 ```
 
 #### `generateBuyLink(address, amount?, baseUrl?)`
@@ -267,7 +271,7 @@ Convenience wrapper for buy links.
 import { generateBuyLink } from 'agentlaunch-sdk';
 
 const link = generateBuyLink('0xAbCd...', 100);
-// https://agent-launch.ai/trade/0xAbCd...?action=buy&amount=100
+// ${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=buy&amount=100
 ```
 
 #### `generateSellLink(address, amount?, baseUrl?)`
@@ -278,7 +282,7 @@ Convenience wrapper for sell links.
 import { generateSellLink } from 'agentlaunch-sdk';
 
 const link = generateSellLink('0xAbCd...', 500);
-// https://agent-launch.ai/trade/0xAbCd...?action=sell&amount=500
+// ${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=sell&amount=500
 ```
 
 ### Agent Operations
@@ -353,8 +357,8 @@ import { AgentLaunchClient } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient({
   apiKey: process.env.AGENTVERSE_API_KEY,
-  baseUrl: 'https://agent-launch.ai', // default
-  maxRetries: 3,                       // default — retries on 429 rate limit
+  baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured in .env; dev default: https://launchpad-backend-dev-1056182620041.us-central1.run.app
+  maxRetries: 3,                             // default — retries on 429 rate limit
 });
 
 // Typed GET

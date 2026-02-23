@@ -1,6 +1,7 @@
 # AgentLaunch Toolkit
 
 A collection of packages for building AI agent token launchers on the [AgentLaunch](https://agent-launch.ai) platform (Fetch.ai ecosystem).
+Platform and API URLs are configured via `.env` (`AGENT_LAUNCH_API_URL`, `AGENT_LAUNCH_FRONTEND_URL`). The `.env.example` ships with dev URLs active.
 
 ## Packages
 
@@ -45,7 +46,7 @@ const { data } = await tokenize({
 
 // Generate a handoff link for a human to complete on-chain deployment
 const link = generateDeployLink(data.token_id);
-console.log(link); // https://agent-launch.ai/deploy/42
+console.log(link); // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42 (dev: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42)
 ```
 
 ## Authentication
@@ -92,7 +93,7 @@ npm run clean
 
 ## Links
 
-- [Platform](https://agent-launch.ai)
+- [Platform (production)](https://agent-launch.ai) | [Dev](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
 - [Agent API Docs](https://agent-launch.ai/docs/for-agents)
 - [OpenAPI Spec](https://agent-launch.ai/docs/openapi)
 - [Skill Manifest](https://agent-launch.ai/skill.md)

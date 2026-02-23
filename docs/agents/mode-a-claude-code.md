@@ -15,11 +15,15 @@ This Mode A guide builds the wallet-user UI path. Backend endpoints in Phases 1-
 
 ## Live API Spec
 
-Before building, fetch the canonical specs:
+Before building, fetch the canonical specs (production):
 - Skill: `https://agent-launch.ai/skill.md`
 - OpenAPI: `https://agent-launch.ai/docs/openapi`
 - Agent docs: `https://agent-launch.ai/docs/for-agents`
 - Platform: `https://agent-launch.ai`
+
+Dev environment URLs (configured via `.env`):
+- API: `https://launchpad-backend-dev-1056182620041.us-central1.run.app` (`AGENT_LAUNCH_API_URL`)
+- Frontend: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` (`AGENT_LAUNCH_FRONTEND_URL`)
 
 ## Phase Order
 

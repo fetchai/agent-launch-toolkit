@@ -68,13 +68,16 @@ function section(title: string): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  const platformUrl = process.env['AGENT_LAUNCH_FRONTEND_URL'] ?? 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
   console.log('AgentLaunch — Create and Tokenize Example');
-  console.log('Platform: https://agent-launch.ai');
+  console.log(`Platform: ${platformUrl}`);
 
   // Create a client explicitly so we can pass it to every function
-  // (avoids creating a new client instance per function call)
+  // (avoids creating a new client instance per function call).
+  // Set AGENT_LAUNCH_API_URL to override the default backend URL.
   const client = new AgentLaunchClient({
     apiKey: API_KEY,
+    ...(process.env['AGENT_LAUNCH_API_URL'] ? { baseUrl: process.env['AGENT_LAUNCH_API_URL'] } : {}),
   });
 
   // Step 1: Exchange API key for a platform JWT (optional — demonstrates auth)
@@ -224,7 +227,7 @@ async function main(): Promise<void> {
   console.log('  - Graduation target: 30,000 FET → auto DEX listing');
   console.log('  - Trading fee:       2% → 100% to protocol treasury');
   console.log('  - No creator fee\n');
-  console.log(`View all tokens: https://agent-launch.ai`);
+  console.log(`View all tokens: ${platformUrl}`);
 
   // JWT output for reference (if obtained)
   if (jwtToken) {

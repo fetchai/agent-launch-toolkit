@@ -27,7 +27,7 @@ import { AgentLaunchClient } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient({
   apiKey: 'av-xxxxxxxxxxxxxxxx',
-  baseUrl: 'https://agent-launch.ai', // optional, this is the default
+  baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured via .env; dev default: https://launchpad-backend-dev-1056182620041.us-central1.run.app
 });
 ```
 
@@ -50,8 +50,9 @@ interface AgentLaunchConfig {
   /** Agentverse API key — used as X-API-Key header on authenticated requests. */
   apiKey?: string;
   /**
-   * Base URL for the platform.
-   * @default "https://agent-launch.ai"
+   * Base URL for the platform API. Configured via AGENT_LAUNCH_API_URL in .env.
+   * Dev default: "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
+   * Production: "https://agent-launch.ai/api"
    */
   baseUrl?: string;
 }
@@ -104,7 +105,7 @@ const { data } = await tokenize({
 });
 
 console.log(data.token_id);      // 42
-console.log(data.handoff_link);  // https://agent-launch.ai/deploy/42
+console.log(data.handoff_link);  // https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42 (dev default, configured via AGENT_LAUNCH_FRONTEND_URL)
 console.log(data.status);        // "pending_deployment"
 ```
 
@@ -125,7 +126,7 @@ console.log(data.status);        // "pending_deployment"
 ```ts
 interface TokenizeResponse {
   token_id: number;        // DB ID — use to build handoff links
-  handoff_link: string;    // https://agent-launch.ai/deploy/{token_id}
+  handoff_link: string;    // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}
   name: string;
   symbol: string;
   description: string;
@@ -293,9 +294,11 @@ The human opens this URL, connects their wallet, and signs:
 import { generateDeployLink } from 'agentlaunch-sdk';
 
 const link = generateDeployLink(42);
-// "https://agent-launch.ai/deploy/42"
+// Dev:  "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42"
+// Prod: "https://agent-launch.ai/deploy/42"
+// (URL determined by AGENT_LAUNCH_FRONTEND_URL in .env)
 
-// Custom base URL (staging / self-hosted)
+// Custom base URL (override for staging / self-hosted)
 const stagingLink = generateDeployLink(42, 'https://staging.agent-launch.ai');
 // "https://staging.agent-launch.ai/deploy/42"
 ```
@@ -313,15 +316,15 @@ import { generateTradeLink } from 'agentlaunch-sdk';
 
 // Plain trade page
 generateTradeLink('0xAbCd...');
-// "https://agent-launch.ai/trade/0xAbCd..."
+// "${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd..."
 
 // Pre-filled buy
 generateTradeLink('0xAbCd...', { action: 'buy', amount: 100 });
-// "https://agent-launch.ai/trade/0xAbCd...?action=buy&amount=100"
+// "${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=buy&amount=100"
 
 // Pre-filled sell
 generateTradeLink('0xAbCd...', { action: 'sell', amount: 500 });
-// "https://agent-launch.ai/trade/0xAbCd...?action=sell&amount=500"
+// "${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=sell&amount=500"
 ```
 
 **`TradeLinkOptions`:**
@@ -343,7 +346,7 @@ Convenience wrapper for a buy link.
 import { generateBuyLink } from 'agentlaunch-sdk';
 
 const link = generateBuyLink('0xAbCd...', 100);
-// "https://agent-launch.ai/trade/0xAbCd...?action=buy&amount=100"
+// "${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=buy&amount=100"
 ```
 
 ---
@@ -356,7 +359,7 @@ Convenience wrapper for a sell link.
 import { generateSellLink } from 'agentlaunch-sdk';
 
 const link = generateSellLink('0xAbCd...', 500);
-// "https://agent-launch.ai/trade/0xAbCd...?action=sell&amount=500"
+// "${AGENT_LAUNCH_FRONTEND_URL}/trade/0xAbCd...?action=sell&amount=500"
 ```
 
 ---

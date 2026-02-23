@@ -3,6 +3,7 @@
 The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentverse agents, query market data, and generate human handoff links — all without holding private keys or signing blockchain transactions directly.
 
 **Production platform:** https://agent-launch.ai
+**Dev platform (configured via `.env`):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 
 ---
 
@@ -94,7 +95,8 @@ async function launchToken() {
   const link = generateDeployLink(data.token_id);
   console.log('Share this link with a human to deploy on-chain:');
   console.log(link);
-  // https://agent-launch.ai/deploy/42
+  // Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+  // Prod: https://agent-launch.ai/deploy/42 (when AGENT_LAUNCH_FRONTEND_URL is set to prod)
 }
 
 launchToken().catch(console.error);
@@ -110,7 +112,8 @@ import { getToken, generateBuyLink } from 'agentlaunch-sdk';
 const token = await getToken('0xAbCd1234...'); // contract address
 const link = generateBuyLink(token.address!, 100); // pre-fill 100 FET
 console.log('Buy link:', link);
-// https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100
+// Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=100
+// Prod: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100
 ```
 
 ---
@@ -150,7 +153,7 @@ Token ID:   42
 Status:     pending_deployment
 
 Handoff link (share with a human to deploy on-chain):
-  https://agent-launch.ai/deploy/42
+  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
 
 Platform fee to deploy: 120 FET (read from contract at deploy time)
 Trading fee: 2% -> 100% to protocol treasury
@@ -232,10 +235,11 @@ Claude will call `create_and_tokenize` automatically and return:
 {
   "success": true,
   "tokenId": 42,
-  "handoffLink": "https://agent-launch.ai/deploy/42",
-  "tradeLink": "https://agent-launch.ai/trade/42?action=buy&amount=100"
+  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+  "tradeLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/42?action=buy&amount=100"
 }
 ```
+> URLs use `AGENT_LAUNCH_FRONTEND_URL` from `.env`. The dev URL is shown above (default). Set to `https://agent-launch.ai` for production.
 
 You can also call tools explicitly:
 
@@ -250,5 +254,5 @@ Use the list_tokens MCP tool to show trending tokens
 - [SDK Reference](./sdk-reference.md) — Full API for `agentlaunch-sdk`
 - [CLI Reference](./cli-reference.md) — All CLI commands and flags
 - [MCP Tools](./mcp-tools.md) — All MCP tools with input schemas
-- [API Docs](https://agent-launch.ai/docs/openapi) — OpenAPI spec
-- [skill.md](https://agent-launch.ai/skill.md) — Machine-readable capability spec
+- [API Docs](https://agent-launch.ai/docs/openapi) — OpenAPI spec (production)
+- [skill.md](https://agent-launch.ai/skill.md) — Machine-readable capability spec (production)

@@ -6,8 +6,14 @@ These rules apply when working on the AgentLaunch project or integrating with th
 
 AgentLaunch is a token launchpad for Fetch.ai ecosystem AI agents. Agents create token records, receive handoff links, and humans complete on-chain deployment.
 
+URLs are configured via `.env` (`AGENT_LAUNCH_API_URL`, `AGENT_LAUNCH_FRONTEND_URL`).
+
+| Environment | API URL | Frontend URL |
+|-------------|---------|--------------|
+| Dev (default) | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
+| Production | `https://agent-launch.ai/api` | `https://agent-launch.ai` |
+
 - **Production URL:** https://agent-launch.ai
-- **API base:** https://agent-launch.ai/api
 - **OpenAPI docs:** https://agent-launch.ai/docs/openapi
 - **Agent capability spec:** https://agent-launch.ai/skill.md
 
@@ -89,10 +95,11 @@ Agents NEVER sign blockchain transactions. The correct flow:
 6. Token goes live on bonding curve
 ```
 
-**Handoff URLs:**
-- Deploy: `https://agent-launch.ai/deploy/{token_id}`
-- Trade (buy): `https://agent-launch.ai/trade/{address}?action=buy&amount=100`
-- Trade (sell): `https://agent-launch.ai/trade/{address}?action=sell&amount=500`
+**Handoff URLs** (use `${AGENT_LAUNCH_FRONTEND_URL}` — configured in `.env`):
+- Deploy: `${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}`
+- Trade (buy): `${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount=100`
+- Trade (sell): `${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount=500`
+- Dev example: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42`
 
 ---
 

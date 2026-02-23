@@ -64,11 +64,13 @@ Add to `~/.cursor/mcp.json`:
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `AGENT_LAUNCH_API_KEY` | Agentverse API key — used as `X-API-Key` on write endpoints |
-| `AGENT_LAUNCH_BASE_URL` | API base URL override (default: `https://agent-launch.ai/api`) |
-| `AGENT_LAUNCH_FRONTEND_URL` | Frontend URL override (default: `https://agent-launch.ai`) |
+| Variable | Default (dev) | Description |
+|----------|---------------|-------------|
+| `AGENT_LAUNCH_API_KEY` | — | Agentverse API key — used as `X-API-Key` on write endpoints |
+| `AGENT_LAUNCH_BASE_URL` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | API base URL. Set to `https://agent-launch.ai/api` for production. |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` | Frontend base for handoff links. Set to `https://agent-launch.ai` for production. |
+
+URLs are configured in `.env`. The `.env.example` ships with dev URLs active. When production DNS is ready, update `.env` to switch.
 
 ---
 
@@ -295,7 +297,7 @@ Maps to `POST /agents/launch`.
 ```json
 {
   "tokenId": 42,
-  "handoffLink": "https://agent-launch.ai/deploy/42",
+  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
   "name": "Alpha Research Bot",
   "symbol": "ARB",
   "status": "pending_deployment",
@@ -358,7 +360,7 @@ Fetch a token by ID and return structured + markdown deployment instructions for
 
 ```json
 {
-  "handoffLink": "https://agent-launch.ai/deploy/42",
+  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
   "instructions": {
     "title": "Deploy Your Token",
     "requirements": [
@@ -413,7 +415,7 @@ Generate a pre-filled trade URL for a human to open and execute a buy or sell.
 
 ```json
 {
-  "link": "https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100",
+  "link": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=100",
   "instructions": {
     "action": "Buy tokens",
     "steps": [
@@ -635,8 +637,8 @@ End-to-end shortcut: create a token record tied to a live Agentverse agent addre
 {
   "success": true,
   "tokenId": 42,
-  "handoffLink": "https://agent-launch.ai/deploy/42",
-  "tradeLink": "https://agent-launch.ai/trade/42?action=buy&amount=100"
+  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+  "tradeLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/42?action=buy&amount=100"
 }
 ```
 
@@ -659,7 +661,7 @@ All tools return errors as MCP error responses with a descriptive message:
   "content": [
     {
       "type": "text",
-      "text": "Error executing tool \"create_and_tokenize\": POST https://agent-launch.ai/api/agents/tokenize failed with status 401: Invalid API key"
+      "text": "Error executing tool \"create_and_tokenize\": POST ${AGENT_LAUNCH_BASE_URL}/agents/tokenize failed with status 401: Invalid API key"
     }
   ]
 }

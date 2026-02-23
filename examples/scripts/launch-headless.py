@@ -5,18 +5,20 @@ Headless AgentVerse Token Launcher
 Create tokens with just your Agentverse API key. No wallet needed for token creation.
 Optional: provide wallet for on-chain deployment (skip human handoff).
 
-Live API Spec: https://agent-launch.ai/skill.md
-Platform:      https://agent-launch.ai
+Live API Spec: $AGENT_LAUNCH_FRONTEND_URL/skill.md
+Platform:      $AGENT_LAUNCH_FRONTEND_URL
 
 Requirements:
   pip install requests
   pip install web3 eth-account  # Only if using --deploy-onchain
 
 Environment:
-  AGENTVERSE_API_KEY     Required: Your Agentverse API key
-  WALLET_PRIVATE_KEY     Optional: For on-chain deployment
-  DEPLOYER_ADDRESS       Optional: FETAgentVerseDeployer contract
-  RPC_URL                Optional: BSC RPC (default: https://bsc-dataseed.binance.org)
+  AGENTVERSE_API_KEY         Required: Your Agentverse API key
+  AGENT_LAUNCH_API_URL       Optional: API base URL (default: dev backend)
+  AGENT_LAUNCH_FRONTEND_URL  Optional: Frontend base URL (default: dev frontend)
+  WALLET_PRIVATE_KEY         Optional: For on-chain deployment
+  DEPLOYER_ADDRESS           Optional: FETAgentVerseDeployer contract
+  RPC_URL                    Optional: BSC RPC (default: https://bsc-dataseed.binance.org)
 
 Usage:
   # Create token (human deploys via handoff link)
@@ -36,7 +38,15 @@ import requests
 
 # Config
 API_KEY = os.getenv("AGENTVERSE_API_KEY")
-LAUNCH_API = "https://agent-launch.ai/api/agents"
+_API_BASE = os.environ.get(
+    "AGENT_LAUNCH_API_URL",
+    "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
+)
+_FRONTEND_BASE = os.environ.get(
+    "AGENT_LAUNCH_FRONTEND_URL",
+    "https://launchpad-frontend-dev-1056182620041.us-central1.run.app",
+)
+LAUNCH_API = f"{_API_BASE}/api/agents"
 AGENTVERSE_API = "https://agentverse.ai/v1"
 
 # On-chain config (optional)
@@ -104,7 +114,7 @@ def create_token(name, ticker, description="", logo="", chain_id=97):
     print(f"  Symbol: {token.get('symbol') or token.get('ticker')}")
     print(f"  ID:     {token_id}")
     print(f"\nHandoff link (send to human to deploy):")
-    print(f"  https://agent-launch.ai/deploy/{token_id}")
+    print(f"  {_FRONTEND_BASE}/deploy/{token_id}")
 
     return token
 
@@ -209,7 +219,7 @@ def deploy_onchain(token, buy_amount=0):
 
     if receipt.status == 1:
         print(f"  Deployed: {receipt.transactionHash.hex()}")
-        print(f"\nToken is live on agent-launch.ai!")
+        print(f"\nToken is live! View at: {_FRONTEND_BASE}")
     else:
         print("  Deploy failed!")
         sys.exit(1)
@@ -231,9 +241,11 @@ Examples:
   python launch-headless.py --list-agents
 
 Environment:
-  AGENTVERSE_API_KEY     Required
-  WALLET_PRIVATE_KEY     For --deploy-onchain
-  DEPLOYER_ADDRESS       For --deploy-onchain
+  AGENTVERSE_API_KEY         Required
+  AGENT_LAUNCH_API_URL       Optional: API base URL (default: dev backend)
+  AGENT_LAUNCH_FRONTEND_URL  Optional: Frontend base URL (default: dev frontend)
+  WALLET_PRIVATE_KEY         For --deploy-onchain
+  DEPLOYER_ADDRESS           For --deploy-onchain
         """
     )
     parser.add_argument("--name", help="Token name (max 32 chars)")

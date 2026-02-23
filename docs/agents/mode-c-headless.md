@@ -7,11 +7,12 @@ No browser, no UI. Pure API calls from any environment: Python, Node.js, shell s
 ## Quick Start
 
 ```bash
-# Set your API key
+# Set your API key and URL (from .env or export directly)
 export AGENTVERSE_API_KEY="your-key-from-agentverse.ai/profile/api-keys"
+export AGENT_LAUNCH_API_URL="https://launchpad-backend-dev-1056182620041.us-central1.run.app"  # dev default
 
 # Create a token
-curl -X POST https://agent-launch.ai/api/agents/tokenize \
+curl -X POST $AGENT_LAUNCH_API_URL/agents/tokenize \
   -H "X-API-Key: $AGENTVERSE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -29,9 +30,10 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
 
 ## Live API Spec
 
-- Skill: `https://agent-launch.ai/skill.md`
-- OpenAPI: `https://agent-launch.ai/docs/openapi`
-- Agent docs: `https://agent-launch.ai/docs/for-agents`
+- Skill: `https://agent-launch.ai/skill.md` (production)
+- OpenAPI: `https://agent-launch.ai/docs/openapi` (production)
+- Agent docs: `https://agent-launch.ai/docs/for-agents` (production)
+- Active API URL: configured via `AGENT_LAUNCH_API_URL` in `.env`
 
 ## The Flow
 
@@ -55,6 +57,13 @@ FULL (Agent creates AND deploys):
 ```bash
 # Required
 AGENTVERSE_API_KEY=your-key    # Get at agentverse.ai/profile/api-keys
+
+# URL configuration (set in .env — dev URLs are default)
+AGENT_LAUNCH_API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app
+AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+# For production, change these to:
+# AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
+# AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai
 
 # Optional (for on-chain deployment)
 WALLET_PRIVATE_KEY=0x...       # For signing transactions
@@ -82,7 +91,8 @@ python launch-headless.py --list-agents
 ### Create Token
 
 ```
-POST https://agent-launch.ai/api/agents/tokenize
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+# Dev: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
 Header: X-API-Key: YOUR_AGENTVERSE_API_KEY
 
 Body:
@@ -104,20 +114,20 @@ Response:
     }
   }
 
-Handoff link: https://agent-launch.ai/deploy/{id}
+Handoff link: ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{id}
 ```
 
 ### List Tokens
 
 ```
-GET https://agent-launch.ai/api/agents/tokens
+GET ${AGENT_LAUNCH_API_URL}/agents/tokens
 Params: page, limit, search, categoryId, chainId, sortBy, sortOrder
 ```
 
 ### Get Token
 
 ```
-GET https://agent-launch.ai/api/agents/token/{address}
+GET ${AGENT_LAUNCH_API_URL}/agents/token/{address}
 Returns: price, market_cap, holders, progress, etc.
 ```
 
@@ -130,9 +140,11 @@ import os
 import requests
 
 API_KEY = os.getenv("AGENTVERSE_API_KEY")
+API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app")
+FRONTEND_URL = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://launchpad-frontend-dev-1056182620041.us-central1.run.app")
 
 response = requests.post(
-    "https://agent-launch.ai/api/agents/tokenize",
+    f"{API_URL}/agents/tokenize",
     headers={
         "X-API-Key": API_KEY,
         "Content-Type": "application/json"
@@ -149,7 +161,7 @@ response = requests.post(
 
 data = response.json()
 token_id = data["data"]["id"]
-print(f"Handoff link: https://agent-launch.ai/deploy/{token_id}")
+print(f"Handoff link: {FRONTEND_URL}/deploy/{token_id}")
 ```
 
 ### With On-Chain Deploy
@@ -196,7 +208,10 @@ receipt = w3.eth.wait_for_transaction_receipt(
 ## Node.js / TypeScript
 
 ```typescript
-const response = await fetch('https://agent-launch.ai/api/agents/tokenize', {
+const API_URL = process.env.AGENT_LAUNCH_API_URL ?? 'https://launchpad-backend-dev-1056182620041.us-central1.run.app';
+const FRONTEND_URL = process.env.AGENT_LAUNCH_FRONTEND_URL ?? 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
+
+const response = await fetch(`${API_URL}/agents/tokenize`, {
   method: 'POST',
   headers: {
     'X-API-Key': process.env.AGENTVERSE_API_KEY,
@@ -213,14 +228,17 @@ const response = await fetch('https://agent-launch.ai/api/agents/tokenize', {
 });
 
 const { data } = await response.json();
-console.log(`Handoff link: https://agent-launch.ai/deploy/${data.id}`);
+console.log(`Handoff link: ${FRONTEND_URL}/deploy/${data.id}`);
 ```
 
 ## Shell Script
 
 ```bash
 #!/bin/bash
-curl -X POST https://agent-launch.ai/api/agents/tokenize \
+AGENT_LAUNCH_API_URL="${AGENT_LAUNCH_API_URL:-https://launchpad-backend-dev-1056182620041.us-central1.run.app}"
+AGENT_LAUNCH_FRONTEND_URL="${AGENT_LAUNCH_FRONTEND_URL:-https://launchpad-frontend-dev-1056182620041.us-central1.run.app}"
+
+curl -X POST "$AGENT_LAUNCH_API_URL/agents/tokenize" \
   -H "X-API-Key: $AGENTVERSE_API_KEY" \
   -H "Content-Type: application/json" \
   -d "{
@@ -230,7 +248,7 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
     \"description\": \"Created via script\",
     \"image\": \"auto\",
     \"chainId\": 97
-  }" | jq '.data.id' | xargs -I{} echo "https://agent-launch.ai/deploy/{}"
+  }" | jq '.data.id' | xargs -I{} echo "$AGENT_LAUNCH_FRONTEND_URL/deploy/{}"
 ```
 
 ## Alternative: JWT Auth
@@ -247,7 +265,7 @@ message = encode_defunct(text="Sign this message to authenticate")
 signed = account.sign_message(message)
 
 # Get JWT
-res = requests.post("https://agent-launch.ai/api/users/login", json={
+res = requests.post(f"{API_URL}/users/login", json={
     "address": account.address,
     "signature": signed.signature.hex(),
 })
@@ -282,7 +300,7 @@ Graduation:   30,000 FET → auto DEX listing
 
 ## Validation Checklist
 
-- [ ] API key works: `curl -H "X-API-Key: $KEY" https://agent-launch.ai/api/agents/tokens`
+- [ ] API key works: `curl -H "X-API-Key: $KEY" $AGENT_LAUNCH_API_URL/agents/tokens`
 - [ ] Token created: POST returns id
 - [ ] Handoff link works: `/deploy/{id}` loads page
 - [ ] (Optional) On-chain deploy succeeds

@@ -1,7 +1,8 @@
 ---
 name: agentverse-launchpad
 description: |
-  Launch AI agent tokens on AgentLaunch (agent-launch.ai).
+  Launch AI agent tokens on AgentLaunch.
+  API URL configured via AGENT_LAUNCH_API_URL in .env (dev default: launchpad-backend-dev-1056182620041.us-central1.run.app).
 
   AUTHENTICATION: Add your Agentverse API key as X-API-Key header. That's it.
 
@@ -22,8 +23,9 @@ description: |
 
 **2. Create a token:**
 ```bash
-curl -X POST https://agent-launch.ai/api/agents/tokenize \
+curl -X POST $AGENT_LAUNCH_API_URL/agents/tokenize \
   -H "X-API-Key: YOUR_AGENTVERSE_API_KEY" \
+# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
   -H "Content-Type: application/json" \
   -d '{
     "agentAddress": "agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxs0zhtc8xfhsc8hg4g5l0nh",
@@ -43,7 +45,7 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
     "id": 42,
     "name": "My Agent Token",
     "symbol": "MAT",
-    "handoffLink": "https://agent-launch.ai/deploy/42"
+    "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42"
   }
 }
 ```
@@ -75,7 +77,8 @@ Header: Authorization: Bearer {token}
 
 ### Create Token
 ```
-POST https://agent-launch.ai/api/agents/tokenize
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+# Dev: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
 Auth: X-API-Key header
 
 Body:
@@ -92,20 +95,21 @@ Response:
 
 ### List Tokens
 ```
-GET https://agent-launch.ai/api/agents/tokens
+GET ${AGENT_LAUNCH_API_URL}/agents/tokens
 Params: page, limit, search, categoryId, chainId, sortBy, sortOrder
 ```
 
 ### Get Token
 ```
-GET https://agent-launch.ai/api/agents/token/{address}
+GET ${AGENT_LAUNCH_API_URL}/agents/token/{address}
 Returns: price, market_cap, holders, progress, balance, etc.
 ```
 
 ### Trade Link (for agents to share)
 ```
-Buy:  https://agent-launch.ai/trade/{address}?action=buy&amount=100
-Sell: https://agent-launch.ai/trade/{address}?action=sell&amount=50
+Buy:  ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount=100
+Sell: ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount=50
+# Dev frontend: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 ```
 
 ---
@@ -135,7 +139,7 @@ HUMAN LAYER:
   4. Human clicks link
   5. Human connects wallet (RainbowKit)
   6. Human clicks Approve -> Deploy (2 transactions)
-  7. Token is live on agent-launch.ai
+  7. Token is live on the platform (${AGENT_LAUNCH_FRONTEND_URL})
 
 RESULT:
   - Human effort: 2 clicks + signatures
@@ -180,8 +184,11 @@ import os
 
 API_KEY = os.getenv("AGENTVERSE_API_KEY")
 
+API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app")
+FRONTEND_URL = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://launchpad-frontend-dev-1056182620041.us-central1.run.app")
+
 response = requests.post(
-    "https://agent-launch.ai/api/agents/tokenize",
+    f"{API_URL}/agents/tokenize",
     headers={
         "X-API-Key": API_KEY,
         "Content-Type": "application/json"
@@ -198,7 +205,7 @@ response = requests.post(
 
 data = response.json()
 print(f"Token created: {data['data']['name']}")
-print(f"Handoff link: https://agent-launch.ai/deploy/{data['data']['id']}")
+print(f"Handoff link: {FRONTEND_URL}/deploy/{data['data']['id']}")
 ```
 
 ---
@@ -209,14 +216,16 @@ print(f"Handoff link: https://agent-launch.ai/deploy/{data['data']['id']}")
 ## Live URLs
 
 ```
-Platform:      https://agent-launch.ai
-API Base:      https://agent-launch.ai/api/agents
-Dev Server:    https://agent-launch.ai
-Skill (MD):    https://agent-launch.ai/skill.md
-OpenAPI:       https://agent-launch.ai/docs/openapi
-Agent Docs:    https://agent-launch.ai/docs/for-agents
-Agentverse:    https://agentverse.ai
+Platform (prod):  https://agent-launch.ai
+Platform (dev):   https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+API Base (prod):  https://agent-launch.ai/api/agents
+API Base (dev):   https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents
+Skill (MD):       https://agent-launch.ai/skill.md
+OpenAPI:          https://agent-launch.ai/docs/openapi
+Agent Docs:       https://agent-launch.ai/docs/for-agents
+Agentverse:       https://agentverse.ai
 ```
+> Configure active URLs via `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
 
 ---
 

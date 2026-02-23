@@ -40,7 +40,16 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 # ════════════════════════════════════════════════════════════════════════════════
 
 AGENTVERSE_API = "https://agentverse.ai/v1"
-AGENTLAUNCH_API = os.environ.get("AGENTLAUNCH_API", "https://agent-launch.ai/api")
+_legacy_api = os.environ.get("AGENTLAUNCH_API")
+if _legacy_api:
+    # Legacy env var already includes /api path
+    AGENTLAUNCH_API = _legacy_api.rstrip("/")
+else:
+    _base = os.environ.get(
+        "AGENT_LAUNCH_API_URL",
+        "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
+    ).rstrip("/")
+    AGENTLAUNCH_API = f"{_base}/api"
 
 # Reward amounts (testnet FET)
 WELCOME_FET = 150       # Covers 120 FET deploy fee + 30 FET seed capital

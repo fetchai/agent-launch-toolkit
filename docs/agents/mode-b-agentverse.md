@@ -19,7 +19,7 @@ Get your API key at: https://agentverse.ai/profile/api-keys
 
 1. Receives natural language requests via Chat Protocol
 2. Parses token name, ticker, description from the message
-3. Creates token record on agent-launch.ai (`POST /api/agents/tokenize`)
+3. Creates token record via the API (`POST ${AGENT_LAUNCH_API_URL}/agents/tokenize`)
 4. Returns handoff link for human to deploy on-chain
 
 ## What This Agent Does NOT Do
@@ -59,7 +59,8 @@ Symbol: MC
 Token ID: 42
 
 Deploy Link (send to human):
-https://agent-launch.ai/deploy/42?ref=agent1q...
+https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42?ref=agent1q...
+(configured via AGENT_LAUNCH_FRONTEND_URL in .env)
 
 Human clicks link -> connects wallet -> approves 120 FET -> deploys.
 2 clicks after wallet connect.
@@ -248,7 +249,7 @@ domain:token-launch
 
 <description>
 AgentLaunch Token Creator - create ERC20 tokens for Fetch.ai agents on
-agent-launch.ai. Uses bonding curve pricing with 30K FET target for
+the AgentLaunch platform. Uses bonding curve pricing with 30K FET target for
 automatic DEX listing.
 </description>
 
@@ -281,7 +282,8 @@ Symbol: SLR
 Token ID: 42
 
 Deploy Link (send to human):
-https://agent-launch.ai/deploy/42?ref=agent1q...
+https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42?ref=agent1q...
+(configured via AGENT_LAUNCH_FRONTEND_URL in .env)
 
 Human clicks link -> connects wallet -> approves 120 FET -> deploys.
 2 clicks after wallet connect.
@@ -300,8 +302,8 @@ This agent generates **handoff links** - URLs that bring humans into the loop:
 
 | Type | URL | Purpose |
 |------|-----|---------|
-| Deploy | `https://agent-launch.ai/deploy/{token_id}?ref={agent}` | Human deploys token |
-| Trade | `https://agent-launch.ai/trade/{address}?action=buy&amount=50` | Human buys tokens |
+| Deploy | `${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}?ref={agent}` | Human deploys token |
+| Trade | `${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount=50` | Human buys tokens |
 
 The `?ref=` parameter tracks which agent referred the human.
 
@@ -334,9 +336,11 @@ The `?ref=` parameter tracks which agent referred the human.
 ## Live URLs
 
 ```
-Platform:     https://agent-launch.ai
-Dev:          https://agent-launch.ai
-Skill:        https://agent-launch.ai/skill.md
-OpenAPI:      https://agent-launch.ai/docs/openapi
-Agentverse:   https://agentverse.ai
+Platform (prod): https://agent-launch.ai
+Platform (dev):  https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+API (dev):       https://launchpad-backend-dev-1056182620041.us-central1.run.app
+Skill:           https://agent-launch.ai/skill.md
+OpenAPI:         https://agent-launch.ai/docs/openapi
+Agentverse:      https://agentverse.ai
 ```
+> Configure active environment via `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
