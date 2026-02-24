@@ -5,7 +5,7 @@
   "description": "AgentLaunch Toolkit — SDK, CLI, MCP server, and templates for AI agent token launches",
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w packages/sdk -w packages/templates && npm run build -w packages/cli -w packages/mcp",
     "test": "npm run test --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"

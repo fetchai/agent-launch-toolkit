@@ -1,58 +1,33 @@
 /**
- * Minimal fetch-based HTTP client shared by all commands.
- * No external dependency — uses Node 18+ built-in fetch.
+ * Thin HTTP wrapper for the AgentLaunch CLI.
+ *
+ * All platform API calls (X-API-Key auth) go through AgentLaunchClient from
+ * the SDK.  The agentverseRequest helper is kept here because Agentverse uses
+ * bearer-token auth which is a different auth domain.
  */
 
+import { AgentLaunchClient } from "agentlaunch-sdk";
 import { getBaseUrl, requireApiKey } from "./config.js";
 
 /**
- * Typed GET request. No authentication required.
- * Throws a descriptive Error on non-2xx HTTP status.
+ * Return an authenticated SDK client (uses X-API-Key from CLI config).
+ * Throws if no API key is configured.
  */
-export async function apiGet<T>(path: string): Promise<T> {
-  const url = `${getBaseUrl()}${path}`;
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    const detail = await extractErrorDetail(response);
-    throw new Error(
-      `GET ${url} failed with ${response.status} ${response.statusText}${detail}`,
-    );
-  }
-
-  return response.json() as Promise<T>;
+export function getClient(): AgentLaunchClient {
+  return new AgentLaunchClient({ baseUrl: getBaseUrl(), apiKey: requireApiKey() });
 }
 
 /**
- * Typed POST request. Reads the API key from config.
- * Throws if the key is missing or the server returns a non-2xx status.
+ * Return a public (unauthenticated) SDK client.
+ * Use this for read-only endpoints that don't require an API key.
  */
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
-  const apiKey = requireApiKey();
-  const url = `${getBaseUrl()}${path}`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-Key": apiKey,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const detail = await extractErrorDetail(response);
-    throw new Error(
-      `POST ${url} failed with ${response.status} ${response.statusText}${detail}`,
-    );
-  }
-
-  return response.json() as Promise<T>;
+export function getPublicClient(): AgentLaunchClient {
+  return new AgentLaunchClient({ baseUrl: getBaseUrl() });
 }
 
 /**
- * Typed PUT request. Requires Agentverse API key passed explicitly
- * (used by the deploy command — different auth domain).
+ * Typed HTTP helper for Agentverse API calls.
+ * Agentverse uses "Authorization: bearer <key>" instead of X-API-Key.
  */
 export async function agentverseRequest<T>(
   method: "POST" | "PUT",

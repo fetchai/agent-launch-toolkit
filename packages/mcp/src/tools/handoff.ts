@@ -1,27 +1,18 @@
-import { apiGet, apiPost } from "../client.js";
-import type { CreateTokenResponse, TokenDetails } from "../types/api.js";
+import { AgentLaunchClient, getFrontendUrl } from 'agentlaunch-sdk';
+import type { Token } from 'agentlaunch-sdk';
 
-/**
- * Frontend base URL for generating handoff and trade links.
- * Distinct from the API base URL used by client.ts (which appends /api).
- */
-const DEV_FRONTEND_URL = 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
-const PROD_FRONTEND_URL = 'https://agent-launch.ai';
-
-function resolveFrontendUrl(): string {
-  if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
-  if (process.env.AGENT_LAUNCH_BASE_URL) return process.env.AGENT_LAUNCH_BASE_URL.replace(/\/api$/, '').replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
-}
-
-const FRONTEND_BASE_URL = resolveFrontendUrl();
+const client = new AgentLaunchClient();
+const FRONTEND_BASE_URL = getFrontendUrl();
 
 // ---------------------------------------------------------------------------
 // Return types
 // ---------------------------------------------------------------------------
 
-export interface CreateTokenResult
-  extends CreateTokenResponse {
+export interface CreateTokenResult {
+  tokenId?: number;
+  token_id?: number;
+  handoffLink?: string;
+  handoff_link?: string;
   instructions: {
     step1: string;
     step2: string;
@@ -78,7 +69,7 @@ export async function createTokenRecord(args: {
   logo?: string;
   chainId?: number;
 }): Promise<CreateTokenResult> {
-  const response = await apiPost<CreateTokenResponse>("/agents/launch", {
+  const response = await client.post<CreateTokenResult>('/api/agents/tokenize', {
     name: args.name,
     symbol: args.symbol,
     description: args.description,
@@ -90,11 +81,11 @@ export async function createTokenRecord(args: {
   return {
     ...response,
     instructions: {
-      step1: "Click the handoff link above",
-      step2: "Connect your wallet",
-      step3: "Approve FET spending (TOKEN_DEPLOYMENT_FEE, read from contract)",
-      step4: "Click Deploy",
-      step5: "Done! Your token will be live in ~30 seconds",
+      step1: 'Click the handoff link above',
+      step2: 'Connect your wallet',
+      step3: 'Approve FET spending (TOKEN_DEPLOYMENT_FEE, read from contract)',
+      step4: 'Click Deploy',
+      step5: 'Done! Your token will be live in ~30 seconds',
     },
   };
 }
@@ -112,54 +103,54 @@ export async function getDeployInstructions(args: {
     throw new Error(`Invalid tokenId: ${args.tokenId}. Must be a positive integer.`);
   }
 
-  const token = await apiGet<TokenDetails>(`/tokens/${args.tokenId}`);
+  const token = await client.get<Token>(`/api/tokens/${args.tokenId}`);
 
   const handoffLink = `${FRONTEND_BASE_URL}/deploy/${args.tokenId}`;
 
-  const instructions: DeployInstructions["instructions"] = {
-    title: "Deploy Your Token",
+  const instructions: DeployInstructions['instructions'] = {
+    title: 'Deploy Your Token',
     requirements: [
-      "Wallet with enough FET to cover TOKEN_DEPLOYMENT_FEE (currently 120 FET, read from contract at deploy time)",
-      "Small amount of network token for gas (gas fees vary by network)",
+      'Wallet with enough FET to cover TOKEN_DEPLOYMENT_FEE (currently 120 FET, read from contract at deploy time)',
+      'Small amount of network token for gas (gas fees vary by network)',
     ],
     steps: [
       {
         number: 1,
-        action: "Click the link below",
-        note: "Opens in your browser",
+        action: 'Click the link below',
+        note: 'Opens in your browser',
       },
       {
         number: 2,
-        action: "Connect your wallet",
-        note: "MetaMask, Rainbow, or WalletConnect",
+        action: 'Connect your wallet',
+        note: 'MetaMask, Rainbow, or WalletConnect',
       },
       {
         number: 3,
         action: "Click 'Approve FET'",
-        note: "This allows the contract to use your FET",
+        note: 'This allows the contract to use your FET',
       },
       {
         number: 4,
         action: "Click 'Deploy Token'",
-        note: "Confirm the transaction in your wallet",
+        note: 'Confirm the transaction in your wallet',
       },
       {
         number: 5,
-        action: "Wait ~30 seconds",
-        note: "Your token will appear on the platform",
+        action: 'Wait ~30 seconds',
+        note: 'Your token will appear on the platform',
       },
     ],
     costs: {
       deploymentFee:
-        "TOKEN_DEPLOYMENT_FEE (currently 120 FET, read from contract at deploy time — may change via multi-sig governance)",
-      gasEstimate: "Gas fees vary by network",
-      total: "TOKEN_DEPLOYMENT_FEE + gas",
+        'TOKEN_DEPLOYMENT_FEE (currently 120 FET, read from contract at deploy time — may change via multi-sig governance)',
+      gasEstimate: 'Gas fees vary by network',
+      total: 'TOKEN_DEPLOYMENT_FEE + gas',
     },
     whatHappensNext: [
-      "Token goes live on bonding curve",
-      "Anyone can buy/sell immediately",
-      "At 30,000 FET raised → auto-lists on DEX",
-      "Liquidity locked forever (no rug pull possible)",
+      'Token goes live on bonding curve',
+      'Anyone can buy/sell immediately',
+      'At 30,000 FET raised → auto-lists on DEX',
+      'Liquidity locked forever (no rug pull possible)',
     ],
   };
 
@@ -168,15 +159,15 @@ export async function getDeployInstructions(args: {
 **Link:** [Click here to deploy](${handoffLink})
 
 ### Requirements
-${instructions.requirements.map((r) => `- ${r}`).join("\n")}
+${instructions.requirements.map((r) => `- ${r}`).join('\n')}
 
 ### Steps
 ${instructions.steps
   .map(
     (s) =>
-      `${s.number}. **${s.action}**${s.note ? ` - ${s.note}` : ""}`,
+      `${s.number}. **${s.action}**${s.note ? ` - ${s.note}` : ''}`,
   )
-  .join("\n")}
+  .join('\n')}
 
 ### Cost
 - Deployment fee: ${instructions.costs.deploymentFee}
@@ -184,7 +175,7 @@ ${instructions.steps
 - **Total: ${instructions.costs.total}**
 
 ### What Happens Next
-${instructions.whatHappensNext.map((w) => `- ${w}`).join("\n")}
+${instructions.whatHappensNext.map((w) => `- ${w}`).join('\n')}
 `;
 
   return { handoffLink, instructions, markdown };
@@ -198,43 +189,43 @@ ${instructions.whatHappensNext.map((w) => `- ${w}`).join("\n")}
  */
 export async function getTradeLink(args: {
   address: string;
-  action: "buy" | "sell";
+  action: 'buy' | 'sell';
   amount?: string;
 }): Promise<TradeLink> {
   const params = new URLSearchParams();
-  params.set("action", args.action);
+  params.set('action', args.action);
   if (args.amount) {
-    params.set("amount", args.amount);
+    params.set('amount', args.amount);
   }
 
   const link = `${FRONTEND_BASE_URL}/trade/${args.address}?${params.toString()}`;
 
   const amountSuffix =
     args.amount
-      ? ` (${args.amount} ${args.action === "buy" ? "FET" : "tokens"})`
-      : "";
+      ? ` (${args.amount} ${args.action === 'buy' ? 'FET' : 'tokens'})`
+      : '';
 
   const steps: string[] =
-    args.action === "buy"
+    args.action === 'buy'
       ? [
-          "Click the link",
-          "Connect wallet if not connected",
+          'Click the link',
+          'Connect wallet if not connected',
           `Confirm the amount${amountSuffix}`,
-          "Click Buy",
-          "Approve transaction in wallet",
+          'Click Buy',
+          'Approve transaction in wallet',
         ]
       : [
-          "Click the link",
-          "Connect wallet if not connected",
+          'Click the link',
+          'Connect wallet if not connected',
           `Confirm the amount${amountSuffix}`,
-          "Click Sell",
-          "Approve transaction in wallet",
+          'Click Sell',
+          'Approve transaction in wallet',
         ];
 
   return {
     link,
     instructions: {
-      action: args.action === "buy" ? "Buy tokens" : "Sell tokens",
+      action: args.action === 'buy' ? 'Buy tokens' : 'Sell tokens',
       steps,
     },
   };

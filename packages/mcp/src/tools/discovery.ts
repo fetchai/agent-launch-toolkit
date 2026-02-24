@@ -1,14 +1,12 @@
-import { apiGet } from "../client.js";
-import type {
-  TokenListResponse,
-  TokenDetails,
-  PlatformStats,
-} from "../types/api.js";
+import { AgentLaunchClient } from 'agentlaunch-sdk';
+import type { TokenListResponse, Token, PlatformStats } from 'agentlaunch-sdk';
+
+const client = new AgentLaunchClient();
 
 /**
  * List tokens on the Agent-Launch platform with optional filtering and pagination.
  *
- * Maps to: GET /agents/tokens
+ * Maps to: GET /api/agents/tokens
  */
 export async function listTokens(args: {
   status?: string;
@@ -18,53 +16,50 @@ export async function listTokens(args: {
   limit?: number;
   offset?: number;
 }): Promise<TokenListResponse> {
-  const params = new URLSearchParams();
+  const params: Record<string, string | number | boolean | undefined> = {};
 
-  if (args.status) params.set("status", args.status);
-  if (args.category) params.set("category", args.category);
-  if (args.chainId) params.set("chainId", String(args.chainId));
-  if (args.sort) params.set("sort", args.sort);
-  if (args.limit !== undefined) params.set("limit", String(args.limit));
-  if (args.offset !== undefined) params.set("offset", String(args.offset));
+  if (args.status) params['status'] = args.status;
+  if (args.category) params['category'] = args.category;
+  if (args.chainId) params['chainId'] = args.chainId;
+  if (args.sort) params['sort'] = args.sort;
+  if (args.limit !== undefined) params['limit'] = args.limit;
+  if (args.offset !== undefined) params['offset'] = args.offset;
 
-  const query = params.toString();
-  return apiGet<TokenListResponse>(
-    `/agents/tokens${query ? `?${query}` : ""}`,
-  );
+  return client.get<TokenListResponse>('/api/agents/tokens', params);
 }
 
 /**
  * Get full details for a single token by contract address or numeric ID.
  *
  * Maps to:
- *   GET /agents/token/:address  (when address is provided)
- *   GET /tokens/:id             (when id is provided)
+ *   GET /api/agents/token/:address  (when address is provided)
+ *   GET /api/tokens/:id             (when id is provided)
  *
  * At least one of address or id must be supplied.
  */
 export async function getToken(args: {
   address?: string;
   id?: number;
-}): Promise<TokenDetails> {
+}): Promise<Token> {
   if (args.address) {
-    return apiGet<TokenDetails>(`/agents/token/${args.address}`);
+    return client.get<Token>(`/api/agents/token/${encodeURIComponent(args.address)}`);
   }
 
   if (args.id !== undefined) {
-    return apiGet<TokenDetails>(`/tokens/${args.id}`);
+    return client.get<Token>(`/api/tokens/${args.id}`);
   }
 
-  throw new Error("Either address or id is required");
+  throw new Error('Either address or id is required');
 }
 
 /**
  * Get platform-wide statistics including total volume, token counts, and
  * trending tokens.
  *
- * Maps to: GET /platform/stats
+ * Maps to: GET /api/platform/stats
  */
 export async function getPlatformStats(): Promise<PlatformStats> {
-  return apiGet<PlatformStats>("/platform/stats");
+  return client.get<PlatformStats>('/api/platform/stats');
 }
 
 /**

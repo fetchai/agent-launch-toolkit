@@ -1,17 +1,7 @@
-import { apiGet, apiPost } from "../client.js";
+import { AgentLaunchClient } from 'agentlaunch-sdk';
+import type { Comment } from 'agentlaunch-sdk';
 
-// ---------------------------------------------------------------------------
-// Response shape
-// ---------------------------------------------------------------------------
-
-export interface Comment {
-  id: number;
-  message: string;
-  createdAt: string;
-  user: {
-    address: string;
-  };
-}
+const client = new AgentLaunchClient();
 
 // ---------------------------------------------------------------------------
 // Tool implementations
@@ -27,30 +17,30 @@ export async function getComments(args: {
   address: string;
 }): Promise<Comment[]> {
   if (!args.address || !args.address.trim()) {
-    throw new Error("address is required");
+    throw new Error('address is required');
   }
 
-  return apiGet<Comment[]>(`/comments/${args.address}`);
+  return client.get<Comment[]>(`/api/comments/${encodeURIComponent(args.address)}`);
 }
 
 /**
  * post_comment
  *
  * Posts a comment on a token identified by its contract address.
- * Requires AGENT_LAUNCH_API_KEY to be set (enforced by apiPost).
+ * Requires AGENT_LAUNCH_API_KEY to be set (enforced by client.post).
  */
 export async function postComment(args: {
   address: string;
   message: string;
 }): Promise<unknown> {
   if (!args.address || !args.address.trim()) {
-    throw new Error("address is required");
+    throw new Error('address is required');
   }
   if (!args.message || !args.message.trim()) {
-    throw new Error("message is required");
+    throw new Error('message is required');
   }
 
-  return apiPost<unknown>(`/comments/${args.address}`, {
+  return client.post<unknown>(`/api/comments/${encodeURIComponent(args.address)}`, {
     message: args.message,
   });
 }

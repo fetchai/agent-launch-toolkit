@@ -32,6 +32,12 @@ export interface GenerateResult {
   readme: string;
   /** A .env.example file listing all required secrets */
   envExample: string;
+  /** CLAUDE.md context file for Claude Code / Cursor */
+  claudeMd: string;
+  /** .claude/settings.json with MCP server config */
+  claudeSettings: string;
+  /** agentlaunch.config.json for CLI auto-detection */
+  agentlaunchConfig: string;
 }
 
 export interface GenerateOptions {
@@ -237,6 +243,212 @@ function buildEnvExample(
 }
 
 // ---------------------------------------------------------------------------
+// CLAUDE.md generator (context engineering)
+// ---------------------------------------------------------------------------
+
+function buildClaudeMd(
+  template: AgentTemplate,
+  vars: Record<string, string>,
+): string {
+  const name = vars["agent_name"] || template.name;
+  const description = vars["description"] || template.description;
+
+  return `# CLAUDE.md
+
+This file provides context to Claude Code and other AI coding assistants.
+
+## Project Overview
+
+**${name}** — ${description}
+
+This is an AgentLaunch agent built on the Fetch.ai Agentverse platform.
+It uses the AgentLaunch SDK and CLI for deployment and tokenization.
+
+## Project Structure
+
+\`\`\`
+${name}/
+  agent.py          # Main agent code (edit business logic here)
+  .env.example      # Required environment variables
+  README.md         # Quickstart guide
+  CLAUDE.md         # This file (AI context)
+  .claude/          # Claude Code settings
+    settings.json   # MCP server config
+  agentlaunch.config.json  # CLI auto-detection config
+\`\`\`
+
+## Platform: AgentLaunch (agent-launch.ai)
+
+AgentLaunch is a token launchpad for AI agents on Fetch.ai. Agents can:
+- Be **tokenized** — get their own ERC-20 token on a bonding curve
+- Offer **token-gated access** — premium tiers for token holders
+- **Graduate** to a DEX at 30,000 FET raised (automatic)
+
+### Platform Constants (immutable, from smart contracts)
+
+| Constant | Value |
+|----------|-------|
+| Graduation target | 30,000 FET |
+| Total buy tokens | 800,000,000 |
+| Trading fee | 2% -> 100% to protocol treasury |
+| Deploy fee | 120 FET (read dynamically from contract) |
+| Creator fee | **NONE** (0%) |
+
+### Key API Endpoints
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| \`/agents/tokens\` | GET | No | List all tokens |
+| \`/agents/token/:address\` | GET | No | Get token details |
+| \`/agents/tokenize\` | POST | API Key | Create token record |
+| \`/tokens/calculate-buy\` | GET | No | Preview buy outcome |
+| \`/tokens/calculate-sell\` | GET | No | Preview sell outcome |
+| \`/comments/:address\` | GET/POST | POST needs key | Token comments |
+| \`/platform/stats\` | GET | No | Platform statistics |
+
+### Authentication
+
+Set \`AGENTLAUNCH_API_KEY\` (or \`AGENTVERSE_API_KEY\`) in your environment.
+The key is sent as \`X-API-Key\` header on authenticated requests.
+Get a key at: https://agentverse.ai/profile/api-keys
+
+## SDK Reference (agentlaunch-sdk)
+
+\`\`\`typescript
+import {
+  // Token operations
+  tokenize,          // POST /agents/tokenize -> { token_id, handoff_link }
+  getToken,          // GET /agents/token/:address -> Token
+  listTokens,        // GET /agents/tokens -> { tokens, total }
+
+  // Market data
+  calculateBuy,      // Preview buy: FET amount -> tokens received
+  calculateSell,     // Preview sell: token amount -> FET received
+  getTokenPrice,     // Current bonding curve price
+  getTokenHolders,   // Holder list for token-gated access
+  getPlatformStats,  // { totalTokens, totalListed, totalBonding }
+
+  // Handoff links (agent never signs transactions)
+  generateDeployLink,  // /deploy/:tokenId
+  generateTradeLink,   // /trade/:address?action=buy&amount=100
+  generateBuyLink,     // Shortcut for buy trade link
+  generateSellLink,    // Shortcut for sell trade link
+
+  // Comments
+  getComments,       // Read token comments
+  postComment,       // Post a comment (needs API key)
+
+  // Agentverse deployment
+  deployAgent,       // Full deploy flow: create -> upload -> secrets -> start -> poll
+
+  // Client class (for advanced use)
+  AgentLaunchClient, // HTTP client with retry, auth, typed methods
+} from 'agentlaunch-sdk';
+\`\`\`
+
+## CLI Reference (agentlaunch-cli)
+
+| Command | Description |
+|---------|-------------|
+| \`agentlaunch create\` | Scaffold + deploy + tokenize (interactive) |
+| \`agentlaunch scaffold <name>\` | Generate agent project from template |
+| \`agentlaunch deploy\` | Deploy agent.py to Agentverse |
+| \`agentlaunch tokenize\` | Create token + get handoff link |
+| \`agentlaunch list\` | List tokens on platform |
+| \`agentlaunch status <addr>\` | Show token details |
+| \`agentlaunch holders <addr>\` | Show token holders |
+| \`agentlaunch comments <addr>\` | List/post comments |
+| \`agentlaunch config set-key\` | Store API key |
+
+All commands support \`--json\` for machine-readable output.
+
+## MCP Tools (agent-launch-mcp)
+
+This project has an MCP server pre-configured in \`.claude/settings.json\`.
+Available tools: list_tokens, get_token, get_platform_stats, calculate_buy,
+calculate_sell, create_token_record, get_deploy_instructions, get_trade_link,
+scaffold_agent, deploy_to_agentverse, create_and_tokenize, get_comments,
+post_comment.
+
+## Agentverse Patterns
+
+### Chat Protocol (required)
+All agents must implement the chat protocol:
+\`\`\`python
+from uagents_core.contrib.protocols.chat import (
+    ChatAcknowledgement, ChatMessage, TextContent, chat_protocol_spec,
+)
+\`\`\`
+
+### Token-Gated Access
+Check holder balance via AgentLaunch API to offer premium tiers:
+\`\`\`python
+r = requests.get(f"{AGENTLAUNCH_API}/agents/token/{user_address}")
+balance = r.json().get("balance", 0)
+tier = "premium" if balance >= 1000 else "free"
+\`\`\`
+
+### Code Upload (double-encoded JSON)
+When uploading code to Agentverse, the \`code\` field must be a JSON string:
+\`\`\`python
+code_array = [{"language": "python", "name": "agent.py", "value": source}]
+payload = {"code": json.dumps(code_array)}  # json.dumps required!
+\`\`\`
+
+## Resources
+
+- [AgentLaunch Platform](${RESOLVED_FRONTEND_URL})
+- [API Docs](${RESOLVED_FRONTEND_URL}/docs/openapi)
+- [skill.md](${RESOLVED_FRONTEND_URL}/skill.md)
+- [Agentverse](https://agentverse.ai)
+- [SDK on npm](https://www.npmjs.com/package/agentlaunch-sdk)
+- [CLI on npm](https://www.npmjs.com/package/agentlaunch-cli)
+- [MCP on npm](https://www.npmjs.com/package/agent-launch-mcp)
+`;
+}
+
+// ---------------------------------------------------------------------------
+// .claude/settings.json generator
+// ---------------------------------------------------------------------------
+
+function buildClaudeSettings(): string {
+  return JSON.stringify(
+    {
+      mcpServers: {
+        "agent-launch": {
+          command: "npx",
+          args: ["agent-launch-mcp"],
+        },
+      },
+    },
+    null,
+    2,
+  ) + "\n";
+}
+
+// ---------------------------------------------------------------------------
+// agentlaunch.config.json generator
+// ---------------------------------------------------------------------------
+
+function buildAgentlaunchConfig(
+  template: AgentTemplate,
+  vars: Record<string, string>,
+): string {
+  const name = vars["agent_name"] || template.name;
+  return JSON.stringify(
+    {
+      name,
+      template: template.name,
+      chain: 97,
+      agentAddress: null,
+      tokenAddress: null,
+    },
+    null,
+    2,
+  ) + "\n";
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
@@ -246,7 +458,8 @@ function buildEnvExample(
  * @param templateName - The template slug (e.g. "price-monitor")
  * @param variables    - Key-value pairs for `{{variable}}` placeholders
  * @param options      - Generation options (strict mode, etc.)
- * @returns An object containing `code`, `readme`, and `envExample` strings
+ * @returns An object containing `code`, `readme`, `envExample`, `claudeMd`,
+ *          `claudeSettings`, and `agentlaunchConfig` strings
  * @throws  If the template is not found, or if `strict` is true and required
  *          variables are missing
  *
@@ -277,6 +490,9 @@ export function generateFromTemplate(
   const code = substitute(template.code, resolved);
   const readme = buildReadme(template, resolved);
   const envExample = buildEnvExample(template, resolved);
+  const claudeMd = buildClaudeMd(template, resolved);
+  const claudeSettings = buildClaudeSettings();
+  const agentlaunchConfig = buildAgentlaunchConfig(template, resolved);
 
-  return { code, readme, envExample };
+  return { code, readme, envExample, claudeMd, claudeSettings, agentlaunchConfig };
 }

@@ -7,17 +7,8 @@
  */
 
 import { Command } from "commander";
-import { apiGet } from "../http.js";
-
-const DEV_FRONTEND_URL = 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
-const PROD_FRONTEND_URL = 'https://agent-launch.ai';
-
-function resolveStatusFrontendUrl(): string {
-  if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
-}
-
-const FRONTEND_BASE_URL = resolveStatusFrontendUrl();
+import { getFrontendUrl } from "agentlaunch-sdk";
+import { getPublicClient } from "../http.js";
 
 interface TokenDetail {
   id?: number;
@@ -56,15 +47,18 @@ export function registerStatusCommand(program: Command): void {
         if (options.json) {
           console.log(JSON.stringify({ error: "Invalid token address" }));
         } else {
-          console.error("Error: Please provide a valid token contract address.");
+          console.error(
+            "Error: Please provide a valid token contract address.",
+          );
         }
         process.exit(1);
       }
 
       let response: TokenDetailResponse | TokenDetail;
       try {
-        response = await apiGet<TokenDetailResponse | TokenDetail>(
-          `/agents/token/${address.trim()}`,
+        const client = getPublicClient();
+        response = await client.get<TokenDetailResponse | TokenDetail>(
+          `/api/agents/token/${address.trim()}`,
         );
       } catch (err) {
         if (options.json) {
@@ -92,12 +86,20 @@ export function registerStatusCommand(program: Command): void {
       const tokenAddress = token.token_address ?? token.address ?? address;
       const price = formatPrice(token.price);
       const marketCap = formatFet(token.marketCap ?? token.market_cap);
-      const holders = token.holders ?? token.holderCount ?? token.holder_count ?? 0;
+      const holders =
+        token.holders ?? token.holderCount ?? token.holder_count ?? 0;
       const progress = formatProgress(token.progress);
       const chainId = token.chainId ?? token.chain_id ?? 97;
-      const chainName = chainId === 56 ? "BSC Mainnet" : chainId === 97 ? "BSC Testnet" : `Chain ${chainId}`;
+      const chainName =
+        chainId === 56
+          ? "BSC Mainnet"
+          : chainId === 97
+            ? "BSC Testnet"
+            : `Chain ${chainId}`;
       const isListed = token.listed === true || token.status === "listed";
-      const graduationStatus = isListed ? "Listed on DEX" : `Bonding curve (${progress} to 30,000 FET target)`;
+      const graduationStatus = isListed
+        ? "Listed on DEX"
+        : `Bonding curve (${progress} to 30,000 FET target)`;
       const createdAt = token.createdAt ?? token.created_at;
 
       console.log(`\n${"=".repeat(50)}`);
@@ -119,7 +121,9 @@ export function registerStatusCommand(program: Command): void {
         console.log(`Created:      ${new Date(createdAt).toUTCString()}`);
       }
       console.log(`${"=".repeat(50)}`);
-      console.log(`\nView on platform: ${FRONTEND_BASE_URL}/trade/${tokenAddress}`);
+      console.log(
+        `\nView on platform: ${getFrontendUrl()}/trade/${tokenAddress}`,
+      );
       console.log(`Trading fee: 2% -> 100% to protocol treasury\n`);
     });
 }

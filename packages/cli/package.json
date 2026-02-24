@@ -1,12 +1,11 @@
 {
   "name": "agentlaunch-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CLI for AgentLaunch — scaffold, deploy, and tokenize AI agents from the command line",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "agentlaunch": "./dist/index.js",
-    "agent-launch": "./dist/index.js"
+    "agentlaunch": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -24,7 +23,9 @@
   "author": "AgentLaunch",
   "license": "MIT",
   "dependencies": {
-    "commander": "^12.0.0"
+    "commander": "^12.0.0",
+    "agentlaunch-sdk": "*",
+    "agentlaunch-templates": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -39,6 +40,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/agent-launch/cli"
+    "url": "https://github.com/tonyoconnell/agent-launch-toolkit"
+  },
+  "homepage": "https://agent-launch.ai",
+  "bugs": {
+    "url": "https://github.com/tonyoconnell/agent-launch-toolkit/issues"
   }
 }

@@ -17,6 +17,33 @@ import { getApiUrl } from './urls.js';
 const DEFAULT_MAX_RETRIES = 3;
 
 /**
+ * Resolve base URL from environment variables or config.
+ * Checks: AGENTLAUNCH_BASE_URL, AGENT_LAUNCH_BASE_URL (legacy)
+ */
+function resolveBaseUrl(configUrl?: string): string {
+  if (configUrl) return configUrl;
+  if (typeof process !== 'undefined') {
+    if (process.env?.AGENTLAUNCH_BASE_URL) return process.env.AGENTLAUNCH_BASE_URL;
+    if (process.env?.AGENT_LAUNCH_BASE_URL) return process.env.AGENT_LAUNCH_BASE_URL;
+  }
+  return getApiUrl();
+}
+
+/**
+ * Resolve API key from environment variables or config.
+ * Priority: config > AGENTLAUNCH_API_KEY > AGENT_LAUNCH_API_KEY > AGENTVERSE_API_KEY
+ */
+function resolveApiKey(configKey?: string): string | undefined {
+  if (configKey) return configKey;
+  if (typeof process !== 'undefined') {
+    if (process.env?.AGENTLAUNCH_API_KEY) return process.env.AGENTLAUNCH_API_KEY;
+    if (process.env?.AGENT_LAUNCH_API_KEY) return process.env.AGENT_LAUNCH_API_KEY;
+    if (process.env?.AGENTVERSE_API_KEY) return process.env.AGENTVERSE_API_KEY;
+  }
+  return undefined;
+}
+
+/**
  * Parses the response body and extracts a human-readable error message
  * from the server's JSON error payload (if present).
  */
@@ -65,8 +92,8 @@ export class AgentLaunchClient {
   private readonly maxRetries: number;
 
   constructor(config: AgentLaunchConfig = {}) {
-    this.baseUrl = (config.baseUrl ?? getApiUrl()).replace(/\/$/, '');
-    this.apiKey = config.apiKey;
+    this.baseUrl = resolveBaseUrl(config.baseUrl).replace(/\/$/, '');
+    this.apiKey = resolveApiKey(config.apiKey);
     this.maxRetries = config.maxRetries ?? DEFAULT_MAX_RETRIES;
   }
 

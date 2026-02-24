@@ -71,6 +71,11 @@ export type {
   CalculateBuyResponse,
   CalculateSellResponse,
   PlatformStats,
+  // Agentverse deployment types
+  AgentverseDeployOptions,
+  AgentverseDeployResult,
+  AgentverseCreateResponse,
+  AgentverseStatusResponse,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -103,5 +108,15 @@ export {
 // SDK-005: Agent operations
 export { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
 
+// Agentverse deployment
+export {
+  createAgent,
+  uploadCode,
+  setSecret,
+  startAgent,
+  getAgentStatus,
+  deployAgent,
+} from './agentverse.js';
+
 // URL resolution
-export { getApiUrl, getFrontendUrl, getEnvironment, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';
+export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';

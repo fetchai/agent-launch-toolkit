@@ -44,5 +44,29 @@ export function getEnvironment(): 'dev' | 'production' {
   return isProd() ? 'production' : 'dev';
 }
 
+// ---------------------------------------------------------------------------
+// Consolidated resolvers for CLI / MCP / Templates
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve API key from all known env var names.
+ * Priority: AGENTLAUNCH_API_KEY > AGENT_LAUNCH_API_KEY > AGENTVERSE_API_KEY
+ */
+export function resolveApiKey(configKey?: string): string | undefined {
+  if (configKey) return configKey;
+  return getEnv('AGENTLAUNCH_API_KEY')
+    ?? getEnv('AGENT_LAUNCH_API_KEY')
+    ?? getEnv('AGENTVERSE_API_KEY');
+}
+
+/**
+ * Resolve the API base URL from all known env var names.
+ * Priority: config > AGENTLAUNCH_BASE_URL > AGENT_LAUNCH_BASE_URL > AGENT_LAUNCH_API_URL > env-based default
+ */
+export function resolveBaseUrl(configUrl?: string): string {
+  if (configUrl) return configUrl.replace(/\/$/, '');
+  return getApiUrl();
+}
+
 // Re-export constants for consumers that need them directly
 export { DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL };

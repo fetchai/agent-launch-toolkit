@@ -10,17 +10,8 @@
  */
 
 import { Command } from "commander";
-import { apiGet } from "../http.js";
-
-const DEV_FRONTEND_URL = 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
-const PROD_FRONTEND_URL = 'https://agent-launch.ai';
-
-function resolveHoldersFrontendUrl(): string {
-  if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
-}
-
-const FRONTEND_BASE_URL = resolveHoldersFrontendUrl();
+import { getFrontendUrl } from "agentlaunch-sdk";
+import { getPublicClient } from "../http.js";
 
 interface Holder {
   address: string;
@@ -41,7 +32,9 @@ export function registerHoldersCommand(program: Command): void {
         if (isJson) {
           console.log(JSON.stringify({ error: "Invalid token address" }));
         } else {
-          console.error("Error: Please provide a valid token contract address.");
+          console.error(
+            "Error: Please provide a valid token contract address.",
+          );
         }
         process.exit(1);
       }
@@ -50,13 +43,15 @@ export function registerHoldersCommand(program: Command): void {
 
       let holders: Holder[];
       try {
-        const response = await apiGet<Holder[] | { data?: Holder[]; holders?: Holder[] }>(
-          `/transactions/holders/${addr}`,
-        );
+        const client = getPublicClient();
+        const response = await client.get<
+          Holder[] | { data?: Holder[]; holders?: Holder[] }
+        >(`/api/transactions/holders/${addr}`);
         if (Array.isArray(response)) {
           holders = response;
         } else {
-          holders = (response as { data?: Holder[]; holders?: Holder[] }).data ??
+          holders =
+            (response as { data?: Holder[]; holders?: Holder[] }).data ??
             (response as { data?: Holder[]; holders?: Holder[] }).holders ??
             [];
         }
@@ -88,15 +83,14 @@ export function registerHoldersCommand(program: Command): void {
       console.log(`\nToken Holders: ${addr}\n`);
       console.log(hr);
       console.log(
-        pad("Address", colAddr) +
-          pad("Balance", colBalance) +
-          "Percentage",
+        pad("Address", colAddr) + pad("Balance", colBalance) + "Percentage",
       );
       console.log(hr);
 
       for (const h of holders) {
         const addrCol = h.address ?? "-";
-        const balanceCol = h.balance !== undefined ? formatNumber(h.balance) : "-";
+        const balanceCol =
+          h.balance !== undefined ? formatNumber(h.balance) : "-";
         const pctCol = `${(h.token_percentage ?? 0).toFixed(2)}%`;
         const creatorTag = h.creator ? " (creator)" : "";
 
@@ -109,14 +103,16 @@ export function registerHoldersCommand(program: Command): void {
 
       console.log(hr);
       console.log(`\n${holders.length} holder(s) total.\n`);
-      console.log(`View on platform: ${FRONTEND_BASE_URL}/trade/${addr}`);
+      console.log(`View on platform: ${getFrontendUrl()}/trade/${addr}`);
     });
 }
 
 // --- helpers ---
 
 function pad(s: string, width: number): string {
-  return s.length >= width ? s.slice(0, width) : s + " ".repeat(width - s.length);
+  return s.length >= width
+    ? s.slice(0, width)
+    : s + " ".repeat(width - s.length);
 }
 
 function formatNumber(n: number): string {

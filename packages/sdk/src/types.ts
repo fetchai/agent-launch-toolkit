@@ -312,3 +312,55 @@ export interface ImportAgentverseResponse {
   agents: AgentverseAgent[];
   count: number;
 }
+
+// ---------------------------------------------------------------------------
+// Agentverse deployment types
+// ---------------------------------------------------------------------------
+
+/** Options for deploying an agent to Agentverse hosting. */
+export interface AgentverseDeployOptions {
+  /** Agentverse API key. Falls back to env vars if omitted. */
+  apiKey?: string;
+  /** Display name for the agent on Agentverse (max 64 chars). */
+  agentName: string;
+  /** Python source code to upload. */
+  sourceCode: string;
+  /** Additional secrets to set on the agent. AGENTVERSE_API_KEY and AGENTLAUNCH_API_KEY are set automatically. */
+  secrets?: Record<string, string>;
+  /** Max number of poll attempts for compilation (default: 12, each 5s apart = 60s). */
+  maxPolls?: number;
+}
+
+/** Result from a successful Agentverse deployment. */
+export interface AgentverseDeployResult {
+  /** The agent's Agentverse address (agent1q...). */
+  agentAddress: string;
+  /** The agent's Fetch wallet address (if available after compilation). */
+  walletAddress?: string;
+  /** Final status: 'starting', 'compiled', or 'running'. */
+  status: 'starting' | 'compiled' | 'running';
+  /** Code digest from upload (if returned). */
+  digest?: string;
+  /** Any errors from setting secrets (non-fatal). */
+  secretErrors?: string[];
+}
+
+/** Response from POST /hosting/agents on Agentverse. */
+export interface AgentverseCreateResponse {
+  address: string;
+  name: string;
+  running?: boolean;
+  compiled?: boolean;
+  wallet_address?: string;
+}
+
+/** Response from GET /hosting/agents/:address on Agentverse. */
+export interface AgentverseStatusResponse {
+  address: string;
+  name: string;
+  running: boolean;
+  compiled: boolean;
+  wallet_address?: string;
+  code_digest?: string;
+  revision?: number;
+}

@@ -7,17 +7,8 @@
  */
 
 import { Command } from "commander";
-import { apiGet } from "../http.js";
-
-const DEV_FRONTEND_URL = 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
-const PROD_FRONTEND_URL = 'https://agent-launch.ai';
-
-function resolveListFrontendUrl(): string {
-  if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
-}
-
-const FRONTEND_BASE_URL = resolveListFrontendUrl();
+import { getFrontendUrl } from "agentlaunch-sdk";
+import { getPublicClient } from "../http.js";
 
 interface TokenItem {
   id?: number;
@@ -62,7 +53,9 @@ export function registerListCommand(program: Command): void {
           console.error("Error: --limit must be a number between 1 and 100");
         } else {
           console.log(
-            JSON.stringify({ error: "--limit must be a number between 1 and 100" }),
+            JSON.stringify({
+              error: "--limit must be a number between 1 and 100",
+            }),
           );
         }
         process.exit(1);
@@ -87,17 +80,18 @@ export function registerListCommand(program: Command): void {
 
       let response: TokensResponse;
       try {
+        const client = getPublicClient();
         const query = new URLSearchParams({
           limit: String(limit),
           sort,
           page: "1",
         });
-        response = await apiGet<TokensResponse>(`/agents/tokens?${query}`);
+        response = await client.get<TokensResponse>(
+          `/api/agents/tokens?${query}`,
+        );
       } catch (err) {
         if (options.json) {
-          console.log(
-            JSON.stringify({ error: (err as Error).message }),
-          );
+          console.log(JSON.stringify({ error: (err as Error).message }));
         } else {
           console.error(`Error: ${(err as Error).message}`);
         }
@@ -109,7 +103,9 @@ export function registerListCommand(program: Command): void {
         response.data ?? response.tokens ?? response.items ?? [];
 
       if (options.json) {
-        console.log(JSON.stringify({ tokens, total: response.total ?? tokens.length }));
+        console.log(
+          JSON.stringify({ tokens, total: response.total ?? tokens.length }),
+        );
         return;
       }
 
@@ -167,7 +163,7 @@ export function registerListCommand(program: Command): void {
       console.log(
         `\nShowing ${tokens.length} token(s). Use --limit to see more.\n`,
       );
-      console.log(`View on platform: ${FRONTEND_BASE_URL}`);
+      console.log(`View on platform: ${getFrontendUrl()}`);
     });
 }
 
