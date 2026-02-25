@@ -69,7 +69,7 @@ export async function createTokenRecord(args: {
   logo?: string;
   chainId?: number;
 }): Promise<CreateTokenResult> {
-  const response = await client.post<CreateTokenResult>('/api/agents/tokenize', {
+  const response = await client.post<CreateTokenResult>('/tokenize', {
     name: args.name,
     symbol: args.symbol,
     description: args.description,
@@ -103,7 +103,7 @@ export async function getDeployInstructions(args: {
     throw new Error(`Invalid tokenId: ${args.tokenId}. Must be a positive integer.`);
   }
 
-  const token = await client.get<Token>(`/api/tokens/${args.tokenId}`);
+  const token = await client.get<Token>(`/tokens/${args.tokenId}`);
 
   const handoffLink = `${FRONTEND_BASE_URL}/deploy/${args.tokenId}`;
 

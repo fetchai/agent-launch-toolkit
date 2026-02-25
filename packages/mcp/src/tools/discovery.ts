@@ -1,4 +1,4 @@
-import { AgentLaunchClient } from 'agentlaunch-sdk';
+import { AgentLaunchClient, listTokens as sdkListTokens, getToken as sdkGetToken } from 'agentlaunch-sdk';
 import type { TokenListResponse, Token, PlatformStats } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient();
@@ -6,7 +6,7 @@ const client = new AgentLaunchClient();
 /**
  * List tokens on the Agent-Launch platform with optional filtering and pagination.
  *
- * Maps to: GET /api/agents/tokens
+ * Maps to: GET /tokens
  */
 export async function listTokens(args: {
   status?: string;
@@ -16,37 +16,25 @@ export async function listTokens(args: {
   limit?: number;
   offset?: number;
 }): Promise<TokenListResponse> {
-  const params: Record<string, string | number | boolean | undefined> = {};
-
-  if (args.status) params['status'] = args.status;
-  if (args.category) params['category'] = args.category;
-  if (args.chainId) params['chainId'] = args.chainId;
-  if (args.sort) params['sort'] = args.sort;
-  if (args.limit !== undefined) params['limit'] = args.limit;
-  if (args.offset !== undefined) params['offset'] = args.offset;
-
-  return client.get<TokenListResponse>('/api/agents/tokens', params);
+  return sdkListTokens(args, client);
 }
 
 /**
- * Get full details for a single token by contract address or numeric ID.
+ * Get full details for a single token by contract address.
  *
- * Maps to:
- *   GET /api/agents/token/:address  (when address is provided)
- *   GET /api/tokens/:id             (when id is provided)
- *
- * At least one of address or id must be supplied.
+ * Maps to: GET /token/:address
  */
 export async function getToken(args: {
   address?: string;
   id?: number;
 }): Promise<Token> {
   if (args.address) {
-    return client.get<Token>(`/api/agents/token/${encodeURIComponent(args.address)}`);
+    return sdkGetToken(args.address, client);
   }
 
   if (args.id !== undefined) {
-    return client.get<Token>(`/api/tokens/${args.id}`);
+    // Fallback to direct API call for ID-based lookup
+    return client.get<Token>(`/tokens/${args.id}`);
   }
 
   throw new Error('Either address or id is required');
@@ -56,10 +44,10 @@ export async function getToken(args: {
  * Get platform-wide statistics including total volume, token counts, and
  * trending tokens.
  *
- * Maps to: GET /api/platform/stats
+ * Maps to: GET /platform/stats
  */
 export async function getPlatformStats(): Promise<PlatformStats> {
-  return client.get<PlatformStats>('/api/platform/stats');
+  return client.get<PlatformStats>('/platform/stats');
 }
 
 /**

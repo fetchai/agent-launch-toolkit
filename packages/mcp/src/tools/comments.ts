@@ -20,7 +20,7 @@ export async function getComments(args: {
     throw new Error('address is required');
   }
 
-  return client.get<Comment[]>(`/api/comments/${encodeURIComponent(args.address)}`);
+  return client.get<Comment[]>(`/comments/${encodeURIComponent(args.address)}`);
 }
 
 /**
@@ -40,7 +40,7 @@ export async function postComment(args: {
     throw new Error('message is required');
   }
 
-  return client.post<unknown>(`/api/comments/${encodeURIComponent(args.address)}`, {
+  return client.post<unknown>(`/comments/${encodeURIComponent(args.address)}`, {
     message: args.message,
   });
 }

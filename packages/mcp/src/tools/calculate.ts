@@ -6,7 +6,7 @@ const client = new AgentLaunchClient();
 /**
  * Calculate how many tokens would be received for a given FET spend amount.
  *
- * Calls GET /api/tokens/calculate-buy?address=...&fetAmount=...
+ * Calls GET /tokens/calculate-buy?address=...&fetAmount=...
  *
  * @param args.address   Token contract address
  * @param args.fetAmount Amount of FET to spend (as a decimal string, e.g. "100")
@@ -15,7 +15,7 @@ export async function calculateBuy(args: {
   address: string;
   fetAmount: string;
 }): Promise<CalculateBuyResponse> {
-  return client.get<CalculateBuyResponse>('/api/tokens/calculate-buy', {
+  return client.get<CalculateBuyResponse>('/tokens/calculate-buy', {
     address: args.address,
     fetAmount: args.fetAmount,
   });
@@ -24,7 +24,7 @@ export async function calculateBuy(args: {
 /**
  * Calculate how much FET would be received for selling a given token amount.
  *
- * Calls GET /api/tokens/calculate-sell?address=...&tokenAmount=...
+ * Calls GET /tokens/calculate-sell?address=...&tokenAmount=...
  *
  * @param args.address     Token contract address
  * @param args.tokenAmount Number of tokens to sell (as a decimal string, e.g. "500")
@@ -33,7 +33,7 @@ export async function calculateSell(args: {
   address: string;
   tokenAmount: string;
 }): Promise<CalculateSellResponse> {
-  return client.get<CalculateSellResponse>('/api/tokens/calculate-sell', {
+  return client.get<CalculateSellResponse>('/tokens/calculate-sell', {
     address: args.address,
     tokenAmount: args.tokenAmount,
   });

@@ -153,7 +153,7 @@ export async function createAndTokenize(args: {
     };
   }
 
-  const raw = await client.post<TokenizeApiResponse>('/api/agents/tokenize', payload);
+  const raw = await client.post<TokenizeApiResponse>('/tokenize', payload);
   const nested = raw.data ?? raw;
 
   const tokenId =
@@ -164,7 +164,7 @@ export async function createAndTokenize(args: {
 
   if (tokenId === undefined || tokenId === null) {
     throw new Error(
-      `Unexpected response from /api/agents/tokenize — no tokenId found: ${JSON.stringify(raw)}`,
+      `Unexpected response from /tokenize — no tokenId found: ${JSON.stringify(raw)}`,
     );
   }
 
