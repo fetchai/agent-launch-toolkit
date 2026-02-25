@@ -173,6 +173,7 @@ export function registerCreateCommand(program: Command): void {
 
         // Interactive prompts (only when not --json)
         let description = options.description?.trim() ?? "";
+        let apiKey = process.env.AGENTVERSE_API_KEY ?? "";
 
         if (!isJson) {
           const rl = readline.createInterface({
@@ -192,20 +193,18 @@ export function registerCreateCommand(program: Command): void {
             description = (await prompt(rl, "Describe what your agent does: ")).trim();
           }
 
+          if (!apiKey) {
+            console.log("\nGet your API key at: https://agentverse.ai/profile/api-keys\n");
+            apiKey = (await prompt(rl, "Agentverse API key: ")).trim();
+          }
+
+          // Set API key in env for SDK calls
+          if (apiKey) {
+            process.env.AGENTVERSE_API_KEY = apiKey;
+          }
+
           // Always use custom template for interactive flow
           template = "custom";
-
-          // Combined launch question (deploy + tokenize)
-          if (!options.deploy && !options.tokenize) {
-            const ans = (
-              await prompt(rl, "Launch code? (y/N): ")
-            )
-              .trim()
-              .toLowerCase();
-            const launch = ans === "y" || ans === "yes";
-            doDeploy = launch;
-            doTokenize = launch;
-          }
 
           rl.close();
         }
@@ -286,6 +285,16 @@ export function registerCreateCommand(program: Command): void {
         fs.writeFileSync(path.join(targetDir, "agent.py"), generated.code, "utf8");
         fs.writeFileSync(path.join(targetDir, "README.md"), generated.readme, "utf8");
         fs.writeFileSync(path.join(targetDir, ".env.example"), generated.envExample, "utf8");
+
+        // Write .env with API key if provided
+        if (apiKey) {
+          const envContent = `# AgentLaunch Environment Variables
+AGENTVERSE_API_KEY=${apiKey}
+AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
+`;
+          fs.writeFileSync(path.join(targetDir, ".env"), envContent, "utf8");
+        }
+
         fs.writeFileSync(path.join(targetDir, "CLAUDE.md"), generated.claudeMd, "utf8");
         fs.writeFileSync(path.join(targetDir, "package.json"), buildPackageJson(name), "utf8");
         fs.writeFileSync(
