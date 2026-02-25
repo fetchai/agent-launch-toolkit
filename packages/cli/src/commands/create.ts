@@ -24,7 +24,7 @@ import readline from "node:readline";
 import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
-import { generateFromTemplate, listTemplates } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, RULES, SKILLS, buildPackageJson } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -277,11 +277,15 @@ export function registerCreateCommand(program: Command): void {
 
         fs.mkdirSync(targetDir, { recursive: true });
         fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
+        fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
+        fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
 
+        // Core files
         fs.writeFileSync(path.join(targetDir, "agent.py"), generated.code, "utf8");
         fs.writeFileSync(path.join(targetDir, "README.md"), generated.readme, "utf8");
         fs.writeFileSync(path.join(targetDir, ".env.example"), generated.envExample, "utf8");
         fs.writeFileSync(path.join(targetDir, "CLAUDE.md"), generated.claudeMd, "utf8");
+        fs.writeFileSync(path.join(targetDir, "package.json"), buildPackageJson(name), "utf8");
         fs.writeFileSync(
           path.join(targetDir, ".claude", "settings.json"),
           generated.claudeSettings,
@@ -293,6 +297,18 @@ export function registerCreateCommand(program: Command): void {
           "utf8",
         );
 
+        // Claude rules (for AI context)
+        for (const [filename, content] of Object.entries(RULES)) {
+          fs.writeFileSync(path.join(targetDir, ".claude", "rules", filename), content, "utf8");
+        }
+
+        // Claude skills (slash commands for AI)
+        for (const [filepath, content] of Object.entries(SKILLS)) {
+          const skillDir = path.dirname(filepath);
+          fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+          fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
+        }
+
         result.scaffoldDir = targetDir;
 
         if (!isJson) {
@@ -300,7 +316,10 @@ export function registerCreateCommand(program: Command): void {
           console.log(`  Created: README.md`);
           console.log(`  Created: .env.example`);
           console.log(`  Created: CLAUDE.md`);
+          console.log(`  Created: package.json`);
           console.log(`  Created: .claude/settings.json`);
+          console.log(`  Created: .claude/rules/ (${Object.keys(RULES).length} files)`);
+          console.log(`  Created: .claude/skills/ (${Object.keys(SKILLS).length} commands)`);
           console.log(`  Created: agentlaunch.config.json`);
         }
 
