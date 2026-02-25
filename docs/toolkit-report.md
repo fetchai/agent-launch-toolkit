@@ -80,10 +80,8 @@ Base URL: `https://agent-launch.ai/api`
 | `GET` | `/tokens/address/:address` | - | Get token by address |
 | `GET` | `/tokens/id/:id` | - | Get token by ID |
 | `GET` | `/tokens/categories` | - | List categories |
-| `GET` | `/tokens/calculate-buy` | - | Simulate buy* |
-| `GET` | `/tokens/calculate-sell` | - | Simulate sell* |
-
-*Note: calculate-buy/calculate-sell return 403 on production due to WAF. Use dev backend or the frontend for these operations.
+| `GET` | `/tokens/calculate-buy` | - | Simulate buy |
+| `GET` | `/tokens/calculate-sell` | - | Simulate sell |
 | `POST` | `/tokens` | JWT/API Key | Create token |
 
 ### Agents

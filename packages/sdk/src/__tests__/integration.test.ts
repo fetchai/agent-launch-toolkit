@@ -8,9 +8,6 @@
  *
  * Run with: npm test
  * Skip integration tests: SKIP_INTEGRATION=1 npm test
- *
- * Note: Uses the dev backend for calculate-buy/calculate-sell since
- * production has WAF restrictions on these endpoints.
  */
 
 import { describe, it, before } from 'node:test';
@@ -24,10 +21,8 @@ import {
   calculateSell,
   getTokenHolders,
 } from '../index.js';
-import { AgentLaunchClient } from '../client.js';
 import { AgentLaunchError } from '../types.js';
 import type { HolderListResponse } from '../types.js';
-import { DEV_API_URL } from '../urls.js';
 
 // ---------------------------------------------------------------------------
 // Test configuration
@@ -42,12 +37,6 @@ const API_KEY = process.env['AGENTVERSE_API_KEY'];
 // Known token address on the platform (BSC testnet)
 // This should be a token that exists and won't be deleted
 let TEST_TOKEN_ADDRESS: string;
-
-// Client for dev backend (calculate endpoints)
-const devClient = new AgentLaunchClient({
-  baseUrl: DEV_API_URL,
-  apiKey: API_KEY,
-});
 
 // ---------------------------------------------------------------------------
 // Skip helper
@@ -191,7 +180,7 @@ describe('Integration: calculateBuy()', { skip: SKIP_INTEGRATION }, () => {
     if (!API_KEY || !TEST_TOKEN_ADDRESS) return;
 
     // Use dev client since prod has WAF issues
-    const result = await calculateBuy(TEST_TOKEN_ADDRESS, '10', devClient);
+    const result = await calculateBuy(TEST_TOKEN_ADDRESS, '10');
 
     assert.ok(result.tokensReceived, 'should return tokensReceived');
     assert.ok(
@@ -207,7 +196,7 @@ describe('Integration: calculateBuy()', { skip: SKIP_INTEGRATION }, () => {
   it('returns correct fee calculation (2% protocol fee)', async () => {
     if (!API_KEY || !TEST_TOKEN_ADDRESS) return;
 
-    const result = await calculateBuy(TEST_TOKEN_ADDRESS, '100', devClient);
+    const result = await calculateBuy(TEST_TOKEN_ADDRESS, '100');
 
     const fee = parseFloat(result.fee);
     const expectedFee = 100 * 0.02; // 2% of 100 FET
@@ -235,7 +224,7 @@ describe('Integration: calculateSell()', { skip: SKIP_INTEGRATION }, () => {
     if (!API_KEY || !TEST_TOKEN_ADDRESS) return;
 
     // Use dev client since prod has WAF issues
-    const result = await calculateSell(TEST_TOKEN_ADDRESS, '10000', devClient);
+    const result = await calculateSell(TEST_TOKEN_ADDRESS, '10000');
 
     assert.ok(result.fetReceived, 'should return fetReceived');
     assert.ok(
