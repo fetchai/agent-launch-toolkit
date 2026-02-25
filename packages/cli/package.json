@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch-cli",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "CLI for AgentLaunch — scaffold, deploy, and tokenize AI agents from the command line",
   "type": "module",
   "main": "dist/index.js",
@@ -25,7 +25,7 @@
   "dependencies": {
     "commander": "^12.0.0",
     "agentlaunch-sdk": "*",
-    "agentlaunch-templates": "^0.2.5"
+    "agentlaunch-templates": "^0.2.6"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

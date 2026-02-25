@@ -311,6 +311,9 @@ export function registerCreateCommand(program: Command): void {
           fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
         }
 
+        // MCP config (project root - recommended location)
+        fs.writeFileSync(path.join(targetDir, ".mcp.json"), generated.claudeSettings, "utf8");
+
         // Cursor IDE config
         fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
         fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");

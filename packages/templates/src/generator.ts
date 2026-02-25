@@ -484,7 +484,10 @@ function buildClaudeSettings(): string {
       mcpServers: {
         "agent-launch": {
           command: "npx",
-          args: ["agent-launch-mcp"],
+          args: ["-y", "agent-launch-mcp"],
+          env: {
+            AGENTVERSE_API_KEY: "${AGENTVERSE_API_KEY}",
+          },
         },
       },
     },
