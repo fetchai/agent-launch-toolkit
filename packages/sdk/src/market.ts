@@ -270,7 +270,7 @@ export async function calculateSell(
 /**
  * Fetch aggregated platform statistics.
  *
- * Returns counts of all tokens on the platform broken down by status.
+ * Returns platform-wide metrics including total tokens, volume, and trending.
  * No authentication required.
  *
  * @example
@@ -279,30 +279,12 @@ export async function calculateSell(
  *
  * const stats = await getPlatformStats();
  * console.log(`Total tokens: ${stats.totalTokens}`);
- * console.log(`Listed: ${stats.totalListed}, Bonding: ${stats.totalBonding}`);
+ * console.log(`Total volume: ${stats.totalVolume}`);
  * ```
  */
 export async function getPlatformStats(
   client?: AgentLaunchClient,
 ): Promise<PlatformStats> {
   const c = client ?? defaultClient();
-  const response = await c.get<TokenListResponse>('/tokens', {
-    limit: 1,
-  });
-
-  const tokens = response.tokens ?? [];
-  const total = response.total ?? 0;
-
-  const listed = tokens.filter((t) => t.listed).length;
-  const bonding = tokens.filter((t) => !t.listed && t.status === 'bonding').length;
-
-  // When only 1 token is fetched we can't derive accurate listed/bonding
-  // counts from the page — the total is the reliable figure.  If the
-  // caller needs per-status breakdowns they should use listTokens() directly.
-  // We compute best-effort counts from all tokens fetched.
-  return {
-    totalTokens: total,
-    totalListed: listed,
-    totalBonding: bonding,
-  };
+  return c.get<PlatformStats>('/platform/stats');
 }

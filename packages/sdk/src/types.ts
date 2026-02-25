@@ -254,14 +254,20 @@ export interface CalculateSellResponse {
   netFetReceived: string;
 }
 
-/** Aggregated platform-level statistics. */
+/** Aggregated platform-level statistics from GET /platform/stats. */
 export interface PlatformStats {
-  /** Total number of token records in the database. */
+  /** Total number of tokens on the platform. */
   totalTokens: number;
-  /** Number of tokens that have graduated to a DEX listing. */
-  totalListed: number;
-  /** Number of tokens still trading on the bonding curve. */
-  totalBonding: number;
+  /** Total trading volume in FET. */
+  totalVolume: string;
+  /** 24-hour trading volume in FET. */
+  volume24h: string;
+  /** Number of tokens listed on DEX. */
+  tokensListed: number;
+  /** Number of active users. */
+  activeUsers: number;
+  /** Trending tokens (top performers). */
+  trending: Token[];
 }
 
 // ---------------------------------------------------------------------------

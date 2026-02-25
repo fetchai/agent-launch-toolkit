@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "TypeScript SDK for the AgentLaunch platform — create AI agent tokens, query market data, and generate handoff links",
   "type": "module",
   "main": "dist/index.js",
