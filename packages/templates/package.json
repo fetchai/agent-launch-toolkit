@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch-templates",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Agent code templates for the AgentLaunch platform",
   "type": "module",
   "main": "dist/index.js",
