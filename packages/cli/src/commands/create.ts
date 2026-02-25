@@ -193,9 +193,12 @@ export function registerCreateCommand(program: Command): void {
             description = (await prompt(rl, "Describe what your agent does: ")).trim();
           }
 
-          if (!apiKey) {
-            console.log("\nGet your API key at: https://agentverse.ai/profile/api-keys\n");
-            apiKey = (await prompt(rl, "Agentverse API key: ")).trim();
+          // Always prompt for API key
+          console.log("\nGet your API key at: https://agentverse.ai/profile/api-keys\n");
+          const existingKey = apiKey ? ` [${apiKey.slice(0, 6)}...${apiKey.slice(-4)}]` : "";
+          const keyInput = (await prompt(rl, `Agentverse API key${existingKey}: `)).trim();
+          if (keyInput) {
+            apiKey = keyInput;
           }
 
           // Set API key in env for SDK calls
