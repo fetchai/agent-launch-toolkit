@@ -24,7 +24,8 @@ import readline from "node:readline";
 import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
-import { generateFromTemplate, listTemplates, RULES, SKILLS, buildPackageJson } from "agentlaunch-templates";
+import { execSync } from "node:child_process";
+import { generateFromTemplate, listTemplates, RULES, SKILLS, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -279,6 +280,7 @@ export function registerCreateCommand(program: Command): void {
         fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
         fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
         fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
+        fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
 
         // Core files
         fs.writeFileSync(path.join(targetDir, "agent.py"), generated.code, "utf8");
@@ -309,6 +311,10 @@ export function registerCreateCommand(program: Command): void {
           fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
         }
 
+        // Cursor IDE config
+        fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
+        fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
+
         result.scaffoldDir = targetDir;
 
         if (!isJson) {
@@ -317,10 +323,22 @@ export function registerCreateCommand(program: Command): void {
           console.log(`  Created: .env.example`);
           console.log(`  Created: CLAUDE.md`);
           console.log(`  Created: package.json`);
-          console.log(`  Created: .claude/settings.json`);
-          console.log(`  Created: .claude/rules/ (${Object.keys(RULES).length} files)`);
-          console.log(`  Created: .claude/skills/ (${Object.keys(SKILLS).length} commands)`);
+          console.log(`  Created: .claude/ (settings, rules, skills)`);
+          console.log(`  Created: .cursor/ (MCP config)`);
+          console.log(`  Created: .cursorrules`);
           console.log(`  Created: agentlaunch.config.json`);
+        }
+
+        // Install dependencies
+        if (!isJson) {
+          console.log(`\nInstalling dependencies...`);
+        }
+        try {
+          execSync("npm install", { cwd: targetDir, stdio: isJson ? "ignore" : "inherit" });
+        } catch {
+          if (!isJson) {
+            console.log(`  Warning: npm install failed. Run it manually.`);
+          }
         }
 
         // Step 2: Deploy (optional)

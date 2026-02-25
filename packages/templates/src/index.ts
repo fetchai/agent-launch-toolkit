@@ -43,5 +43,5 @@ export { listTemplates, getTemplate } from "./registry.js";
 export type { GenerateResult, GenerateOptions } from "./generator.js";
 export { generateFromTemplate } from "./generator.js";
 
-// Re-export Claude context (rules, skills, package.json builder)
-export { RULES, SKILLS, buildPackageJson } from "./claude-context.js";
+// Re-export Claude context (rules, skills, package.json builder, cursor config)
+export { RULES, SKILLS, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "./claude-context.js";

@@ -344,3 +344,46 @@ export function buildPackageJson(name: string): string {
     2
   ) + "\n";
 }
+
+// ---------------------------------------------------------------------------
+// Cursor IDE config
+// ---------------------------------------------------------------------------
+
+export const CURSOR_MCP_CONFIG = JSON.stringify(
+  {
+    mcpServers: {
+      "agent-launch": {
+        command: "npx",
+        args: ["agent-launch-mcp"],
+      },
+    },
+  },
+  null,
+  2
+) + "\n";
+
+export const CURSOR_RULES = `# AgentLaunch Agent Project
+
+This is an AgentLaunch agent project. Use the MCP tools to build, deploy, and tokenize.
+
+## Available MCP Tools
+
+- scaffold_agent: Generate agent code from templates
+- deploy_to_agentverse: Deploy agent.py to Agentverse
+- create_token_record: Create a token for the agent
+- list_tokens: Browse tokens on the platform
+- get_token: Get token details
+- calculate_buy/sell: Preview trades
+
+## Key Commands
+
+- \`npm run deploy\` - Deploy to Agentverse
+- \`npm run tokenize\` - Create token + handoff link
+- \`npm run status\` - Check agent/token status
+
+## Platform Constants
+
+- Deploy fee: 120 FET
+- Graduation: 30,000 FET liquidity
+- Trading fee: 2% to protocol treasury
+`;
