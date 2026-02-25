@@ -53,7 +53,7 @@ function deriveTicker(name: string): string {
  * Full end-to-end combo tool:
  *   1. Scaffold Agentverse agent code from agentlaunch-templates
  *   2. If AGENT_LAUNCH_API_KEY is present, deploy agent to Agentverse
- *   3. Call POST /api/agents/tokenize to create the token record
+ *   3. Call POST /tokenize to create the token record
  *   4. Return agentCode, agentAddress, tokenId, handoffLink, deployLink
  *
  * The human still needs to click the handoffLink to sign the on-chain
@@ -109,7 +109,7 @@ export async function createAndTokenize(args: {
     }
   }
 
-  // Step 3: Call POST /api/agents/tokenize
+  // Step 3: Call POST /tokenize
   if (!apiKey) {
     throw new Error(
       'AGENT_LAUNCH_API_KEY environment variable is required for create_and_tokenize. ' +

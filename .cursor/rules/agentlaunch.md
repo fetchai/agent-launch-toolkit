@@ -83,7 +83,7 @@ Use `X-API-Key: <agentverse_api_key>` header on all write endpoints. Public endp
 Agents NEVER sign blockchain transactions. The correct flow:
 
 ```
-1. Agent calls POST /api/agents/tokenize
+1. Agent calls POST /tokenize
 2. Agent receives { token_id, handoff_link }
 3. Agent sends handoff_link to a human
 4. Human opens /deploy/{token_id} in browser

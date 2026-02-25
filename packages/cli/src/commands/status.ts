@@ -3,7 +3,7 @@
  *
  * agentlaunch status <address> [--json]
  *
- * Fetches a token from GET /api/agents/token/<address> and shows its details.
+ * Fetches a token from GET /token/<address> and shows its details.
  */
 
 import { Command } from "commander";

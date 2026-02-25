@@ -3,7 +3,7 @@
  *
  * agentlaunch tokenize --agent <address> --name <name> --symbol <symbol>
  *
- * Calls POST /api/agents/tokenize, then prints the handoff link so a human
+ * Calls POST /tokenize, then prints the handoff link so a human
  * can connect their wallet and complete on-chain deployment.
  *
  * Platform constants (source of truth: deployed smart contracts):
