@@ -62,7 +62,7 @@ def deploy_agent(api_key: str, agent_name: str = "AgentLaunch Token Creator", ag
     Returns dict with agent address and status.
     """
     headers = {
-        "Authorization": f"bearer {api_key}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 

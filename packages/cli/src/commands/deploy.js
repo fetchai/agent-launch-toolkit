@@ -107,7 +107,7 @@ export function registerDeployCommand(program) {
             await sleep(POLL_INTERVAL_MS);
             try {
                 const response = await fetch(`${AGENTVERSE_API}/hosting/agents/${agentAddress}`, {
-                    headers: { Authorization: `bearer ${apiKey}` },
+                    headers: { Authorization: `Bearer ${apiKey}` },
                 });
                 if (response.ok) {
                     const status = (await response.json());

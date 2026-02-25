@@ -349,6 +349,45 @@ See [docs/architecture.md](docs/architecture.md) for package dependency diagrams
 
 ---
 
+## Examples
+
+### Example Agents (Python)
+
+Ready-to-deploy agents in `examples/agents/`:
+
+| Agent | File | Description |
+|-------|------|-------------|
+| Token Launcher | `launcher-agent.py` | Creates tokens via chat commands |
+| Price Monitor | `price-monitor-agent.py` | Watches prices, sends alerts on thresholds |
+| Trading Bot | `trading-agent.py` | Smart alerts and signal monitoring |
+| Data Analyzer | `data-agent.py` | On-chain data analysis |
+| Research Agent | `research-agent.py` | Deep dives and knowledge retrieval |
+| FET Gifter | `gifter-agent.py` | Treasury wallet with reward distribution |
+
+### Example Scripts
+
+| Script | Description |
+|--------|-------------|
+| `examples/scripts/deploy-to-agentverse.py` | Deploy any agent to Agentverse |
+| `examples/scripts/launch-headless.py` | Headless token launch workflow |
+
+### SDK Examples
+
+| Example | Description |
+|---------|-------------|
+| `examples/sdk/create-and-tokenize/` | Full scaffold → deploy → tokenize flow |
+| `examples/sdk/monitor-and-trade/` | Price monitoring and trade link generation |
+
+### Quick Deploy
+
+```bash
+# Deploy any example agent
+source .env
+python3 examples/scripts/deploy-to-agentverse.py "My Agent" examples/agents/price-monitor-agent.py
+```
+
+---
+
 ## Development
 
 ```bash
@@ -356,6 +395,7 @@ npm install        # Install all workspace dependencies
 npm run build      # Build all 4 packages
 npm run test       # Run all tests (78 tests across SDK + CLI)
 npm run clean      # Clean all dist/ directories
+npm run deploy     # Deploy an agent (wraps Python script)
 ```
 
 ---

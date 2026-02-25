@@ -11,10 +11,10 @@ https://agentverse.ai/v1
 ## Auth Header
 
 ```
-Authorization: bearer <AGENTVERSE_API_KEY>
+Authorization: Bearer <AGENTVERSE_API_KEY>
 ```
 
-Note: lowercase "bearer", followed by space, then the raw API key.
+Note: Capital "Bearer", followed by space, then the raw API key.
 
 ## CRITICAL: Code Upload Format
 

@@ -39,7 +39,7 @@ export async function agentverseRequest<T>(
     method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `bearer ${agentverseApiKey}`,
+      Authorization: `Bearer ${agentverseApiKey}`,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });

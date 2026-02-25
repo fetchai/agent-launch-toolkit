@@ -61,7 +61,7 @@ def list_agents():
     print("Fetching agents from Agentverse...")
     r = requests.get(
         f"{AGENTVERSE_API}/hosting/agents",
-        headers={"Authorization": f"bearer {API_KEY}"},
+        headers={"Authorization": f"Bearer {API_KEY}"},
         timeout=10
     )
     if not r.ok:

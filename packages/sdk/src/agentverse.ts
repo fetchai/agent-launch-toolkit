@@ -34,7 +34,7 @@ async function avFetch<T>(
   const response = await fetch(url, {
     method,
     headers: {
-      Authorization: `bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,

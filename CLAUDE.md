@@ -215,7 +215,7 @@ GET   /platform/stats                     Platform statistics
 
 ```
 Base URL: https://agentverse.ai/v1
-Auth: Authorization: bearer <AGENTVERSE_API_KEY>
+Auth: Authorization: Bearer <AGENTVERSE_API_KEY>
 
 POST  /hosting/agents                     Create agent
 GET   /hosting/agents                     List agents -> { items: [...] }

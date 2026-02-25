@@ -141,7 +141,7 @@ def list_agents(api_key: str) -> dict:
     try:
         res = requests.get(
             f"{AGENTVERSE_API}/hosting/agents",
-            headers={"Authorization": f"bearer {api_key}"},
+            headers={"Authorization": f"Bearer {api_key}"},
             timeout=10,
         )
         if res.status_code == 200:

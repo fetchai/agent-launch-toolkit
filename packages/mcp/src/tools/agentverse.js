@@ -7,7 +7,7 @@ async function avGet(apiKey, path) {
     const url = `${AGENTVERSE_API}${path}`;
     const response = await fetch(url, {
         headers: {
-            Authorization: `bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
         },
     });
@@ -29,7 +29,7 @@ async function avPost(apiKey, path, body, method = "POST") {
     const response = await fetch(url, {
         method,
         headers: {
-            Authorization: `bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
