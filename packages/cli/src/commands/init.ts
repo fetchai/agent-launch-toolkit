@@ -276,13 +276,13 @@ function getEnvExample(): string {
 AGENTVERSE_API_KEY=
 
 # ─── Environment ───────────────────────────────────────────
-# "dev" (default) → dev Cloud Run URLs
-# "production"    → agent-launch.ai
-AGENT_LAUNCH_ENV=dev
+# "production" (default) → agent-launch.ai
+# "dev"                  → dev Cloud Run URLs
+AGENT_LAUNCH_ENV=production
 
 # ─── URL Overrides (optional) ─────────────────────────────
-# AGENT_LAUNCH_API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app
-# AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+# AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
+# AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai
 
 # ─── Chain ID ─────────────────────────────────────────────
 # 97 = BSC Testnet (default), 56 = BSC Mainnet
@@ -562,6 +562,6 @@ AgentLaunch (agent-launch.ai) — AI agent token launchpad on Fetch.ai
 Use X-API-Key header with Agentverse API key. No wallet needed.
 
 ## Environment
-Set AGENT_LAUNCH_ENV=production for prod URLs, default is dev.
+Production URLs are default. Set AGENT_LAUNCH_ENV=dev for dev URLs.
 `;
 }

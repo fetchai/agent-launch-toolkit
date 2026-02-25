@@ -112,14 +112,14 @@ export async function getTokenHolders(
 
   if (holderAddress) {
     const envelope = await c.get<SingleHolderEnvelope>(
-      `/api/agents/token/${encodeURIComponent(address)}/holders`,
+      `/token/${encodeURIComponent(address)}/holders`,
       params,
     );
     return envelope.data;
   }
 
   const envelope = await c.get<HolderListEnvelope>(
-    `/api/agents/token/${encodeURIComponent(address)}/holders`,
+    `/token/${encodeURIComponent(address)}/holders`,
     params,
   );
   return envelope.data;
@@ -219,7 +219,7 @@ export async function calculateBuy(
   client?: AgentLaunchClient,
 ): Promise<CalculateBuyResponse> {
   const c = client ?? defaultClient();
-  return c.get<CalculateBuyResponse>('/api/tokens/calculate-buy', {
+  return c.get<CalculateBuyResponse>('/tokens/calculate-buy', {
     address,
     amount: fetAmount,
   });
@@ -257,7 +257,7 @@ export async function calculateSell(
   client?: AgentLaunchClient,
 ): Promise<CalculateSellResponse> {
   const c = client ?? defaultClient();
-  return c.get<CalculateSellResponse>('/api/tokens/calculate-sell', {
+  return c.get<CalculateSellResponse>('/tokens/calculate-sell', {
     address,
     amount: tokenAmount,
   });
@@ -286,7 +286,7 @@ export async function getPlatformStats(
   client?: AgentLaunchClient,
 ): Promise<PlatformStats> {
   const c = client ?? defaultClient();
-  const response = await c.get<TokenListResponse>('/api/agents/tokens', {
+  const response = await c.get<TokenListResponse>('/tokens', {
     limit: 1,
   });
 

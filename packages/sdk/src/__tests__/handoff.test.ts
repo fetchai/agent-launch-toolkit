@@ -8,7 +8,7 @@
  *   - generateTradeLink produces the correct URL with no options
  *   - generateTradeLink appends action and amount query params
  *   - generateBuyLink / generateSellLink convenience wrappers
- *   - resolveBaseUrl falls back to dev Cloud Run frontend URL
+ *   - resolveBaseUrl falls back to production frontend URL
  */
 
 import { describe, it } from 'node:test';
@@ -20,9 +20,9 @@ import {
   generateBuyLink,
   generateSellLink,
 } from '../handoff.js';
-import { DEV_FRONTEND_URL } from '../urls.js';
+import { PROD_FRONTEND_URL } from '../urls.js';
 
-const DEFAULT_BASE = DEV_FRONTEND_URL;
+const DEFAULT_BASE = PROD_FRONTEND_URL;
 const CUSTOM_BASE = 'https://fetch.ants-at-work.com';
 const TOKEN_ADDRESS = '0xAbCd1234567890AbCd1234567890AbCd12345678';
 

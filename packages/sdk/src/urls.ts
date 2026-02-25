@@ -17,31 +17,31 @@ function getEnv(key: string): string | undefined {
   return undefined;
 }
 
-function isProd(): boolean {
-  return getEnv('AGENT_LAUNCH_ENV') === 'production';
+function isDev(): boolean {
+  return getEnv('AGENT_LAUNCH_ENV') === 'dev';
 }
 
 /**
  * Resolve the API base URL.
- * Priority: AGENT_LAUNCH_API_URL → AGENT_LAUNCH_ENV-based → dev default
+ * Priority: AGENT_LAUNCH_API_URL → AGENT_LAUNCH_ENV-based → production default
  */
 export function getApiUrl(): string {
-  return (getEnv('AGENT_LAUNCH_API_URL') ?? (isProd() ? PROD_API_URL : DEV_API_URL)).replace(/\/$/, '');
+  return (getEnv('AGENT_LAUNCH_API_URL') ?? (isDev() ? DEV_API_URL : PROD_API_URL)).replace(/\/$/, '');
 }
 
 /**
  * Resolve the frontend base URL (for handoff links).
- * Priority: AGENT_LAUNCH_FRONTEND_URL → AGENT_LAUNCH_ENV-based → dev default
+ * Priority: AGENT_LAUNCH_FRONTEND_URL → AGENT_LAUNCH_ENV-based → production default
  */
 export function getFrontendUrl(): string {
-  return (getEnv('AGENT_LAUNCH_FRONTEND_URL') ?? (isProd() ? PROD_FRONTEND_URL : DEV_FRONTEND_URL)).replace(/\/$/, '');
+  return (getEnv('AGENT_LAUNCH_FRONTEND_URL') ?? (isDev() ? DEV_FRONTEND_URL : PROD_FRONTEND_URL)).replace(/\/$/, '');
 }
 
 /**
  * Get the current environment name.
  */
 export function getEnvironment(): 'dev' | 'production' {
-  return isProd() ? 'production' : 'dev';
+  return isDev() ? 'dev' : 'production';
 }
 
 // ---------------------------------------------------------------------------

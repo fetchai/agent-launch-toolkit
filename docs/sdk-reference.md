@@ -27,7 +27,7 @@ import { AgentLaunchClient } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient({
   apiKey: 'av-xxxxxxxxxxxxxxxx',
-  baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured via .env; dev default: https://launchpad-backend-dev-1056182620041.us-central1.run.app
+  baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured via .env; production default: https://agent-launch.ai/api
 });
 ```
 
@@ -51,8 +51,8 @@ interface AgentLaunchConfig {
   apiKey?: string;
   /**
    * Base URL for the platform API. Configured via AGENT_LAUNCH_API_URL in .env.
-   * Dev default: "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
-   * Production: "https://agent-launch.ai/api"
+   * Production default: "https://agent-launch.ai/api"
+   * Dev: "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
    */
   baseUrl?: string;
 }
@@ -65,7 +65,7 @@ interface AgentLaunchConfig {
 Perform a typed GET request. Attaches `X-API-Key` if configured (public endpoints accept it for higher rate limits).
 
 ```ts
-const result = await client.get<TokenListResponse>('/api/agents/tokens', {
+const result = await client.get<TokenListResponse>('/api/tokens', {
   limit: 10,
   sortBy: 'market_cap',
 });
@@ -76,7 +76,7 @@ const result = await client.get<TokenListResponse>('/api/agents/tokens', {
 Perform a typed POST request. Always requires `apiKey` to be set; throws `AgentLaunchError` (status 0) if no key is configured.
 
 ```ts
-const result = await client.post<TokenizeEnvelope>('/api/agents/tokenize', {
+const result = await client.post<TokenizeEnvelope>('/api/tokenize', {
   agentAddress: 'agent1q...',
   name: 'My Agent',
 });
@@ -105,7 +105,7 @@ const { data } = await tokenize({
 });
 
 console.log(data.token_id);      // 42
-console.log(data.handoff_link);  // https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42 (dev default, configured via AGENT_LAUNCH_FRONTEND_URL)
+console.log(data.handoff_link);  // https://agent-launch.ai/deploy/42 (production default, configured via AGENT_LAUNCH_FRONTEND_URL)
 console.log(data.status);        // "pending_deployment"
 ```
 
@@ -294,8 +294,8 @@ The human opens this URL, connects their wallet, and signs:
 import { generateDeployLink } from 'agentlaunch-sdk';
 
 const link = generateDeployLink(42);
+// Prod: "https://agent-launch.ai/deploy/42" (default)
 // Dev:  "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42"
-// Prod: "https://agent-launch.ai/deploy/42"
 // (URL determined by AGENT_LAUNCH_FRONTEND_URL in .env)
 
 // Custom base URL (override for staging / self-hosted)

@@ -15,10 +15,10 @@ Common errors, revert reasons, and recovery strategies for agent-launch.ai integ
 
 **Example**:
 ```python
-API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app")
+API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api")
 
 response = requests.post(
-    f"{API_URL}/agents/tokenize",
+    f"{API_URL}/tokenize",
     headers={
         "X-API-Key": "YOUR_AGENTVERSE_API_KEY",
         "Content-Type": "application/json"
@@ -251,7 +251,7 @@ When something goes wrong:
 ## Support Channels
 
 If errors persist:
-- Platform (prod): https://agent-launch.ai
+- Platform (prod, default): https://agent-launch.ai
 - Platform (dev): https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 - Docs: https://agent-launch.ai/docs/for-agents
 - API Spec: https://agent-launch.ai/docs/openapi

@@ -2,14 +2,14 @@
 
 Machine-readable integration guide for AI agents, Codex, and other automated systems working with the AgentLaunch platform.
 
-**Platform (production):** https://agent-launch.ai
+**Platform (production, default):** https://agent-launch.ai
 **Platform (dev):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 
 URLs are configured via `.env`:
-- `AGENT_LAUNCH_API_URL` — API base (default: dev URL)
-- `AGENT_LAUNCH_FRONTEND_URL` — Frontend/handoff links (default: dev URL)
+- `AGENT_LAUNCH_API_URL` — API base (default: production URL)
+- `AGENT_LAUNCH_FRONTEND_URL` — Frontend/handoff links (default: production URL)
 
-**API base (production):** https://agent-launch.ai/api
+**API base (production, default):** https://agent-launch.ai/api
 **API base (dev):** https://launchpad-backend-dev-1056182620041.us-central1.run.app
 **OpenAPI spec:** https://agent-launch.ai/docs/openapi
 **Capability spec:** https://agent-launch.ai/skill.md
@@ -23,7 +23,7 @@ Agents do NOT sign blockchain transactions. The correct workflow:
 ```
 AGENT                           PLATFORM                     HUMAN
   |                                 |                           |
-  |-- POST /api/agents/tokenize --> |                           |
+  |-- POST /api/tokenize ---------> |                           |
   |<- { token_id, handoff_link } -- |                           |
   |                                 |                           |
   |-- send handoff_link to human -->|-------------------------> |
@@ -53,11 +53,11 @@ Public (read) endpoints work without auth. Write endpoints require the header.
 ### Create Token Record (Write — requires auth)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+POST ${AGENT_LAUNCH_API_URL}/tokenize
 Headers: X-API-Key: av-xxxxxxxxxxxxxxxx
          Content-Type: application/json
-# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
-# Prod URL: https://agent-launch.ai/api/agents/tokenize
+# Prod URL: https://agent-launch.ai/api/tokenize (default)
+# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/tokenize
 
 Body:
 {
@@ -74,7 +74,7 @@ Response 201:
   "success": true,
   "data": {
     "token_id": 42,
-    "handoff_link": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+    "handoff_link": "https://agent-launch.ai/deploy/42",
     "name": "My Agent Token",
     "symbol": "MAT",
     "description": "...",
@@ -87,8 +87,8 @@ Response 201:
 ### List Tokens (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/tokens?limit=20&sortBy=market_cap&sortOrder=DESC
-# Dev: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokens?...
+GET ${AGENT_LAUNCH_API_URL}/tokens?limit=20&sortBy=market_cap&sortOrder=DESC
+# Prod: https://agent-launch.ai/api/tokens?...
 
 Response 200:
 {
@@ -116,7 +116,7 @@ Query parameters: `page`, `limit`, `search`, `categoryId`, `chainId`, `sortBy`, 
 ### Get Token by Address (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/token/0xAbCd...
+GET ${AGENT_LAUNCH_API_URL}/token/0xAbCd...
 
 Response 200: Token object (same shape as list item above)
 ```
@@ -124,7 +124,7 @@ Response 200: Token object (same shape as list item above)
 ### Get My Agents (Read — requires auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/my-agents
+GET ${AGENT_LAUNCH_API_URL}/my-agents
 Headers: X-API-Key: av-xxx
 
 Response 200:
@@ -142,7 +142,7 @@ Response 200:
 ### Authenticate (exchange API key for JWT)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/agents/auth
+POST ${AGENT_LAUNCH_API_URL}/auth
 Content-Type: application/json
 
 Body: { "api_key": "av-xxxxxxxxxxxxxxxx" }
@@ -183,8 +183,8 @@ Buy link:     ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount={fe
 Sell link:    ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount={tokenAmount}
 ```
 > URLs use `AGENT_LAUNCH_FRONTEND_URL` from `.env`.
-> Dev default: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
-> Production: `https://agent-launch.ai`
+> Production default: `https://agent-launch.ai`
+> Dev: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
 
 - `amount` for buy = FET to spend
 - `amount` for sell = token units to sell

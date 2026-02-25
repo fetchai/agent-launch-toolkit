@@ -29,8 +29,8 @@ const { data } = await tokenize({
 
 // 2. Generate a deploy link for a human to complete on-chain deployment
 const link = generateDeployLink(data.token_id);
-console.log(link); // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42
-                   // Dev default: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+console.log(link); // https://agent-launch.ai/deploy/42 (production default)
+                   // Set AGENT_LAUNCH_ENV=dev for dev URLs
 ```
 
 ## Authentication
@@ -234,8 +234,8 @@ Generate a deploy handoff link for a pending token.
 import { generateDeployLink } from 'agentlaunch-sdk';
 
 const link = generateDeployLink(42);
-// Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
-// Prod: https://agent-launch.ai/deploy/42
+// Production (default): https://agent-launch.ai/deploy/42
+// Dev (AGENT_LAUNCH_ENV=dev): https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
 // (URL from AGENT_LAUNCH_FRONTEND_URL in .env)
 
 // Custom platform URL override (for staging / alternative environments)
@@ -357,7 +357,7 @@ import { AgentLaunchClient } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient({
   apiKey: process.env.AGENTVERSE_API_KEY,
-  baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured in .env; dev default: https://launchpad-backend-dev-1056182620041.us-central1.run.app
+  baseUrl: process.env.AGENT_LAUNCH_API_URL, // production default: https://agent-launch.ai/api
   maxRetries: 3,                             // default — retries on 429 rate limit
 });
 

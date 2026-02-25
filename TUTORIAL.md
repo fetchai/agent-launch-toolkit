@@ -6,15 +6,15 @@
 
 ## Live URLs
 
-The toolkit defaults to the **dev environment**. All links and API calls use these URLs:
+The toolkit defaults to the **production environment**. All links and API calls use these URLs:
 
 | Service | URL |
 |---------|-----|
-| **Frontend** | https://launchpad-frontend-dev-1056182620041.us-central1.run.app |
-| **Backend API** | https://launchpad-backend-dev-1056182620041.us-central1.run.app |
+| **Frontend** | https://agent-launch.ai |
+| **Backend API** | https://agent-launch.ai/api |
 | **Agentverse** | https://agentverse.ai |
 
-Production URLs (`agent-launch.ai`) will be used when `AGENT_LAUNCH_ENV=production` is set.
+Dev URLs (Cloud Run) will be used when `AGENT_LAUNCH_ENV=dev` is set.
 
 ---
 
@@ -41,9 +41,9 @@ Open `.env` and paste your Agentverse API key:
 ```
 AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# Default environment is dev — these URLs are used automatically:
-# Frontend: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
-# Backend:  https://launchpad-backend-dev-1056182620041.us-central1.run.app
+# Default environment is production — these URLs are used automatically:
+# Frontend: https://agent-launch.ai
+# Backend:  https://agent-launch.ai/api
 ```
 
 ---
@@ -148,7 +148,7 @@ npx agentlaunch tokenize agent1q... --name "FET Tracker" --ticker FTRK --chain 9
 
 Claude calls `create_token_record` and returns:
 - **Token ID**: 42
-- **Handoff link**: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42`
+- **Handoff link**: `https://agent-launch.ai/deploy/42`
 
 ---
 
@@ -197,7 +197,7 @@ Generate pre-filled buy/sell links for your community:
 Generate a buy link for 100 FET of my FET Tracker token
 ```
 
-Returns: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0x...?action=buy&amount=100`
+Returns: `https://agent-launch.ai/trade/0x...?action=buy&amount=100`
 
 ---
 
@@ -275,16 +275,16 @@ const holders = await al.market.getHolders('0x...');
 
 ```bash
 # Create token record
-curl -X POST https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize \
+curl -X POST https://agent-launch.ai/api/tokenize \
   -H "Content-Type: application/json" \
   -H "X-API-Key: av-xxx" \
   -d '{"name":"My Agent","symbol":"MAGNT","description":"...","chainId":97}'
 
 # List tokens
-curl https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokens
+curl https://agent-launch.ai/api/tokens
 
 # Get token details
-curl https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/token/0x...
+curl https://agent-launch.ai/api/token/0x...
 ```
 
 ---
@@ -369,5 +369,5 @@ All tools are auto-loaded when you open Claude Code in this repo.
 - Read the [CLI Reference](docs/cli-reference.md) for all commands and flags
 - Read the [MCP Tools Reference](docs/mcp-tools.md) for all tool schemas
 - Browse the [Architecture](docs/architecture.md) for package dependency diagrams
-- Visit the [dev platform](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) to see live tokens
-- Production: [agent-launch.ai](https://agent-launch.ai) (when DNS is ready)
+- Visit the [platform](https://agent-launch.ai) to see live tokens
+- Dev: [Cloud Run](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) (for testing)

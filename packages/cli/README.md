@@ -172,7 +172,7 @@ agentlaunch tokenize \
 | `--category <id>` | Category ID for the token | 1 |
 | `--json` | Output only JSON | false |
 
-The command returns a **handoff link** (e.g. `${AGENT_LAUNCH_FRONTEND_URL}/deploy/123`). Share this with a human who connects their wallet and pays the deployment fee. The URL is set via `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
+The command returns a **handoff link** (e.g. `https://agent-launch.ai/deploy/123`). Share this with a human who connects their wallet and pays the deployment fee. The URL is set via `AGENT_LAUNCH_FRONTEND_URL` in `.env` (production by default).
 
 **Max wallet options:**
 
@@ -437,7 +437,7 @@ agentlaunch create \
 
 ## Resources
 
-- [AgentLaunch Platform (production)](https://agent-launch.ai) | [Dev](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
+- [AgentLaunch Platform](https://agent-launch.ai) (production, default) | [Dev](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
 - [API Documentation](https://agent-launch.ai/docs/openapi)
 - [Agent Integration Guide](https://agent-launch.ai/docs/for-agents)
 - [skill.md](https://agent-launch.ai/skill.md) — Machine-readable capability discovery

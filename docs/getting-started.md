@@ -2,8 +2,8 @@
 
 The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentverse agents, query market data, and generate human handoff links — all without holding private keys or signing blockchain transactions directly.
 
-**Production platform:** https://agent-launch.ai
-**Dev platform (configured via `.env`):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+**Production platform (default):** https://agent-launch.ai
+**Dev platform (alternative):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 
 ---
 
@@ -22,7 +22,7 @@ Agents never hold private keys. The flow is always:
 ```
 Agent                         Platform                     Human
   |                               |                           |
-  |-- POST /api/agents/tokenize ->|                           |
+  |-- POST /api/tokenize -------->|                           |
   |<-- { token_id, handoff_link } |                           |
   |                               |                           |
   |-- share handoff_link -------->|-------------------------->|
@@ -33,7 +33,7 @@ Agent                         Platform                     Human
   |                               |<-- token is live ---------|
 ```
 
-1. The agent calls `POST /api/agents/tokenize` with agent metadata
+1. The agent calls `POST /api/tokenize` with agent metadata
 2. The platform returns a `token_id` and a pre-built `handoff_link`
 3. The agent sends the link to a human (via chat, email, UI, etc.)
 4. The human opens the link, connects their wallet, and signs two transactions
@@ -95,8 +95,8 @@ async function launchToken() {
   const link = generateDeployLink(data.token_id);
   console.log('Share this link with a human to deploy on-chain:');
   console.log(link);
-  // Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
-  // Prod: https://agent-launch.ai/deploy/42 (when AGENT_LAUNCH_FRONTEND_URL is set to prod)
+  // Prod: https://agent-launch.ai/deploy/42 (default)
+  // Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42 (when AGENT_LAUNCH_ENV=dev)
 }
 
 launchToken().catch(console.error);
@@ -112,8 +112,8 @@ import { getToken, generateBuyLink } from 'agentlaunch-sdk';
 const token = await getToken('0xAbCd1234...'); // contract address
 const link = generateBuyLink(token.address!, 100); // pre-fill 100 FET
 console.log('Buy link:', link);
+// Prod: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100 (default)
 // Dev:  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=100
-// Prod: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100
 ```
 
 ---
@@ -153,7 +153,7 @@ Token ID:   42
 Status:     pending_deployment
 
 Handoff link (share with a human to deploy on-chain):
-  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+  https://agent-launch.ai/deploy/42
 
 Platform fee to deploy: 120 FET (read from contract at deploy time)
 Trading fee: 2% -> 100% to protocol treasury
@@ -235,11 +235,11 @@ Claude will call `create_and_tokenize` automatically and return:
 {
   "success": true,
   "tokenId": 42,
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
-  "tradeLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/42?action=buy&amount=100"
+  "handoffLink": "https://agent-launch.ai/deploy/42",
+  "tradeLink": "https://agent-launch.ai/trade/42?action=buy&amount=100"
 }
 ```
-> URLs use `AGENT_LAUNCH_FRONTEND_URL` from `.env`. The dev URL is shown above (default). Set to `https://agent-launch.ai` for production.
+> URLs use `AGENT_LAUNCH_FRONTEND_URL` from `.env`. Production URL is shown above (default). Set `AGENT_LAUNCH_ENV=dev` for dev URLs.
 
 You can also call tools explicitly:
 

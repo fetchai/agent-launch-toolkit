@@ -64,13 +64,13 @@ Add to `~/.cursor/mcp.json`:
 
 ### Environment Variables
 
-| Variable | Default (dev) | Description |
+| Variable | Default (production) | Description |
 |----------|---------------|-------------|
 | `AGENT_LAUNCH_API_KEY` | — | Agentverse API key — used as `X-API-Key` on write endpoints |
-| `AGENT_LAUNCH_BASE_URL` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | API base URL. Set to `https://agent-launch.ai/api` for production. |
-| `AGENT_LAUNCH_FRONTEND_URL` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` | Frontend base for handoff links. Set to `https://agent-launch.ai` for production. |
+| `AGENT_LAUNCH_BASE_URL` | `https://agent-launch.ai/api` | API base URL. Set to dev URL for testing. |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | Frontend base for handoff links. Set to dev URL for testing. |
 
-URLs are configured in `.env`. The `.env.example` ships with dev URLs active. When production DNS is ready, update `.env` to switch.
+URLs are configured in `.env`. The `.env.example` ships with production URLs active. Set `AGENT_LAUNCH_ENV=dev` to use dev URLs.
 
 ---
 
@@ -92,7 +92,7 @@ URLs are configured in `.env`. The `.env.example` ships with dev URLs active. Wh
 
 List tokens on the platform with optional filtering and pagination.
 
-Maps to `GET /agents/tokens`.
+Maps to `GET /tokens`.
 
 **Input schema:**
 
@@ -142,7 +142,7 @@ Show me the top 5 trending tokens on AgentLaunch
 
 Get full details for a single token by contract address or numeric ID.
 
-Maps to `GET /agents/token/:address` or `GET /tokens/:id`.
+Maps to `GET /token/:address` or `GET /tokens/:id`.
 
 **Input schema:**
 
@@ -277,7 +277,7 @@ Create a pending token record. Returns a handoff link for the human to complete 
 
 **Requires:** `AGENT_LAUNCH_API_KEY` environment variable.
 
-Maps to `POST /agents/launch`.
+Maps to `POST /tokenize`.
 
 **Input schema:**
 
@@ -297,7 +297,7 @@ Maps to `POST /agents/launch`.
 ```json
 {
   "tokenId": 42,
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+  "handoffLink": "https://agent-launch.ai/deploy/42",
   "name": "Alpha Research Bot",
   "symbol": "ARB",
   "status": "pending_deployment",
@@ -360,7 +360,7 @@ Fetch a token by ID and return structured + markdown deployment instructions for
 
 ```json
 {
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+  "handoffLink": "https://agent-launch.ai/deploy/42",
   "instructions": {
     "title": "Deploy Your Token",
     "requirements": [
@@ -415,7 +415,7 @@ Generate a pre-filled trade URL for a human to open and execute a buy or sell.
 
 ```json
 {
-  "link": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=100",
+  "link": "https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100",
   "instructions": {
     "action": "Buy tokens",
     "steps": [
@@ -613,7 +613,7 @@ List available agent templates with descriptions and use-case guidance.
 
 ### `create_and_tokenize`
 
-End-to-end shortcut: create a token record tied to a live Agentverse agent address. Calls `POST /api/agents/tokenize` and returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link.
+End-to-end shortcut: create a token record tied to a live Agentverse agent address. Calls `POST /api/tokenize` and returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link.
 
 **Requires:** `apiKey` in input (or `AGENT_LAUNCH_API_KEY` env var).
 
@@ -637,8 +637,8 @@ End-to-end shortcut: create a token record tied to a live Agentverse agent addre
 {
   "success": true,
   "tokenId": 42,
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
-  "tradeLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/42?action=buy&amount=100"
+  "handoffLink": "https://agent-launch.ai/deploy/42",
+  "tradeLink": "https://agent-launch.ai/trade/42?action=buy&amount=100"
 }
 ```
 
@@ -661,7 +661,7 @@ All tools return errors as MCP error responses with a descriptive message:
   "content": [
     {
       "type": "text",
-      "text": "Error executing tool \"create_and_tokenize\": POST ${AGENT_LAUNCH_BASE_URL}/agents/tokenize failed with status 401: Invalid API key"
+      "text": "Error executing tool \"create_and_tokenize\": POST ${AGENT_LAUNCH_BASE_URL}/tokenize failed with status 401: Invalid API key"
     }
   ]
 }

@@ -24,18 +24,18 @@ const PROD_FRONTEND_URL = 'https://agent-launch.ai';
 
 function resolveDefaultUrl(): string {
   if (process.env.AGENT_LAUNCH_API_URL) return process.env.AGENT_LAUNCH_API_URL.replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_API_URL : DEV_API_URL;
+  return process.env.AGENT_LAUNCH_ENV === 'dev' ? DEV_API_URL : PROD_API_URL;
 }
 
 /** Resolve the frontend URL from env or defaults. */
 export function resolveFrontendUrl(): string {
   if (process.env.AGENT_LAUNCH_FRONTEND_URL) return process.env.AGENT_LAUNCH_FRONTEND_URL.replace(/\/$/, '');
-  return process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_FRONTEND_URL : DEV_FRONTEND_URL;
+  return process.env.AGENT_LAUNCH_ENV === 'dev' ? DEV_FRONTEND_URL : PROD_FRONTEND_URL;
 }
 
 /** Get the current environment name. */
 export function getEnvironment(): string {
-  return process.env.AGENT_LAUNCH_ENV || 'dev';
+  return process.env.AGENT_LAUNCH_ENV === 'dev' ? 'dev' : 'production';
 }
 
 /** Default API base URL. Override with `agentlaunch config set-url`. */

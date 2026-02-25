@@ -47,12 +47,12 @@ TOKEN_ADDRESS=0xAbCd1234... npm start
 TOKEN_ADDRESS=0xAbCd1234... WALLET_ADDRESS=0xYourWallet... npm start
 ```
 
-### Option E: Override API URL (production or custom backend)
+### Option E: Override API URL (dev or custom backend)
 
 ```bash
-# Point at production backend
-AGENT_LAUNCH_API_URL=https://agent-launch.ai/api \
-  AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai \
+# Point at dev backend
+AGENT_LAUNCH_API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app \
+  AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-central1.run.app \
   npm start
 
 # Point at a local backend
@@ -62,14 +62,14 @@ AGENT_LAUNCH_API_URL=http://localhost:3000 \
 ```
 
 Environment variables:
-- `AGENT_LAUNCH_API_URL` — Backend API base URL (default: dev Cloud Run backend)
-- `AGENT_LAUNCH_FRONTEND_URL` — Frontend base URL used for trade links (default: dev Cloud Run frontend)
+- `AGENT_LAUNCH_API_URL` — Backend API base URL (default: https://agent-launch.ai/api)
+- `AGENT_LAUNCH_FRONTEND_URL` — Frontend base URL used for trade links (default: https://agent-launch.ai)
 
 ## Expected Output
 
 ```
 AgentLaunch — Monitor and Trade Example
-Platform: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+Platform: https://agent-launch.ai
 
 ───────────────────────────────────────────────────────
 Step 1: Top Tokens by Market Cap
@@ -121,18 +121,18 @@ Wallet 0x0000000001... holds 0 tokens.
 Step 6: Trade Links for Humans
 ───────────────────────────────────────────────────────
 Trade page (no pre-fill):
-  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...
+  https://agent-launch.ai/trade/0xAbCd1234...
 
 Buy links (pre-filled FET amounts):
-    10 FET: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=10
-    50 FET: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=50
-   100 FET: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=100
-   500 FET: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=buy&amount=500
+    10 FET: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=10
+    50 FET: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=50
+   100 FET: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=100
+   500 FET: https://agent-launch.ai/trade/0xAbCd1234...?action=buy&amount=500
 
 Sell links (pre-filled token amounts):
-     1,000 tokens: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=sell&amount=1000
-    10,000 tokens: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=sell&amount=10000
-   100,000 tokens: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xAbCd1234...?action=sell&amount=100000
+     1,000 tokens: https://agent-launch.ai/trade/0xAbCd1234...?action=sell&amount=1000
+    10,000 tokens: https://agent-launch.ai/trade/0xAbCd1234...?action=sell&amount=10000
+   100,000 tokens: https://agent-launch.ai/trade/0xAbCd1234...?action=sell&amount=100000
 ```
 
 ## Token-Gated Access Pattern
@@ -157,6 +157,6 @@ async function hasAccess(tokenAddress: string, userWallet: string): Promise<bool
 
 ## Resources
 
-- [AgentLaunch Dev Platform](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
+- [AgentLaunch Platform](https://agent-launch.ai)
 - [SDK Reference](../../docs/toolkit/sdk-reference.md)
 - [Getting Started Guide](../../docs/toolkit/getting-started.md)

@@ -68,7 +68,7 @@ function section(title: string): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const platformUrl = process.env['AGENT_LAUNCH_FRONTEND_URL'] ?? 'https://launchpad-frontend-dev-1056182620041.us-central1.run.app';
+  const platformUrl = process.env['AGENT_LAUNCH_FRONTEND_URL'] ?? 'https://agent-launch.ai';
   console.log('AgentLaunch — Create and Tokenize Example');
   console.log(`Platform: ${platformUrl}`);
 

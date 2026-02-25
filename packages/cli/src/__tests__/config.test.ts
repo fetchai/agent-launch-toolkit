@@ -56,10 +56,10 @@ describe('maskKey()', () => {
 // ---------------------------------------------------------------------------
 
 describe('DEFAULT_BASE_URL', () => {
-  it('points to the dev Cloud Run API endpoint by default', () => {
+  it('points to the production API endpoint by default', () => {
     assert.equal(
       DEFAULT_BASE_URL,
-      'https://launchpad-backend-dev-1056182620041.us-central1.run.app',
+      'https://agent-launch.ai/api',
     );
   });
 });

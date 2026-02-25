@@ -14,7 +14,7 @@ export interface AgentLaunchConfig {
   apiKey?: string;
   /**
    * Base URL for the AgentLaunch platform.
-   * @default Resolved from AGENT_LAUNCH_ENV (dev Cloud Run URLs by default)
+   * @default Resolved from AGENT_LAUNCH_ENV (production URLs by default)
    */
   baseUrl?: string;
   /**

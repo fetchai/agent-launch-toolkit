@@ -38,15 +38,9 @@ import requests
 
 # Config
 API_KEY = os.getenv("AGENTVERSE_API_KEY")
-_API_BASE = os.environ.get(
-    "AGENT_LAUNCH_API_URL",
-    "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
-)
-_FRONTEND_BASE = os.environ.get(
-    "AGENT_LAUNCH_FRONTEND_URL",
-    "https://launchpad-frontend-dev-1056182620041.us-central1.run.app",
-)
-LAUNCH_API = f"{_API_BASE}/api/agents"
+API_URL = os.environ.get("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api")
+FRONTEND_URL = os.environ.get("AGENT_LAUNCH_FRONTEND_URL", "https://agent-launch.ai")
+LAUNCH_API = f"{API_URL}/agents"
 AGENTVERSE_API = "https://agentverse.ai/v1"
 
 # On-chain config (optional)
@@ -114,7 +108,7 @@ def create_token(name, ticker, description="", logo="", chain_id=97):
     print(f"  Symbol: {token.get('symbol') or token.get('ticker')}")
     print(f"  ID:     {token_id}")
     print(f"\nHandoff link (send to human to deploy):")
-    print(f"  {_FRONTEND_BASE}/deploy/{token_id}")
+    print(f"  {FRONTEND_URL}/deploy/{token_id}")
 
     return token
 
@@ -219,7 +213,7 @@ def deploy_onchain(token, buy_amount=0):
 
     if receipt.status == 1:
         print(f"  Deployed: {receipt.transactionHash.hex()}")
-        print(f"\nToken is live! View at: {_FRONTEND_BASE}")
+        print(f"\nToken is live! View at: {FRONTEND_URL}")
     else:
         print("  Deploy failed!")
         sys.exit(1)

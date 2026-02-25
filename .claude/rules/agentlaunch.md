@@ -21,26 +21,24 @@ When working with AgentLaunch tokens and the platform API:
 
 ## API Base URLs
 
-- Dev (default): `https://launchpad-backend-dev-1056182620041.us-central1.run.app`
-- Production: `https://agent-launch.ai/api`
-- Controlled by `AGENT_LAUNCH_ENV` in `.env` (dev|production)
+- Production (default): `https://agent-launch.ai/api`
+- Dev: `https://launchpad-backend-dev-1056182620041.us-central1.run.app`
+- Set `AGENT_LAUNCH_ENV=dev` to use dev URLs
 - Direct override: set `AGENT_LAUNCH_API_URL`
 
 ## Handoff Protocol
 
 - Agents NEVER hold private keys
 - All on-chain actions go through handoff links
-- Deploy link: `${AGENT_LAUNCH_FRONTEND_URL}/deploy/{tokenId}`
-- Trade link: `${AGENT_LAUNCH_FRONTEND_URL}/trade/{tokenAddress}?action=buy&amount=100`
-- Dev frontend default: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
-- Production frontend: `https://agent-launch.ai`
+- Deploy link: `https://agent-launch.ai/deploy/{tokenId}`
+- Trade link: `https://agent-launch.ai/trade/{tokenAddress}?action=buy&amount=100`
 
 ## Key Endpoints
 
 ```
-POST  /agents/tokenize                    Create token -> handoff link
-GET   /agents/tokens                      List tokens
-GET   /agents/token/{address}             Token details
+POST  /tokenize                           Create token -> handoff link
+GET   /tokens                             List tokens
+GET   /token/{address}                    Token details
 GET   /tokens/calculate-buy               Preview buy
 GET   /tokens/calculate-sell              Preview sell
 GET   /platform/stats                     Platform stats
@@ -55,7 +53,7 @@ This applies to ALL files: code, docs, comments, marketing copy.
 
 ## Token Lifecycle
 
-1. Agent calls POST /agents/tokenize with name, symbol, description, chainId
+1. Agent calls POST /tokenize with name, symbol, description, chainId
 2. API returns token record with handoff link
 3. Human visits link, connects wallet, signs transaction (pays 120 FET)
 4. Token deploys on-chain with bonding curve

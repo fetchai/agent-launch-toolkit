@@ -3,7 +3,7 @@
 > **Turn your AI agent into a tradeable token in 60 seconds.**
 
 This MCP server connects Claude Code (and any MCP-compatible client) to [Agent-Launch](https://agent-launch.ai) — the launchpad for AI agent tokens on Fetch.ai. Create tokens, check prices, scaffold agents, and generate deployment links without leaving your terminal.
-API and frontend URLs are configured via `.env` (`AGENT_LAUNCH_BASE_URL`, `AGENT_LAUNCH_FRONTEND_URL`). The dev URLs are active by default.
+API and frontend URLs are configured via `.env` (`AGENT_LAUNCH_BASE_URL`, `AGENT_LAUNCH_FRONTEND_URL`). Production URLs are active by default.
 
 **Version:** 2.0.0 | **npm:** [agent-launch-mcp](https://www.npmjs.com/package/agent-launch-mcp)
 
@@ -261,7 +261,7 @@ Returns:
 ```json
 {
   "tokenId": 42,
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42",
+  "handoffLink": "https://agent-launch.ai/deploy/42",
   "expiresAt": "2026-02-23T00:00:00Z"
 }
 ```
@@ -290,8 +290,8 @@ Returns:
 {
   "success": true,
   "tokenId": 99,
-  "handoffLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/99",
-  "tradeLink": "https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xabc...?action=buy&amount=100"
+  "handoffLink": "https://agent-launch.ai/deploy/99",
+  "tradeLink": "https://agent-launch.ai/trade/0xabc...?action=buy&amount=100"
 }
 ```
 
@@ -299,13 +299,13 @@ Returns:
 
 ## Environment Variables
 
-| Variable | Required | Default (dev) | Description |
-|----------|----------|---------------|-------------|
+| Variable | Required | Default (production) | Description |
+|----------|----------|----------------------|-------------|
 | `AGENT_LAUNCH_API_KEY` | For write ops | — | Agentverse API key from [agentverse.ai/profile/api-keys](https://agentverse.ai/profile/api-keys) |
-| `AGENT_LAUNCH_BASE_URL` | No | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | Backend API endpoint. Set to `https://agent-launch.ai/api` for production. |
-| `AGENT_LAUNCH_FRONTEND_URL` | No | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` | Frontend base for handoff links. Set to `https://agent-launch.ai` for production. |
+| `AGENT_LAUNCH_BASE_URL` | No | `https://agent-launch.ai/api` | Backend API endpoint. Set to dev URL for testing. |
+| `AGENT_LAUNCH_FRONTEND_URL` | No | `https://agent-launch.ai` | Frontend base for handoff links. Set to dev URL for testing. |
 
-URLs are set in `.env`. The `.env.example` ships with dev URLs active. To switch to production, update both variables.
+URLs are set in `.env`. Production URLs are the default. To switch to dev, set `AGENT_LAUNCH_ENV=dev` or override the URL variables directly.
 
 ---
 
@@ -380,7 +380,7 @@ Wait 30-60 seconds. The blockchain indexer needs time to pick up the new contrac
 
 ## Links
 
-- **Platform (production):** [agent-launch.ai](https://agent-launch.ai) | **Dev:** [launchpad-frontend-dev-1056182620041.us-central1.run.app](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
+- **Platform:** [agent-launch.ai](https://agent-launch.ai) (production, default) | **Dev:** [launchpad-frontend-dev-1056182620041.us-central1.run.app](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
 - **Agent docs:** [agent-launch.ai/docs/for-agents](https://agent-launch.ai/docs/for-agents)
 - **OpenAPI spec:** [agent-launch.ai/docs/openapi](https://agent-launch.ai/docs/openapi)
 - **Skill manifest:** [agent-launch.ai/skill.md](https://agent-launch.ai/skill.md)

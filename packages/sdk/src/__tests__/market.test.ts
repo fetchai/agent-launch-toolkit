@@ -20,7 +20,7 @@ import {
   getTokenPrice,
 } from '../market.js';
 import type { Token } from '../types.js';
-import { DEV_FRONTEND_URL } from '../urls.js';
+import { PROD_FRONTEND_URL } from '../urls.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -47,7 +47,7 @@ function installFetchMock(
 }
 
 const TOKEN_ADDRESS = '0xAbCd1234567890AbCd1234567890AbCd12345678';
-const DEFAULT_BASE = DEV_FRONTEND_URL;
+const DEFAULT_BASE = PROD_FRONTEND_URL;
 
 const mockToken: Token = {
   id: 1,

@@ -1,7 +1,7 @@
 # Agent-Human Handoff Protocol
 
 How AI agents bring humans into the loop for wallet-dependent actions on the AgentLaunch platform.
-Platform URL is configured via `AGENT_LAUNCH_FRONTEND_URL` in `.env` (dev default: https://launchpad-frontend-dev-1056182620041.us-central1.run.app).
+Platform URL is configured via `AGENT_LAUNCH_FRONTEND_URL` in `.env` (production default: https://agent-launch.ai).
 
 ## The Core Insight
 
@@ -19,7 +19,7 @@ The human does the signing. Both benefit from the token economy.
 │                                                         │
 │  Agent discovers opportunity                            │
 │  Agent fetches metadata (Agentverse API)                │
-│  Agent creates token record (POST /api/agents/tokenize)  │
+│  Agent creates token record (POST /api/tokenize)         │
 │  Agent generates handoff link                           │
 │  Agent sends link to human (chat, email, DM, SMS)       │
 │                                                         │
@@ -62,7 +62,7 @@ An AI agent wants its own token. It creates the record, then recruits its owner 
 Agent: "I've created a token record for myself on the AgentLaunch platform.
         Name: WeatherBot, Ticker: WTR, Token ID: 42.
         I need a human to deploy it on-chain.
-        Click here to deploy: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+        Click here to deploy: https://agent-launch.ai/deploy/42
         (URL configured via AGENT_LAUNCH_FRONTEND_URL in .env)
         You'll need 120 FET + gas on BSC chain."
 ```
@@ -76,7 +76,7 @@ Agent: "I found agent1q... (DataAnalyzer) on Agentverse.
         It has 50K messages processed, growing 30% weekly.
         I've created a token: DataCoin (DC), Token ID: 87.
         Deploy it first and you'll be the creator + first holder.
-        Deploy here: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/87"
+        Deploy here: https://agent-launch.ai/deploy/87"
 ```
 
 ### Scenario 3: Agent Manages Portfolio
@@ -87,8 +87,8 @@ After tokens are live, the agent monitors the market and sends trade signals to 
 Agent: "WTR is up 40% in 24h on high volume.
         The bonding curve is at 67% (20,100/30,000 FET).
         Approaching Uniswap graduation.
-        
-        Buy 50 FET worth: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/trade/0xABC...?action=buy&amount=50
+
+        Buy 50 FET worth: https://agent-launch.ai/trade/0xABC...?action=buy&amount=50
         Or wait — I'll alert you at 80%."
 ```
 
@@ -102,7 +102,7 @@ ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}
   &utm_source=agent              — tracking: came from an agent
   &utm_agent={agent_address}     — tracking: which agent
 ```
-> `AGENT_LAUNCH_FRONTEND_URL` is set in `.env`. Dev default: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
+> `AGENT_LAUNCH_FRONTEND_URL` is set in `.env`. Production default: `https://agent-launch.ai`
 
 When a human visits this link:
 1. Token metadata is displayed (name, ticker, description, image)
@@ -135,8 +135,8 @@ import requests
 class AgentLauncher:
     """Agent-side client for creating tokens and generating handoff links."""
 
-    BASE = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://launchpad-frontend-dev-1056182620041.us-central1.run.app")
-    API = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app") + "/agents"
+    BASE = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://agent-launch.ai")
+    API = os.getenv("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api")
 
     def __init__(self, api_key: str, agent_address: str = ""):
         self.api_key = api_key
@@ -326,7 +326,7 @@ How does the agent reach the human with the handoff link?
 
 | Channel | How | Example |
 |---------|-----|---------|
-| ASI:One Chat | Agent responds with link in ChatMessage | "Click to deploy: ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42" |
+| ASI:One Chat | Agent responds with link in ChatMessage | "Click to deploy: https://agent-launch.ai/deploy/42" |
 | Telegram Bot | Agent sends message via Telegram API | Deep link in Telegram message |
 | Email | Agent composes email via SMTP/SendGrid | HTML email with CTA button |
 | SMS | Agent sends via Twilio/Vonage | Short link to deploy page |
@@ -382,7 +382,7 @@ AGENT NATIVE: skill.md → API Call → Handoff Link → Sign → Done
 ## Implementation Priority
 
 ### Phase 1: Deploy Handoff (NOW)
-- [ ] `/deploy/{token_id}` page on the platform (`${AGENT_LAUNCH_FRONTEND_URL}`)
+- [ ] `/deploy/{token_id}` page on the platform (https://agent-launch.ai)
 - [ ] Pre-filled token metadata display
 - [ ] Connect wallet → approve → deploy flow
 - [ ] `?ref=` parameter tracking

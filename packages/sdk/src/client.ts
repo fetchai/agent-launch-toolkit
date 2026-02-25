@@ -173,7 +173,7 @@ export class AgentLaunchClient {
   /**
    * Perform a typed GET request.
    *
-   * @param path   API path, e.g. `/api/agents/tokens`
+   * @param path   API path, e.g. `/tokens`
    * @param params Optional query-string parameters (undefined values omitted)
    */
   async get<T>(
@@ -219,7 +219,7 @@ export class AgentLaunchClient {
   /**
    * Perform a typed POST request.  Always requires authentication.
    *
-   * @param path API path, e.g. `/api/agents/tokenize`
+   * @param path API path, e.g. `/tokenize`
    * @param body Request body (serialised to JSON)
    */
   async post<T>(path: string, body: unknown): Promise<T> {

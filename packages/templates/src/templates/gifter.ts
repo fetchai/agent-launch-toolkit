@@ -13,11 +13,11 @@
 
 import type { AgentTemplate } from "../registry.js";
 
-// Environment-based URL resolution
-const DEV_API_URL = 'https://launchpad-backend-dev-1056182620041.us-central1.run.app';
+// Environment-based URL resolution (production is default, set AGENT_LAUNCH_ENV=dev for dev)
 const PROD_API_URL = 'https://agent-launch.ai/api';
+const DEV_API_URL = 'https://launchpad-backend-dev-1056182620041.us-central1.run.app';
 const RESOLVED_API_URL = process.env.AGENT_LAUNCH_API_URL ??
-  (process.env.AGENT_LAUNCH_ENV === 'production' ? PROD_API_URL : DEV_API_URL);
+  (process.env.AGENT_LAUNCH_ENV === 'dev' ? DEV_API_URL : PROD_API_URL);
 
 export const template: AgentTemplate = {
   name: "gifter",

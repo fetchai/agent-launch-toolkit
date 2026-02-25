@@ -69,18 +69,18 @@ const sellLink = al.handoff.generateSellLink('0x...', 500);
 
 ### For Any Language (Headless API)
 ```bash
-API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app
+API_URL=https://agent-launch.ai/api
 
-curl -X POST $API_URL/agents/tokenize \
+curl -X POST $API_URL/tokenize \
   -H "Content-Type: application/json" \
   -H "X-API-Key: av-xxx" \
   -d '{"name":"MyBot","symbol":"MBOT","chainId":97}'
 
 # List tokens
-curl $API_URL/agents/tokens
+curl $API_URL/tokens
 
 # Token details
-curl $API_URL/agents/token/0x...
+curl $API_URL/token/0x...
 ```
 
 ---
@@ -266,28 +266,28 @@ Copy `.env.example` to `.env`:
 ```bash
 AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# Environment: dev (default) or production
-AGENT_LAUNCH_ENV=dev
+# Environment: production (default) or dev
+AGENT_LAUNCH_ENV=production
 ```
 
 ### Live URLs
 
 | Environment | Frontend | Backend API |
 |-------------|----------|-------------|
-| **Dev (default)** | https://launchpad-frontend-dev-1056182620041.us-central1.run.app | https://launchpad-backend-dev-1056182620041.us-central1.run.app |
-| **Production** | https://agent-launch.ai | https://agent-launch.ai/api |
+| **Production (default)** | https://agent-launch.ai | https://agent-launch.ai/api |
+| **Dev** | https://launchpad-frontend-dev-1056182620041.us-central1.run.app | https://launchpad-backend-dev-1056182620041.us-central1.run.app |
 
-The toolkit defaults to **dev URLs** — no configuration needed. To switch to production, set `AGENT_LAUNCH_ENV=production` in your `.env`. You can also override URLs directly:
+The toolkit defaults to **production URLs** — no configuration needed. To switch to dev, set `AGENT_LAUNCH_ENV=dev` in your `.env`. You can also override URLs directly:
 
 ```bash
-AGENT_LAUNCH_API_URL=https://launchpad-backend-dev-1056182620041.us-central1.run.app
-AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
+AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai
 ```
 
 **URL resolution priority:**
 1. `AGENT_LAUNCH_API_URL` / `AGENT_LAUNCH_FRONTEND_URL` (direct override)
-2. `AGENT_LAUNCH_ENV=production` (uses agent-launch.ai)
-3. Default: dev Cloud Run URLs (shown above)
+2. `AGENT_LAUNCH_ENV=dev` (uses Cloud Run URLs)
+3. Default: production URLs (agent-launch.ai)
 
 ---
 
@@ -301,8 +301,8 @@ AGENT_LAUNCH_FRONTEND_URL=https://launchpad-frontend-dev-1056182620041.us-centra
 | Token Supply | 800,000,000 per token |
 | Default Chain | BSC (Testnet: 97, Mainnet: 56) |
 | Auth | X-API-Key header with Agentverse API key |
-| Dev Frontend | https://launchpad-frontend-dev-1056182620041.us-central1.run.app |
-| Dev Backend | https://launchpad-backend-dev-1056182620041.us-central1.run.app |
+| Production Frontend | https://agent-launch.ai |
+| Production Backend | https://agent-launch.ai/api |
 
 The 2% trading fee goes 100% to the protocol treasury (REVENUE_ACCOUNT). There is no creator fee split.
 
@@ -402,9 +402,9 @@ npm run deploy     # Deploy an agent (wraps Python script)
 
 ## Links
 
-- [AgentLaunch Platform (dev)](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) | [Production](https://agent-launch.ai)
-- [API (dev)](https://launchpad-backend-dev-1056182620041.us-central1.run.app) | [Production](https://agent-launch.ai/api)
-- [API Docs (dev)](https://launchpad-frontend-dev-1056182620041.us-central1.run.app/docs/for-agents)
+- [AgentLaunch Platform](https://agent-launch.ai) | [Dev](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
+- [API](https://agent-launch.ai/api) | [Dev](https://launchpad-backend-dev-1056182620041.us-central1.run.app)
+- [API Docs](https://agent-launch.ai/docs/for-agents)
 - [Agentverse](https://agentverse.ai)
 - [Get an API Key](https://agentverse.ai/profile/api-keys)
 

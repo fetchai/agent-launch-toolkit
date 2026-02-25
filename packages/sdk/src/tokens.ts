@@ -64,7 +64,7 @@ export async function tokenize(
   client?: AgentLaunchClient,
 ): Promise<TokenizeEnvelope> {
   const c = client ?? defaultClient();
-  return c.post<TokenizeEnvelope>('/api/agents/tokenize', params);
+  return c.post<TokenizeEnvelope>('/tokenize', params);
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ export async function getToken(
   client?: AgentLaunchClient,
 ): Promise<Token> {
   const c = client ?? defaultClient();
-  return c.get<Token>(`/api/agents/token/${encodeURIComponent(address)}`);
+  return c.get<Token>(`/token/${encodeURIComponent(address)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -112,5 +112,5 @@ export async function listTokens(
   client?: AgentLaunchClient,
 ): Promise<TokenListResponse> {
   const c = client ?? defaultClient();
-  return c.get<TokenListResponse>('/api/agents/tokens', params as Record<string, string | number | boolean | undefined>);
+  return c.get<TokenListResponse>('/tokens', params as Record<string, string | number | boolean | undefined>);
 }

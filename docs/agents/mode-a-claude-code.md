@@ -21,9 +21,13 @@ Before building, fetch the canonical specs (production):
 - Agent docs: `https://agent-launch.ai/docs/for-agents`
 - Platform: `https://agent-launch.ai`
 
-Dev environment URLs (configured via `.env`):
-- API: `https://launchpad-backend-dev-1056182620041.us-central1.run.app` (`AGENT_LAUNCH_API_URL`)
-- Frontend: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` (`AGENT_LAUNCH_FRONTEND_URL`)
+Production URLs (default, configured via `.env`):
+- API: `https://agent-launch.ai/api` (`AGENT_LAUNCH_API_URL`)
+- Frontend: `https://agent-launch.ai` (`AGENT_LAUNCH_FRONTEND_URL`)
+
+Dev environment URLs (alternative):
+- API: `https://launchpad-backend-dev-1056182620041.us-central1.run.app`
+- Frontend: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
 
 ## Phase Order
 

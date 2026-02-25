@@ -46,16 +46,7 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 # CONFIG
 # ==============================================================================
 
-_legacy_api = os.environ.get("AGENTLAUNCH_API")
-if _legacy_api:
-    # Legacy env var already includes /api path
-    AGENTLAUNCH_API = _legacy_api.rstrip("/")
-else:
-    _base = os.environ.get(
-        "AGENT_LAUNCH_API_URL",
-        "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
-    ).rstrip("/")
-    AGENTLAUNCH_API = f"{_base}/api"
+AGENTLAUNCH_API = os.environ.get("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api").rstrip("/")
 OWNER_ADDRESS = os.environ.get("AGENT_OWNER_ADDRESS", "")
 
 # Token address for $TRADE on AgentLaunch

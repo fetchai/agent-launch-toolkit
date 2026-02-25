@@ -25,21 +25,9 @@ agent = Agent()
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 # Environment config
-_legacy_api = os.environ.get("AGENTLAUNCH_API")
-if _legacy_api:
-    # Legacy env var already includes /api path — strip trailing slash for consistency
-    _API_BASE = _legacy_api.rstrip("/")
-else:
-    _API_BASE = os.environ.get(
-        "AGENT_LAUNCH_API_URL",
-        "https://launchpad-backend-dev-1056182620041.us-central1.run.app",
-    ).rstrip("/") + "/api"
-API_URL = _API_BASE + "/agents/tokenize"
+API_URL = os.environ.get("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api").rstrip("/") + "/agents/tokenize"
 AGENTVERSE_API = "https://agentverse.ai/v1"
-FRONTEND_URL = os.environ.get(
-    "AGENT_LAUNCH_FRONTEND_URL",
-    "https://launchpad-frontend-dev-1056182620041.us-central1.run.app",
-)
+FRONTEND_URL = os.environ.get("AGENT_LAUNCH_FRONTEND_URL", "https://agent-launch.ai")
 
 # Chain config
 CHAINS = {

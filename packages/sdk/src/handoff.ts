@@ -4,7 +4,7 @@
  * SDK-004: Helpers for generating deploy and trade handoff URLs.
  *
  * The agent-human handoff protocol:
- *   1. Agent calls POST /api/agents/tokenize → receives token_id
+ *   1. Agent calls POST /tokenize → receives token_id
  *   2. Agent generates a deploy link from token_id → sends to human
  *   3. Human opens link, connects wallet, signs 2 transactions
  *   4. Token is live on the bonding curve
@@ -36,7 +36,7 @@ function resolveBaseUrl(baseUrl?: string): string {
  *   1. Approve 120 FET to the deployer contract
  *   2. Call deploy() on the deployer contract
  *
- * @param tokenId  The `token_id` returned by POST /api/agents/tokenize
+ * @param tokenId  The `token_id` returned by POST /tokenize
  * @param baseUrl  Override the platform base URL (defaults to agent-launch.ai)
  *
  * @example

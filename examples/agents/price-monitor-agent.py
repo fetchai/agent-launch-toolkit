@@ -41,21 +41,7 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 # CONFIG
 # ==============================================================================
 
-_legacy_api = os.environ.get("AGENTLAUNCH_API")
-if _legacy_api:
-    import warnings
-    warnings.warn(
-        "AGENTLAUNCH_API is deprecated. Use AGENT_LAUNCH_API_URL instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
-DEV_API_URL = "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
-PROD_API_URL = "https://agent-launch.ai/api"
-ENV = os.environ.get("AGENT_LAUNCH_ENV", "dev")
-BASE_API = os.environ.get("AGENT_LAUNCH_API_URL") or _legacy_api or (
-    PROD_API_URL if ENV == "production" else DEV_API_URL
-)
+BASE_API = os.environ.get("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api").rstrip("/")
 
 BUSINESS = {
     "name": "PriceWatch",

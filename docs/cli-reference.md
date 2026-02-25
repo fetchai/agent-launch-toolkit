@@ -43,7 +43,7 @@ Print the current configuration with the API key masked.
 agentlaunch config show
 # Current configuration:
 #   API Key:  av-xxxxxx... (masked)
-#   Base URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app (dev default, from .env)
+#   Base URL: https://agent-launch.ai/api (production default, from .env)
 #   Config:   ~/.agentlaunch/config.json
 ```
 
@@ -58,13 +58,13 @@ agentlaunch config set-url https://staging.agent-launch.ai/api
 # Base URL set to: https://staging.agent-launch.ai/api
 ```
 
-Reset to the production URL:
+Reset to the production URL (the default):
 
 ```bash
 agentlaunch config set-url https://agent-launch.ai/api
 ```
 
-Or reset to dev (the .env default):
+Or switch to dev:
 
 ```bash
 agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-central1.run.app
@@ -77,7 +77,7 @@ agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-centra
 ```json
 {
   "apiKey": "av-xxxxxxxxxxxxxxxx",
-  "baseUrl": "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
+  "baseUrl": "https://agent-launch.ai/api"
 }
 ```
 
@@ -237,7 +237,7 @@ Token ID:   42
 Status:     pending_deployment
 
 Handoff link (share with a human to deploy on-chain):
-  https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+  https://agent-launch.ai/deploy/42
 
 Platform fee to deploy: 120 FET (read from contract at deploy time)
 Trading fee: 2% -> 100% to protocol treasury
@@ -280,7 +280,7 @@ DataFeed Pro          DFP     0.002341 FET  78.9%     Active
 
 Showing 3 token(s). Use --limit to see more.
 
-View on platform: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+View on platform: https://agent-launch.ai
 ```
 > The platform URL comes from `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
 
@@ -346,18 +346,17 @@ agentlaunch list --limit 5 --sort market_cap --json | jq '.tokens[].name'
 agentlaunch list --limit 100 --json > tokens.json
 ```
 
-### Using the dev environment (default)
+### Using production (default)
 
 ```bash
-# Dev is the default — configured via AGENT_LAUNCH_API_URL in .env
-agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-central1.run.app
+# Production is the default — configured via AGENT_LAUNCH_API_URL in .env
 agentlaunch tokenize --agent agent1q... --name "Test Token" --symbol TEST --chain 97
 ```
 
-### Switching to production
+### Switching to dev environment
 
 ```bash
-agentlaunch config set-url https://agent-launch.ai/api
+agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-central1.run.app
 agentlaunch tokenize --agent agent1q... --name "Test Token" --symbol TEST --chain 97
 ```
 

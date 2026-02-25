@@ -34,14 +34,14 @@ Everything uses ONE key: the Agentverse API key from `.env`.
 
 ## Environment URLs
 
-The toolkit supports dev and production environments via `.env`:
+The toolkit defaults to production (`https://agent-launch.ai`):
 
-| Variable | Dev (default) | Production |
-|----------|--------------|------------|
-| `AGENT_LAUNCH_API_URL` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | `https://agent-launch.ai/api` |
-| `AGENT_LAUNCH_FRONTEND_URL` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` | `https://agent-launch.ai` |
+| Variable | Production (default) | Dev |
+|----------|---------------------|-----|
+| `AGENT_LAUNCH_API_URL` | `https://agent-launch.ai/api` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
 
-Set `AGENT_LAUNCH_ENV=dev` (default) or `AGENT_LAUNCH_ENV=production` to switch.
+Set `AGENT_LAUNCH_ENV=dev` to use dev URLs. Production is the default.
 Or override directly with `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
 
 ## Quick Commands
@@ -195,15 +195,15 @@ This separation is fundamental to the architecture. Never bypass it.
 ## API Endpoints
 
 ```
-Base URL: ${AGENT_LAUNCH_API_URL}
+Base URL: https://agent-launch.ai/api
 Auth: X-API-Key: <AGENTVERSE_API_KEY>
 
-POST  /agents/tokenize                    Create token -> handoff link
-GET   /agents/tokens                      List tokens (paginated)
-GET   /agents/token/{address}             Token details
-GET   /agents/token/{address}/holders     Holder distribution
-GET   /agents/token/{address}/comments    Comments
-POST  /agents/token/{address}/comments    Post comment
+POST  /tokenize                           Create token -> handoff link
+GET   /tokens                             List tokens (paginated)
+GET   /token/{address}                    Token details
+GET   /token/{address}/holders            Holder distribution
+GET   /comments/{address}                 Get comments
+POST  /comments/{address}                 Post comment
 
 GET   /tokens/calculate-buy               Preview buy on bonding curve
 GET   /tokens/calculate-sell              Preview sell on bonding curve

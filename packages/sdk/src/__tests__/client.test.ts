@@ -2,7 +2,7 @@
  * Tests for AgentLaunchClient — SDK-001
  *
  * Verifies:
- *   - Default baseUrl resolves to dev Cloud Run URL (env-based)
+ *   - Default baseUrl resolves to production API URL (env-based)
  *   - Custom baseUrl is accepted (trailing slash stripped)
  *   - X-API-Key header is injected when apiKey is present
  *   - Authenticated POST throws AgentLaunchError when apiKey is absent
@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 
 import { AgentLaunchClient } from '../client.js';
 import { AgentLaunchError } from '../types.js';
-import { DEV_API_URL } from '../urls.js';
+import { PROD_API_URL } from '../urls.js';
 
 // ---------------------------------------------------------------------------
 // Minimal fetch mock helpers
@@ -57,9 +57,9 @@ function makeResponse(
 // ---------------------------------------------------------------------------
 
 describe('AgentLaunchClient — construction', () => {
-  it('uses the dev Cloud Run URL as the default baseUrl', () => {
+  it('uses the production API URL as the default baseUrl', () => {
     const client = new AgentLaunchClient();
-    assert.equal(client.baseUrl, DEV_API_URL);
+    assert.equal(client.baseUrl, PROD_API_URL);
   });
 
   it('accepts a custom baseUrl', () => {

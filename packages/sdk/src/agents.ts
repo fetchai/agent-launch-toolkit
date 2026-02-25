@@ -4,9 +4,9 @@
  * SDK-005: Authentication and Agentverse agent management.
  *
  * These endpoints let an agent:
- *   - Exchange an Agentverse API key for a platform JWT (POST /agents/auth)
- *   - List its own Agentverse agents (GET /agents/my-agents)
- *   - Import agent metadata by API key (POST /agents/import-agentverse)
+ *   - Exchange an Agentverse API key for a platform JWT (POST /auth)
+ *   - List its own Agentverse agents (GET /my-agents)
+ *   - Import agent metadata by API key (POST /import-agentverse)
  */
 
 import { AgentLaunchClient } from './client.js';
@@ -65,7 +65,7 @@ export async function authenticate(
   // We build a one-off request to avoid the "apiKey required" guard.
   return (c as AgentLaunchClient & {
     post<T>(path: string, body: unknown): Promise<T>;
-  }).post<AgentAuthResponse>('/api/agents/auth', { api_key: apiKey });
+  }).post<AgentAuthResponse>('/auth', { api_key: apiKey });
 }
 
 // ---------------------------------------------------------------------------
@@ -89,7 +89,7 @@ export async function getMyAgents(
   client?: AgentLaunchClient,
 ): Promise<MyAgentsResponse> {
   const c = client ?? defaultClient();
-  return c.get<MyAgentsResponse>('/api/agents/my-agents');
+  return c.get<MyAgentsResponse>('/my-agents');
 }
 
 // ---------------------------------------------------------------------------
@@ -127,7 +127,7 @@ export async function importFromAgentverse(
 
   return (c as AgentLaunchClient & {
     post<T>(path: string, body: unknown): Promise<T>;
-  }).post<ImportAgentverseResponse>('/api/agents/import-agentverse', {
+  }).post<ImportAgentverseResponse>('/import-agentverse', {
     agentverseApiKey,
   });
 }

@@ -18,8 +18,7 @@ npm install agentlaunch-sdk
 import { AgentLaunch } from 'agentlaunch-sdk';
 const client = new AgentLaunch({ apiKey: process.env.AGENT_LAUNCH_API_KEY });
 const result = await client.tokenize({ name: 'MyBot', symbol: 'MYB', description: 'My AI agent' });
-console.log(result.handoffLink); // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42
-// Dev: https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+console.log(result.handoffLink); // https://agent-launch.ai/deploy/42
 ```
 
 SDK docs: https://agent-launch.ai/docs/sdk
@@ -30,8 +29,7 @@ SDK docs: https://agent-launch.ai/docs/sdk
 npm install -g agentlaunch-cli
 agentlaunch config set-key YOUR_AGENTVERSE_API_KEY
 agentlaunch create --name "MyBot" --symbol "MYB" --description "My AI agent"
-# Output: Handoff link: ${AGENT_LAUNCH_FRONTEND_URL}/deploy/42
-# Dev:    https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42
+# Output: Handoff link: https://agent-launch.ai/deploy/42
 ```
 
 CLI docs: https://agent-launch.ai/docs/cli
@@ -63,8 +61,8 @@ MCP docs: https://agent-launch.ai/docs/mcp
 
 **2. Create a token:**
 ```bash
-# Set API URL from .env (dev default shown):
-export AGENT_LAUNCH_API_URL="https://launchpad-backend-dev-1056182620041.us-central1.run.app"
+# Production (default):
+export AGENT_LAUNCH_API_URL="https://agent-launch.ai/api"
 
 curl -X POST $AGENT_LAUNCH_API_URL/agents/launch \
   -H "X-API-Key: YOUR_AGENTVERSE_API_KEY" \
@@ -75,7 +73,7 @@ curl -X POST $AGENT_LAUNCH_API_URL/agents/launch \
     "description": "Created by an AI agent",
     "category": {"id": 5},
     "logo": "https://picsum.photos/400",
-    "chainId": 97
+    "chainId": 56
   }'
 ```
 
@@ -91,8 +89,7 @@ curl -X POST $AGENT_LAUNCH_API_URL/agents/launch \
 }
 ```
 
-**4. Send handoff link to human:** `${AGENT_LAUNCH_FRONTEND_URL}/deploy/42`
-   Dev example: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42`
+**4. Send handoff link to human:** `https://agent-launch.ai/deploy/42`
 
 **5. Human clicks -> connects wallet -> deploys. Done.**
 
@@ -138,8 +135,7 @@ Header: Authorization: Bearer {token}
 
 ### Create Token
 ```
-POST ${AGENT_LAUNCH_API_URL}/agents/launch
-# Dev: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/launch
+POST https://agent-launch.ai/api/agents/launch
 Auth: X-API-Key header
 
 Body:
@@ -148,7 +144,7 @@ Body:
   description* string (max 500)    Description
   category*    { id: int }         Category (1-10)
   logo         string (URL)        Token image (optional, auto-generated if omitted)
-  chainId      int                 97 (BSC Testnet) or 56 (BSC Mainnet)
+  chainId      int                 56 (BSC Mainnet) or 97 (BSC Testnet)
   twitter      string              Optional social links
   telegram     string
   website      string
@@ -159,21 +155,20 @@ Response:
 
 ### List Tokens
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/tokens
+GET https://agent-launch.ai/api/agents/tokens
 Params: page, limit, search, categoryId, chainId, sortBy, sortOrder
 ```
 
 ### Get Token
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/token/{address}
+GET https://agent-launch.ai/api/agents/token/{address}
 Returns: price, market_cap, holders, progress, balance, etc.
 ```
 
 ### Trade Links (for agents to share)
 ```
-Buy:  ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount=100
-Sell: ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount=50
-# Dev frontend: https://launchpad-frontend-dev-1056182620041.us-central1.run.app
+Buy:  https://agent-launch.ai/trade/{address}?action=buy&amount=100
+Sell: https://agent-launch.ai/trade/{address}?action=sell&amount=50
 ```
 
 ---
@@ -204,7 +199,7 @@ HUMAN LAYER:
   5. Human clicks link
   6. Human connects wallet (RainbowKit)
   7. Human clicks Approve -> Deploy (2 transactions)
-  8. Token is live on the platform (${AGENT_LAUNCH_FRONTEND_URL})
+  8. Token is live on the platform (https://agent-launch.ai)
 
 RESULT:
   - Human effort: 2 clicks + signatures
@@ -243,7 +238,7 @@ code_array = [{"language": "python", "name": "agent.py", "value": code}]
 payload = {"code": json.dumps(code_array)}  # <-- json.dumps required!
 ```
 
-See https://agent-launch.ai/docs/agentverse for full details (production docs).
+See https://agent-launch.ai/docs/agentverse for full details.
 
 ---
 
@@ -255,8 +250,8 @@ import os
 
 API_KEY = os.getenv("AGENTVERSE_API_KEY")
 
-API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://launchpad-backend-dev-1056182620041.us-central1.run.app")
-FRONTEND_URL = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://launchpad-frontend-dev-1056182620041.us-central1.run.app")
+API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api")
+FRONTEND_URL = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://agent-launch.ai")
 
 response = requests.post(
     f"{API_URL}/agents/launch",
@@ -269,7 +264,7 @@ response = requests.post(
         "symbol": "MAT",
         "description": "Created by AI",
         "category": {"id": 5},
-        "chainId": 97
+        "chainId": 56
     }
 )
 
@@ -312,15 +307,13 @@ print(f"Handoff link: {FRONTEND_URL}/deploy/{token_id}")
 ## Live URLs
 
 ```
-Platform (prod):  https://agent-launch.ai
-Platform (dev):   https://launchpad-frontend-dev-1056182620041.us-central1.run.app
-API Base (prod):  https://agent-launch.ai/api/agents
-API Base (dev):   https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents
-Skill (MD):       https://agent-launch.ai/skill.md
-OpenAPI:          https://agent-launch.ai/docs/openapi
-Agentverse:       https://agentverse.ai
+Platform:   https://agent-launch.ai
+API Base:   https://agent-launch.ai/api/agents
+Skill (MD): https://agent-launch.ai/skill.md
+OpenAPI:    https://agent-launch.ai/docs/openapi
+Agentverse: https://agentverse.ai
 ```
-> Active URLs configured via `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL` in `.env`.
+> Set `AGENT_LAUNCH_ENV=dev` in `.env` to use dev URLs for testing.
 
 ---
 

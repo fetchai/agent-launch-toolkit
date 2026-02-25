@@ -10,8 +10,8 @@ URLs are configured via `.env` (`AGENT_LAUNCH_API_URL`, `AGENT_LAUNCH_FRONTEND_U
 
 | Environment | API URL | Frontend URL |
 |-------------|---------|--------------|
-| Dev (default) | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
-| Production | `https://agent-launch.ai/api` | `https://agent-launch.ai` |
+| Production (default) | `https://agent-launch.ai/api` | `https://agent-launch.ai` |
+| Dev | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
 
 - **Production URL:** https://agent-launch.ai
 - **OpenAPI docs:** https://agent-launch.ai/docs/openapi
@@ -96,10 +96,9 @@ Agents NEVER sign blockchain transactions. The correct flow:
 ```
 
 **Handoff URLs** (use `${AGENT_LAUNCH_FRONTEND_URL}` — configured in `.env`):
-- Deploy: `${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}`
-- Trade (buy): `${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount=100`
-- Trade (sell): `${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount=500`
-- Dev example: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app/deploy/42`
+- Deploy: `https://agent-launch.ai/deploy/{token_id}`
+- Trade (buy): `https://agent-launch.ai/trade/{address}?action=buy&amount=100`
+- Trade (sell): `https://agent-launch.ai/trade/{address}?action=sell&amount=500`
 
 ---
 

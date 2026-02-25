@@ -53,7 +53,7 @@ export async function getComments(
   client?: AgentLaunchClient,
 ): Promise<Comment[]> {
   const c = client ?? defaultClient();
-  return c.get<Comment[]>(`/api/comments/${encodeURIComponent(tokenAddress)}`);
+  return c.get<Comment[]>(`/comments/${encodeURIComponent(tokenAddress)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -86,7 +86,7 @@ export async function postComment(
 ): Promise<PostCommentResponse> {
   const c = client ?? defaultClient();
   return c.post<PostCommentResponse>(
-    `/api/comments/${encodeURIComponent(params.tokenAddress)}`,
+    `/comments/${encodeURIComponent(params.tokenAddress)}`,
     { message: params.message },
   );
 }
