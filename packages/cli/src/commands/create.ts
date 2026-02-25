@@ -340,15 +340,18 @@ export function registerCreateCommand(program: Command): void {
           console.log(`  Created: examples/ (${Object.keys(EXAMPLES).length} samples)`);
         }
 
-        // Install dependencies
+        // Install dependencies (quiet mode)
         if (!isJson) {
           console.log(`\nInstalling dependencies...`);
         }
         try {
-          execSync("npm install", { cwd: targetDir, stdio: isJson ? "ignore" : "inherit" });
+          execSync("npm install --silent", { cwd: targetDir, stdio: "ignore" });
+          if (!isJson) {
+            console.log(`  Done.`);
+          }
         } catch {
           if (!isJson) {
-            console.log(`  Warning: npm install failed. Run it manually.`);
+            console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
           }
         }
 
@@ -486,36 +489,16 @@ export function registerCreateCommand(program: Command): void {
           return;
         }
 
-        console.log(`\n${"=".repeat(50)}`);
-        console.log("CREATE COMPLETE");
-        console.log(`${"=".repeat(50)}`);
-        console.log(`Name:      ${result.name}`);
-        console.log(`Ticker:    ${result.ticker}`);
-        console.log(`Template:  ${result.template}`);
-        console.log(`Directory: ${result.scaffoldDir}`);
-
+        // Show deployment info if deployed/tokenized
         if (result.agentAddress) {
-          console.log(`\nAgent Address: ${result.agentAddress}`);
-          if (result.walletAddress) {
-            console.log(`Wallet:        ${result.walletAddress}`);
-          }
-        }
-
-        if (result.tokenId !== undefined) {
-          console.log(`\nToken ID:  ${result.tokenId}`);
-        }
-        if (result.tokenAddress) {
-          console.log(`Token:     ${result.tokenAddress}`);
+          console.log(`\nAgent: ${result.agentAddress}`);
         }
         if (result.handoffLink) {
-          console.log(
-            `\nHandoff link (share with a human to deploy on-chain):`,
-          );
-          console.log(`  ${result.handoffLink}`);
+          console.log(`Handoff: ${result.handoffLink}`);
         }
 
         // Launch Claude Code in the new directory
-        console.log(`\nLaunching Claude Code...`);
+        console.log(`\nLaunching Claude Code in ${dirName}...`);
         const claude = spawn("claude", [], {
           cwd: targetDir,
           stdio: "inherit",
@@ -523,10 +506,9 @@ export function registerCreateCommand(program: Command): void {
         });
 
         claude.on("error", (err) => {
-          console.error(`\nCould not launch Claude Code: ${err.message}`);
-          console.log(`\nNext steps:`);
-          console.log(`  cd ${dirName}`);
-          console.log(`  claude`);
+          console.error(`Could not launch Claude Code: ${err.message}`);
+          console.log(`\nRun manually:`);
+          console.log(`  cd ${dirName} && claude`);
         });
       },
     );
