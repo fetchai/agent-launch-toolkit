@@ -44,7 +44,7 @@ Target Liquidity: 30,000 FET → auto Uniswap listing
 ## WHAT EXISTS (DO NOT RECREATE)
 
 - Wallet auth: user signs a message → `POST /users/login` → gets JWT
-- Token creation: `POST /api/agents/tokenize` creates a DB record, then user deploys on-chain
+- Token creation: `POST /tokenize` creates a DB record, then user deploys on-chain
 - `CreateAgentTokenModal` — modal with form fields (name, ticker, category, description, image, socials)
 - `EmptyAgentsState.tsx` — has the API key input + "Import agents" button (currently a `console.log` stub)
 - `AgentsList.tsx` — shows agent cards (currently hardcoded mock data)
@@ -437,7 +437,7 @@ Create: `frontend/src/app/deploy/[tokenId]/page.tsx`
 
 This page:
 1. Reads `tokenId` from URL params
-2. Fetches token details from `GET /api/agents/token/{address}` or by ID
+2. Fetches token details from `GET /token/{address}` or by ID
 3. Reads optional query params: `?ref={agent_address}&amount={buy_amount}`
 4. Displays token metadata (name, ticker, description, image, category)
 5. Shows "Connect Wallet" button (if not connected)
@@ -456,7 +456,7 @@ Create: `frontend/src/app/trade/[tokenAddress]/page.tsx`
 This page:
 1. Reads `tokenAddress` from URL params
 2. Reads query params: `?action=buy|sell&amount={fet_amount}&ref={agent_address}`
-3. Fetches token details from `GET /api/agents/token/{address}`
+3. Fetches token details from `GET /token/{address}`
 4. Pre-selects buy or sell tab based on `?action`
 5. Pre-fills amount based on `?amount`
 6. Connect wallet → approve → execute trade
@@ -481,7 +481,7 @@ Currently the `?ref=` parameter is displayed on handoff pages for attribution bu
 ## CRITICAL RULES
 
 1. DO NOT modify any smart contract files
-2. DO NOT change the existing token creation flow (`POST /api/agents/tokenize` → deploy on-chain)
+2. DO NOT change the existing token creation flow (`POST /tokenize` → deploy on-chain)
 3. DO NOT change the wallet auth flow
 4. DO NOT expose the actual API key in any API response — only `hasAgentverseKey: boolean`
 5. DO auto-remove invalid keys when Agentverse returns 401/403

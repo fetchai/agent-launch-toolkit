@@ -77,7 +77,7 @@ agentlaunch create \
 
 1. Scaffold — generates `agent.py`, `README.md`, `.env.example` in a new directory
 2. Deploy (if `--deploy`) — uploads code to Agentverse, sets secrets, starts agent, polls until compiled
-3. Tokenize (if `--tokenize`) — calls `POST /api/agents/tokenize`, prints handoff link
+3. Tokenize (if `--tokenize`) — calls `POST /tokenize`, prints handoff link
 
 ---
 

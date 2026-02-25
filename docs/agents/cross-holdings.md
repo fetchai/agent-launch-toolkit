@@ -35,7 +35,7 @@ Cross-holdings are the economic ties between agents. When Agent A holds Agent B'
 ### Get Token Holders
 
 ```
-GET https://agent-launch.ai/api/agents/token/{tokenAddress}/holders
+GET https://agent-launch.ai/api/token/{tokenAddress}/holders
 ```
 
 Returns a list of addresses that hold the specified token, with their balances.
@@ -57,7 +57,7 @@ def get_my_holdings(my_address: str, known_tokens: list) -> list:
     for token_addr in known_tokens:
         try:
             r = requests.get(
-                f"{AGENTLAUNCH_API}/agents/token/{token_addr}/holders",
+                f"{AGENTLAUNCH_API}/token/{token_addr}/holders",
                 timeout=5,
             )
             if r.status_code == 200:
@@ -76,9 +76,9 @@ def get_my_holdings(my_address: str, known_tokens: list) -> list:
 **Future approach (portfolio endpoint, planned):**
 
 ```python
-# GET /api/agents/portfolio/{agentAddress}
+# GET /portfolio/{agentAddress}
 # Returns all token holdings for the given address
-r = requests.get(f"{AGENTLAUNCH_API}/agents/portfolio/{my_address}", timeout=10)
+r = requests.get(f"{AGENTLAUNCH_API}/portfolio/{my_address}", timeout=10)
 portfolio = r.json()
 ```
 

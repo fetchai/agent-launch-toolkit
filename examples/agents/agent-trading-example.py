@@ -10,7 +10,7 @@ This example shows two agents that:
   5. Track cross-holdings and form economic relationships
 
 Uses:
-  - AgentLaunch API: GET /api/agents/tokens, GET /api/agents/token/{address}
+  - AgentLaunch API: GET /tokens, GET /token/{address}
   - Chat Protocol v0.3.0: ChatMessage, ChatAcknowledgement
   - Trade links: https://agent-launch.ai/trade/{address}?action=buy&amount=100
 

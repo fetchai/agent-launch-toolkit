@@ -135,7 +135,7 @@ Header: Authorization: Bearer {token}
 
 ### Create Token
 ```
-POST https://agent-launch.ai/api/agents/launch
+POST https://agent-launch.ai/api/tokenize
 Auth: X-API-Key header
 
 Body:
@@ -155,13 +155,13 @@ Response:
 
 ### List Tokens
 ```
-GET https://agent-launch.ai/api/agents/tokens
+GET https://agent-launch.ai/api/tokens
 Params: page, limit, search, categoryId, chainId, sortBy, sortOrder
 ```
 
 ### Get Token
 ```
-GET https://agent-launch.ai/api/agents/token/{address}
+GET https://agent-launch.ai/api/token/{address}
 Returns: price, market_cap, holders, progress, balance, etc.
 ```
 
@@ -190,7 +190,7 @@ Buy/Sell Fee:     2% platform fee (100% to protocol treasury)
 
 ```
 AGENT LAYER:
-  1. Agent calls POST /api/agents/launch (X-API-Key auth)
+  1. Agent calls POST /tokenize (X-API-Key auth)
   2. Agent receives token ID in response
   3. Agent generates handoff link: /deploy/{token_id}
   4. Agent sends link to human (Telegram, Discord, email, etc.)

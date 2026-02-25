@@ -9,7 +9,7 @@ Tiers:
 - Premium ($DATA holders): Historical data, portfolio tracking,
   custom alerts, unlimited queries
 
-Uses AgentLaunch API to fetch token data: GET /api/agents/token/{address}
+Uses AgentLaunch API to fetch token data: GET /token/{address}
 
 Chat Protocol v0.3.0 compliant.
 

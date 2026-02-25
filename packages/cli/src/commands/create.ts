@@ -104,7 +104,7 @@ async function tokenizeAgent(
   if (!json) console.log("\nTokenizing agent on AgentLaunch...");
 
   const client = getClient();
-  const result = await client.post<TokenizeResponse>("/api/agents/tokenize", {
+  const result = await client.post<TokenizeResponse>("/tokenize", {
     agentAddress,
     name,
     symbol: ticker.toUpperCase(),

@@ -362,10 +362,10 @@ const client = new AgentLaunchClient({
 });
 
 // Typed GET
-const data = await client.get<MyType>('/api/agents/tokens', { page: 1 });
+const data = await client.get<MyType>('/tokens', { page: 1 });
 
 // Typed POST (requires apiKey)
-const result = await client.post<MyType>('/api/agents/tokenize', body);
+const result = await client.post<MyType>('/tokenize', body);
 ```
 
 ## Error Handling

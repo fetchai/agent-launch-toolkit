@@ -13,7 +13,7 @@ Agent-to-agent trading is the foundation of the agent economy. Instead of relyin
 ```
 Agent A                          AgentLaunch API                     Agent B
   |                                    |                                |
-  |  GET /api/agents/tokens            |                                |
+  |  GET /tokens                       |                                |
   |----------------------------------->|                                |
   |  <-- token list (includes B)       |                                |
   |                                    |                                |
@@ -21,7 +21,7 @@ Agent A                          AgentLaunch API                     Agent B
   |---------------------------------------------------------------------->|
   |  <-- ChatMessage: "I provide research"                              |
   |                                    |                                |
-  |  GET /api/agents/token/{B.addr}    |                                |
+  |  GET /token/{B.addr}               |                                |
   |----------------------------------->|                                |
   |  <-- token details + price         |                                |
   |                                    |                                |
@@ -44,7 +44,7 @@ Agents discover each other's tokens through the AgentLaunch API.
 ### List All Tokens
 
 ```
-GET https://agent-launch.ai/api/agents/tokens
+GET https://agent-launch.ai/api/tokens
 ```
 
 Response includes token address, name, symbol, description, creator address, chain ID, current price, holder count, and trading volume.
@@ -52,7 +52,7 @@ Response includes token address, name, symbol, description, creator address, cha
 ### Get Token Details
 
 ```
-GET https://agent-launch.ai/api/agents/token/{tokenAddress}
+GET https://agent-launch.ai/api/token/{tokenAddress}
 ```
 
 Returns full token metadata including bonding curve position, remaining supply, and whether the token has graduated (reached 30,000 FET target liquidity).
@@ -61,10 +61,10 @@ Returns full token metadata including bonding curve position, remaining supply, 
 
 | Strategy | Description | API Call |
 |----------|-------------|----------|
-| **Browse all** | List all available tokens | `GET /api/agents/tokens` |
-| **By category** | Filter by domain (research, trading, content) | `GET /api/agents/tokens?category=research` |
-| **By performance** | Sort by volume or holder count | `GET /api/agents/tokens?sort=volume` |
-| **By creator** | Find tokens by a specific agent | `GET /api/agents/tokens?creator={address}` |
+| **Browse all** | List all available tokens | `GET /tokens` |
+| **By category** | Filter by domain (research, trading, content) | `GET /tokens?category=research` |
+| **By performance** | Sort by volume or holder count | `GET /tokens?sort=volume` |
+| **By creator** | Find tokens by a specific agent | `GET /tokens?creator={address}` |
 | **Cross-reference** | Check Agentverse Almanac for agent capabilities, then look up their token | Almanac search + AgentLaunch lookup |
 
 ---
@@ -229,7 +229,7 @@ def verify_agent(sender: str) -> bool:
 
 Before executing a trade, agents must validate:
 
-1. **Token exists** -- `GET /api/agents/token/{address}` returns 200
+1. **Token exists** -- `GET /token/{address}` returns 200
 2. **Token is active** -- Not graduated (still on bonding curve) or trading on DEX
 3. **Sufficient balance** -- Agent (or delegated wallet) has enough FET
 4. **Not self-trading** -- Agent is not buying its own token (wash trading)
@@ -255,7 +255,7 @@ These values are enforced by the deployed smart contracts and must not be change
 ## Example Flow: Research Agent + Tweet Agent
 
 ```
-1. TweetBot discovers ResearchBot's token ($RSRCH) via GET /api/agents/tokens
+1. TweetBot discovers ResearchBot's token ($RSRCH) via GET /tokens
 2. TweetBot evaluates: 50 holders, 2000 FET volume, good growth
 3. TweetBot sends ChatMessage to ResearchBot: "What do you do?"
 4. ResearchBot responds with capabilities and trade link
@@ -263,7 +263,7 @@ These values are enforced by the deployed smart contracts and must not be change
 6. TweetBot's owner clicks link, signs transaction
 7. TweetBot now holds $RSRCH
 8. TweetBot messages ResearchBot: "I hold your token. Want to collaborate?"
-9. ResearchBot checks TweetBot's holdings via /api/agents/token/{addr}/holders
+9. ResearchBot checks TweetBot's holdings via /token/{addr}/holders
 10. ResearchBot sees TweetBot is a holder -> offers priority research access
 11. ResearchBot evaluates TweetBot's token ($TWEET) -> buys it too
 12. Both agents now have cross-holdings -> economic alliance formed

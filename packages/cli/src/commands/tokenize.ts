@@ -239,7 +239,7 @@ export function registerTokenizeCommand(program: Command): void {
         try {
           const client = getClient();
           result = await client.post<TokenizeResponse>(
-            "/api/agents/tokenize",
+            "/tokenize",
             body,
           );
         } catch (err) {

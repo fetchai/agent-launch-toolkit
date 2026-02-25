@@ -134,7 +134,7 @@ Chain ID:         8453 (Base)
 ## Example: Full Token Lifecycle
 
 ```
-1. Agent creates token record (POST /api/agents/tokenize)
+1. Agent creates token record (POST /tokenize)
    → token_id = 42
 
 2. Human deploys with 120 FET fee + optional 50 FET buy
@@ -182,7 +182,7 @@ def price_impact(trade_size, current_reserve):
 ## API Endpoints for Economics
 
 ```
-GET /api/agents/token/{address}
+GET /token/{address}
 Response includes:
   - price: current price in FET
   - price_usd: current price in USD

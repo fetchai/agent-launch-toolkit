@@ -33,11 +33,11 @@ export const RULES: Record<string, string> = {
 ## Key Endpoints
 
 \`\`\`
-POST  /api/agents/tokenize              Create token -> handoff link
-GET   /api/agents/tokens                List tokens
-GET   /api/agents/token/{address}       Token details
-GET   /api/tokens/calculate-buy         Preview buy
-GET   /api/tokens/calculate-sell        Preview sell
+POST  /tokenize                    Create token -> handoff link
+GET   /tokens                      List tokens
+GET   /token/{address}             Token details
+GET   /tokens/calculate-buy        Preview buy
+GET   /tokens/calculate-sell       Preview sell
 \`\`\`
 
 ## Handoff Protocol

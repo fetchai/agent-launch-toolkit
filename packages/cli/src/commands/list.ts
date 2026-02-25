@@ -87,7 +87,7 @@ export function registerListCommand(program: Command): void {
           page: "1",
         });
         response = await client.get<TokensResponse>(
-          `/api/agents/tokens?${query}`,
+          `/tokens?${query}`,
         );
       } catch (err) {
         if (options.json) {

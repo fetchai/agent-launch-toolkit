@@ -127,7 +127,7 @@ After editing the config, restart Claude Code / Claude Desktop.
 
 | Tool | Description |
 |------|-------------|
-| `create_and_tokenize` | End-to-end combo: calls `POST /api/agents/tokenize` with a live Agentverse agent address and returns tokenId, deploy handoff link, and pre-filled trade link in a single step. Accepts optional `maxWalletAmount` (0\|1\|2), `initialBuyAmount` (FET string), and `category` (number). |
+| `create_and_tokenize` | End-to-end combo: calls `POST /tokenize` with a live Agentverse agent address and returns tokenId, deploy handoff link, and pre-filled trade link in a single step. Accepts optional `maxWalletAmount` (0\|1\|2), `initialBuyAmount` (FET string), and `category` (number). |
 
 ---
 

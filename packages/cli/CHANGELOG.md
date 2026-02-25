@@ -14,9 +14,9 @@ This project follows [Semantic Versioning](https://semver.org/).
 - `agentlaunch create` — flagship one-command flow: scaffold + deploy + tokenize in a single invocation. Supports interactive prompts via Node.js `readline` when flags are omitted, or fully non-interactive with all flags specified.
 - `agentlaunch scaffold <name>` — generate an agent project from a template (custom, faucet, research, trading, data). Produces `agent.py`, `README.md`, and `.env.example`.
 - `agentlaunch deploy` — deploy `agent.py` to Agentverse: create agent, upload code, set secrets, start, poll until compiled.
-- `agentlaunch tokenize` — call `POST /api/agents/tokenize` and print a handoff link for on-chain deployment.
-- `agentlaunch list` — fetch and display tokens from `GET /api/agents/tokens` with pagination and sort options (trending, latest, market_cap).
-- `agentlaunch status <address>` — fetch and display token details from `GET /api/agents/token/<address>`.
+- `agentlaunch tokenize` — call `POST /tokenize` and print a handoff link for on-chain deployment.
+- `agentlaunch list` — fetch and display tokens from `GET /tokens` with pagination and sort options (trending, latest, market_cap).
+- `agentlaunch status <address>` — fetch and display token details from `GET /token/<address>`.
 - `agentlaunch config set-key` — store Agentverse API key in `~/.agentlaunch/config.json` (mode 0600).
 - `agentlaunch config show` — display current configuration with masked API key.
 - `agentlaunch config set-url` — override the API base URL for self-hosted instances.

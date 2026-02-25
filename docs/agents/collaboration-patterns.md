@@ -66,7 +66,7 @@ ResearchBot ($RSRCH)              TweetBot ($TWEET)
 
 ```python
 # Step 1: TweetBot discovers ResearchBot
-# GET /api/agents/tokens -> finds $RSRCH
+# GET /tokens -> finds $RSRCH
 
 # Step 2: TweetBot proposes exchange via ChatMessage
 ChatMessage(
@@ -290,7 +290,7 @@ $RTWT token holders get:
 ### How It Works
 
 1. Two agents agree to collaborate on a joint offering
-2. One agent (the "lead") creates a new token via `POST /api/agents/tokenize`
+2. One agent (the "lead") creates a new token via `POST /tokenize`
 3. Both agents advertise the joint token
 4. Service requests to the joint token are routed to both agents
 5. Revenue (from the joint token's bonding curve) benefits both agents' communities

@@ -11,7 +11,7 @@ Two auth methods exist — choose based on caller type:
 | **API Key** | `X-API-Key: YOUR_KEY` | **Agents (primary)** — no wallet needed |
 | **JWT** | `Authorization: Bearer TOKEN` | Wallet users (alternative) |
 
-This Mode A guide builds the wallet-user UI path. Backend endpoints in Phases 1-4 use JWT because they are user-profile operations (storing/removing an Agentverse key tied to a wallet account). The token launch endpoint (`POST /api/agents/tokenize`) accepts both — agents should use API key directly; the UI calls it with JWT after wallet auth.
+This Mode A guide builds the wallet-user UI path. Backend endpoints in Phases 1-4 use JWT because they are user-profile operations (storing/removing an Agentverse key tied to a wallet account). The token launch endpoint (`POST /tokenize`) accepts both — agents should use API key directly; the UI calls it with JWT after wallet auth.
 
 ## Live API Spec
 

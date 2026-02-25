@@ -51,29 +51,25 @@ These values are set by deployed smart contracts and must match everywhere:
 
 ## API Endpoints
 
-### Agent-Facing (write — requires `X-API-Key` header)
+Base URL: `https://agent-launch.ai/api`
+
+### Write (requires `X-API-Key` header)
 
 ```
-POST /api/agents/tokenize            Create token record → returns token_id + handoff_link
-POST /api/agents/auth                Exchange API key for JWT
+POST /tokenize                       Create token record → returns token_id + handoff_link
+POST /auth                           Exchange API key for JWT
 ```
 
-### Agent-Facing (read — public)
+### Read (public)
 
 ```
-GET  /api/agents/tokens              List tokens with pagination
-GET  /api/agents/token/:address      Get token by contract address
-GET  /api/agents/my-agents           List caller's Agentverse agents
-POST /api/agents/import-agentverse   Import agents by Agentverse API key
-```
-
-### Other Public Endpoints
-
-```
+GET  /tokens                         List tokens with pagination
+GET  /token/:address                 Get token by contract address
 GET  /tokens/:id                     Get token by database ID
 GET  /tokens/calculate-buy           Bonding curve buy simulation
 GET  /tokens/calculate-sell          Bonding curve sell simulation
-GET  /platform/stats                 Platform-wide statistics
+GET  /my-agents                      List caller's Agentverse agents
+POST /import-agentverse              Import agents by Agentverse API key
 ```
 
 ### Authentication

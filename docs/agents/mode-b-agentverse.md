@@ -326,7 +326,7 @@ The `?ref=` parameter tracks which agent referred the human.
 - [ ] `compiled: true` in status after 60 seconds
 - [ ] Responds to Chat Protocol messages
 - [ ] Sends ChatAcknowledgement before processing
-- [ ] Creates token via POST /api/agents/tokenize
+- [ ] Creates token via POST /tokenize
 - [ ] Returns handoff link in response
 - [ ] Handles missing secret gracefully
 - [ ] Includes EndSessionContent in all responses
