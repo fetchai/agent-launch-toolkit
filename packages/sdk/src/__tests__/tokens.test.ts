@@ -2,9 +2,9 @@
  * Tests for SDK token operations — SDK-002
  *
  * Verifies:
- *   - tokenize() calls POST /api/agents/tokenize with the supplied body
- *   - getToken() calls GET /api/agents/token/:address (URL-encoded)
- *   - listTokens() calls GET /api/agents/tokens with pagination params
+ *   - tokenize() calls POST /tokenize with the supplied body
+ *   - getToken() calls GET /token/:address (URL-encoded)
+ *   - listTokens() calls GET /tokens with pagination params
  *   - listTokens() with no params sends a clean request
  *   - AgentLaunchError is propagated from client errors
  */
@@ -86,7 +86,7 @@ const mockToken: Token = {
 // ---------------------------------------------------------------------------
 
 describe('tokenize()', () => {
-  it('sends POST to /api/agents/tokenize with agentAddress', async () => {
+  it('sends POST to /tokenize with agentAddress', async () => {
     let capturedUrl = '';
     let capturedBody: unknown;
 
@@ -104,7 +104,7 @@ describe('tokenize()', () => {
 
     restore();
 
-    assert.ok(capturedUrl.includes('/api/agents/tokenize'), 'URL should include /api/agents/tokenize');
+    assert.ok(capturedUrl.includes('/tokenize'), 'URL should include /tokenize');
     assert.deepEqual((capturedBody as { agentAddress: string }).agentAddress, 'agent1qf8test');
     assert.equal(result.data.token_id, 42);
     assert.equal(result.data.handoff_link, 'https://agent-launch.ai/deploy/42');
@@ -174,7 +174,7 @@ describe('tokenize()', () => {
 // ---------------------------------------------------------------------------
 
 describe('getToken()', () => {
-  it('calls GET /api/agents/token/:address with the correct address', async () => {
+  it('calls GET /token/:address with the correct address', async () => {
     let capturedUrl = '';
 
     const restore = installFetchMock((url) => {
@@ -188,7 +188,7 @@ describe('getToken()', () => {
     restore();
 
     assert.ok(
-      capturedUrl.includes(`/api/agents/token/${TOKEN_ADDRESS}`),
+      capturedUrl.includes(`/token/${TOKEN_ADDRESS}`),
       `URL should contain the address. Got: ${capturedUrl}`,
     );
     assert.equal(result.id, 7);
@@ -251,7 +251,7 @@ describe('getToken()', () => {
 // ---------------------------------------------------------------------------
 
 describe('listTokens()', () => {
-  it('calls GET /api/agents/tokens', async () => {
+  it('calls GET /tokens', async () => {
     let capturedUrl = '';
 
     const restore = installFetchMock((url) => {
@@ -263,7 +263,7 @@ describe('listTokens()', () => {
     await listTokens({}, client);
 
     restore();
-    assert.ok(capturedUrl.includes('/api/agents/tokens'), `URL: ${capturedUrl}`);
+    assert.ok(capturedUrl.includes('/tokens'), `URL: ${capturedUrl}`);
   });
 
   it('appends pagination parameters to the URL', async () => {

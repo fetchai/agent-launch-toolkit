@@ -8,7 +8,7 @@
  *   - generateTradeLink produces the correct URL with no options
  *   - generateTradeLink appends action and amount query params
  *   - generateBuyLink / generateSellLink convenience wrappers
- *   - resolveBaseUrl falls back to production frontend URL
+ *   - resolveBaseUrl falls back to dev Cloud Run frontend URL
  */
 
 import { describe, it } from 'node:test';
