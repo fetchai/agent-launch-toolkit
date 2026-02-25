@@ -25,7 +25,7 @@ import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { execSync } from "node:child_process";
-import { generateFromTemplate, listTemplates, RULES, SKILLS, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -315,18 +315,29 @@ export function registerCreateCommand(program: Command): void {
         fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
         fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
 
+        // Documentation
+        fs.mkdirSync(path.join(targetDir, "docs"), { recursive: true });
+        for (const [filename, content] of Object.entries(DOCS)) {
+          fs.writeFileSync(path.join(targetDir, "docs", filename), content, "utf8");
+        }
+
+        // Examples
+        fs.mkdirSync(path.join(targetDir, "examples"), { recursive: true });
+        for (const [filename, content] of Object.entries(EXAMPLES)) {
+          fs.writeFileSync(path.join(targetDir, "examples", filename), content, "utf8");
+        }
+
         result.scaffoldDir = targetDir;
 
         if (!isJson) {
           console.log(`  Created: agent.py`);
           console.log(`  Created: README.md`);
-          console.log(`  Created: .env.example`);
           console.log(`  Created: CLAUDE.md`);
           console.log(`  Created: package.json`);
           console.log(`  Created: .claude/ (settings, rules, skills)`);
           console.log(`  Created: .cursor/ (MCP config)`);
-          console.log(`  Created: .cursorrules`);
-          console.log(`  Created: agentlaunch.config.json`);
+          console.log(`  Created: docs/ (${Object.keys(DOCS).length} guides)`);
+          console.log(`  Created: examples/ (${Object.keys(EXAMPLES).length} samples)`);
         }
 
         // Install dependencies
