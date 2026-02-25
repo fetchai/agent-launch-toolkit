@@ -112,14 +112,14 @@ export async function getTokenHolders(
 
   if (holderAddress) {
     const envelope = await c.get<SingleHolderEnvelope>(
-      `/token/${encodeURIComponent(address)}/holders`,
+      `/agents/token/${encodeURIComponent(address)}/holders`,
       params,
     );
     return envelope.data;
   }
 
   const envelope = await c.get<HolderListEnvelope>(
-    `/token/${encodeURIComponent(address)}/holders`,
+    `/agents/token/${encodeURIComponent(address)}/holders`,
     params,
   );
   return envelope.data;

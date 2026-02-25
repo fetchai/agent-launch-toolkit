@@ -264,7 +264,7 @@ export const TOOLS = [
   {
     name: "create_and_tokenize",
     description:
-      "Full end-to-end combo tool. Steps: (1) scaffold Agentverse agent code from template, (2) optionally deploy the agent to Agentverse if AGENT_LAUNCH_API_KEY is present, (3) call POST /tokenize to create the token record, (4) return agentCode, tokenId, handoffLink, and deployLink. The human still needs to click the handoffLink to sign the on-chain deployment transaction — the agent never touches private keys.",
+      "Full end-to-end combo tool. Steps: (1) scaffold Agentverse agent code from template, (2) optionally deploy the agent to Agentverse if AGENT_LAUNCH_API_KEY is present, (3) call POST /agents/tokenize to create the token record, (4) return agentCode, tokenId, handoffLink, and deployLink. The human still needs to click the handoffLink to sign the on-chain deployment transaction — the agent never touches private keys.",
     inputSchema: {
       type: "object" as const,
       properties: {

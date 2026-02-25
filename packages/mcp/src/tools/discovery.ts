@@ -20,9 +20,11 @@ export async function listTokens(args: {
 }
 
 /**
- * Get full details for a single token by contract address.
+ * Get full details for a single token by contract address or ID.
  *
- * Maps to: GET /token/:address
+ * Maps to:
+ *   GET /tokens/address/:address (by address)
+ *   GET /tokens/id/:id (by ID)
  */
 export async function getToken(args: {
   address?: string;
@@ -33,8 +35,7 @@ export async function getToken(args: {
   }
 
   if (args.id !== undefined) {
-    // Fallback to direct API call for ID-based lookup
-    return client.get<Token>(`/tokens/${args.id}`);
+    return client.get<Token>(`/tokens/id/${args.id}`);
   }
 
   throw new Error('Either address or id is required');

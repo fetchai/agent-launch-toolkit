@@ -193,7 +193,7 @@ describe('AgentLaunchClient.get — error handling', () => {
     const client = new AgentLaunchClient({ baseUrl: 'https://test.local' });
 
     await assert.rejects(
-      () => client.get('/token/0xbad'),
+      () => client.get('/tokens/address/0xbad'),
       (err: unknown) => {
         assert.ok(err instanceof AgentLaunchError, 'should be AgentLaunchError');
         assert.equal((err as AgentLaunchError).status, 404);
@@ -215,7 +215,7 @@ describe('AgentLaunchClient.get — error handling', () => {
 
     let caughtError: AgentLaunchError | undefined;
     try {
-      await client.get('/token/0xbad');
+      await client.get('/tokens/address/0xbad');
     } catch (err) {
       caughtError = err as AgentLaunchError;
     }
@@ -258,7 +258,7 @@ describe('AgentLaunchClient.post — authentication', () => {
     const client = new AgentLaunchClient({ baseUrl: 'https://test.local' });
 
     await assert.rejects(
-      () => client.post('/tokenize', { agentAddress: 'agent1q...' }),
+      () => client.post('/agents/tokenize', { agentAddress: 'agent1q...' }),
       (err: unknown) => {
         assert.ok(err instanceof AgentLaunchError, 'should be AgentLaunchError');
         assert.equal((err as AgentLaunchError).status, 0);
@@ -284,7 +284,7 @@ describe('AgentLaunchClient.post — authentication', () => {
       baseUrl: 'https://test.local',
       apiKey: 'av-secret-key',
     });
-    await client.post('/tokenize', {
+    await client.post('/agents/tokenize', {
       agentAddress: 'agent1qtest',
     });
 
@@ -303,7 +303,7 @@ describe('AgentLaunchClient.post — authentication', () => {
     });
 
     await assert.rejects(
-      () => client.post('/tokenize', {}),
+      () => client.post('/agents/tokenize', {}),
       (err: unknown) => {
         assert.ok(err instanceof AgentLaunchError);
         assert.equal((err as AgentLaunchError).status, 401);

@@ -153,7 +153,7 @@ export async function createAndTokenize(args: {
     };
   }
 
-  const raw = await client.post<TokenizeApiResponse>('/tokenize', payload);
+  const raw = await client.post<TokenizeApiResponse>('/agents/tokenize', payload);
   const nested = raw.data ?? raw;
 
   const tokenId =

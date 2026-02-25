@@ -58,7 +58,7 @@ export function registerStatusCommand(program: Command): void {
       try {
         const client = getPublicClient();
         response = await client.get<TokenDetailResponse | TokenDetail>(
-          `/token/${address.trim()}`,
+          `/tokens/address/${address.trim()}`,
         );
       } catch (err) {
         if (options.json) {

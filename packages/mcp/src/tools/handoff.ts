@@ -69,7 +69,7 @@ export async function createTokenRecord(args: {
   logo?: string;
   chainId?: number;
 }): Promise<CreateTokenResult> {
-  const response = await client.post<CreateTokenResult>('/tokenize', {
+  const response = await client.post<CreateTokenResult>('/agents/tokenize', {
     name: args.name,
     symbol: args.symbol,
     description: args.description,

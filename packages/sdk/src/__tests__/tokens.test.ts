@@ -2,8 +2,8 @@
  * Tests for SDK token operations — SDK-002
  *
  * Verifies:
- *   - tokenize() calls POST /tokenize with the supplied body
- *   - getToken() calls GET /token/:address (URL-encoded)
+ *   - tokenize() calls POST /agents/tokenize with the supplied body
+ *   - getToken() calls GET /tokens/address/:address (URL-encoded)
  *   - listTokens() calls GET /tokens with pagination params
  *   - listTokens() with no params sends a clean request
  *   - AgentLaunchError is propagated from client errors
@@ -174,7 +174,7 @@ describe('tokenize()', () => {
 // ---------------------------------------------------------------------------
 
 describe('getToken()', () => {
-  it('calls GET /token/:address with the correct address', async () => {
+  it('calls GET /tokens/address/:address with the correct address', async () => {
     let capturedUrl = '';
 
     const restore = installFetchMock((url) => {
@@ -188,7 +188,7 @@ describe('getToken()', () => {
     restore();
 
     assert.ok(
-      capturedUrl.includes(`/token/${TOKEN_ADDRESS}`),
+      capturedUrl.includes(`/tokens/address/${TOKEN_ADDRESS}`),
       `URL should contain the address. Got: ${capturedUrl}`,
     );
     assert.equal(result.id, 7);
