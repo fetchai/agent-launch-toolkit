@@ -170,6 +170,8 @@ export function registerCreateCommand(program: Command): void {
         let doTokenize = options.tokenize === true;
 
         // Interactive prompts (only when not --json)
+        let description = options.description?.trim() ?? "";
+
         if (!isJson) {
           const rl = readline.createInterface({
             input: process.stdin,
@@ -184,39 +186,23 @@ export function registerCreateCommand(program: Command): void {
             ticker = (await prompt(rl, "Ticker symbol: ")).trim();
           }
 
-          if (!template || !TEMPLATES[template]) {
-            console.log("\nAvailable templates:");
-            TEMPLATE_LIST.forEach((t, idx) => {
-              console.log(
-                `  ${idx + 1}) ${t.label.padEnd(14)} — ${t.description}`,
-              );
-            });
-            const choice = (
-              await prompt(rl, `Template (1-${TEMPLATE_LIST.length}, default 1): `)
-            ).trim();
-            const idx = parseInt(choice, 10) - 1;
-            template =
-              idx >= 0 && idx < TEMPLATE_LIST.length
-                ? TEMPLATE_LIST[idx].id
-                : "custom";
+          if (!description) {
+            description = (await prompt(rl, "Describe what your agent does: ")).trim();
           }
 
-          if (!options.deploy) {
+          // Always use custom template for interactive flow
+          template = "custom";
+
+          // Combined launch question (deploy + tokenize)
+          if (!options.deploy && !options.tokenize) {
             const ans = (
-              await prompt(rl, "Deploy to Agentverse? (y/N): ")
+              await prompt(rl, "Launch code? (y/N): ")
             )
               .trim()
               .toLowerCase();
-            doDeploy = ans === "y" || ans === "yes";
-          }
-
-          if (!options.tokenize) {
-            const ans = (
-              await prompt(rl, "Tokenize on AgentLaunch? (y/N): ")
-            )
-              .trim()
-              .toLowerCase();
-            doTokenize = ans === "y" || ans === "yes";
+            const launch = ans === "y" || ans === "yes";
+            doDeploy = launch;
+            doTokenize = launch;
           }
 
           rl.close();
@@ -279,16 +265,13 @@ export function registerCreateCommand(program: Command): void {
           process.exit(1);
         }
 
-        const description = (
-          options.description ??
-          TEMPLATES[template]?.description ??
-          ""
-        ).slice(0, 500);
+        // Truncate description if too long
+        const finalDescription = (description || TEMPLATES[template]?.description || "").slice(0, 500);
 
         // Generate files from templates package
         const generated = generateFromTemplate(template, {
           agent_name: name,
-          description,
+          description: finalDescription,
         });
 
         fs.mkdirSync(targetDir, { recursive: true });
@@ -426,7 +409,7 @@ export function registerCreateCommand(program: Command): void {
               result.agentAddress,
               name,
               result.ticker,
-              description,
+              finalDescription,
               chainId,
               isJson,
             );

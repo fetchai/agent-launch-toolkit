@@ -395,6 +395,73 @@ code_array = [{"language": "python", "name": "agent.py", "value": source}]
 payload = {"code": json.dumps(code_array)}  # json.dumps required!
 \`\`\`
 
+## Agent Pattern Examples
+
+Use these patterns as inspiration when customizing your agent's business logic.
+
+### Research Agent Pattern (AI-powered responses)
+\`\`\`python
+# Use Hugging Face or OpenAI for intelligent responses
+import requests
+
+def generate_report(query: str) -> str:
+    r = requests.post(
+        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+        headers={"Authorization": f"Bearer {os.environ.get('HF_TOKEN')}"},
+        json={"inputs": f"Research query: {query}\\n\\nProvide a detailed analysis:"},
+        timeout=30
+    )
+    return r.json()[0]["generated_text"] if r.ok else "Error generating report"
+\`\`\`
+
+### Price Monitor Pattern (watch token prices)
+\`\`\`python
+# Fetch token price and check thresholds
+def check_price(token_address: str, threshold: float) -> str:
+    r = requests.get(f"{AGENTLAUNCH_API}/agents/token/{token_address}", timeout=5)
+    if r.ok:
+        data = r.json()
+        price = float(data.get("price", 0))
+        change = float(data.get("price_change_24h", 0))
+        if abs(change) > threshold:
+            return f"ALERT: {data['name']} price {'up' if change > 0 else 'down'} {abs(change):.1f}%"
+    return None
+\`\`\`
+
+### Trading Signal Pattern (buy/sell recommendations)
+\`\`\`python
+# Simple moving average signal
+def compute_signal(prices: list, window: int = 10) -> str:
+    if len(prices) < window:
+        return "HOLD"
+    ma = sum(prices[-window:]) / window
+    current = prices[-1]
+    pct = (current - ma) / ma * 100
+    if pct > 3:
+        return "BUY"
+    elif pct < -3:
+        return "SELL"
+    return "HOLD"
+\`\`\`
+
+### Data Query Pattern (structured responses)
+\`\`\`python
+# Parse structured queries and return formatted data
+def handle_query(query: str) -> str:
+    lower = query.lower()
+    if "top" in lower and "tokens" in lower:
+        r = requests.get(f"{AGENTLAUNCH_API}/agents/tokens?limit=5&sort=volume", timeout=5)
+        if r.ok:
+            tokens = r.json().get("tokens", [])
+            return "\\n".join([f"{t['name']}: {t['price']} FET" for t in tokens])
+    elif "stats" in lower:
+        r = requests.get(f"{AGENTLAUNCH_API}/platform/stats", timeout=5)
+        if r.ok:
+            s = r.json()
+            return f"Platform: {s['total_tokens']} tokens, {s['total_volume']} FET volume"
+    return "Unknown query. Try: 'top tokens', 'stats'"
+\`\`\`
+
 ## Resources
 
 - [AgentLaunch Platform](${RESOLVED_FRONTEND_URL})
