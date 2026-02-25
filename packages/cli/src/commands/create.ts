@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
+import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { generateFromTemplate, listTemplates } from "agentlaunch-templates";
@@ -465,22 +466,20 @@ export function registerCreateCommand(program: Command): void {
           console.log(`  ${result.handoffLink}`);
         }
 
-        if (!doDeploy && !doTokenize) {
+        // Launch Claude Code in the new directory
+        console.log(`\nLaunching Claude Code...`);
+        const claude = spawn("claude", [], {
+          cwd: targetDir,
+          stdio: "inherit",
+          shell: true,
+        });
+
+        claude.on("error", (err) => {
+          console.error(`\nCould not launch Claude Code: ${err.message}`);
           console.log(`\nNext steps:`);
           console.log(`  cd ${dirName}`);
-          console.log(
-            `  cp .env.example .env  # fill in your API keys`,
-          );
-          console.log(`  agentlaunch deploy    # deploy to Agentverse`);
-          console.log(
-            `  agentlaunch tokenize --agent <address> --name "${name}" --symbol ${result.ticker}`,
-          );
-        }
-
-        console.log(
-          `\nPlatform fee to deploy: 120 FET (read from contract at deploy time)`,
-        );
-        console.log(`Trading fee: 2% -> 100% to protocol treasury`);
+          console.log(`  claude`);
+        });
       },
     );
 }
