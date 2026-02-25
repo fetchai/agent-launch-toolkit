@@ -50,11 +50,14 @@
 
 ## Test Coverage
 
-| Package | Tests | Status |
-|---------|-------|--------|
-| SDK | 66 | ✅ |
-| CLI | 12 | ✅ |
-| **Total** | **78** | ✅ |
+| Package | Unit Tests | Integration Tests | Total |
+|---------|------------|-------------------|-------|
+| SDK | 66 | 10 | 76 |
+| CLI | 12 | 0 | 12 |
+| **Total** | **78** | **10** | **88** |
+
+Integration tests hit the live API and verify real responses.
+Skip integration tests: `SKIP_INTEGRATION=1 npm test`
 
 ## Published Packages
 
@@ -77,8 +80,10 @@ Base URL: `https://agent-launch.ai/api`
 | `GET` | `/tokens/address/:address` | - | Get token by address |
 | `GET` | `/tokens/id/:id` | - | Get token by ID |
 | `GET` | `/tokens/categories` | - | List categories |
-| `GET` | `/tokens/calculate-buy` | - | Simulate buy |
-| `GET` | `/tokens/calculate-sell` | - | Simulate sell |
+| `GET` | `/tokens/calculate-buy` | - | Simulate buy* |
+| `GET` | `/tokens/calculate-sell` | - | Simulate sell* |
+
+*Note: calculate-buy/calculate-sell return 403 on production due to WAF. Use dev backend or the frontend for these operations.
 | `POST` | `/tokens` | JWT/API Key | Create token |
 
 ### Agents

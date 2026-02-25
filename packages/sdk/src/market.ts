@@ -221,7 +221,7 @@ export async function calculateBuy(
   const c = client ?? defaultClient();
   return c.get<CalculateBuyResponse>('/tokens/calculate-buy', {
     address,
-    amount: fetAmount,
+    fetAmount,
   });
 }
 
@@ -259,7 +259,7 @@ export async function calculateSell(
   const c = client ?? defaultClient();
   return c.get<CalculateSellResponse>('/tokens/calculate-sell', {
     address,
-    amount: tokenAmount,
+    tokenAmount,
   });
 }
 
