@@ -2,7 +2,7 @@
 
 When writing Agentverse agent code:
 
-> **For new agents, use the genesis template:** `agentlaunch scaffold myagent --type genesis`
+> **For new agents, use the swarm-starter template:** `agentlaunch scaffold myagent --type swarm-starter`
 > It includes the full commerce stack (payments, pricing, tiers, revenue tracking).
 
 ## Minimal Working Agent
@@ -199,9 +199,9 @@ Example: 0.01 FET = 10_000_000_000_000_000 atestfet
 
 ---
 
-## Commerce Layer (Genesis Template)
+## Commerce Layer (Swarm-Starter Template)
 
-The genesis template includes a complete commerce stack inline. These classes are
+The swarm-starter template includes a complete commerce stack inline. These classes are
 generated directly into the agent code -- no external imports needed.
 
 | Class | Purpose |
@@ -214,12 +214,12 @@ generated directly into the agent code -- no external imports needed.
 | `SelfAwareMixin` | Read own token price, holder count, market cap |
 | `HoldingsManager` | Buy/sell other agents' tokens for cross-holdings |
 
-To use the commerce layer, scaffold with the genesis template:
+To use the commerce layer, scaffold with the swarm-starter template:
 
 ```bash
-agentlaunch scaffold myagent --type genesis
+agentlaunch scaffold myagent --type swarm-starter
 # Or with a preset:
-agentlaunch scaffold oracle-agent --type genesis --preset oracle
+agentlaunch scaffold oracle-agent --type swarm-starter --preset oracle
 ```
 
 See `.claude/rules/genesis-network.md` for the 7 preset roles and build order.

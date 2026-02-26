@@ -4,6 +4,64 @@
 
 ---
 
+## The Core Loop
+
+Everything in this toolkit follows one pattern:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│   /todo docs/plan.md  ──►  TODO.md  ──►  /grow  ──►  execute  ──►  repeat  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### How It Works
+
+1. **`/todo`** — Transform any document into structured tasks
+   - Reads your strategy doc, roadmap, or feature spec
+   - Creates `TODO.md` with phases, dependencies, gates, and progress tracking
+   - Each task has: Status, ID, How, KPI, Dependencies
+
+2. **`/grow`** — Execute tasks autonomously
+   - Reads `TODO.md`, finds the next unblocked task
+   - Marks it in-progress `[~]`, executes, verifies KPI
+   - Marks it complete `[x]`, moves to next task
+   - Respects dependencies — won't start blocked tasks
+
+3. **Repeat** — The loop compounds
+   - `/grow 5` runs 5 tasks in sequence
+   - Gates verify phase completion before moving on
+   - Progress bars show where you are
+
+### Example
+
+```bash
+# You have a growth strategy document
+> /todo docs/organic-growth-strategy.md
+Created docs/TODO.md with 20 tasks across 5 phases.
+
+# Execute tasks one by one
+> /grow
+Executing L-1: Deploy the swarm...
+Running: npx agentlaunch create → Genesis Network
+KPI: All 7 running ✓
+Task L-1 complete.
+
+# Or run multiple tasks
+> /grow 5
+Executing L-1... ✓
+Executing L-2... ✓
+Executing L-3... ✓
+Executing L-4... ✓
+Executing P-1... ✓
+5 tasks complete. Phase 1 gate: 4/4 ✓
+```
+
+This same loop powers everything below — single agents, swarms, the entire Genesis Network.
+
+---
+
 ## Live URLs
 
 The toolkit defaults to the **production environment**. All links and API calls use these URLs:
@@ -57,8 +115,8 @@ claude
 Claude Code automatically loads:
 - **CLAUDE.md** — project context and platform constants
 - **.claude/rules/** — coding patterns for AgentLaunch, Agentverse, and uAgents
-- **.claude/skills/** — slash commands (`/build-agent`, `/deploy`, `/tokenize`, `/market`, `/status`)
-- **.claude/settings.json** — MCP server with 13+ tools pre-configured
+- **.claude/skills/** — slash commands (`/build-agent`, `/build-swarm`, `/deploy`, `/tokenize`, `/market`, `/status`, `/todo`, `/grow`)
+- **.claude/settings.json** — MCP server with 17+ tools pre-configured
 
 You're ready. No additional setup needed.
 
@@ -81,6 +139,42 @@ Claude will walk you through:
 6. Get your handoff link
 
 **That's it.** Skip to [Step 7](#step-7-deploy-on-chain).
+
+---
+
+## Step 3: Build a Swarm (Option A2 — Genesis Network)
+
+Deploy 7 agents that pay each other for services:
+
+```
+/build-swarm
+```
+
+Claude deploys the Genesis Network:
+
+| Agent | Token | Role |
+|-------|-------|------|
+| Oracle | $DATA | Collects market data, sells OHLC feeds |
+| Brain | $THINK | LLM reasoning via Claude/ASI:One |
+| Analyst | $ALPHA | Predictions from Oracle + Brain |
+| Coordinator | $COORD | Routes queries, aggregates results |
+| Sentinel | $GUARD | Monitors anomalies, triggers alerts |
+| Launcher | $BUILD | Finds gaps, scaffolds new agents |
+| Scout | $FIND | Discovers external agents |
+
+Each agent has a complete commerce stack:
+- **PaymentService** — charge FET for services
+- **PricingTable** — set prices per tier
+- **TierManager** — free vs premium based on holdings
+- **WalletManager** — send/receive FET
+- **RevenueTracker** — track GDP contribution
+
+After deployment, use `/grow` to execute the [Organic Growth Playbook](docs/TODO-organic-growth.md):
+
+```bash
+> /todo docs/TODO-organic-growth.md
+> /grow 5
+```
 
 ---
 
@@ -275,16 +369,16 @@ const holders = await al.market.getHolders('0x...');
 
 ```bash
 # Create token record
-curl -X POST https://agent-launch.ai/api/tokenize \
+curl -X POST https://agent-launch.ai/api/agents/tokenize \
   -H "Content-Type: application/json" \
   -H "X-API-Key: av-xxx" \
-  -d '{"name":"My Agent","symbol":"MAGNT","description":"...","chainId":97}'
+  -d '{"agentAddress":"agent1q...","name":"My Agent","symbol":"MAGNT","description":"...","chainId":97}'
 
 # List tokens
 curl https://agent-launch.ai/api/tokens
 
 # Get token details
-curl https://agent-launch.ai/api/token/0x...
+curl https://agent-launch.ai/api/tokens/address/0x...
 ```
 
 ---
@@ -294,10 +388,13 @@ curl https://agent-launch.ai/api/token/0x...
 | Command | What It Does |
 |---------|-------------|
 | `/build-agent` | Full guided flow: scaffold, deploy, tokenize |
+| `/build-swarm` | Deploy multi-agent swarm (Genesis Network) |
 | `/deploy` | Deploy agent.py to Agentverse |
 | `/tokenize` | Create token for an existing agent |
 | `/market` | Browse tokens, check prices, see trending |
 | `/status` | Check agent/token status and progress |
+| `/todo` | Transform a document into structured TODO.md |
+| `/grow` | Execute tasks from TODO.md autonomously |
 
 ---
 
@@ -305,6 +402,7 @@ curl https://agent-launch.ai/api/token/0x...
 
 All tools are auto-loaded when you open Claude Code in this repo.
 
+### Discovery & Market
 | Tool | Description |
 |------|-------------|
 | `list_tokens` | Browse tokens with filters |
@@ -312,13 +410,33 @@ All tools are auto-loaded when you open Claude Code in this repo.
 | `get_platform_stats` | Platform-wide statistics |
 | `calculate_buy` | Preview buy (tokens received, fee) |
 | `calculate_sell` | Preview sell (FET received, fee) |
+
+### Token Operations
+| Tool | Description |
+|------|-------------|
 | `create_token_record` | Create token, get handoff link |
 | `create_and_tokenize` | Full lifecycle in one call |
 | `get_deploy_instructions` | Deployment steps for a token |
 | `get_trade_link` | Generate pre-filled trade URL |
+
+### Agent Deployment
+| Tool | Description |
+|------|-------------|
 | `deploy_to_agentverse` | Deploy Python agent to Agentverse |
 | `scaffold_agent` | Generate agent from template |
+| `scaffold_swarm` | Scaffold agent from swarm-starter preset |
 | `get_agent_templates` | List available templates |
+
+### Swarm Operations
+| Tool | Description |
+|------|-------------|
+| `deploy_swarm` | Deploy multiple agents as a swarm |
+| `network_status` | Swarm GDP, per-agent health |
+| `check_agent_commerce` | Revenue, pricing, balance for one agent |
+
+### Social
+| Tool | Description |
+|------|-------------|
 | `get_comments` | Read token comments |
 | `post_comment` | Post a comment |
 
@@ -328,12 +446,27 @@ All tools are auto-loaded when you open Claude Code in this repo.
 
 | Template | Best For |
 |----------|----------|
+| `swarm-starter` | **Full commerce stack** (recommended) — agents that charge for services |
 | `custom` | Start from scratch |
 | `price-monitor` | Watch token prices, send alerts |
 | `trading-bot` | Buy/sell signal generation |
 | `data-analyzer` | On-chain data analysis |
 | `research` | Deep dives and reports |
 | `gifter` | Treasury wallet, reward distribution |
+
+### Genesis Presets
+
+Use with swarm-starter template for instant configuration:
+
+| Preset | Token | Role |
+|--------|-------|------|
+| `oracle` | $DATA | Market data collection |
+| `brain` | $THINK | LLM reasoning |
+| `analyst` | $ALPHA | Predictions |
+| `coordinator` | $COORD | Query routing |
+| `sentinel` | $GUARD | Anomaly detection |
+| `launcher` | $BUILD | Agent scaffolding |
+| `scout` | $FIND | Agent discovery |
 
 ---
 
@@ -365,9 +498,24 @@ All tools are auto-loaded when you open Claude Code in this repo.
 
 ## Next Steps
 
-- Read the [SDK Reference](docs/sdk-reference.md) for all TypeScript methods
-- Read the [CLI Reference](docs/cli-reference.md) for all commands and flags
-- Read the [MCP Tools Reference](docs/mcp-tools.md) for all tool schemas
-- Browse the [Architecture](docs/architecture.md) for package dependency diagrams
-- Visit the [platform](https://agent-launch.ai) to see live tokens
-- Dev: [Cloud Run](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) (for testing)
+### Deploy the Genesis Network
+
+```bash
+> /build-swarm                           # Deploy 7 agents
+> /todo docs/TODO-organic-growth.md      # Structure the growth plan
+> /grow 5                                # Execute first 5 tasks
+```
+
+### Learn More
+
+- [Organic Growth Playbook](docs/TODO-organic-growth.md) — 20 milestones to graduation
+- [TODO Template](docs/TODO-template.md) — Task format for `/grow`
+- [SDK Reference](docs/sdk-reference.md) — All TypeScript methods
+- [CLI Reference](docs/cli-reference.md) — All commands and flags
+- [MCP Tools Reference](docs/mcp-tools.md) — All tool schemas
+- [Architecture](docs/architecture.md) — Package dependency diagrams
+
+### Links
+
+- [AgentLaunch Platform](https://agent-launch.ai) — Live tokens
+- [Dev Environment](https://launchpad-frontend-dev-1056182620041.us-central1.run.app) — Testing

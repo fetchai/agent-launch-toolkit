@@ -1,5 +1,5 @@
 ---
-title: AgentLaunch Toolkit — Genesis Template + Swarm Tools
+title: AgentLaunch Toolkit — Swarm-Starter Template + Swarm Tools
 type: roadmap
 version: 3.0.0
 total_tasks: 28
@@ -37,17 +37,17 @@ updated: 2026-02-26
   Deploying your swarm...
 
     [1/3] Oracle ($DATA)
-          ✓ Scaffolded from genesis template
+          ✓ Scaffolded from swarm-starter template
           ✓ Deployed to Agentverse
           ✓ Running — collecting data every 5 min
 
     [2/3] Brain ($THINK)
-          ✓ Scaffolded from genesis template
+          ✓ Scaffolded from swarm-starter template
           ✓ Deployed to Agentverse
           ✓ Running — LLM routing active
 
     [3/3] Coordinator ($COORD)
-          ✓ Scaffolded from genesis template
+          ✓ Scaffolded from swarm-starter template
           ✓ Deployed to Agentverse
           ✓ Running — routing queries
 
@@ -67,7 +67,7 @@ That's what we're building toward. Here's how we get there.
 
 ```
   P0  Commerce Engine        ░░░░░░░░░░░░░░░░░░░░  0/6
-  P1  Genesis Template       ░░░░░░░░░░░░░░░░░░░░  0/5
+  P1  Swarm-Starter Template ░░░░░░░░░░░░░░░░░░░░  0/5
   P2  Developer Experience   ░░░░░░░░░░░░░░░░░░░░  0/8
   P3  Documentation          ░░░░░░░░░░░░░░░░░░░░  0/5
   P4  Verification           ░░░░░░░░░░░░░░░░░░░░  0/4
@@ -97,7 +97,7 @@ Everything maps to a moment in the user's experience:
 ## P0: Commerce Engine
 
 The classes that make agents pay each other. These live as inline Python
-inside the genesis template — not separate files. When a user scaffolds
+inside the swarm-starter template — not separate files. When a user scaffolds
 an agent, they get all of this for free.
 
 Uses the official Payment Protocol from `uagents_core.contrib.protocols.payment`.
@@ -113,7 +113,7 @@ Uses the official Payment Protocol from `uagents_core.contrib.protocols.payment`
 
 ---
 
-## P1: Genesis Template
+## P1: Swarm-Starter Template
 
 One template. Every agent scaffolded from it gets the full commerce stack.
 The business logic section is what makes each agent unique.
@@ -156,8 +156,8 @@ CLAUDE.md is the instruction manual. Rules are the reference.
 | `[ ]` | DOC-01 | Rewrite README.md | Lead with swarms, not individual agents. Opening: "Build agent swarms that pay each other." Show the CLI swarm wizard output (as in the top of this TODO). Progressive disclosure: Quick Start (one agent, 5 min) → Agent Swarm (team, 15 min) → Genesis Network (full economy). Keep SDK/CLI/MCP sections but reframe around swarm capabilities. Templates table: genesis (recommended) at top, existing 6 below. | EXT-07 |
 | `[ ]` | DOC-02 | `payment-protocol.md` rule | `.claude/rules/payment-protocol.md`: Official imports, role-based creation, payment flow, denomination table, error handling. Clear, minimal, reference-quality. | COM-01 |
 | `[ ]` | DOC-03 | `genesis-network.md` rule | `.claude/rules/genesis-network.md`: The 7 roles. Pricing table. Cross-holdings. How to customize SwarmBusiness. How to add new roles to a swarm. When to use which preset. | GEN-05 |
-| `[ ]` | DOC-04 | Update `uagent-patterns.md` | Replace custom payment models with official imports. Add commerce layer reference. Add genesis template as the recommended starting point. Keep existing Chat Protocol + storage patterns clean. | DOC-02 |
-| `[ ]` | DOC-05 | Update CLAUDE.md + claude-context.ts | Add genesis template (recommended) to Templates table. Add "Agent Swarms" section explaining the commerce layer. Add `/build-swarm` to Slash Commands table. Add `scaffold_genesis`, `check_agent_commerce`, `network_status`, `deploy_swarm` to MCP Tools tables. Update `claude-context.ts`: add new rules, update `buildClaudeMd()` to mention genesis + commerce. | DOC-01→04 |
+| `[ ]` | DOC-04 | Update `uagent-patterns.md` | Replace custom payment models with official imports. Add commerce layer reference. Add swarm-starter template as the recommended starting point. Keep existing Chat Protocol + storage patterns clean. | DOC-02 |
+| `[ ]` | DOC-05 | Update CLAUDE.md + claude-context.ts | Add swarm-starter template (recommended) to Templates table. Add "Agent Swarms" section explaining the commerce layer. Add `/build-swarm` to Slash Commands table. Add `scaffold_swarm`, `check_agent_commerce`, `network_status`, `deploy_swarm` to MCP Tools tables. Update `claude-context.ts`: add new rules, update `buildClaudeMd()` to mention swarm-starter + commerce. | DOC-01→04 |
 
 ---
 
@@ -167,9 +167,9 @@ Does it actually work? Every test maps to a user moment.
 
 | | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | TST-01 | Genesis template tests | `generateFromTemplate("genesis", ...)` → valid Python with all commerce classes. Each of 7 presets generates valid code. Variables substitute correctly. SwarmBusiness markers present. `strict` mode throws on missing required vars. | GEN-02 |
+| `[ ]` | TST-01 | Swarm-starter template tests | `generateFromTemplate("swarm-starter", ...)` → valid Python with all commerce classes. Each of 7 presets generates valid code. Variables substitute correctly. SwarmBusiness markers present. `strict` mode throws on missing required vars. | GEN-02 |
 | `[ ]` | TST-02 | SDK tests | Mock Agentverse storage API. Test `getStorage`, `putStorage`, `getAgentRevenue`, `getPricingTable`, `getNetworkGDP`. Verify fluent API namespaces (`al.storage.*`, `al.commerce.*`). | EXT-01, EXT-02 |
-| `[ ]` | TST-03 | MCP tool tests | Test `scaffold_genesis`, `check_agent_commerce`, `network_status`, `deploy_swarm`. Mock SDK calls. Verify all tools registered in TOOLS array. | EXT-03→06 |
+| `[ ]` | TST-03 | MCP tool tests | Test `scaffold_swarm`, `check_agent_commerce`, `network_status`, `deploy_swarm`. Mock SDK calls. Verify all tools registered in TOOLS array. | EXT-03→06 |
 | `[ ]` | TST-04 | Full build | `npm run clean && npm run build && npm test` — all green. No TypeScript errors. All existing tests still pass. All new tests pass. Packages export correctly. | TST-01→03 |
 
 ---
@@ -232,7 +232,7 @@ Users can override anything. The oracle preset gives you a data collector,
 but you can change the interval, the pricing, the data source. The template
 is the floor, not the ceiling.
 
-**Commerce is invisible until it isn't.** The genesis template includes all
+**Commerce is invisible until it isn't.** The swarm-starter template includes all
 commerce layers, but they don't get in the way. A user who just wants a
 chatbot gets a chatbot. A user who wants an economy gets an economy.
 The layers activate when you configure them.

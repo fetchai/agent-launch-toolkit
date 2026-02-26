@@ -207,7 +207,7 @@ export const TOOLS = [
   {
     name: "scaffold_agent",
     description:
-      "Generate a ready-to-run Agentverse agent project from the agent-business-template pattern. Creates agent.py, README.md, and .env.example in a new directory.",
+      "Generate a ready-to-run Agentverse agent project from a template. Creates agent.py, README.md, and .env.example in a new directory.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -217,9 +217,9 @@ export const TOOLS = [
         },
         type: {
           type: "string",
-          enum: ["faucet", "research", "trading", "data", "genesis"],
+          enum: ["swarm-starter", "faucet", "research", "trading", "data", "genesis"],
           description:
-            "Agent type — controls default domain, rate limits, and business logic scaffold. Defaults to 'research'.",
+            "Agent type — controls default domain, rate limits, and business logic scaffold. 'swarm-starter' (recommended) includes full commerce stack. Defaults to 'research'.",
         },
         outputDir: {
           type: "string",
@@ -279,9 +279,9 @@ export const TOOLS = [
         },
         template: {
           type: "string",
-          enum: ["faucet", "research", "trading", "data", "genesis"],
+          enum: ["swarm-starter", "faucet", "research", "trading", "data", "genesis"],
           description:
-            "Agent template type — controls the scaffolded business logic. Defaults to 'research'.",
+            "Agent template type — controls the scaffolded business logic. 'swarm-starter' (recommended) includes full commerce stack. Defaults to 'research'.",
         },
         ticker: {
           type: "string",
@@ -348,9 +348,9 @@ export const TOOLS = [
   },
   // EXT-03 ----------------------------------------------------------------
   {
-    name: "scaffold_genesis",
+    name: "scaffold_swarm",
     description:
-      "Scaffold a Genesis Network agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.",
+      "Scaffold a swarm-starter agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -371,7 +371,7 @@ export const TOOLS = [
             "custom",
           ],
           description:
-            "Genesis preset (determines role, pricing, services)",
+            "Swarm preset (determines role, pricing, services)",
         },
         outputDir: {
           type: "string",

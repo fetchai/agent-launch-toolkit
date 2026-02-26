@@ -63,9 +63,9 @@ Common amounts:
 - Verify tx_hash on-chain before delivering service
 - Store transaction log in `ctx.storage`
 
-## Genesis Template Commerce Layers
+## Swarm-Starter Template Commerce Layers
 
-The genesis template includes these commerce classes inline:
+The swarm-starter template includes these commerce classes inline:
 - `PaymentService`: Seller-side payment handling
 - `PricingTable`: Per-service pricing from ctx.storage
 - `TierManager`: Token-gated access (free/premium)

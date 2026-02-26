@@ -66,7 +66,7 @@ describe('listStorage()', () => {
       Promise.resolve(makeResponse(mockData)),
     );
 
-    const result = await listStorage(API_KEY, AGENT_ADDRESS);
+    const result = await listStorage(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(Array.isArray(result), 'result should be an array');
@@ -83,7 +83,7 @@ describe('listStorage()', () => {
       return Promise.resolve(makeResponse([]));
     });
 
-    await listStorage(API_KEY, AGENT_ADDRESS);
+    await listStorage(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(
@@ -100,7 +100,7 @@ describe('listStorage()', () => {
       return Promise.resolve(makeResponse([]));
     });
 
-    await listStorage(API_KEY, AGENT_ADDRESS);
+    await listStorage(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.equal(
@@ -120,7 +120,7 @@ describe('listStorage()', () => {
       Promise.resolve(makeResponse([])),
     );
 
-    const result = await listStorage(API_KEY, AGENT_ADDRESS);
+    const result = await listStorage(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.deepEqual(result, []);
@@ -137,7 +137,7 @@ describe('getStorage()', () => {
       Promise.resolve(makeResponse({ value: '{"total": 500}' })),
     );
 
-    const result = await getStorage(API_KEY, AGENT_ADDRESS, 'revenue_summary');
+    const result = await getStorage(AGENT_ADDRESS, 'revenue_summary', API_KEY);
 
     restore();
     assert.equal(result, '{"total": 500}');
@@ -151,7 +151,7 @@ describe('getStorage()', () => {
       return Promise.resolve(makeResponse({ value: 'test' }));
     });
 
-    await getStorage(API_KEY, AGENT_ADDRESS, 'my_key');
+    await getStorage(AGENT_ADDRESS, 'my_key', API_KEY);
 
     restore();
     assert.ok(
@@ -166,7 +166,7 @@ describe('getStorage()', () => {
       Promise.resolve(makeResponse({ message: 'Not found' }, 404)),
     );
 
-    const result = await getStorage(API_KEY, AGENT_ADDRESS, 'nonexistent_key');
+    const result = await getStorage(AGENT_ADDRESS, 'nonexistent_key', API_KEY);
 
     restore();
     assert.equal(result, null, 'missing key should return null');
@@ -180,7 +180,7 @@ describe('getStorage()', () => {
       return Promise.resolve(makeResponse({ value: 'test' }));
     });
 
-    await getStorage(API_KEY, AGENT_ADDRESS, 'test_key');
+    await getStorage(AGENT_ADDRESS, 'test_key', API_KEY);
 
     restore();
     assert.equal(
@@ -197,7 +197,7 @@ describe('getStorage()', () => {
       return Promise.resolve(makeResponse({ value: 'test' }));
     });
 
-    await getStorage(API_KEY, AGENT_ADDRESS, 'test_key');
+    await getStorage(AGENT_ADDRESS, 'test_key', API_KEY);
 
     restore();
     assert.equal(capturedMethod, 'GET');
@@ -221,7 +221,7 @@ describe('putStorage()', () => {
       return Promise.resolve(makeResponse({}));
     });
 
-    await putStorage(API_KEY, AGENT_ADDRESS, 'my_key', 'my_value');
+    await putStorage(AGENT_ADDRESS, 'my_key', 'my_value', API_KEY);
 
     restore();
     assert.equal(capturedMethod, 'PUT', 'should use PUT method');
@@ -243,7 +243,7 @@ describe('putStorage()', () => {
       return Promise.resolve(makeResponse({}));
     });
 
-    await putStorage(API_KEY, AGENT_ADDRESS, 'key', 'value');
+    await putStorage(AGENT_ADDRESS, 'key', 'value', API_KEY);
 
     restore();
     assert.equal(capturedHeaders['Authorization'], `Bearer ${API_KEY}`);
@@ -257,7 +257,7 @@ describe('putStorage()', () => {
       return Promise.resolve(makeResponse({}));
     });
 
-    await putStorage(API_KEY, AGENT_ADDRESS, 'key', 'value');
+    await putStorage(AGENT_ADDRESS, 'key', 'value', API_KEY);
 
     restore();
     assert.equal(capturedHeaders['Content-Type'], 'application/json');
@@ -279,7 +279,7 @@ describe('deleteStorage()', () => {
       return Promise.resolve(makeResponse({}));
     });
 
-    await deleteStorage(API_KEY, AGENT_ADDRESS, 'old_key');
+    await deleteStorage(AGENT_ADDRESS, 'old_key', API_KEY);
 
     restore();
     assert.equal(capturedMethod, 'DELETE', 'should use DELETE method');
@@ -301,7 +301,7 @@ describe('deleteStorage()', () => {
       return Promise.resolve(makeResponse({}));
     });
 
-    await deleteStorage(API_KEY, AGENT_ADDRESS, 'key_to_delete');
+    await deleteStorage(AGENT_ADDRESS, 'key_to_delete', API_KEY);
 
     restore();
     assert.equal(capturedHeaders['Authorization'], `Bearer ${API_KEY}`);
@@ -321,10 +321,10 @@ describe('Storage module — URL correctness', () => {
       return Promise.resolve(makeResponse([]));
     });
 
-    await listStorage(API_KEY, AGENT_ADDRESS);
-    await getStorage(API_KEY, AGENT_ADDRESS, 'test').catch(() => {});
-    await putStorage(API_KEY, AGENT_ADDRESS, 'test', 'val').catch(() => {});
-    await deleteStorage(API_KEY, AGENT_ADDRESS, 'test').catch(() => {});
+    await listStorage(AGENT_ADDRESS, API_KEY);
+    await getStorage(AGENT_ADDRESS, 'test', API_KEY).catch(() => {});
+    await putStorage(AGENT_ADDRESS, 'test', 'val', API_KEY).catch(() => {});
+    await deleteStorage(AGENT_ADDRESS, 'test', API_KEY).catch(() => {});
 
     restore();
 

@@ -16,7 +16,7 @@ timeline: Day 1 launch + 6 months to graduation
 > The toolkit builds the tools. This playbook uses them.
 >
 > **Prerequisite:** [TODO-toolkit.md](./TODO-toolkit.md) must be complete.
-> You need the genesis template, presets, CLI swarm mode, and MCP commerce tools.
+> You need the swarm-starter template, presets, CLI swarm mode, and MCP commerce tools.
 
 ---
 

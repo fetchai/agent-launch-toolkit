@@ -57,21 +57,19 @@ const AGENT_ADDRESS = 'agent1qf8xfhsc8hg4g5l0nhtjexample';
 const AGENT_ADDRESS_2 = 'agent1qg9yihsd9ihasecondexample';
 
 const MOCK_REVENUE_SUMMARY = JSON.stringify({
-  total_income: 50000000000000000,
-  total_expense: 10000000000000000,
-  net_revenue: 40000000000000000,
-  transaction_count: 25,
-  services: {
-    analysis: { income: 30000000000000000, count: 15 },
-    monitoring: { income: 20000000000000000, count: 10 },
-  },
+  totalIncome: 50000000000000000,
+  totalExpenses: 10000000000000000,
+  netRevenue: 40000000000000000,
+  transactionCount: 25,
+  lastUpdated: '2026-02-26T00:00:00.000Z',
+  dailySummary: {},
 });
 
-const MOCK_PRICING_TABLE = JSON.stringify({
-  analysis: { price: 10000000000000000, description: 'Data analysis' },
-  monitoring: { price: 5000000000000000, description: 'Price monitoring' },
-  premium_report: { price: 25000000000000000, description: 'Detailed report' },
-});
+const MOCK_PRICING_TABLE = JSON.stringify([
+  { service: 'analysis', priceAfet: 10000000000000000, description: 'Data analysis' },
+  { service: 'monitoring', priceAfet: 5000000000000000, description: 'Price monitoring' },
+  { service: 'premium_report', priceAfet: 25000000000000000, description: 'Detailed report' },
+]);
 
 const MOCK_TIER_DATA = JSON.stringify({
   free: { daily_limit: 10, services: ['analysis'] },
@@ -280,10 +278,10 @@ describe('getNetworkGDP()', () => {
           return Promise.resolve(
             makeResponse({
               value: JSON.stringify({
-                total_income: 50000000000000000,
-                total_expense: 10000000000000000,
-                net_revenue: 40000000000000000,
-                transaction_count: 25,
+                totalIncome: 50000000000000000,
+                totalExpenses: 10000000000000000,
+                netRevenue: 40000000000000000,
+                transactionCount: 25,
               }),
             }),
           );
@@ -292,10 +290,10 @@ describe('getNetworkGDP()', () => {
           return Promise.resolve(
             makeResponse({
               value: JSON.stringify({
-                total_income: 30000000000000000,
-                total_expense: 5000000000000000,
-                net_revenue: 25000000000000000,
-                transaction_count: 10,
+                totalIncome: 30000000000000000,
+                totalExpenses: 5000000000000000,
+                netRevenue: 25000000000000000,
+                transactionCount: 10,
               }),
             }),
           );

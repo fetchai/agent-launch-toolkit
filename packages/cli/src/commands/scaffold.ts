@@ -24,25 +24,26 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
-import { generateFromTemplate, listTemplates } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName } from "agentlaunch-templates";
 
-/** Map legacy --type values to templates package names. */
+/** Map legacy --type values to current template names. */
 const LEGACY_TYPE_MAP: Record<string, string> = {
   faucet: "custom",
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
-  genesis: "genesis",
+  genesis: "swarm-starter", // Legacy alias for swarm-starter
 };
 
 /** All valid --type / --template values accepted by the scaffold command. */
 const VALID_TYPES = [
+  "swarm-starter", // Primary name (recommended)
   "faucet",
   "research",
   "trading",
   "data",
-  "genesis",
-  ...listTemplates().map((t) => t.name),
+  "genesis", // Legacy alias
+  ...listTemplates().map((t) => getCanonicalName(t.name)),
 ];
 
 export function registerScaffoldCommand(program: Command): void {
@@ -53,7 +54,7 @@ export function registerScaffoldCommand(program: Command): void {
     )
     .option(
       "--type <type>",
-      "Agent type: faucet, research, trading, data, genesis, custom, price-monitor, trading-bot, data-analyzer, gifter (default: research)",
+      "Agent type: swarm-starter (recommended), custom, price-monitor, trading-bot, data-analyzer, research, gifter (default: research)",
       "research",
     )
     .option("--json", "Output only JSON (machine-readable)")
@@ -64,9 +65,8 @@ export function registerScaffoldCommand(program: Command): void {
       // Resolve the template name: legacy map first, then direct name
       const templateName = LEGACY_TYPE_MAP[rawType] ?? rawType;
 
-      // Validate by checking the templates registry
-      const available = listTemplates();
-      const templateMeta = available.find((t) => t.name === templateName);
+      // Validate by checking the templates registry (getTemplate handles aliases)
+      const templateMeta = getTemplate(templateName);
 
       if (!templateMeta) {
         const validList = VALID_TYPES.filter(

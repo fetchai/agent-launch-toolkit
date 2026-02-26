@@ -7,7 +7,7 @@ building, deploying, and tokenizing AI agents on the Fetch.ai ecosystem.
 
 This toolkit lets AI agents (including you) do the full lifecycle:
 
-1. **Scaffold** agent code from 7 templates (genesis recommended)
+1. **Scaffold** agent code from 7 templates (swarm-starter recommended)
 2. **Deploy** to Agentverse (Fetch.ai's agent hosting platform)
 3. **Tokenize** on AgentLaunch (create a tradeable ERC-20 token)
 4. **Hand off** a link for a human to sign the blockchain transaction
@@ -22,7 +22,7 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
 | **CLI** | `packages/cli/` | 10 commands, one-command full lifecycle |
 | **MCP Server** | `packages/mcp/` | 13+ tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 7 production-ready agent blueprints (genesis recommended) |
+| **Templates** | `packages/templates/` | 7 production-ready agent blueprints (swarm-starter recommended) |
 
 ## Authentication
 
@@ -79,7 +79,7 @@ agent-launch-toolkit/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch-cli (interactive + scripted commands)
     mcp/                    # agent-launch-mcp (13+ tools for Claude Code)
-    templates/              # agentlaunch-templates (7 agent blueprints, genesis recommended)
+    templates/              # agentlaunch-templates (7 agent blueprints, swarm-starter recommended)
   .claude/
     settings.json           # MCP server config, permissions
     rules/                  # Auto-loaded coding rules
@@ -105,7 +105,7 @@ You have access to these tools:
 | `get_trade_link` | Generate pre-filled buy/sell link |
 | `deploy_to_agentverse` | Deploy Python agent to Agentverse |
 | `scaffold_agent` | Generate agent code from template |
-| `scaffold_genesis` | Scaffold agent from genesis preset |
+| `scaffold_swarm` | Scaffold agent from swarm-starter preset |
 | `create_and_tokenize` | Full lifecycle in one call |
 | `check_agent_commerce` | Revenue, pricing, balance for an agent |
 | `network_status` | Swarm GDP, per-agent health |
@@ -154,7 +154,7 @@ You have access to these tools:
 
 | Template | Description | Use Case |
 |----------|-------------|----------|
-| `genesis` | **Full commerce stack** (recommended) | Any agent that charges for services |
+| `swarm-starter` | **Full commerce stack** (recommended) | Any agent that charges for services |
 | `custom` | Blank Chat Protocol boilerplate | Start from scratch |
 | `price-monitor` | Watches token prices, sends alerts | Monitoring service |
 | `trading-bot` | Buy/sell signal generation | Trading service |
@@ -164,7 +164,7 @@ You have access to these tools:
 
 ## Agent Swarms
 
-The genesis template generates agents with a complete commerce stack:
+The swarm-starter template generates agents with a complete commerce stack:
 - PaymentService, PricingTable, TierManager (charge for services)
 - WalletManager, RevenueTracker (track revenue)
 - SelfAwareMixin (token price awareness)
@@ -172,7 +172,7 @@ The genesis template generates agents with a complete commerce stack:
 
 ### Presets
 7 pre-configured roles: oracle, brain, analyst, coordinator, sentinel, launcher, scout.
-Use presets for instant configuration: `generateFromTemplate("genesis", getPreset("oracle").variables)`
+Use presets for instant configuration: `generateFromTemplate("swarm-starter", getPreset("oracle").variables)`
 
 ## Platform Constants (Immutable)
 

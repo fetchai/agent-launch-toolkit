@@ -27,7 +27,7 @@ Oracle first (everyone needs data), Coordinator second (routes queries).
 
 ## Customizing SwarmBusiness
 
-The genesis template marks the business logic section:
+The swarm-starter template marks the business logic section:
 ```python
 # === YOUR SWARM LOGIC ===
 ```
@@ -42,7 +42,7 @@ This is where you add:
 
 1. Define the role's services and pricing
 2. Create a preset in `packages/templates/src/presets.ts`
-3. Generate from genesis template with role variables
+3. Generate from swarm-starter template with role variables
 4. Deploy and wire into the swarm
 
 ## Cross-Holdings

@@ -2,11 +2,11 @@
  * Tests for MCP commerce tools — TST-03
  *
  * Verifies:
- *   - scaffold_genesis tool is registered in the TOOLS array
+ *   - scaffold_swarm tool is registered in the TOOLS array
  *   - check_agent_commerce tool is registered in the TOOLS array
  *   - network_status tool is registered in the TOOLS array
  *   - deploy_swarm tool is registered in the TOOLS array
- *   - scaffold_genesis handler calls generateFromTemplate with "genesis"
+ *   - scaffold_swarm handler calls generateFromTemplate with "genesis"
  *   - check_agent_commerce handler passes address through to SDK
  *   - network_status handler passes addresses through to SDK
  *   - deploy_swarm handler calls deployAgent for each agent sequentially
@@ -30,16 +30,16 @@ function findTool(name: string) {
 // ---------------------------------------------------------------------------
 
 describe('MCP commerce tools — registration', () => {
-  it('scaffold_genesis tool is registered in TOOLS', () => {
-    const tool = findTool('scaffold_genesis');
-    assert.ok(tool, 'scaffold_genesis should be in TOOLS array');
+  it('scaffold_swarm tool is registered in TOOLS', () => {
+    const tool = findTool('scaffold_swarm');
+    assert.ok(tool, 'scaffold_swarm should be in TOOLS array');
     assert.ok(tool.description, 'should have a description');
     assert.ok(tool.inputSchema, 'should have an inputSchema');
   });
 
-  it('scaffold_genesis has required input properties', () => {
-    const tool = findTool('scaffold_genesis');
-    assert.ok(tool, 'scaffold_genesis should exist');
+  it('scaffold_swarm has required input properties', () => {
+    const tool = findTool('scaffold_swarm');
+    assert.ok(tool, 'scaffold_swarm should exist');
     assert.ok(
       tool.inputSchema.properties,
       'should have input properties',
@@ -110,7 +110,7 @@ describe('MCP commerce tools — registration', () => {
 describe('MCP commerce tools — schema structure', () => {
   it('all new commerce tools have valid inputSchema type', () => {
     const toolNames = [
-      'scaffold_genesis',
+      'scaffold_swarm',
       'check_agent_commerce',
       'network_status',
       'deploy_swarm',
@@ -175,7 +175,7 @@ describe('MCP commerce tools — handler behavior', () => {
     );
 
     // Should have handler functions for each commerce tool
-    // Note: scaffold_genesis lives in scaffoldHandlers, not commerceHandlers
+    // Note: scaffold_swarm lives in scaffoldHandlers, not commerceHandlers
     assert.ok(
       typeof commerceHandlers.check_agent_commerce === 'function',
       'should have check_agent_commerce handler',
@@ -190,20 +190,22 @@ describe('MCP commerce tools — handler behavior', () => {
     );
   });
 
-  it('scaffold_genesis handler exists in scaffoldHandlers', async () => {
+  it('scaffold_swarm handler exists in scaffoldHandlers', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
     assert.ok(
-      typeof scaffoldHandlers.scaffold_genesis === 'function',
-      'scaffoldHandlers should have scaffold_genesis',
+      typeof scaffoldHandlers.scaffold_swarm === 'function',
+      'scaffoldHandlers should have scaffold_swarm',
     );
   });
 
   it('check_agent_commerce handler accepts address parameter', async () => {
     const { commerceHandlers } = await import('../tools/commerce.js');
 
-    // Mock fetch for storage API calls
+    // Mock fetch for storage API calls + set API key
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = ((url: string) => {
+    const originalKey = process.env['AGENTVERSE_API_KEY'];
+    process.env['AGENTVERSE_API_KEY'] = 'test-mock-key';
+    globalThis.fetch = ((_url: string) => {
       return Promise.resolve({
         ok: false,
         status: 404,
@@ -224,6 +226,8 @@ describe('MCP commerce tools — handler behavior', () => {
       );
     } finally {
       globalThis.fetch = originalFetch;
+      if (originalKey) process.env['AGENTVERSE_API_KEY'] = originalKey;
+      else delete process.env['AGENTVERSE_API_KEY'];
     }
   });
 

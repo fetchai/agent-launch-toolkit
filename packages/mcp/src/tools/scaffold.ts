@@ -11,7 +11,8 @@ const TYPE_TO_TEMPLATE: Record<string, string> = {
   research: 'research',
   trading: 'trading-bot',
   data: 'data-analyzer',
-  genesis: 'genesis',
+  genesis: 'swarm-starter', // Legacy alias
+  'swarm-starter': 'swarm-starter',
 };
 
 // ---------------------------------------------------------------------------
@@ -114,10 +115,10 @@ interface Preset {
 }
 
 // ---------------------------------------------------------------------------
-// scaffold_genesis (EXT-03)
+// scaffold_swarm (EXT-03)
 // ---------------------------------------------------------------------------
 
-export interface ScaffoldGenesisResult {
+export interface ScaffoldSwarmResult {
   success: true;
   name: string;
   preset: string;
@@ -126,20 +127,20 @@ export interface ScaffoldGenesisResult {
 }
 
 /**
- * scaffold_genesis (EXT-03)
+ * scaffold_swarm (EXT-03)
  *
- * Scaffolds a Genesis Network agent from a preset. Creates a complete agent
+ * Scaffolds a swarm-starter agent from a preset. Creates a complete agent
  * project directory with commerce stack, ready to deploy.
  *
  * If the preset is provided, attempts to load it from agentlaunch-templates
- * via getPreset(). Falls back to genesis template with preset name as a
+ * via getPreset(). Falls back to swarm-starter template with preset name as a
  * variable if getPreset is not yet available.
  */
-export async function scaffoldGenesis(args: {
+export async function scaffoldSwarm(args: {
   name: string;
   preset?: string;
   outputDir?: string;
-}): Promise<ScaffoldGenesisResult> {
+}): Promise<ScaffoldSwarmResult> {
   const presetName = args.preset ?? 'custom';
 
   // Resolve output directory
@@ -176,15 +177,15 @@ export async function scaffoldGenesis(args: {
     }
   }
 
-  // Generate files from genesis template (or custom fallback)
+  // Generate files from swarm-starter template (or custom fallback)
   let generated;
   try {
-    generated = generateFromTemplate('genesis', {
+    generated = generateFromTemplate('swarm-starter', {
       agent_name: args.name,
       ...presetVars,
     });
   } catch {
-    // genesis template not available yet — fall back to custom
+    // swarm-starter template not available yet — fall back to custom
     generated = generateFromTemplate('custom', {
       agent_name: args.name,
       ...presetVars,
@@ -238,5 +239,5 @@ export async function scaffoldGenesis(args: {
 
 export const scaffoldHandlers = {
   scaffold_agent: scaffoldAgent,
-  scaffold_genesis: scaffoldGenesis,
+  scaffold_swarm: scaffoldSwarm,
 };

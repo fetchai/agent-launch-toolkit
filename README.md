@@ -2,6 +2,34 @@
 
 > Build, deploy, and tokenize AI agent swarms in one conversation.
 
+## The Loop
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│   /todo docs/plan.md  ──►  TODO.md  ──►  /grow  ──►  execute  ──►  repeat  │
+│                                                                             │
+│   One command to structure.  One command to execute.  Everything loops.    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**`/todo`** — Transform any strategy doc into structured, executable tasks with dependencies and gates.
+
+**`/grow`** — Autonomous execution. Read TODO, find next unblocked task, execute, mark done, repeat.
+
+```bash
+# Turn a plan into tasks
+> /todo docs/organic-growth-strategy.md
+
+# Execute tasks autonomously
+> /grow 5    # Run 5 tasks in sequence
+```
+
+---
+
+## Quick Start
+
 ```
   git clone agent-launch-toolkit && cd agent-launch-toolkit
   npm install && cp .env.example .env
@@ -23,9 +51,9 @@
 ### For Claude Code Users
 Open this repo in Claude Code and everything works out of the box:
 
-- **5 slash commands** — `/build-agent`, `/deploy`, `/tokenize`, `/market`, `/status`
-- **13+ MCP tools** — list tokens, calculate prices, deploy agents, create tokens, post comments
-- **3 auto-loaded rules** — platform constants, Agentverse API patterns, uAgent Chat Protocol
+- **7 slash commands** — `/build-agent`, `/build-swarm`, `/deploy`, `/tokenize`, `/market`, `/status`, `/grow`
+- **17+ MCP tools** — deploy swarms, check commerce, scaffold genesis agents, calculate prices
+- **4 auto-loaded rules** — platform constants, API paths, Agentverse patterns, uAgent Chat Protocol
 - **Pre-configured MCP server** — `.claude/settings.json` already wired up
 
 ### For CLI Users
@@ -98,7 +126,7 @@ cp .env.example .env
 claude
 ```
 
-Then say: `/build-agent`
+Then say: `/build-swarm` (for Genesis Network) or `/build-agent` (for single agent)
 
 ### Option B: Add to Existing Project
 
@@ -120,13 +148,14 @@ The `init` command installs `.claude/` rules, skills, MCP config, `.env.example`
 |---------|-----|-------------|
 | **SDK** | `agentlaunch-sdk` | TypeScript client for all API operations |
 | **CLI** | `agentlaunch-cli` | 10 commands, full lifecycle, JSON output mode |
-| **MCP Server** | `agent-launch-mcp` | 13+ tools for Claude Code and Cursor |
-| **Templates** | `agentlaunch-templates` | 6 production-ready agent code generators |
+| **MCP Server** | `agent-launch-mcp` | 17+ tools for Claude Code and Cursor |
+| **Templates** | `agentlaunch-templates` | 7 production-ready agent code generators |
 
 ### Agent Templates
 
 | Template | Description |
 |----------|-------------|
+| `swarm-starter` | **Full commerce stack** (recommended) — PaymentService, PricingTable, TierManager, WalletManager |
 | `custom` | Blank Chat Protocol boilerplate |
 | `price-monitor` | Watch token prices, send alerts on thresholds |
 | `trading-bot` | Buy/sell signal generation |
@@ -134,18 +163,41 @@ The `init` command installs `.claude/` rules, skills, MCP config, `.env.example`
 | `research` | Deep dives, reports, knowledge retrieval |
 | `gifter` | Treasury wallet with FET reward distribution |
 
+### Genesis Presets
+
+7 pre-configured roles for instant swarm deployment:
+
+| Preset | Token | Description |
+|--------|-------|-------------|
+| `oracle` | $DATA | Collects market data, sells OHLC feeds |
+| `brain` | $THINK | LLM reasoning via Claude/ASI:One, caches responses |
+| `analyst` | $ALPHA | Predictions from Oracle data + Brain reasoning |
+| `coordinator` | $COORD | Routes queries, aggregates results |
+| `sentinel` | $GUARD | Monitors anomalies, triggers alerts |
+| `launcher` | $BUILD | Finds gaps, scaffolds new agents |
+| `scout` | $FIND | Discovers external agents, proposes tokenization |
+
 ---
 
 ## The Lifecycle
 
 ```
-  1. SCAFFOLD             2. DEPLOY              3. TOKENIZE            4. TRADE
-  ──────────             ─────────              ───────────            ─────────
-  Pick a template    ->  Upload to          ->  Create token       ->  Human opens
-  Generate agent.py      Agentverse             record on              handoff link,
-  Customize logic        Start agent            AgentLaunch            connects wallet,
-                         Get agent1q...         Get handoff link       signs deploy tx
-                                                                       Token is LIVE
+  1. SCAFFOLD             2. DEPLOY              3. TOKENIZE            4. COMMERCE
+  ──────────             ─────────              ───────────            ──────────
+  Pick a template    ->  Upload to          ->  Create token       ->  Agents pay
+  (swarm-starter)        Agentverse             record on              each other
+  Use preset roles       Start agent            AgentLaunch            for services
+                         Get agent1q...         Human signs tx         GDP grows
+```
+
+### Single Agent Flow
+```
+/build-agent -> scaffold -> deploy -> tokenize -> handoff link -> LIVE
+```
+
+### Swarm Flow (Genesis Network)
+```
+/build-swarm -> 7 agents scaffolded -> 7 deployed -> 7 tokenized -> commerce active
 ```
 
 ---
@@ -155,10 +207,13 @@ The `init` command installs `.claude/` rules, skills, MCP config, `.env.example`
 | Command | What It Does |
 |---------|-------------|
 | `/build-agent` | Full guided flow: ask requirements, pick template, scaffold, deploy, tokenize |
+| `/build-swarm` | Deploy a multi-agent swarm (e.g., Genesis Network with 7 agents) |
 | `/deploy` | Deploy an agent.py to Agentverse hosting |
 | `/tokenize` | Create a token record for an existing agent, return handoff link |
 | `/market` | Browse tokens, check prices, see trending, calculate buy/sell |
 | `/status` | Check token price, progress, holder count, deployment status |
+| `/todo` | Create TODO.md from a strategy document |
+| `/grow` | Execute tasks from TODO.md autonomously |
 
 ---
 
@@ -203,13 +258,59 @@ Pre-configured in `.claude/settings.json`. Available as soon as you open Claude 
 | Tool | Description |
 |------|-------------|
 | `scaffold_agent` | Generate agent project from template |
+| `scaffold_swarm` | Scaffold agent from swarm-starter preset (oracle, brain, etc.) |
 | `get_agent_templates` | List available templates |
+
+### Swarm Operations
+| Tool | Description |
+|------|-------------|
+| `deploy_swarm` | Deploy multiple agents as a swarm |
+| `network_status` | Swarm GDP, per-agent health, commerce metrics |
+| `check_agent_commerce` | Revenue, pricing, balance for a single agent |
 
 ### Social
 | Tool | Description |
 |------|-------------|
 | `get_comments` | Read comments on a token |
 | `post_comment` | Post a comment on a token |
+
+---
+
+## Agent Swarms
+
+The swarm-starter template generates agents with a complete commerce stack:
+
+| Module | Description |
+|--------|-------------|
+| `PaymentService` | Charge FET for services, pay other agents |
+| `PricingTable` | Set prices per service tier |
+| `TierManager` | Free vs premium tiers based on token holdings |
+| `WalletManager` | Query balance, send FET |
+| `RevenueTracker` | Track income/expenses, calculate GDP contribution |
+| `SelfAwareMixin` | Read own token price, adapt behavior |
+| `HoldingsManager` | Buy/sell tokens of other agents (cross-holdings) |
+
+### The Genesis Network
+
+7 pre-configured agents that form a self-sustaining economy:
+
+```
+  Oracle ($DATA)  ──────────────────────────────────────────────────►
+       │                                                             │
+       │ sells data                                                  │
+       ▼                                                             │
+  Brain ($THINK) ◄──── Analyst ($ALPHA) ◄──── Coordinator ($COORD) ◄┘
+       │                     │                        │
+       │ LLM reasoning       │ predictions            │ routing
+       ▼                     ▼                        ▼
+  Sentinel ($GUARD)    Launcher ($BUILD)        Scout ($FIND)
+       │                     │                        │
+       │ anomaly alerts      │ builds new agents      │ discovers agents
+       ▼                     ▼                        ▼
+    [Monitoring]          [Growth]              [Recruitment]
+```
+
+Deploy the entire network with one command: `/build-swarm` or `deploy_swarm` MCP tool.
 
 ---
 
@@ -228,6 +329,8 @@ Pre-configured in `.claude/settings.json`. Available as soon as you open Claude 
 | `agentlaunch config show` | Show environment, URLs, chain, API key |
 | `agentlaunch config set-key <key>` | Store API key |
 | `agentlaunch init` | Install toolkit into any project |
+| `agentlaunch swarm` | Deploy a multi-agent swarm |
+| `agentlaunch status --swarm` | Check swarm health and GDP |
 
 All commands support `--json` for machine-readable output.
 
@@ -316,19 +419,19 @@ The 2% trading fee goes 100% to the protocol treasury (REVENUE_ACCOUNT).
     +--- SDK (TypeScript HTTP client)
     |      |
     |      +-- CLI (interactive + scripted commands)
-    |      +-- MCP (13+ tools for Claude Code / Cursor)
-    |      +-- Templates (6 agent code generators)
+    |      +-- MCP (17+ tools for Claude Code / Cursor)
+    |      +-- Templates (7 agent code generators + 7 presets)
     |
     +--- Claude Code
            reads CLAUDE.md
            loads .claude/rules + skills
            has MCP tools auto-configured
            |
-           /build-agent
-             1. Scaffold (templates)
+           /build-swarm (or /build-agent)
+             1. Scaffold (swarm-starter template + presets)
              2. Deploy (Agentverse API)
              3. Tokenize (AgentLaunch API)
-             4. Handoff link -> Human signs -> Token LIVE
+             4. Commerce (agents pay each other)
 ```
 
 See [docs/architecture.md](docs/architecture.md) for package dependency diagrams.
@@ -346,6 +449,8 @@ See [docs/architecture.md](docs/architecture.md) for package dependency diagrams
 | [Getting Started](docs/getting-started.md) | Three paths: SDK, CLI, MCP |
 | [Architecture](docs/architecture.md) | Package diagrams and data flow |
 | [Agent Integration](docs/AGENTS.md) | Building agents that launch tokens |
+| [Organic Growth](docs/TODO-organic-growth.md) | Genesis Network growth playbook |
+| [TODO Template](docs/TODO-template.md) | Task tracking format for `/grow` |
 
 ---
 
@@ -363,6 +468,16 @@ Ready-to-deploy agents in `examples/agents/`:
 | Data Analyzer  | `data-agent.py`          | On-chain data analysis                     |
 | Research Agent | `research-agent.py`      | Deep dives and knowledge retrieval         |
 | Gift           | `gifter-agent.py`        | Treasury wallet with reward distribution   |
+
+### Genesis Network Agents
+
+Use `/build-swarm` or scaffold individually with presets:
+
+```bash
+npx agentlaunch scaffold Oracle --preset oracle    # $DATA - market data
+npx agentlaunch scaffold Brain --preset brain      # $THINK - LLM reasoning
+npx agentlaunch scaffold Analyst --preset analyst  # $ALPHA - predictions
+```
 
 ### Example Scripts
 

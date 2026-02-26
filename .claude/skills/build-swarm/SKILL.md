@@ -9,7 +9,7 @@ Guided swarm creation experience for Claude Code.
    - For market intelligence: Oracle + Analyst + Coordinator
    - For trading: Oracle + Brain + Analyst + Sentinel
    - For full autonomy: All 7 (Genesis Network)
-3. **Scaffold each agent**: Use `scaffold_genesis` MCP tool with appropriate preset
+3. **Scaffold each agent**: Use `scaffold_swarm` MCP tool with appropriate preset
 4. **Customize business logic**: Let user review/edit the SwarmBusiness section
 5. **Deploy**: Use `deploy_swarm` MCP tool or deploy individually
 6. **Show status**: Display swarm health, addresses, next steps
@@ -35,5 +35,5 @@ Guided swarm creation experience for Claude Code.
 ## Environment
 
 - Reads AGENTVERSE_API_KEY from .env
-- Uses MCP tools: scaffold_genesis, deploy_swarm, deploy_to_agentverse
+- Uses MCP tools: scaffold_swarm, deploy_swarm, deploy_to_agentverse
 - Platform: agent-launch.ai

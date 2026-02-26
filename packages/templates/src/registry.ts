@@ -61,6 +61,16 @@ const TEMPLATES: AgentTemplate[] = [
   gifterTemplate,
 ];
 
+/**
+ * Template aliases for backward compatibility and renaming.
+ * Maps user-facing names to internal template names.
+ * "swarm-starter" is the primary user-facing name for the genesis template.
+ * "genesis" is kept as a legacy alias.
+ */
+const TEMPLATE_ALIASES: Record<string, string> = {
+  "swarm-starter": "genesis",
+};
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -74,13 +84,37 @@ export function listTemplates(): AgentTemplate[] {
 }
 
 /**
- * Looks up a template by its `name` slug.
+ * Looks up a template by its `name` slug or alias.
  * Returns `undefined` if no template with that name exists.
  *
+ * Supports aliases: "swarm-starter" resolves to the genesis template.
+ * Legacy name "genesis" continues to work.
+ *
  * @example
- * const tpl = getTemplate("price-monitor");
+ * const tpl = getTemplate("swarm-starter");  // recommended
+ * const tpl2 = getTemplate("genesis");       // legacy alias
  * if (!tpl) throw new Error("Template not found");
  */
 export function getTemplate(name: string): AgentTemplate | undefined {
-  return TEMPLATES.find((t) => t.name === name);
+  // Resolve alias to internal template name, or use as-is
+  const internalName = TEMPLATE_ALIASES[name] ?? name;
+  return TEMPLATES.find((t) => t.name === internalName);
+}
+
+/**
+ * Returns the canonical user-facing name for a template.
+ * Maps internal names to their preferred user-facing equivalents.
+ *
+ * @example
+ * getCanonicalName("genesis") // => "swarm-starter"
+ * getCanonicalName("custom")  // => "custom"
+ */
+export function getCanonicalName(internalName: string): string {
+  // Find if this internal name has a user-facing alias
+  for (const [alias, target] of Object.entries(TEMPLATE_ALIASES)) {
+    if (target === internalName) {
+      return alias;
+    }
+  }
+  return internalName;
 }

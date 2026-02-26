@@ -33,7 +33,7 @@ import { requireApiKey } from "../config.js";
 // Types
 // ---------------------------------------------------------------------------
 
-type TemplateId = "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter" | "genesis";
+type TemplateId = "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter" | "swarm-starter";
 
 const TEMPLATES: Record<string, { label: string; description: string }> = {};
 
@@ -48,7 +48,7 @@ const LEGACY_ALIAS: Record<string, string> = {
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
-  genesis: "genesis",
+  genesis: "swarm-starter", // Legacy alias for swarm-starter
 };
 
 // Genesis preset names for swarm mode
@@ -150,7 +150,7 @@ export function registerCreateCommand(program: Command): void {
     .option("--ticker <ticker>", "Token ticker symbol e.g. MYAG (prompted if omitted)")
     .option(
       "--template <template>",
-      "Agent template: custom, research, trading-bot, data-analyzer, price-monitor, gifter (default: custom)",
+      "Agent template: swarm-starter (recommended), custom, research, trading-bot, data-analyzer, price-monitor, gifter (default: custom)",
     )
     .option("--description <desc>", "Token description (max 500 chars)")
     .option(
@@ -289,10 +289,10 @@ export function registerCreateCommand(program: Command): void {
               console.log(`  [${swarmResults.length + 1}/${selectedPresets.length}] Deploying ${agentName}...`);
 
               try {
-                // Generate agent code — try genesis template, fall back to custom
+                // Generate agent code — try swarm-starter template, fall back to custom
                 let agentCode: string;
                 try {
-                  const generated = generateFromTemplate("genesis", {
+                  const generated = generateFromTemplate("swarm-starter", {
                     agent_name: agentName,
                     description: presetInfo?.description ?? "",
                     preset: presetName,

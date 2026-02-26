@@ -2,7 +2,7 @@
  * Integration tests for MCP tools
  *
  * Tests that exercise the MCP tool handlers end-to-end:
- *   - scaffold_genesis: local-only generation (no API key needed)
+ *   - scaffold_swarm: local-only generation (no API key needed)
  *   - check_agent_commerce: reads from real Agentverse storage (needs API key)
  *   - network_status: aggregates across real agents (needs API key)
  *
@@ -37,16 +37,16 @@ function skipIf(condition: boolean, reason: string) {
 }
 
 // ---------------------------------------------------------------------------
-// scaffold_genesis — local generation, no API key needed
+// scaffold_swarm — local generation, no API key needed
 // ---------------------------------------------------------------------------
 
-describe('Integration: MCP scaffold_genesis tool', () => {
+describe('Integration: MCP scaffold_swarm tool', () => {
   it('generates a genesis agent project', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
     const tmpDir = '/tmp/agentlaunch-test-' + Date.now();
 
     try {
-      const result = await scaffoldHandlers.scaffold_genesis({
+      const result = await scaffoldHandlers.scaffold_swarm({
         name: 'IntegrationTestAgent',
         preset: 'oracle',
         outputDir: tmpDir,
@@ -86,7 +86,7 @@ describe('Integration: MCP scaffold_genesis tool', () => {
     const tmpDir = '/tmp/agentlaunch-test-brain-' + Date.now();
 
     try {
-      const result = await scaffoldHandlers.scaffold_genesis({
+      const result = await scaffoldHandlers.scaffold_swarm({
         name: 'BrainTestAgent',
         preset: 'brain',
         outputDir: tmpDir,
@@ -105,7 +105,7 @@ describe('Integration: MCP scaffold_genesis tool', () => {
     const tmpDir = '/tmp/agentlaunch-test-files-' + Date.now();
 
     try {
-      const result = await scaffoldHandlers.scaffold_genesis({
+      const result = await scaffoldHandlers.scaffold_swarm({
         name: 'FileSetTest',
         preset: 'analyst',
         outputDir: tmpDir,

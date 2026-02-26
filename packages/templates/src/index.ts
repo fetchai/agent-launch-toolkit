@@ -37,7 +37,7 @@
 
 // Re-export registry types and functions
 export type { AgentTemplate, TemplateVariable } from "./registry.js";
-export { listTemplates, getTemplate } from "./registry.js";
+export { listTemplates, getTemplate, getCanonicalName } from "./registry.js";
 
 // Re-export generator types and function
 export type { GenerateResult, GenerateOptions } from "./generator.js";

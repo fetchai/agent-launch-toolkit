@@ -9,11 +9,12 @@ const FRONTEND_BASE_URL = getFrontendUrl();
 // ---------------------------------------------------------------------------
 
 const TYPE_TO_TEMPLATE: Record<string, string> = {
+  'swarm-starter': 'swarm-starter',
   faucet: 'custom',
   research: 'research',
   trading: 'trading-bot',
   data: 'data-analyzer',
-  genesis: 'genesis',
+  genesis: 'swarm-starter', // Legacy alias
 };
 
 // ---------------------------------------------------------------------------
