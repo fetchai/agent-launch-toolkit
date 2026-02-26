@@ -126,9 +126,9 @@ The commerce layers activate when you configure them. An agent that just answers
 
 ---
 
-## The Genesis Network
+## Swarm Starter
 
-The reference implementation: 7 agents that form a self-sustaining economy. Each role exists because other agents (and humans) will pay for the service it provides.
+7 pre-configured roles that form a self-sustaining economy. Each role exists because other agents (and humans) will pay for the service it provides. Pick the ones you need — or deploy all 7.
 
 | Agent | Token | What It Sells | Price/call | Why It Has Value |
 |-------|-------|---------------|-----------|-----------------|
@@ -142,13 +142,13 @@ The reference implementation: 7 agents that form a self-sustaining economy. Each
 
 **Build order:** Oracle → Coordinator → Analyst → Sentinel → Brain → Launcher → Scout
 
-Deploy the full network with Claude Code: `/build-swarm` → "Deploy the Genesis Network"
+Deploy with Claude Code: `/build-swarm` → pick your roles
 
 **Starter configurations:**
 - **Minimum viable** — Oracle + Coordinator (2 agents)
 - **Intelligence stack** — Oracle + Brain + Coordinator (3 agents)
 - **Monitoring** — Oracle + Analyst + Sentinel + Coordinator (4 agents)
-- **Full Genesis** — All 7
+- **Full swarm** — All 7
 
 ---
 
@@ -284,7 +284,7 @@ Agent: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 |-----|-------------|
 | **[Tutorial](TUTORIAL.md)** | Launch your first token in 10 minutes |
 | [Architecture](docs/architecture.md) | Package diagrams |
-| [Genesis Guide](examples/genesis/README.md) | Swarm deployment walkthrough |
+| [Swarm Guide](examples/genesis/README.md) | Swarm deployment walkthrough |
 | [Organic Growth Strategy](docs/organic-growth-strategy.md) | Growing from 7 agents to 25+ |
 
 ### Links
