@@ -7,12 +7,13 @@ building, deploying, and tokenizing AI agents on the Fetch.ai ecosystem.
 
 This toolkit lets AI agents (including you) do the full lifecycle:
 
-1. **Scaffold** agent code from 6 templates
+1. **Scaffold** agent code from 7 templates (genesis recommended)
 2. **Deploy** to Agentverse (Fetch.ai's agent hosting platform)
 3. **Tokenize** on AgentLaunch (create a tradeable ERC-20 token)
 4. **Hand off** a link for a human to sign the blockchain transaction
 5. **Monitor** the token (price, holders, market cap)
 6. **Trade** via pre-filled links (buy/sell signals)
+7. **Swarm** -- deploy teams of agents that pay each other for services
 
 ## What's Inside
 
@@ -21,7 +22,7 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
 | **CLI** | `packages/cli/` | 10 commands, one-command full lifecycle |
 | **MCP Server** | `packages/mcp/` | 13+ tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 6 production-ready agent blueprints |
+| **Templates** | `packages/templates/` | 7 production-ready agent blueprints (genesis recommended) |
 
 ## Authentication
 
@@ -78,7 +79,7 @@ agent-launch-toolkit/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch-cli (interactive + scripted commands)
     mcp/                    # agent-launch-mcp (13+ tools for Claude Code)
-    templates/              # agentlaunch-templates (6 agent blueprints)
+    templates/              # agentlaunch-templates (7 agent blueprints, genesis recommended)
   .claude/
     settings.json           # MCP server config, permissions
     rules/                  # Auto-loaded coding rules
@@ -104,7 +105,11 @@ You have access to these tools:
 | `get_trade_link` | Generate pre-filled buy/sell link |
 | `deploy_to_agentverse` | Deploy Python agent to Agentverse |
 | `scaffold_agent` | Generate agent code from template |
+| `scaffold_genesis` | Scaffold agent from genesis preset |
 | `create_and_tokenize` | Full lifecycle in one call |
+| `check_agent_commerce` | Revenue, pricing, balance for an agent |
+| `network_status` | Swarm GDP, per-agent health |
+| `deploy_swarm` | Deploy multiple agents as a swarm |
 | `get_comments` | Read token comments |
 | `post_comment` | Post a comment on a token |
 
@@ -113,6 +118,7 @@ You have access to these tools:
 | Command | Action |
 |---------|--------|
 | `/build-agent` | Scaffold + deploy + tokenize (guided) |
+| `/build-swarm` | Scaffold, deploy, and tokenize a multi-agent swarm |
 | `/deploy` | Deploy agent.py to Agentverse |
 | `/tokenize` | Create token for an existing agent |
 | `/market` | Browse tokens and prices |
@@ -146,12 +152,25 @@ You have access to these tools:
 
 | Template | Description | Use Case |
 |----------|-------------|----------|
+| `genesis` | **Full commerce stack** (recommended) | Any agent that charges for services |
 | `custom` | Blank Chat Protocol boilerplate | Start from scratch |
 | `price-monitor` | Watches token prices, sends alerts | Monitoring service |
 | `trading-bot` | Buy/sell signal generation | Trading service |
 | `data-analyzer` | On-chain data analysis | Analytics service |
 | `research` | Deep dives and reports | Research service |
 | `gifter` | Treasury wallet + rewards | Community incentives |
+
+## Agent Swarms
+
+The genesis template generates agents with a complete commerce stack:
+- PaymentService, PricingTable, TierManager (charge for services)
+- WalletManager, RevenueTracker (track revenue)
+- SelfAwareMixin (token price awareness)
+- HoldingsManager (buy/sell other tokens)
+
+### Presets
+7 pre-configured roles: oracle, brain, analyst, coordinator, sentinel, launcher, scout.
+Use presets for instant configuration: `generateFromTemplate("genesis", getPreset("oracle").variables)`
 
 ## Platform Constants (Immutable)
 
@@ -198,15 +217,19 @@ This separation is fundamental to the architecture. Never bypass it.
 Base URL: https://agent-launch.ai/api
 Auth: X-API-Key: <AGENTVERSE_API_KEY>
 
-POST  /tokenize                           Create token -> handoff link
 GET   /tokens                             List tokens (paginated)
-GET   /token/{address}                    Token details
-GET   /token/{address}/holders            Holder distribution
-GET   /comments/{address}                 Get comments
-POST  /comments/{address}                 Post comment
-
+GET   /tokens/address/{address}           Token details by address
+GET   /tokens/id/{id}                     Token details by ID
 GET   /tokens/calculate-buy               Preview buy on bonding curve
 GET   /tokens/calculate-sell              Preview sell on bonding curve
+
+POST  /agents/tokenize                    Create token -> handoff link
+GET   /agents/my-agents                   List your Agentverse agents
+GET   /agents/token/{address}/holders     Holder distribution
+POST  /agents/auth                        Exchange API key for JWT
+
+GET   /comments/{address}                 Get comments
+POST  /comments/{address}                 Post comment
 
 GET   /platform/stats                     Platform statistics
 ```
