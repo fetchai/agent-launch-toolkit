@@ -7,6 +7,7 @@
  *   2. Importing and adding to TEMPLATES below
  */
 
+import { template as genesisTemplate } from "./templates/genesis.js";
 import { template as customTemplate } from "./templates/custom.js";
 import { template as priceMonitorTemplate } from "./templates/price-monitor.js";
 import { template as tradingBotTemplate } from "./templates/trading-bot.js";
@@ -51,6 +52,7 @@ export interface AgentTemplate {
 // ---------------------------------------------------------------------------
 
 const TEMPLATES: AgentTemplate[] = [
+  genesisTemplate,
   customTemplate,
   priceMonitorTemplate,
   tradingBotTemplate,
