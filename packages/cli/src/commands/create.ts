@@ -756,11 +756,14 @@ AGENT_ADDRESS=${successful[0].address}
         // Generate files from templates package
         // If a preset is specified, use swarm-starter template with the preset
         const templateToUse = options.preset ? "swarm-starter" : template;
-        const generated = generateFromTemplate(templateToUse, {
+        const templateVars: Record<string, string> = {
           agent_name: name,
           description: finalDescription,
-          preset: options.preset,
-        });
+        };
+        if (options.preset) {
+          templateVars.preset = options.preset;
+        }
+        const generated = generateFromTemplate(templateToUse, templateVars);
 
         fs.mkdirSync(targetDir, { recursive: true });
         fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
