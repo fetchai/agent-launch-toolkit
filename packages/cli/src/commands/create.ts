@@ -25,7 +25,7 @@ import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { execSync } from "node:child_process";
-import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, type SwarmContext } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -454,8 +454,26 @@ AGENT_ADDRESS=${successful[0].address}
             );
           }
 
-          // Write Claude skills
+          // Write Claude skills (generic)
           for (const [filepath, content] of Object.entries(SKILLS)) {
+            const skillDir = path.dirname(filepath);
+            fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+            fs.writeFileSync(
+              path.join(targetDir, ".claude", "skills", filepath),
+              content,
+              "utf8"
+            );
+          }
+
+          // Write project-specific skills (with real agent addresses)
+          const agentSkillContexts = successful.map((a) => ({
+            name: a.name,
+            preset: a.preset,
+            address: a.address,
+            symbol: a.preset.slice(0, 4).toUpperCase(),
+          }));
+          const projectSkills = buildProjectSkills(agentSkillContexts, isSingleAgent);
+          for (const [filepath, content] of Object.entries(projectSkills)) {
             const skillDir = path.dirname(filepath);
             fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
             fs.writeFileSync(
@@ -569,7 +587,18 @@ AGENT_ADDRESS=${successful[0].address}
             welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}. These agents pay each other for services. Welcome me and explain: (1) how to tokenize one, (2) how the agents work together, (3) what makes a swarm valuable. Be encouraging and brief.`;
           }
 
-          const claude = spawn("claude", [welcomePrompt], {
+          // Build system prompt with agent context
+          const agentAddresses = successful.map((a) => `${a.preset}: ${a.address}`).join(", ");
+          const systemContext = `You are helping a developer who just deployed ${isSingleAgent ? "an agent" : "a swarm"} to the Fetch.ai Agentverse. The API key is already in .env. Agent addresses: ${agentAddresses}. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server (agent-launch). Focus on helping them tokenize, customize pricing, and understand value creation.`;
+
+          // Launch Claude with enhanced flags for better UX
+          const claudeArgs = [
+            welcomePrompt,
+            "--append-system-prompt", systemContext,
+            "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Glob,Grep",
+          ];
+
+          const claude = spawn("claude", claudeArgs, {
             cwd: targetDir,
             stdio: "inherit",
             shell: true,
@@ -893,15 +922,26 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
 
         // Build welcome prompt based on what was done
         let welcomePrompt: string;
+        let systemContext: string;
         if (result.agentAddress && result.handoffLink) {
           welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...) and have a handoff link ready. Welcome me and explain the handoff link, then give me 2-3 quick next steps. Keep it brief.`;
+          systemContext = `You are helping a developer who just deployed an agent to Fetch.ai Agentverse. Agent: ${result.agentAddress}. Handoff link ready for tokenization. API key is in .env.`;
         } else if (result.agentAddress) {
           welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...). Welcome me and give me 3 quick options: tokenize it, check status, or customize the code. Keep it brief.`;
+          systemContext = `You are helping a developer who just deployed an agent to Fetch.ai Agentverse. Agent: ${result.agentAddress}. API key is in .env. Available: agentlaunch-sdk, agentlaunch-cli, MCP tools.`;
         } else {
           welcomePrompt = `I just scaffolded a new agent project called "${name}". Welcome me and explain what's in the project, then give me 3 quick options for what to do next. Keep it brief.`;
+          systemContext = `You are helping a developer who just scaffolded an agent project for Fetch.ai Agentverse. The project uses the ${template} template. Available: agentlaunch-sdk, agentlaunch-cli, MCP tools.`;
         }
 
-        const claude = spawn("claude", [welcomePrompt], {
+        // Launch Claude with enhanced flags
+        const claudeArgs = [
+          welcomePrompt,
+          "--append-system-prompt", systemContext,
+          "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Glob,Grep",
+        ];
+
+        const claude = spawn("claude", claudeArgs, {
           cwd: targetDir,
           stdio: "inherit",
           shell: true,

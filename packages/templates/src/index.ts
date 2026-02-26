@@ -51,5 +51,5 @@ export { getPreset, listPresets } from "./presets.js";
 export { RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "./claude-context.js";
 
 // Re-export swarm-specific generators
-export type { SwarmAgent, SwarmContext } from "./claude-context.js";
-export { buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson } from "./claude-context.js";
+export type { SwarmAgent, SwarmContext, AgentSkillContext } from "./claude-context.js";
+export { buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills } from "./claude-context.js";

@@ -1090,6 +1090,34 @@ The more agents that depend on yours, the more fees you earn. Consider:
 2. Who would pay for it?
 3. How can you make other agents need your service?
 
+## Quick Diagnostics
+
+\`\`\`bash
+# Is your agent running?
+agentlaunch status ${agent.address}
+
+# Verify API key is set
+echo "Key: $AGENTVERSE_API_KEY" | head -c 20
+
+# List all your agents
+agentlaunch list
+\`\`\`
+
+## MCP Tools Available
+
+Type \`/\` in Claude Code to access these skills:
+- \`/deploy\` — Deploy or redeploy your agent
+- \`/tokenize\` — Create a tradeable token
+- \`/status\` — Check agent status
+- \`/market\` — Browse tokens on AgentLaunch
+
+Or use MCP tools directly:
+- \`scaffold_agent\` — Generate agent code
+- \`deploy_to_agentverse\` — Deploy to Agentverse
+- \`create_token_record\` — Tokenize an agent
+- \`calculate_buy\` / \`calculate_sell\` — Preview trades
+- \`check_agent_commerce\` — Revenue and pricing info
+
 ## Platform Constants
 
 - Deploy fee: **120 FET** (paid when tokenizing)
@@ -1195,15 +1223,46 @@ agentlaunch deploy --code agents/oracle.py --address ${ctx.agents.find((a) => a.
 agentlaunch list  # See all your tokens
 \`\`\`
 
+## Quick Diagnostics
+
+\`\`\`bash
+# Check all agents' status
+${ctx.agents.map((a) => `agentlaunch status ${a.address}  # ${a.preset}`).join("\n")}
+
+# Verify API key
+echo "Key: $AGENTVERSE_API_KEY" | head -c 20
+
+# List all tokens you own
+agentlaunch list
+\`\`\`
+
+## What Makes a Swarm Valuable?
+
+Swarms earn fees when agents **depend on each other**:
+- **Oracle** sells data → Brain, Analyst, Sentinel buy it
+- **Brain** sells reasoning → Coordinator, Launcher buy it
+- **Coordinator** routes queries → Everyone pays routing fees
+
+The more interconnections, the more fees flow. Your agents should:
+1. Provide unique, high-quality services
+2. Consume services from other agents in the swarm
+3. Become infrastructure that external agents depend on
+
 ## Platform Constants
 
 - Deploy fee: **120 FET** (paid when tokenizing)
 - Graduation: **30,000 FET** liquidity → auto DEX listing
 - Trading fee: **2%** → 100% to protocol treasury (no creator fee)
 
-## MCP Tools Available
+## Skills & MCP Tools
 
-This project has MCP tools pre-configured. You can use:
+Type \`/\` in Claude Code for skills:
+- \`/deploy\` — Deploy or redeploy an agent
+- \`/tokenize\` — Create a tradeable token
+- \`/status\` — Check agent status
+- \`/market\` — Browse tokens
+
+MCP tools available:
 - \`list_tokens\` — Browse all tokens
 - \`get_token\` — Get details for a specific token
 - \`calculate_buy\` / \`calculate_sell\` — Preview trades
@@ -1267,4 +1326,166 @@ export function buildSwarmPackageJson(swarmName: string): string {
     null,
     2
   ) + "\n";
+}
+
+// ---------------------------------------------------------------------------
+// Project-specific skill generators
+// ---------------------------------------------------------------------------
+
+export interface AgentSkillContext {
+  name: string;
+  preset: string;
+  address: string;
+  symbol?: string;
+}
+
+/**
+ * Generates a tokenize skill specific to an agent.
+ */
+export function buildTokenizeSkill(agent: AgentSkillContext): string {
+  const symbol = agent.symbol || agent.preset.slice(0, 4).toUpperCase();
+  return `# /tokenize-${agent.preset}
+
+Create a tradeable token for your ${agent.preset} agent.
+
+## Your Agent
+
+- **Name:** ${agent.name}
+- **Address:** \`${agent.address}\`
+- **Suggested Symbol:** ${symbol}
+
+## Command
+
+Run this to create a token:
+
+\`\`\`bash
+agentlaunch tokenize \\
+  --agent ${agent.address} \\
+  --name "${agent.name}" \\
+  --symbol "${symbol}"
+\`\`\`
+
+## What Happens
+
+1. CLI creates a token record on AgentLaunch
+2. You get a **handoff link**
+3. Share the link with someone who has a wallet
+4. They pay 120 FET to deploy the token on-chain
+5. Your agent now has a tradeable token!
+
+## After Tokenization
+
+- Token trades on a bonding curve (price goes up as people buy)
+- At 30,000 FET liquidity, it auto-lists on DEX
+- 2% trading fee goes to protocol (no creator fee)
+
+## Pro Tips
+
+- Pick a memorable symbol (3-5 chars)
+- Write a good description — it shows on the token page
+- The first buyers get the best price (bonding curve)
+`;
+}
+
+/**
+ * Generates a status skill specific to an agent.
+ */
+export function buildStatusSkill(agent: AgentSkillContext): string {
+  return `# /status-${agent.preset}
+
+Check the status of your ${agent.preset} agent.
+
+## Your Agent
+
+- **Name:** ${agent.name}
+- **Address:** \`${agent.address}\`
+
+## Commands
+
+### Check if running
+\`\`\`bash
+agentlaunch status ${agent.address}
+\`\`\`
+
+### View logs (if issues)
+\`\`\`bash
+# Via Agentverse dashboard
+open "https://agentverse.ai/agents/local/${agent.address}/logs"
+\`\`\`
+
+### Restart if stuck
+\`\`\`bash
+agentlaunch deploy --address ${agent.address}
+\`\`\`
+
+## Common Issues
+
+- **"compiling" for >60s** — Check logs for syntax errors
+- **"stopped"** — Redeploy with \`agentlaunch deploy\`
+- **No responses** — Verify Chat Protocol handlers are correct
+`;
+}
+
+/**
+ * Generates a redeploy skill specific to an agent.
+ */
+export function buildRedeploySkill(agent: AgentSkillContext, isSingleAgent: boolean): string {
+  const codePath = isSingleAgent ? "agent.py" : `agents/${agent.preset}.py`;
+  return `# /redeploy-${agent.preset}
+
+Redeploy your ${agent.preset} agent after making changes.
+
+## Your Agent
+
+- **Name:** ${agent.name}
+- **Address:** \`${agent.address}\`
+- **Code:** \`${codePath}\`
+
+## Command
+
+After editing ${codePath}, run:
+
+\`\`\`bash
+agentlaunch deploy --code ${codePath} --address ${agent.address}
+\`\`\`
+
+## What Gets Updated
+
+- Agent code (the Python file)
+- Dependencies are reinstalled
+- Agent restarts automatically
+
+## What Does NOT Change
+
+- Agent address (stays the same)
+- Secrets (already configured)
+- Token (if tokenized)
+
+## Workflow
+
+1. Edit \`${codePath}\`
+2. Run the deploy command above
+3. Wait 15-60s for compilation
+4. Check status: \`agentlaunch status ${agent.address}\`
+`;
+}
+
+/**
+ * Generates all project-specific skills for an agent.
+ * Returns a map of filepath -> content.
+ */
+export function buildProjectSkills(
+  agents: AgentSkillContext[],
+  isSingleAgent: boolean
+): Record<string, string> {
+  const skills: Record<string, string> = {};
+
+  for (const agent of agents) {
+    const prefix = agent.preset;
+    skills[`tokenize-${prefix}/SKILL.md`] = buildTokenizeSkill(agent);
+    skills[`status-${prefix}/SKILL.md`] = buildStatusSkill(agent);
+    skills[`redeploy-${prefix}/SKILL.md`] = buildRedeploySkill(agent, isSingleAgent);
+  }
+
+  return skills;
 }
