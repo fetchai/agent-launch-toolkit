@@ -28,6 +28,20 @@ import {
   generateSellLink,
 } from './handoff.js';
 import { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
+import { listStorage, getStorage, putStorage, deleteStorage } from './storage.js';
+import {
+  getAgentRevenue,
+  getPricingTable,
+  getAgentCommerceStatus,
+  getNetworkGDP,
+} from './commerce.js';
+import type { StorageEntry } from './storage.js';
+import type {
+  AgentRevenue,
+  PricingEntry,
+  AgentCommerceStatus,
+  NetworkGDP,
+} from './commerce.js';
 import type {
   AgentLaunchConfig,
   TokenizeParams,
@@ -150,6 +164,60 @@ export interface AgentsNamespace {
   ): Promise<ImportAgentverseResponse>;
 }
 
+/** Agentverse storage operations. */
+export interface StorageNamespace {
+  /**
+   * List all storage keys for an agent.
+   * @see listStorage
+   */
+  list(agentAddress: string): Promise<StorageEntry[]>;
+
+  /**
+   * Get a single storage value by key.
+   * @see getStorage
+   */
+  get(agentAddress: string, key: string): Promise<string | null>;
+
+  /**
+   * Set a storage value by key.
+   * @see putStorage
+   */
+  put(agentAddress: string, key: string, value: string): Promise<void>;
+
+  /**
+   * Delete a storage key.
+   * @see deleteStorage
+   */
+  delete(agentAddress: string, key: string): Promise<void>;
+}
+
+/** Commerce data from agent storage. */
+export interface CommerceNamespace {
+  /**
+   * Read revenue data for an agent.
+   * @see getAgentRevenue
+   */
+  getRevenue(agentAddress: string): Promise<AgentRevenue>;
+
+  /**
+   * Read the pricing table for an agent.
+   * @see getPricingTable
+   */
+  getPricing(agentAddress: string): Promise<PricingEntry[]>;
+
+  /**
+   * Read the full commerce status for an agent.
+   * @see getAgentCommerceStatus
+   */
+  getStatus(agentAddress: string): Promise<AgentCommerceStatus>;
+
+  /**
+   * Compute network-wide GDP across a set of agents.
+   * @see getNetworkGDP
+   */
+  getNetworkGDP(addresses: string[]): Promise<NetworkGDP>;
+}
+
 // ---------------------------------------------------------------------------
 // AgentLaunch class
 // ---------------------------------------------------------------------------
@@ -198,6 +266,12 @@ export class AgentLaunch {
   /** Agent authentication and Agentverse management. */
   readonly agents: AgentsNamespace;
 
+  /** Agentverse storage read/write operations. */
+  readonly storage: StorageNamespace;
+
+  /** Commerce data from agent storage (revenue, pricing, GDP). */
+  readonly commerce: CommerceNamespace;
+
   constructor(config: AgentLaunchConfig = {}) {
     this.client = new AgentLaunchClient(config);
 
@@ -243,6 +317,31 @@ export class AgentLaunch {
       getMyAgents: () => getMyAgents(client),
       importFromAgentverse: (agentverseApiKey: string) =>
         importFromAgentverse(agentverseApiKey, client),
+    };
+
+    // Storage and commerce namespaces use the Agentverse API key directly
+    // (Bearer auth to agentverse.ai, not X-API-Key to agent-launch.ai).
+    const apiKey = config.apiKey;
+
+    this.storage = {
+      list: (agentAddress: string) => listStorage(agentAddress, apiKey),
+      get: (agentAddress: string, key: string) =>
+        getStorage(agentAddress, key, apiKey),
+      put: (agentAddress: string, key: string, value: string) =>
+        putStorage(agentAddress, key, value, apiKey),
+      delete: (agentAddress: string, key: string) =>
+        deleteStorage(agentAddress, key, apiKey),
+    };
+
+    this.commerce = {
+      getRevenue: (agentAddress: string) =>
+        getAgentRevenue(agentAddress, apiKey),
+      getPricing: (agentAddress: string) =>
+        getPricingTable(agentAddress, apiKey),
+      getStatus: (agentAddress: string) =>
+        getAgentCommerceStatus(agentAddress, apiKey),
+      getNetworkGDP: (addresses: string[]) =>
+        getNetworkGDP(addresses, apiKey),
     };
   }
 }

@@ -41,6 +41,8 @@ export type {
   MarketNamespace,
   HandoffNamespace,
   AgentsNamespace,
+  StorageNamespace,
+  CommerceNamespace,
 } from './agentlaunch.js';
 
 // Core HTTP client
@@ -117,6 +119,14 @@ export {
   getAgentStatus,
   deployAgent,
 } from './agentverse.js';
+
+// EXT-01: Agentverse storage operations
+export { listStorage, getStorage, putStorage, deleteStorage } from './storage.js';
+export type { StorageEntry, StorageListResponse } from './storage.js';
+
+// EXT-02: Commerce data operations
+export { getAgentRevenue, getPricingTable, getAgentCommerceStatus, getNetworkGDP } from './commerce.js';
+export type { AgentRevenue, PricingEntry, AgentCommerceStatus, NetworkGDP } from './commerce.js';
 
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';
