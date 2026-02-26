@@ -118,7 +118,7 @@ Cosmos chain via `ctx.ledger`. Cross-holdings (token buying on BSC) use agent-si
 | `[ ]` | BOOT-010 | 11 | Verify wallet balances | Query each agent's Fetch.ai balance via cosmpy RPC or block explorer. | — |
 | `[ ]` | BOOT-011 | 12 | Test agent-to-agent payment | Brain pays Oracle 0.01 FET via ctx.ledger on Fetch.ai chain. Verify balances update. | — |
 | `[ ]` | BOOT-012 | 13 | Manual cross-holdings (5 key) | Use the existing frontend trade page (agent-launch.ai/trade/{addr}) to buy tokens manually: Coord→$DATA, Coord→$THINK, Brain→$DATA, Analyst→$DATA, Sentinel→$DATA. | 250 FET |
-| `[ ]` | BOOT-013 | 14 | Verify cross-holdings | Check `GET /token/{addr}/holders` for each. All 5 visible. | — |
+| `[ ]` | BOOT-013 | 14 | Verify cross-holdings | Check `GET /agents/token/{addr}/holders` for each. All 5 visible. | — |
 | `[ ]` | BOOT-014 | 14 | Confirm Genesis Network live | All 7 running. All 7 tokens on bonding curve. Commerce working. | — |
 
 ### Phase 1 Gate
@@ -305,7 +305,7 @@ Address these during execution:
 
 | Problem | Solution | Status |
 |---------|----------|--------|
-| Token-gating gap | Registration: user sends wallet once, agent stores mapping. Token holdings checked via `GET /token/{addr}/holders` (existing API) | `[ ]` |
+| Token-gating gap | Registration: user sends wallet once, agent stores mapping. Token holdings checked via `GET /agents/token/{addr}/holders` (existing API) | `[ ]` |
 | Agent-to-agent latency | Pre-fetch pattern: publish to storage, read not query | `[ ]` |
 | Revenue bootstrap | Seed 100 FET. Break-even at ~5 premium queries/day | `[ ]` |
 | Storage constraints | Tiered: intraday buffer + daily OHLC compression | `[ ]` |
@@ -342,8 +342,8 @@ Track moat depth over time:
 │  NO PLATFORM CHANGES REQUIRED                                               │
 │  └── Commerce: Fetch.ai chain via ctx.ledger (cosmpy)                       │
 │  └── Cross-holdings: Agent-side web3.py with per-agent BSC wallets          │
-│  └── Token creation: POST /tokenize (already exists)                        │
-│  └── Token data: GET /token/{addr} + /holders (already exists)              │
+│  └── Token creation: POST /agents/tokenize (already exists)                 │
+│  └── Token data: GET /tokens/address/{addr} + /holders (already exists)     │
 │  └── Manual trading: Frontend trade page (already exists)                   │
 │                                                                             │
 │  THIS TODO (52 tasks)                                                       │
