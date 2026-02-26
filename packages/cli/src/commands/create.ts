@@ -101,6 +101,27 @@ function sanitizeDirName(s: string): string {
   return s.replace(/[^a-zA-Z0-9_-]/g, "-").toLowerCase();
 }
 
+async function validateApiKey(apiKey: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    const response = await fetch("https://agentverse.ai/v1/hosting/agents", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    if (response.ok) {
+      return { valid: true };
+    }
+    if (response.status === 401) {
+      return { valid: false, error: "Invalid API key" };
+    }
+    return { valid: false, error: `API returned ${response.status}` };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { valid: false, error: msg };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tokenize
 // ---------------------------------------------------------------------------
@@ -161,6 +182,8 @@ export function registerCreateCommand(program: Command): void {
     .option("--deploy", "Deploy agent to Agentverse after scaffolding")
     .option("--tokenize", "Create token record on AgentLaunch after deploy")
     .option("--mode <mode>", "Build mode: quick (single agent), swarm (multi-agent), genesis (full 7-agent economy)")
+    .option("--preset <preset>", "Agent preset: oracle, brain, analyst, coordinator, sentinel, launcher, scout")
+    .option("--no-deploy", "Scaffold only, don't deploy to Agentverse")
     .option("--json", "Output only JSON (machine-readable, disables prompts)")
     .action(
       async (options: {
@@ -172,6 +195,7 @@ export function registerCreateCommand(program: Command): void {
         deploy?: boolean;
         tokenize?: boolean;
         mode?: string;
+        preset?: string;
         json?: boolean;
       }) => {
         const isJson = options.json === true;
@@ -218,6 +242,21 @@ export function registerCreateCommand(program: Command): void {
           // Set API key in env for SDK calls
           if (apiKey) {
             process.env.AGENTVERSE_API_KEY = apiKey;
+          }
+
+          // Validate API key if we're going to deploy
+          // --no-deploy flag sets options.deploy to false
+          const skipDeploy = options.deploy === false;
+          if (!skipDeploy && apiKey) {
+            console.log("\n  Validating API key...");
+            const validation = await validateApiKey(apiKey);
+            if (!validation.valid) {
+              console.error(`  Error: ${validation.error ?? "Invalid API key"}`);
+              console.log("  Get your API key at: https://agentverse.ai/profile/api-keys");
+              rl.close();
+              process.exit(1);
+            }
+            console.log("  Valid.\n");
           }
 
           // Build mode prompt (unless --mode is already set)
@@ -282,7 +321,9 @@ export function registerCreateCommand(program: Command): void {
           const isSingleAgent = buildMode === "single";
           const baseName = name || (isSingleAgent ? selectedPresets[0] : "Swarm");
 
-          if (isSingleAgent) {
+          if (skipDeploy) {
+            console.log(`\n  Scaffolding ${isSingleAgent ? baseName : selectedPresets.length + " agents"}...\n`);
+          } else if (isSingleAgent) {
             console.log(`\n  Deploying ${baseName}...\n`);
           } else {
             console.log(`\n  Deploying ${selectedPresets.length} agents as "${baseName}"...\n`);
@@ -290,7 +331,7 @@ export function registerCreateCommand(program: Command): void {
 
           rl.close();
 
-          // Deploy each agent in sequence
+          // Generate/deploy each agent in sequence
           const deployResults: Array<{
             name: string;
             preset: string;
@@ -308,7 +349,8 @@ export function registerCreateCommand(program: Command): void {
               : `${baseName}-${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`;
               const presetInfo = GENESIS_PRESETS.find((p) => p.name === presetName);
 
-              console.log(`  [${deployResults.length + 1}/${selectedPresets.length}] Deploying ${agentName}...`);
+              const action = skipDeploy ? "Scaffolding" : "Deploying";
+              console.log(`  [${deployResults.length + 1}/${selectedPresets.length}] ${action} ${agentName}...`);
 
               try {
                 // Generate agent code — try swarm-starter template, fall back to custom
@@ -328,29 +370,42 @@ export function registerCreateCommand(program: Command): void {
                   agentCode = generated.code;
                 }
 
-                const result = await deployAgent({
-                  apiKey,
-                  agentName,
-                  sourceCode: agentCode,
-                  secrets: {
-                    ...peerAddresses,
-                    AGENTVERSE_API_KEY: apiKey,
-                    AGENTLAUNCH_API_KEY: apiKey,
-                  },
-                });
+                if (skipDeploy) {
+                  // Scaffold only - no deployment
+                  deployResults.push({
+                    name: agentName,
+                    preset: presetName,
+                    address: "",
+                    status: "scaffolded",
+                    code: agentCode,
+                  });
+                  console.log("    Scaffolded (not deployed)");
+                } else {
+                  // Deploy to Agentverse
+                  const result = await deployAgent({
+                    apiKey,
+                    agentName,
+                    sourceCode: agentCode,
+                    secrets: {
+                      ...peerAddresses,
+                      AGENTVERSE_API_KEY: apiKey,
+                      AGENTLAUNCH_API_KEY: apiKey,
+                    },
+                  });
 
-                peerAddresses[`${presetName.toUpperCase()}_ADDRESS`] = result.agentAddress;
+                  peerAddresses[`${presetName.toUpperCase()}_ADDRESS`] = result.agentAddress;
 
-                deployResults.push({
-                  name: agentName,
-                  preset: presetName,
-                  address: result.agentAddress,
-                  status: result.status,
-                  code: agentCode,
-                });
+                  deployResults.push({
+                    name: agentName,
+                    preset: presetName,
+                    address: result.agentAddress,
+                    status: result.status,
+                    code: agentCode,
+                  });
 
-                console.log(`    Address: ${result.agentAddress}`);
-                console.log(`    Status:  ${result.status}`);
+                  console.log(`    Address: ${result.agentAddress}`);
+                  console.log(`    Status:  ${result.status}`);
+                }
               } catch (err) {
                 const errMsg = err instanceof Error ? err.message : String(err);
                 deployResults.push({
@@ -529,7 +584,19 @@ AGENT_ADDRESS=${successful[0].address}
             return;
           }
 
-          if (isSingleAgent) {
+          if (skipDeploy) {
+            // Scaffolded without deploying
+            if (isSingleAgent) {
+              console.log(`\n  Agent scaffolded!`);
+              console.log(`  Name:      ${baseName}`);
+              console.log(`  Type:      ${selectedPresets[0]}`);
+            } else {
+              console.log(`\n  Swarm scaffolded!`);
+              console.log(`  Agents:    ${selectedPresets.join(", ")}`);
+            }
+            console.log(`  Directory: ${targetDir}`);
+            console.log(`\n  To deploy: npx agentlaunch deploy --code ${isSingleAgent ? "agent.py" : "agents/<preset>.py"}`);
+          } else if (isSingleAgent) {
             console.log(`\n  Agent deployed!`);
             if (successful.length > 0) {
               const agent = successful[0];
@@ -579,7 +646,14 @@ AGENT_ADDRESS=${successful[0].address}
 
           // Build a context-aware welcome prompt
           let welcomePrompt: string;
-          if (isSingleAgent && successful.length > 0) {
+          if (skipDeploy) {
+            // Scaffolded but not deployed
+            if (isSingleAgent) {
+              welcomePrompt = `I just scaffolded a ${selectedPresets[0]} agent called "${baseName}". The code is ready but NOT deployed yet. Welcome me, explain what's in the project, and show me how to deploy it with "agentlaunch deploy". Be encouraging and brief.`;
+            } else {
+              welcomePrompt = `I just scaffolded a ${selectedPresets.length}-agent swarm called "${baseName}" with: ${selectedPresets.join(", ")}. The code is ready but NOT deployed yet. Welcome me, show me the agent files, and explain how to deploy them. Be encouraging and brief.`;
+            }
+          } else if (isSingleAgent && successful.length > 0) {
             const agent = successful[0];
             welcomePrompt = `I just deployed a ${agent.preset} agent called "${agent.name}" at ${agent.address.slice(0, 16)}... It charges for services. Welcome me, then explain: (1) how to tokenize it so I can earn from trading, (2) how to customize the pricing, and (3) what makes an agent valuable on this platform. Be encouraging and brief.`;
           } else {
@@ -588,8 +662,13 @@ AGENT_ADDRESS=${successful[0].address}
           }
 
           // Build system prompt with agent context
-          const agentAddresses = successful.map((a) => `${a.preset}: ${a.address}`).join(", ");
-          const systemContext = `You are helping a developer who just deployed ${isSingleAgent ? "an agent" : "a swarm"} to the Fetch.ai Agentverse. The API key is already in .env. Agent addresses: ${agentAddresses}. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server (agent-launch). Focus on helping them tokenize, customize pricing, and understand value creation.`;
+          let systemContext: string;
+          if (skipDeploy) {
+            systemContext = `You are helping a developer who just scaffolded ${isSingleAgent ? "an agent" : "a swarm"} for Fetch.ai Agentverse. The code is ready but NOT deployed yet. API key is in .env. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server. Focus on helping them understand the code, customize it, and deploy when ready.`;
+          } else {
+            const agentAddresses = successful.map((a) => `${a.preset}: ${a.address}`).join(", ");
+            systemContext = `You are helping a developer who just deployed ${isSingleAgent ? "an agent" : "a swarm"} to the Fetch.ai Agentverse. The API key is already in .env. Agent addresses: ${agentAddresses}. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server (agent-launch). Focus on helping them tokenize, customize pricing, and understand value creation.`;
+          }
 
           // Launch Claude with enhanced flags for better UX
           const claudeArgs = [
@@ -671,12 +750,16 @@ AGENT_ADDRESS=${successful[0].address}
         }
 
         // Truncate description if too long
-        const finalDescription = (description || TEMPLATES[template]?.description || "").slice(0, 500);
+        const presetInfo = options.preset ? GENESIS_PRESETS.find((p) => p.name === options.preset) : undefined;
+        const finalDescription = (description || presetInfo?.description || TEMPLATES[template]?.description || "").slice(0, 500);
 
         // Generate files from templates package
-        const generated = generateFromTemplate(template, {
+        // If a preset is specified, use swarm-starter template with the preset
+        const templateToUse = options.preset ? "swarm-starter" : template;
+        const generated = generateFromTemplate(templateToUse, {
           agent_name: name,
           description: finalDescription,
+          preset: options.preset,
         });
 
         fs.mkdirSync(targetDir, { recursive: true });
