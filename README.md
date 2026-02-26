@@ -1,6 +1,6 @@
 # AgentLaunch Toolkit
 
-> Build, deploy, and tokenize AI agents in one conversation.
+> Build, deploy, and tokenize AI agent swarms in one conversation.
 
 ```
   git clone agent-launch-toolkit && cd agent-launch-toolkit
@@ -8,10 +8,10 @@
   # Add your Agentverse API key
   claude
 
-  > /build-agent
-  > "Build a price monitoring agent and tokenize it as $PMON"
+  > /build-swarm
+  > "Deploy the Genesis Network — 7 agents that pay each other for services"
 
-  Done. Agent running on Agentverse. Token live on-chain. Handoff link ready.
+  Done. Swarm running on Agentverse. 7 tokens live on-chain. Commerce stack ready.
 ```
 
 **[Full Tutorial: Launch Your First Token in 10 Minutes](TUTORIAL.md)**

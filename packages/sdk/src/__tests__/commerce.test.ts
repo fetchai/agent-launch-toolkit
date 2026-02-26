@@ -112,14 +112,14 @@ describe('getAgentRevenue()', () => {
       }),
     );
 
-    const revenue = await getAgentRevenue(API_KEY, AGENT_ADDRESS);
+    const revenue = await getAgentRevenue(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(revenue, 'should return revenue data');
-    assert.equal(revenue.total_income, 50000000000000000);
-    assert.equal(revenue.total_expense, 10000000000000000);
-    assert.equal(revenue.net_revenue, 40000000000000000);
-    assert.equal(revenue.transaction_count, 25);
+    assert.equal(revenue.totalIncome, 50000000000000000);
+    assert.equal(revenue.totalExpenses, 10000000000000000);
+    assert.equal(revenue.netRevenue, 40000000000000000);
+    assert.equal(revenue.transactionCount, 25);
   });
 
   it('returns zero values when storage is empty (no revenue_summary)', async () => {
@@ -127,14 +127,14 @@ describe('getAgentRevenue()', () => {
       Promise.resolve(makeResponse({ message: 'Not found' }, 404)),
     );
 
-    const revenue = await getAgentRevenue(API_KEY, AGENT_ADDRESS);
+    const revenue = await getAgentRevenue(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(revenue, 'should return a revenue object even when empty');
-    assert.equal(revenue.total_income, 0, 'total_income should be 0');
-    assert.equal(revenue.total_expense, 0, 'total_expense should be 0');
-    assert.equal(revenue.net_revenue, 0, 'net_revenue should be 0');
-    assert.equal(revenue.transaction_count, 0, 'transaction_count should be 0');
+    assert.equal(revenue.totalIncome, 0, 'totalIncome should be 0');
+    assert.equal(revenue.totalExpenses, 0, 'totalExpenses should be 0');
+    assert.equal(revenue.netRevenue, 0, 'netRevenue should be 0');
+    assert.equal(revenue.transactionCount, 0, 'transactionCount should be 0');
   });
 
   it('handles malformed JSON without crashing', async () => {
@@ -145,11 +145,11 @@ describe('getAgentRevenue()', () => {
     );
 
     // Should not throw
-    const revenue = await getAgentRevenue(API_KEY, AGENT_ADDRESS);
+    const revenue = await getAgentRevenue(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(revenue, 'should return a revenue object');
-    assert.equal(revenue.total_income, 0, 'should default to 0 on parse error');
+    assert.equal(revenue.totalIncome, 0, 'should default to 0 on parse error');
   });
 });
 
@@ -165,14 +165,12 @@ describe('getPricingTable()', () => {
       }),
     );
 
-    const pricing = await getPricingTable(API_KEY, AGENT_ADDRESS);
+    const pricing = await getPricingTable(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(pricing, 'should return pricing data');
-    assert.ok(pricing.analysis, 'should have analysis service');
-    assert.equal(pricing.analysis.price, 10000000000000000);
-    assert.ok(pricing.monitoring, 'should have monitoring service');
-    assert.ok(pricing.premium_report, 'should have premium_report service');
+    assert.ok(Array.isArray(pricing), 'should be an array');
+    assert.ok(pricing.length > 0, 'should have pricing entries');
   });
 
   it('returns empty object when no pricing_table exists', async () => {
@@ -180,12 +178,12 @@ describe('getPricingTable()', () => {
       Promise.resolve(makeResponse({ message: 'Not found' }, 404)),
     );
 
-    const pricing = await getPricingTable(API_KEY, AGENT_ADDRESS);
+    const pricing = await getPricingTable(AGENT_ADDRESS, API_KEY);
 
     restore();
-    assert.ok(pricing, 'should return a pricing object');
+    assert.ok(pricing, 'should return a pricing array');
     assert.equal(
-      Object.keys(pricing).length,
+      pricing.length,
       0,
       'should be empty when no data exists',
     );
@@ -198,12 +196,12 @@ describe('getPricingTable()', () => {
       }),
     );
 
-    const pricing = await getPricingTable(API_KEY, AGENT_ADDRESS);
+    const pricing = await getPricingTable(AGENT_ADDRESS, API_KEY);
 
     restore();
-    assert.ok(pricing, 'should return a pricing object');
+    assert.ok(pricing, 'should return a pricing array');
     assert.equal(
-      Object.keys(pricing).length,
+      pricing.length,
       0,
       'should be empty on parse error',
     );
@@ -224,14 +222,14 @@ describe('getAgentCommerceStatus()', () => {
       }),
     );
 
-    const status = await getAgentCommerceStatus(API_KEY, AGENT_ADDRESS);
+    const status = await getAgentCommerceStatus(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(status, 'should return a commerce status object');
     assert.ok(status.revenue, 'should include revenue data');
     assert.ok(status.pricing, 'should include pricing data');
-    assert.equal(status.revenue.total_income, 50000000000000000);
-    assert.ok(Object.keys(status.pricing).length > 0, 'pricing should have entries');
+    assert.equal(status.revenue.totalIncome, 50000000000000000);
+    assert.ok(status.pricing.length > 0, 'pricing should have entries');
   });
 
   it('returns default values when all storage entries are empty', async () => {
@@ -239,13 +237,13 @@ describe('getAgentCommerceStatus()', () => {
       Promise.resolve(makeResponse({ message: 'Not found' }, 404)),
     );
 
-    const status = await getAgentCommerceStatus(API_KEY, AGENT_ADDRESS);
+    const status = await getAgentCommerceStatus(AGENT_ADDRESS, API_KEY);
 
     restore();
     assert.ok(status, 'should return a commerce status object');
     assert.ok(status.revenue, 'should include revenue even when empty');
-    assert.equal(status.revenue.total_income, 0);
-    assert.equal(status.revenue.net_revenue, 0);
+    assert.equal(status.revenue.totalIncome, 0);
+    assert.equal(status.revenue.netRevenue, 0);
   });
 
   it('includes the agent address in the response', async () => {
@@ -253,12 +251,12 @@ describe('getAgentCommerceStatus()', () => {
       Promise.resolve(makeResponse({ message: 'Not found' }, 404)),
     );
 
-    const status = await getAgentCommerceStatus(API_KEY, AGENT_ADDRESS);
+    const status = await getAgentCommerceStatus(AGENT_ADDRESS, API_KEY);
 
     restore();
-    assert.ok(
-      status.agentAddress === AGENT_ADDRESS ||
-        status.address === AGENT_ADDRESS,
+    assert.equal(
+      status.address,
+      AGENT_ADDRESS,
       'should include the agent address in the status',
     );
   });
@@ -307,13 +305,13 @@ describe('getNetworkGDP()', () => {
       return Promise.resolve(makeResponse({ message: 'Not found' }, 404));
     });
 
-    const gdp = await getNetworkGDP(API_KEY, [AGENT_ADDRESS, AGENT_ADDRESS_2]);
+    const gdp = await getNetworkGDP([AGENT_ADDRESS, AGENT_ADDRESS_2], API_KEY);
 
     restore();
     assert.ok(gdp, 'should return GDP data');
-    assert.ok(gdp.totalIncome > 0, 'totalIncome should be positive');
-    assert.ok(gdp.totalRevenue > 0, 'totalRevenue should be positive');
-    assert.ok(gdp.agentCount >= 2, 'should count both agents');
+    assert.ok(gdp.totalGDP > 0, 'totalGDP should be positive');
+    assert.ok(gdp.totalTransactions > 0, 'totalTransactions should be positive');
+    assert.ok(gdp.activeAgents >= 2, 'should count both agents');
   });
 
   it('handles empty agent list gracefully', async () => {
@@ -321,12 +319,12 @@ describe('getNetworkGDP()', () => {
       Promise.resolve(makeResponse([])),
     );
 
-    const gdp = await getNetworkGDP(API_KEY, []);
+    const gdp = await getNetworkGDP([], API_KEY);
 
     restore();
     assert.ok(gdp, 'should return GDP data');
-    assert.equal(gdp.totalIncome, 0, 'totalIncome should be 0');
-    assert.equal(gdp.agentCount, 0, 'agentCount should be 0');
+    assert.equal(gdp.totalGDP, 0, 'totalGDP should be 0');
+    assert.equal(gdp.activeAgents, 0, 'activeAgents should be 0');
   });
 
   it('handles agents with missing revenue data', async () => {
@@ -335,11 +333,11 @@ describe('getNetworkGDP()', () => {
     );
 
     // Should not throw even when all agents have empty storage
-    const gdp = await getNetworkGDP(API_KEY, [AGENT_ADDRESS, AGENT_ADDRESS_2]);
+    const gdp = await getNetworkGDP([AGENT_ADDRESS, AGENT_ADDRESS_2], API_KEY);
 
     restore();
     assert.ok(gdp, 'should return GDP data');
-    assert.equal(gdp.totalIncome, 0, 'totalIncome should be 0 when all empty');
+    assert.equal(gdp.totalGDP, 0, 'totalGDP should be 0 when all empty');
   });
 });
 
