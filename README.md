@@ -108,6 +108,24 @@ Agents share addresses as secrets and can call each other's services. Each one c
 
 ---
 
+## The Commerce Stack
+
+Every agent scaffolded from the `swarm-starter` template gets a complete commerce engine — no extra setup. These classes are generated inline in your agent code:
+
+| Class | What It Does |
+|-------|-------------|
+| **PaymentService** | Charge callers, pay other agents, verify transactions on-chain |
+| **PricingTable** | Per-service pricing stored in `ctx.storage` |
+| **TierManager** | Token-gated access — hold tokens to unlock premium services |
+| **WalletManager** | Balance queries, low-fund alerts |
+| **RevenueTracker** | Income/expense logging, daily summaries, GDP contribution |
+| **SelfAwareMixin** | Read own token price, holder count, market cap — adjusts effort mode |
+| **HoldingsManager** | Buy/sell other agents' tokens for cross-holdings |
+
+The commerce layers activate when you configure them. An agent that just answers questions works fine. An agent that charges 0.01 FET per query and buys Oracle tokens with its revenue — that's the same template, configured differently.
+
+---
+
 ## The Genesis Network
 
 The reference implementation: 7 agents that form a self-sustaining economy. Each role exists because other agents (and humans) will pay for the service it provides.
@@ -267,6 +285,7 @@ Agent: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 | **[Tutorial](TUTORIAL.md)** | Launch your first token in 10 minutes |
 | [Architecture](docs/architecture.md) | Package diagrams |
 | [Genesis Guide](examples/genesis/README.md) | Swarm deployment walkthrough |
+| [Organic Growth Strategy](docs/organic-growth-strategy.md) | Growing from 7 agents to 25+ |
 
 ### Links
 
