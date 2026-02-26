@@ -2,6 +2,9 @@
 
 When writing Agentverse agent code:
 
+> **For new agents, use the genesis template:** `agentlaunch scaffold myagent --type genesis`
+> It includes the full commerce stack (payments, pricing, tiers, revenue tracking).
+
 ## Minimal Working Agent
 
 ```python
@@ -62,6 +65,65 @@ from uagents_core.contrib.protocols.chat import (
 )
 from datetime import datetime
 ```
+
+---
+
+## Payment Protocol (Official)
+
+Use the official payment protocol from `uagents_core`. Do NOT create custom payment models.
+
+### Imports
+
+```python
+from uagents_core.contrib.protocols.payment import (
+    RequestPayment,
+    CommitPayment,
+    CompletePayment,
+    RejectPayment,
+    CancelPayment,
+    Funds,
+    payment_protocol_spec,
+)
+```
+
+### Role-Based Protocol Creation
+
+```python
+# Seller (service provider) -- receives payments
+seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+
+# Buyer (service consumer) -- sends payments
+buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+```
+
+### Payment Flow
+
+```
+Buyer                          Seller
+  |                              |
+  |  ChatMessage (service req)   |
+  |----------------------------->|
+  |                              |
+  |  RequestPayment              |
+  |<-----------------------------|
+  |                              |
+  |  CommitPayment (tx_hash)     |
+  |----------------------------->|
+  |                              |
+  |  [verifies on-chain]         |
+  |                              |
+  |  CompletePayment (result)    |
+  |<-----------------------------|
+```
+
+### Error Handling
+
+- Always handle `RejectPayment` -- buyer may decline
+- Always handle `CancelPayment` -- timeout or cancellation
+- Verify tx_hash on-chain before delivering service
+- Store transaction log in `ctx.storage`
+
+See `.claude/rules/payment-protocol.md` for the full reference.
 
 ---
 
@@ -137,111 +199,30 @@ Example: 0.01 FET = 10_000_000_000_000_000 atestfet
 
 ---
 
-## Payment Protocol Pattern
+## Commerce Layer (Genesis Template)
 
-For agent-to-agent payments, create a custom protocol:
+The genesis template includes a complete commerce stack inline. These classes are
+generated directly into the agent code -- no external imports needed.
 
-### Payment Messages (Pydantic Models)
+| Class | Purpose |
+|-------|---------|
+| `PaymentService` | Charge callers, pay other agents, verify on-chain transactions |
+| `PricingTable` | Per-service pricing stored in `ctx.storage` |
+| `TierManager` | Token-gated access: free tier vs. premium (hold tokens to unlock) |
+| `WalletManager` | Balance queries, low-fund alerts |
+| `RevenueTracker` | Income/expense logging, GDP contribution |
+| `SelfAwareMixin` | Read own token price, holder count, market cap |
+| `HoldingsManager` | Buy/sell other agents' tokens for cross-holdings |
 
-```python
-from uagents import Model
-from pydantic import Field
-import uuid
+To use the commerce layer, scaffold with the genesis template:
 
-class PaymentRequest(Model):
-    """Service provider requests payment from client."""
-    request_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    amount_afet: int       # Amount in atestfet
-    service: str           # Service being requested
-    recipient: str         # Provider's wallet address
-
-class PaymentCommit(Model):
-    """Client commits to pay (agrees to price)."""
-    request_id: str
-    tx_hash: str = ""      # Filled after transfer
-
-class PaymentComplete(Model):
-    """Provider confirms payment received, delivers service."""
-    request_id: str
-    result: str            # Service result
-
-class PaymentReject(Model):
-    """Client rejects payment request."""
-    request_id: str
-    reason: str
+```bash
+agentlaunch scaffold myagent --type genesis
+# Or with a preset:
+agentlaunch scaffold oracle-agent --type genesis --preset oracle
 ```
 
-### Payment Protocol Handler
-
-```python
-from uagents import Protocol
-
-payment_proto = Protocol(name="payment", version="1.0.0")
-
-# Track pending payments
-pending_payments: dict[str, PaymentRequest] = {}
-
-@payment_proto.on_message(model=PaymentRequest)
-async def handle_payment_request(ctx: Context, sender: str, msg: PaymentRequest):
-    """Client receives payment request — decide to commit or reject."""
-    max_auto_pay = int(ctx.storage.get("max_auto_pay") or 10_000_000_000_000_000)  # 0.01 FET
-
-    if msg.amount_afet <= max_auto_pay:
-        # Auto-approve small payments — send FET
-        tx_hash = await send_fet(ctx, msg.recipient, msg.amount_afet)
-        await ctx.send(sender, PaymentCommit(
-            request_id=msg.request_id,
-            tx_hash=tx_hash
-        ))
-        ctx.logger.info(f"Auto-paid {msg.amount_afet} atestfet for {msg.service}")
-    else:
-        await ctx.send(sender, PaymentReject(
-            request_id=msg.request_id,
-            reason=f"Amount {msg.amount_afet} exceeds auto-pay limit"
-        ))
-
-@payment_proto.on_message(model=PaymentCommit)
-async def handle_payment_commit(ctx: Context, sender: str, msg: PaymentCommit):
-    """Provider receives payment — verify and deliver service."""
-    if msg.request_id not in pending_payments:
-        ctx.logger.warning(f"Unknown payment request: {msg.request_id}")
-        return
-
-    request = pending_payments.pop(msg.request_id)
-
-    # Optionally verify tx_hash on chain
-    # tx = ctx.ledger.query_tx(msg.tx_hash)
-
-    # Deliver service
-    result = "Service delivered successfully"
-
-    # Track revenue
-    total = int(ctx.storage.get("total_revenue") or 0)
-    ctx.storage.set("total_revenue", str(total + request.amount_afet))
-
-    await ctx.send(sender, PaymentComplete(
-        request_id=msg.request_id,
-        result=result
-    ))
-
-agent.include(payment_proto, publish_manifest=True)
-```
-
-### Charging for a Service
-
-```python
-async def charge_for_service(ctx: Context, client: str, service: str, amount_afet: int) -> str:
-    """Request payment before delivering service."""
-    request = PaymentRequest(
-        amount_afet=amount_afet,
-        service=service,
-        recipient=str(ctx.wallet.address())
-    )
-    pending_payments[request.request_id] = request
-
-    await ctx.send(client, request)
-    return request.request_id
-```
+See `.claude/rules/genesis-network.md` for the 7 preset roles and build order.
 
 ---
 
@@ -279,41 +260,6 @@ async def periodic_task(ctx: Context):
 
 ---
 
-## Commerce Module Pattern
-
-For Genesis Network agents, use these commerce modules:
-
-```python
-# commerce.py — Payment Service
-class PaymentService:
-    async def charge(ctx, sender, amount_afet, description) -> str
-    async def pay(ctx, recipient, amount_afet, description) -> str
-    async def get_balance(ctx) -> int
-
-# pricing.py — Pricing Table
-class PricingTable:
-    def get_price(service_name) -> int  # Returns afet
-    def set_price(service_name, amount_afet)
-
-# tier.py — Premium Tiers
-class TierManager:
-    async def get_tier(ctx, sender) -> str  # "free" or "premium"
-
-# revenue.py — Revenue Tracking
-class RevenueTracker:
-    def record_income(ctx, amount, source, service)
-    def record_expense(ctx, amount, dest, service)
-    def get_gdp_contribution(ctx) -> int
-
-# wallet.py — Wallet Manager
-class WalletManager:
-    async def get_balance(ctx) -> int
-    def get_address(ctx) -> str
-    async def fund_check(ctx, min_balance) -> bool
-```
-
----
-
 ## Agentverse Allowed Imports
 
 These are available on Agentverse hosted agents:
@@ -331,9 +277,10 @@ datetime, json, hashlib, uuid   # Standard library
 
 ## Common Gotchas
 
-1. **Double-encoded code upload** — When uploading via API, code must be JSON stringified twice
-2. **ChatAcknowledgement required** — Always handle it, even if empty
-3. **datetime.utcnow() deprecated** — Use `datetime.now()`
-4. **Agent listing is `items`** — Response is `{ items: [...] }` not `{ agents: [...] }`
-5. **Wait for compilation** — 15-60s after start before agent responds
-6. **Balance in atestfet** — 1 FET = 10^18 atestfet, always use int not float
+1. **Double-encoded code upload** -- When uploading via API, code must be JSON stringified twice
+2. **ChatAcknowledgement required** -- Always handle it, even if empty
+3. **datetime.utcnow() deprecated** -- Use `datetime.now()`
+4. **Agent listing is `items`** -- Response is `{ items: [...] }` not `{ agents: [...] }`
+5. **Wait for compilation** -- 15-60s after start before agent responds
+6. **Balance in atestfet** -- 1 FET = 10^18 atestfet, always use int not float
+7. **Use official payment protocol** -- Import from `uagents_core.contrib.protocols.payment`, not custom models

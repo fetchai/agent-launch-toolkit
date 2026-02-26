@@ -39,6 +39,11 @@ GET   /tokens/address/{address}    Token details by address
 GET   /tokens/id/{id}              Token details by ID
 GET   /tokens/calculate-buy        Preview buy
 GET   /tokens/calculate-sell       Preview sell
+GET   /agents/my-agents            List your agents
+GET   /agents/token/{address}/holders  Token holder list
+POST  /agents/auth                 Exchange API key for JWT
+GET   /comments/{address}          Get comments
+POST  /comments/{address}          Post comment
 GET   /platform/stats              Platform statistics
 \`\`\`
 
@@ -84,6 +89,8 @@ payload = {"code": json.dumps(code_array)}
 
   "uagent-patterns.md": `# uAgent Code Patterns
 
+> For new agents, use the genesis template: \`agentlaunch scaffold myagent --type genesis\`
+
 ## Minimal Working Agent
 
 \`\`\`python
@@ -122,6 +129,118 @@ agent.include(chat_proto, publish_manifest=True)
 if __name__ == "__main__":
     agent.run()
 \`\`\`
+
+## Payment Protocol (Official)
+
+\`\`\`python
+from uagents_core.contrib.protocols.payment import (
+    RequestPayment, CommitPayment, CompletePayment,
+    RejectPayment, CancelPayment, Funds, payment_protocol_spec,
+)
+
+# Seller (service provider)
+seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+
+# Buyer (service consumer)
+buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+\`\`\`
+
+## Commerce Layer (Genesis Template)
+
+The genesis template includes inline commerce classes:
+- PaymentService: Charge callers, pay other agents
+- PricingTable: Per-service pricing from ctx.storage
+- TierManager: Token-gated access (free/premium)
+- WalletManager: Balance queries, fund alerts
+- RevenueTracker: Income/expense logging
+- SelfAwareMixin: Token price/holder awareness
+- HoldingsManager: Buy/sell other agents' tokens
+`,
+
+  "payment-protocol.md": `# Payment Protocol Rules
+
+## Official Imports (uagents_core)
+
+\`\`\`python
+from uagents_core.contrib.protocols.payment import (
+    RequestPayment,
+    CommitPayment,
+    CompletePayment,
+    RejectPayment,
+    CancelPayment,
+    Funds,
+    payment_protocol_spec,
+)
+\`\`\`
+
+## Role-Based Protocol Creation
+
+\`\`\`python
+# Seller (service provider)
+seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+
+# Buyer (service consumer)
+buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+\`\`\`
+
+## Payment Flow
+
+Buyer sends ChatMessage -> Seller sends RequestPayment -> Buyer sends CommitPayment (tx_hash) -> Seller verifies on-chain -> Seller sends CompletePayment.
+
+## Denomination
+
+- Testnet: atestfet (1 FET = 10^18 atestfet)
+- Mainnet: afet (1 FET = 10^18 afet)
+
+## Error Handling
+
+- Always handle RejectPayment -- buyer may decline
+- Always handle CancelPayment -- timeout or cancellation
+- Verify tx_hash on-chain before delivering service
+- Store transaction log in ctx.storage
+
+## Genesis Template Commerce Layers
+
+The genesis template includes these commerce classes inline:
+- PaymentService, PricingTable, TierManager
+- WalletManager, RevenueTracker, SelfAwareMixin, HoldingsManager
+`,
+
+  "genesis-network.md": `# Genesis Network Rules
+
+## The 7 Roles
+
+| Role | Token | Services | Price/call |
+|------|-------|----------|-----------|
+| Oracle | $DATA | price_feed, ohlc_history, market_summary | 0.001 FET |
+| Brain | $THINK | reason, classify, summarize | 0.01 FET |
+| Analyst | $RANK | score_token, evaluate_quality, rank_tokens | 0.005 FET |
+| Coordinator | $COORD | route_query, discover_agents | 0.0005 FET |
+| Sentinel | $WATCH | monitor, alert, anomaly_report | 0.002 FET |
+| Launcher | $BUILD | find_gap, scaffold_agent, deploy_recommendation | 0.02 FET |
+| Scout | $FIND | discover_agents, evaluate_agent, tokenize_recommendation | 0.01 FET |
+
+## Build Order
+
+Oracle -> Coordinator -> Analyst -> Sentinel -> Brain -> Launcher -> Scout
+
+## Starter Configurations
+
+- Minimum viable: Oracle + Coordinator (2 agents)
+- Intelligence: Oracle + Brain + Coordinator (3 agents)
+- Monitoring: Oracle + Analyst + Sentinel + Coordinator (4 agents)
+- Full Genesis: All 7
+
+## Cross-Holdings
+
+Agents buy each other's tokens for economic alignment.
+
+## Token Lifecycle
+
+1. Deploy on Agentverse
+2. Tokenize on AgentLaunch (120 FET deploy fee)
+3. Bonding curve active (2% fee to protocol treasury, NO creator fee)
+4. At 30,000 FET -> auto DEX listing (graduation)
 `,
 
   "api-design.md": `# API Design Rules
@@ -198,6 +317,33 @@ Build, deploy, and tokenize an agent in one guided flow.
 - Trading: 2% to protocol treasury
 `,
 
+  "build-swarm/SKILL.md": `# /build-swarm — Deploy Agent Swarm
+
+Scaffold, deploy, and tokenize a multi-agent swarm with the genesis template.
+
+## Steps
+
+1. Ask user what swarm they want (name, roles, purpose)
+2. Show the 7 available presets: oracle, brain, analyst, coordinator, sentinel, launcher, scout
+3. Let user pick roles (or suggest a starter configuration)
+4. For each role:
+   a. Scaffold from genesis template with preset variables
+   b. Deploy to Agentverse
+   c. Tokenize on AgentLaunch
+5. Return handoff links for each agent
+
+## Starter Configurations
+
+- Minimum viable: Oracle + Coordinator (2 agents)
+- Intelligence: Oracle + Brain + Coordinator (3 agents)
+- Monitoring: Oracle + Analyst + Sentinel + Coordinator (4 agents)
+- Full Genesis: All 7
+
+## Platform Fees
+- Deploy: 120 FET per agent (paid by human signer)
+- Trading: 2% to protocol treasury (NO creator fee)
+`,
+
   "deploy/SKILL.md": `# /deploy — Deploy to Agentverse
 
 Deploy agent.py to Agentverse hosting.
@@ -271,8 +417,12 @@ export const DOCS: Record<string, string> = {
 # Set API key
 export AGENTVERSE_API_KEY=av-xxx
 
-# Create agent project
-npx agentlaunch-cli create
+# Create agent project (genesis template recommended)
+npx agentlaunch-cli create --type genesis
+
+# Or deploy a full swarm
+npx agentlaunch-cli create --type genesis --preset oracle
+npx agentlaunch-cli create --type genesis --preset brain
 
 # Or use SDK
 npm install agentlaunch-sdk
@@ -289,7 +439,7 @@ Agents never hold private keys:
 ## Platform Constants
 - Deploy fee: 120 FET
 - Graduation: 30,000 FET -> DEX listing
-- Trading fee: 2% to protocol
+- Trading fee: 2% to protocol treasury (NO creator fee)
 `,
 
   "sdk-reference.md": `# SDK Reference
@@ -311,6 +461,13 @@ import {
   generateBuyLink,    // Create buy URL
   generateSellLink,   // Create sell URL
   deployAgent,        // Deploy to Agentverse
+  getAgentRevenue,    // Get agent revenue data
+  getPricingTable,    // Get agent pricing table
+  getNetworkGDP,      // Get swarm GDP metrics
+  listStorage,        // List agent storage keys
+  getStorage,         // Get agent storage value
+  putStorage,         // Set agent storage value
+  deleteStorage,      // Delete agent storage key
 } from 'agentlaunch-sdk';
 \`\`\`
 
@@ -366,7 +523,8 @@ Already configured in \`.claude/settings.json\`.
 
 | Tool | Description |
 |------|-------------|
-| \`scaffold_agent\` | Generate agent code |
+| \`scaffold_agent\` | Generate agent code from template |
+| \`scaffold_genesis\` | Scaffold agent from genesis preset |
 | \`deploy_to_agentverse\` | Deploy agent |
 | \`create_token_record\` | Create token |
 | \`list_tokens\` | Browse tokens |
@@ -374,6 +532,9 @@ Already configured in \`.claude/settings.json\`.
 | \`calculate_buy\` | Preview buy |
 | \`calculate_sell\` | Preview sell |
 | \`get_trade_link\` | Generate trade URL |
+| \`check_agent_commerce\` | Revenue, pricing, balance for an agent |
+| \`network_status\` | Swarm GDP, per-agent health |
+| \`deploy_swarm\` | Deploy multiple agents as a swarm |
 
 ## Example Prompts
 
@@ -381,6 +542,8 @@ Already configured in \`.claude/settings.json\`.
 - "Deploy my agent to Agentverse"
 - "Tokenize my agent as $MYTOKEN"
 - "Show trending tokens"
+- "Deploy an Oracle + Brain + Analyst swarm"
+- "Check my swarm's GDP"
 `,
 };
 
@@ -415,7 +578,7 @@ watches = {}
 
 def fetch_price(token_address: str) -> float | None:
     try:
-        r = requests.get(f"{API_URL}/agents/token/{token_address}", timeout=10)
+        r = requests.get(f"{API_URL}/tokens/address/{token_address}", timeout=10)
         if r.ok:
             return float(r.json().get("price", 0))
     except:
@@ -486,7 +649,7 @@ price_history = {}
 
 def get_signal(addr: str) -> str:
     try:
-        r = requests.get(f"{API_URL}/agents/token/{addr}", timeout=10)
+        r = requests.get(f"{API_URL}/tokens/address/{addr}", timeout=10)
         if r.ok:
             data = r.json()
             price = float(data.get("price", 0))
@@ -563,7 +726,7 @@ HF_TOKEN = os.environ.get("HF_TOKEN", "")
 
 def get_token_data(addr: str) -> dict:
     try:
-        r = requests.get(f"{API_URL}/agents/token/{addr}", timeout=10)
+        r = requests.get(f"{API_URL}/tokens/address/{addr}", timeout=10)
         if r.ok:
             return r.json()
     except:
@@ -677,6 +840,103 @@ export function buildPackageJson(name: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// CLAUDE.md builder for scaffolded projects
+// ---------------------------------------------------------------------------
+
+export function buildClaudeMd(name: string): string {
+  return `# ${name} — AgentLaunch Agent
+
+## What This Is
+
+An AI agent built with the AgentLaunch Toolkit. It runs on Agentverse and
+has a tradeable ERC-20 token on the bonding curve.
+
+## Templates
+
+| Template | Description | Use Case |
+|----------|-------------|----------|
+| \`genesis\` | **Full commerce stack** (recommended) | Any agent that charges for services |
+| \`custom\` | Blank Chat Protocol boilerplate | Start from scratch |
+| \`price-monitor\` | Watch token prices, send alerts | Monitoring service |
+| \`trading-bot\` | Buy/sell signal generation | Trading service |
+| \`data-analyzer\` | On-chain data analysis | Analytics service |
+| \`research\` | Deep dives and reports | Research service |
+| \`gifter\` | Treasury wallet + rewards | Community incentives |
+
+## Agent Swarms
+
+The genesis template generates agents with a complete commerce stack:
+- PaymentService, PricingTable, TierManager (charge for services)
+- WalletManager, RevenueTracker (track revenue)
+- SelfAwareMixin (token price awareness)
+- HoldingsManager (buy/sell other tokens)
+
+### Presets
+7 pre-configured roles: oracle, brain, analyst, coordinator, sentinel, launcher, scout.
+Use presets for instant configuration.
+
+## Quick Commands
+
+- \`npm run deploy\` — Deploy to Agentverse
+- \`npm run tokenize\` — Create token + handoff link
+- \`npm run status\` — Check status
+
+## Key Files
+
+- \`agent.py\` — Your agent code (edit this!)
+- \`CLAUDE.md\` — This file
+- \`docs/\` — SDK, CLI, MCP documentation
+- \`examples/\` — Working code samples
+
+## SDK Reference
+
+\`\`\`typescript
+import {
+  tokenize,           // Create token record
+  getToken,           // Get token details
+  listTokens,         // List all tokens
+  getTokenPrice,      // Get current price
+  getTokenHolders,    // Get holder list
+  generateDeployLink, // Create deploy URL
+  generateBuyLink,    // Create buy URL
+  generateSellLink,   // Create sell URL
+  deployAgent,        // Deploy to Agentverse
+  getAgentRevenue,    // Get agent revenue data
+  getPricingTable,    // Get agent pricing table
+  getNetworkGDP,      // Get swarm GDP metrics
+  listStorage,        // List agent storage keys
+  getStorage,         // Get agent storage value
+  putStorage,         // Set agent storage value
+  deleteStorage,      // Delete agent storage key
+} from 'agentlaunch-sdk';
+\`\`\`
+
+## MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| \`scaffold_agent\` | Generate agent code from template |
+| \`scaffold_genesis\` | Scaffold agent from genesis preset |
+| \`deploy_to_agentverse\` | Deploy agent |
+| \`create_token_record\` | Create token |
+| \`list_tokens\` | Browse tokens |
+| \`get_token\` | Token details |
+| \`calculate_buy\` | Preview buy |
+| \`calculate_sell\` | Preview sell |
+| \`get_trade_link\` | Generate trade URL |
+| \`check_agent_commerce\` | Revenue, pricing, balance for an agent |
+| \`network_status\` | Swarm GDP, per-agent health |
+| \`deploy_swarm\` | Deploy multiple agents as a swarm |
+
+## Platform Constants
+
+- Deploy fee: 120 FET
+- Graduation: 30,000 FET liquidity -> auto DEX listing
+- Trading fee: 2% to protocol treasury (NO creator fee)
+`;
+}
+
+// ---------------------------------------------------------------------------
 // Cursor IDE config
 // ---------------------------------------------------------------------------
 
@@ -713,9 +973,16 @@ This is an AgentLaunch agent project. Use the MCP tools to build, deploy, and to
 - \`docs/\` - SDK, CLI, MCP documentation
 - \`examples/\` - Working code samples
 
+## Genesis Template (Recommended)
+
+Use the genesis template for agents with a full commerce stack:
+- Payment handling, pricing tables, revenue tracking
+- Token-gated tiers, wallet management
+- 7 presets: oracle, brain, analyst, coordinator, sentinel, launcher, scout
+
 ## Platform Constants
 
 - Deploy fee: 120 FET
 - Graduation: 30,000 FET liquidity
-- Trading fee: 2% to protocol treasury
+- Trading fee: 2% to protocol treasury (NO creator fee)
 `;
