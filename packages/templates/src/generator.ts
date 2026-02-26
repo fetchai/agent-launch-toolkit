@@ -38,6 +38,8 @@ export interface GenerateResult {
   claudeSettings: string;
   /** agentlaunch.config.json for CLI auto-detection */
   agentlaunchConfig: string;
+  /** Short description for Agentverse directory (max 200 chars) */
+  shortDescription: string;
 }
 
 export interface GenerateOptions {
@@ -101,6 +103,17 @@ function resolveVariables(
   }
 
   return resolved;
+}
+
+// ---------------------------------------------------------------------------
+// Short description generator (for Agentverse directory, max 200 chars)
+// ---------------------------------------------------------------------------
+
+function buildShortDescription(template: AgentTemplate, vars: Record<string, string>): string {
+  const name = vars["agent_name"] || template.name;
+  const description = vars["description"] || template.description;
+  const full = `${name} — ${description}`;
+  return full.slice(0, 200);
 }
 
 // ---------------------------------------------------------------------------
@@ -298,19 +311,21 @@ AgentLaunch is a token launchpad for AI agents on Fetch.ai. Agents can:
 
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| \`/agents/tokens\` | GET | No | List all tokens |
-| \`/agents/token/:address\` | GET | No | Get token details |
+| \`/tokens\` | GET | No | List all tokens |
+| \`/tokens/address/{address}\` | GET | No | Get token details |
 | \`/agents/tokenize\` | POST | API Key | Create token record |
 | \`/tokens/calculate-buy\` | GET | No | Preview buy outcome |
 | \`/tokens/calculate-sell\` | GET | No | Preview sell outcome |
-| \`/comments/:address\` | GET/POST | POST needs key | Token comments |
+| \`/comments/{address}\` | GET/POST | POST needs key | Token comments |
 | \`/platform/stats\` | GET | No | Platform statistics |
 
 ### Authentication
 
-Set \`AGENTLAUNCH_API_KEY\` (or \`AGENTVERSE_API_KEY\`) in your environment.
+**If this project was created with \`agentlaunch create\`, your API key is already in \`.env\`.**
+Do NOT ask the user for the key again — check \`.env\` first.
+
 The key is sent as \`X-API-Key\` header on authenticated requests.
-Get a key at: https://agentverse.ai/profile/api-keys
+New keys: https://agentverse.ai/profile/api-keys
 
 ## SDK Reference (agentlaunch-sdk)
 
@@ -318,8 +333,8 @@ Get a key at: https://agentverse.ai/profile/api-keys
 import {
   // Token operations
   tokenize,          // POST /agents/tokenize -> { token_id, handoff_link }
-  getToken,          // GET /agents/token/:address -> Token
-  listTokens,        // GET /agents/tokens -> { tokens, total }
+  getToken,          // GET /tokens/address/{address} -> Token
+  listTokens,        // GET /tokens -> { tokens, total }
 
   // Market data
   calculateBuy,      // Preview buy: FET amount -> tokens received
@@ -563,6 +578,7 @@ export function generateFromTemplate(
   const claudeMd = buildClaudeMd(template, resolved);
   const claudeSettings = buildClaudeSettings();
   const agentlaunchConfig = buildAgentlaunchConfig(template, resolved);
+  const shortDescription = buildShortDescription(template, resolved);
 
-  return { code, readme, envExample, claudeMd, claudeSettings, agentlaunchConfig };
+  return { code, readme, envExample, claudeMd, claudeSettings, agentlaunchConfig, shortDescription };
 }

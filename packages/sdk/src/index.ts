@@ -78,6 +78,11 @@ export type {
   AgentverseDeployResult,
   AgentverseCreateResponse,
   AgentverseStatusResponse,
+  // Agent optimization types
+  AgentMetadata,
+  AgentverseUpdateOptions,
+  AgentverseUpdateResult,
+  OptimizationCheckItem,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -118,6 +123,8 @@ export {
   startAgent,
   getAgentStatus,
   deployAgent,
+  updateAgent,
+  buildOptimizationChecklist,
 } from './agentverse.js';
 
 // EXT-01: Agentverse storage operations

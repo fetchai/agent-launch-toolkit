@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { deployAgent } from 'agentlaunch-sdk';
-import type { AgentverseDeployResult } from 'agentlaunch-sdk';
+import { deployAgent, updateAgent, buildOptimizationChecklist } from 'agentlaunch-sdk';
+import type { AgentverseDeployResult, AgentMetadata, OptimizationCheckItem } from 'agentlaunch-sdk';
 
 // ---------------------------------------------------------------------------
 // Return type
@@ -31,6 +31,8 @@ export async function deployToAgentverse(args: {
   agentFile: string;
   agentName?: string;
   secrets?: Record<string, string>;
+  readme?: string;
+  shortDescription?: string;
 }): Promise<DeployToAgentverseResult> {
   // Read agent source code
   if (!fs.existsSync(args.agentFile)) {
@@ -50,11 +52,21 @@ export async function deployToAgentverse(args: {
       ?.replace(/\.py$/, '') ??
     'MyAgent';
 
+  // Build metadata from optional readme/shortDescription args
+  const metadata: AgentMetadata | undefined =
+    args.readme || args.shortDescription
+      ? {
+          readme: args.readme,
+          short_description: args.shortDescription,
+        }
+      : undefined;
+
   const result: AgentverseDeployResult = await deployAgent({
     apiKey: args.apiKey,
     agentName,
     sourceCode,
     secrets: args.secrets,
+    metadata,
   });
 
   return {
@@ -65,9 +77,50 @@ export async function deployToAgentverse(args: {
 }
 
 // ---------------------------------------------------------------------------
+// Update agent metadata
+// ---------------------------------------------------------------------------
+
+export interface UpdateAgentMetadataResult {
+  success: boolean;
+  updatedFields: string[];
+  optimization: OptimizationCheckItem[];
+}
+
+/**
+ * update_agent_metadata
+ *
+ * Updates README, short_description, and/or avatar_url on an existing
+ * Agentverse agent. Returns the optimization checklist.
+ */
+export async function updateAgentMetadata(args: {
+  apiKey: string;
+  agentAddress: string;
+  readme?: string;
+  shortDescription?: string;
+  avatarUrl?: string;
+}): Promise<UpdateAgentMetadataResult> {
+  const result = await updateAgent({
+    apiKey: args.apiKey,
+    agentAddress: args.agentAddress,
+    metadata: {
+      readme: args.readme,
+      short_description: args.shortDescription,
+      avatar_url: args.avatarUrl,
+    },
+  });
+
+  return {
+    success: result.success,
+    updatedFields: result.updatedFields,
+    optimization: result.optimization,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Handler map
 // ---------------------------------------------------------------------------
 
 export const agentverseHandlers = {
   deploy_to_agentverse: deployToAgentverse,
+  update_agent_metadata: updateAgentMetadata,
 };

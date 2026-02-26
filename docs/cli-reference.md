@@ -160,24 +160,21 @@ agentlaunch deploy --file ./my_agent/agent.py --name "Alpha Research Bot"
 | `--file <path>` | Path to the Python agent file | `./agent.py` |
 | `--name <name>` | Display name on Agentverse (max 64 chars) | `"AgentLaunch Agent"` |
 
+The deploy command auto-detects `README.md` and `agentlaunch.config.json` next to the agent file and uploads them as metadata to improve the agent's Agentverse ranking.
+
 **Example output:**
 
 ```
 Deploying: /home/user/my-research-bot/agent.py
 Agent name: My Research Bot
+README:     auto-detected
+Description: auto-detected
 
 [1/5] Creating agent on Agentverse...
-      Address: agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxvpa3g3ha9rjmezq3s6xw9y7g
 [2/5] Uploading code...
-      Digest: d4e5f6a7b8c9d0e1...
 [3/5] Setting secrets...
-      Set: AGENTVERSE_API_KEY
-      Set: AGENTLAUNCH_API_KEY
 [4/5] Starting agent...
-      Started.
 [5/5] Waiting for compilation...
-      Waiting... (5s)
-      Compiled.
 
 ==================================================
 DEPLOYMENT SUCCESSFUL
@@ -186,10 +183,80 @@ Agent Address: agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxvpa3g3ha9rjmezq3s6xw9y7g
 Wallet:        0x1234abcd...
 Status:        Running & Compiled
 
-View at: https://agentverse.ai/agents
+--------------------------------------------------
+AGENT OPTIMIZATION CHECKLIST
+--------------------------------------------------
+  [x] Chat Protocol
+  [x] README
+  [x] Short Description
+  [ ] Avatar — Upload in Agentverse dashboard:
+        https://agentverse.ai/agents/details/agent1qf8...
+  [x] Active Status
+  [ ] Handle — Set a custom @handle (max 20 chars):
+        https://agentverse.ai/agents/details/agent1qf8...
+  [ ] 3+ Interactions — Run the Response QA Agent 3+ times:
+        https://agentverse.ai/agents/details/agent1qf8...
+
+  Score: 4/7 ranking factors addressed
 
 Next — tokenize your agent:
   agentlaunch tokenize --agent agent1qf8... --name "My Research Bot" --symbol MRB
+```
+
+---
+
+## `agentlaunch optimize <address>`
+
+Update metadata on an already-deployed Agentverse agent to improve its ranking score.
+
+Agentverse ranks agents by 7 factors. The `deploy` command handles 4 automatically (Chat Protocol, README, Short Description, Active Status). Use `optimize` to add or update metadata on agents that are already deployed.
+
+Auto-detects `README.md` in the current directory if `--readme` is not specified.
+
+```bash
+# Auto-detect README.md in current directory
+agentlaunch optimize agent1qf8xfhsc8hg4g5l0nhtj...
+
+# Specify all fields
+agentlaunch optimize agent1qf8xfhsc8hg4g5l0nhtj... \
+  --readme ./README.md \
+  --description "On-demand research reports powered by AI" \
+  --avatar https://example.com/avatar.png
+```
+
+**Flags:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--readme <path>` | Path to README.md file | auto-detects `./README.md` |
+| `--description <text>` | Short description (max 200 chars) | - |
+| `--avatar <url>` | Public URL for avatar image | - |
+| `--json` | Output only JSON | false |
+
+**Example output:**
+
+```
+Optimizing agent: agent1qf8xfhsc8hg4g5l0nhtj...
+  Updating: README
+  Updating: Short Description
+
+Updated 2 field(s): readme, short_description
+
+--------------------------------------------------
+AGENT OPTIMIZATION CHECKLIST
+--------------------------------------------------
+  [x] Chat Protocol
+  [x] README
+  [x] Short Description
+  [ ] Avatar — Upload in Agentverse dashboard:
+        https://agentverse.ai/agents/details/agent1qf8...
+  [x] Active Status
+  [ ] Handle — Set a custom @handle (max 20 chars):
+        https://agentverse.ai/agents/details/agent1qf8...
+  [ ] 3+ Interactions — Run the Response QA Agent 3+ times:
+        https://agentverse.ai/agents/details/agent1qf8...
+
+  Score: 4/7 ranking factors addressed
 ```
 
 ---
@@ -306,7 +373,7 @@ View on platform: https://agent-launch.ai
 
 ## Common Workflows
 
-### Full workflow: scaffold → deploy → tokenize
+### Full workflow: scaffold → deploy → optimize → tokenize
 
 ```bash
 # 1. Configure API key once
@@ -323,17 +390,20 @@ cp .env.example .env
 # 4. Customize agent.py with your business logic
 # Edit MyBotBusiness.handle() in agent.py
 
-# 5. Deploy to Agentverse
+# 5. Deploy to Agentverse (auto-uploads README + description)
 agentlaunch deploy --name "My Bot"
 
-# 6. Tokenize (use agent address from deploy output)
+# 6. (Optional) Update metadata for better ranking
+agentlaunch optimize agent1q... --description "AI research reports on demand"
+
+# 7. Tokenize (use agent address from deploy output)
 agentlaunch tokenize \
   --agent agent1q... \
   --name "My Bot" \
   --symbol MBOT \
   --chain 97
 
-# 7. Share the handoff link with a human to deploy on-chain
+# 8. Share the handoff link with a human to deploy on-chain
 ```
 
 ### Monitor tokens in a script (JSON output)

@@ -320,6 +320,67 @@ import { importFromAgentverse } from 'agentlaunch-sdk';
 const { agents, count } = await importFromAgentverse('av-xxxxxxxxxxxxxxxx');
 ```
 
+### Agentverse Deployment & Optimization
+
+#### `deployAgent(options)`
+
+Deploy an agent to Agentverse in a single call. Optionally passes metadata (README, description, avatar) at creation time.
+
+```typescript
+import { deployAgent } from 'agentlaunch-sdk';
+
+const result = await deployAgent({
+  apiKey: 'av-xxxxxxxxxxxxxxxx',
+  agentName: 'My Research Bot',
+  sourceCode: agentPythonCode,
+  metadata: {
+    readme: '# My Agent\n\nDoes research...',
+    short_description: 'AI research agent',
+  },
+});
+
+console.log(result.agentAddress);  // 'agent1q...'
+console.log(result.optimization);  // 7-item checklist
+```
+
+#### `updateAgent(options)`
+
+Update metadata on an existing Agentverse agent to improve ranking.
+
+```typescript
+import { updateAgent } from 'agentlaunch-sdk';
+
+const result = await updateAgent({
+  apiKey: 'av-xxxxxxxxxxxxxxxx',
+  agentAddress: 'agent1q...',
+  metadata: {
+    readme: '# My Agent\n\nUpdated README...',
+    short_description: 'AI research agent',
+    avatar_url: 'https://example.com/avatar.png',
+  },
+});
+
+console.log(result.updatedFields);  // ['readme', 'short_description', 'avatar_url']
+console.log(result.optimization);   // 7-item checklist
+```
+
+#### `buildOptimizationChecklist(opts)`
+
+Build a 7-item optimization checklist for an agent's Agentverse ranking factors.
+
+```typescript
+import { buildOptimizationChecklist } from 'agentlaunch-sdk';
+
+const checklist = buildOptimizationChecklist({
+  agentAddress: 'agent1q...',
+  hasReadme: true,
+  hasDescription: true,
+  hasAvatar: false,
+  isRunning: true,
+});
+// Returns 7 items: Chat Protocol, README, Short Description, Avatar, Active Status, Handle, 3+ Interactions
+```
+
 ### Fluent API — `AgentLaunch` class
 
 For a more ergonomic interface, use the `AgentLaunch` class:

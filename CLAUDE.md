@@ -20,8 +20,8 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
-| **CLI** | `packages/cli/` | 10 commands, one-command full lifecycle |
-| **MCP Server** | `packages/mcp/` | 13+ tools for Claude Code / Cursor |
+| **CLI** | `packages/cli/` | 11 commands, one-command full lifecycle |
+| **MCP Server** | `packages/mcp/` | 14+ tools for Claude Code / Cursor |
 | **Templates** | `packages/templates/` | 7 production-ready agent blueprints (swarm-starter recommended) |
 
 ## Authentication
@@ -61,6 +61,7 @@ npm run clean
 npx agentlaunch create                     # Interactive: scaffold -> deploy -> tokenize
 npx agentlaunch list                       # List all tokens
 npx agentlaunch status 0x...               # Check a token
+npx agentlaunch optimize agent1q...        # Update README/description/avatar for ranking
 
 # Run MCP server (for Claude Code integration)
 npx agent-launch-mcp
@@ -78,7 +79,7 @@ agent-launch-toolkit/
   packages/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch-cli (interactive + scripted commands)
-    mcp/                    # agent-launch-mcp (13+ tools for Claude Code)
+    mcp/                    # agent-launch-mcp (14+ tools for Claude Code)
     templates/              # agentlaunch-templates (7 agent blueprints, swarm-starter recommended)
   .claude/
     settings.json           # MCP server config, permissions
@@ -103,7 +104,8 @@ You have access to these tools:
 | `create_token_record` | Create a new token -- get handoff link |
 | `get_deploy_instructions` | Get deploy instructions for a pending token |
 | `get_trade_link` | Generate pre-filled buy/sell link |
-| `deploy_to_agentverse` | Deploy Python agent to Agentverse |
+| `deploy_to_agentverse` | Deploy Python agent to Agentverse (auto-sets README + description) |
+| `update_agent_metadata` | Update README, description, avatar on an existing agent |
 | `scaffold_agent` | Generate agent code from template |
 | `scaffold_swarm` | Scaffold agent from swarm-starter preset |
 | `create_and_tokenize` | Full lifecycle in one call |
@@ -203,7 +205,9 @@ There is NO creator fee split. The contract has no mechanism to send fees to cre
 The $GIFT agent distributes testnet tokens to new developers:
 ```
 Agent:    agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+Token:    0xF7e2F77f014a5ad3C121b1942968be33BA89e03c ($GIFT on BSC Testnet)
 Chat:     https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+Trade:    https://agent-launch.ai/token/0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
 ```
 
 Commands:

@@ -31,6 +31,7 @@ import { registerScaffoldCommand } from "./commands/scaffold.js";
 import { registerStatusCommand } from "./commands/status.js";
 import { registerInit } from "./commands/init.js";
 import { registerTokenizeCommand } from "./commands/tokenize.js";
+import { registerOptimizeCommand } from "./commands/optimize.js";
 
 const program = new Command();
 
@@ -51,6 +52,7 @@ registerListCommand(program);
 registerStatusCommand(program);
 registerCommentsCommand(program);
 registerHoldersCommand(program);
+registerOptimizeCommand(program);
 registerInit(program);
 
 // Show help if no command is given

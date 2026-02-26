@@ -38,10 +38,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonyoconnell/agent-launch-toolkit"
+    "url": "https://github.com/fetchai/agent-launch-toolkit"
   },
   "homepage": "https://agent-launch.ai",
   "bugs": {
-    "url": "https://github.com/tonyoconnell/agent-launch-toolkit/issues"
+    "url": "https://github.com/fetchai/agent-launch-toolkit/issues"
   }
 }

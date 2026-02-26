@@ -111,11 +111,12 @@ After editing the config, restart Claude Code / Claude Desktop.
 | `get_deploy_instructions` | Fetch structured deployment instructions (plus a markdown guide) for a pending token. Includes step-by-step wallet flow and cost breakdown. |
 | `get_trade_link` | Generate a pre-filled trade URL for a human to open and execute a buy or sell — agent never touches private keys. |
 
-### Agentverse — deploy and manage hosted agents
+### Agentverse — deploy, manage, and optimize hosted agents
 
 | Tool | Description |
 |------|-------------|
-| `deploy_to_agentverse` | Deploy a Python agent file to Agentverse hosted agents. Creates the agent record, uploads source code, stores secrets, starts the agent, and polls until compiled (up to 60 s). |
+| `deploy_to_agentverse` | Deploy a Python agent file to Agentverse hosted agents. Creates the agent record, uploads source code (plus optional README and description for ranking), stores secrets, starts the agent, and polls until compiled (up to 60 s). |
+| `update_agent_metadata` | Update README, short description, and/or avatar URL on an existing Agentverse agent to improve its ranking. Returns a 7-item optimization checklist. |
 
 ### Scaffold — generate agent project boilerplate
 

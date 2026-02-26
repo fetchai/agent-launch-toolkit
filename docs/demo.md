@@ -20,7 +20,7 @@ This document demonstrates all features of the AgentLaunch Toolkit — a complet
 
 ```bash
 # Clone and install
-git clone https://github.com/your-org/agent-launch-toolkit.git
+git clone https://github.com/fetchai/agent-launch-toolkit.git
 cd agent-launch-toolkit
 npm install
 npm run build

@@ -102,6 +102,10 @@ export async function createAndTokenize(args: {
         apiKey,
         agentName: args.name,
         sourceCode: agentCode,
+        metadata: {
+          readme: generated.readme,
+          short_description: generated.shortDescription,
+        },
       });
       agentAddress = result.agentAddress;
     } catch (err) {

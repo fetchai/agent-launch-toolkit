@@ -10,10 +10,14 @@
 
 import { resolveApiKey } from './urls.js';
 import type {
+  AgentMetadata,
   AgentverseDeployOptions,
   AgentverseDeployResult,
   AgentverseCreateResponse,
   AgentverseStatusResponse,
+  AgentverseUpdateOptions,
+  AgentverseUpdateResult,
+  OptimizationCheckItem,
 } from './types.js';
 
 const AGENTVERSE_API = 'https://agentverse.ai/v1';
@@ -69,14 +73,18 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Create a new agent record on Agentverse.
+ * Optionally sets readme, short_description, and avatar_url at creation time.
  */
 export async function createAgent(
   apiKey: string,
   name: string,
+  metadata?: AgentMetadata,
 ): Promise<AgentverseCreateResponse> {
-  return avFetch<AgentverseCreateResponse>(apiKey, 'POST', '/hosting/agents', {
-    name: name.slice(0, 64),
-  });
+  const body: Record<string, unknown> = { name: name.slice(0, 64) };
+  if (metadata?.readme) body.readme = metadata.readme;
+  if (metadata?.short_description) body.short_description = metadata.short_description.slice(0, 200);
+  if (metadata?.avatar_url) body.avatar_url = metadata.avatar_url;
+  return avFetch<AgentverseCreateResponse>(apiKey, 'POST', '/hosting/agents', body);
 }
 
 /**
@@ -146,6 +154,114 @@ export async function getAgentStatus(
 }
 
 // ---------------------------------------------------------------------------
+// Update metadata on an existing agent
+// ---------------------------------------------------------------------------
+
+/**
+ * Update metadata (README, short_description, avatar_url) on an existing Agentverse agent.
+ */
+export async function updateAgent(
+  options: AgentverseUpdateOptions,
+): Promise<AgentverseUpdateResult> {
+  const apiKey = options.apiKey ?? resolveApiKey();
+  if (!apiKey) {
+    throw new Error(
+      'Agentverse API key required. Pass apiKey option or set AGENTLAUNCH_API_KEY / AGENTVERSE_API_KEY.',
+    );
+  }
+
+  const body: Record<string, unknown> = {};
+  const updatedFields: string[] = [];
+
+  if (options.metadata.readme) {
+    body.readme = options.metadata.readme;
+    updatedFields.push('readme');
+  }
+  if (options.metadata.short_description) {
+    body.short_description = options.metadata.short_description.slice(0, 200);
+    updatedFields.push('short_description');
+  }
+  if (options.metadata.avatar_url) {
+    body.avatar_url = options.metadata.avatar_url;
+    updatedFields.push('avatar_url');
+  }
+
+  if (updatedFields.length > 0) {
+    await avFetch<unknown>(
+      apiKey,
+      'PUT',
+      `/hosting/agents/${options.agentAddress}`,
+      body,
+    );
+  }
+
+  const checklist = buildOptimizationChecklist({
+    agentAddress: options.agentAddress,
+    hasReadme: !!options.metadata.readme,
+    hasDescription: !!options.metadata.short_description,
+    hasAvatar: !!options.metadata.avatar_url,
+    isRunning: true, // assume running since it's already deployed
+  });
+
+  return { success: true, updatedFields, optimization: checklist };
+}
+
+// ---------------------------------------------------------------------------
+// Optimization checklist builder
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a 7-item optimization checklist for an agent's Agentverse ranking factors.
+ */
+export function buildOptimizationChecklist(opts: {
+  agentAddress: string;
+  hasReadme?: boolean;
+  hasDescription?: boolean;
+  hasAvatar?: boolean;
+  isRunning?: boolean;
+}): OptimizationCheckItem[] {
+  const detailUrl = `https://agentverse.ai/agents/details/${opts.agentAddress}`;
+  return [
+    {
+      factor: 'Chat Protocol',
+      done: true, // all our templates include chat protocol
+    },
+    {
+      factor: 'README',
+      done: !!opts.hasReadme,
+      hint: opts.hasReadme ? undefined : `Set via: agentlaunch optimize ${opts.agentAddress} --readme README.md`,
+    },
+    {
+      factor: 'Short Description',
+      done: !!opts.hasDescription,
+      hint: opts.hasDescription ? undefined : `Set via: agentlaunch optimize ${opts.agentAddress} --description "..."`,
+    },
+    {
+      factor: 'Avatar',
+      done: !!opts.hasAvatar,
+      manual_required: !opts.hasAvatar,
+      hint: opts.hasAvatar ? undefined : `Upload in Agentverse dashboard:\n        ${detailUrl}`,
+    },
+    {
+      factor: 'Active Status',
+      done: !!opts.isRunning,
+    },
+    {
+      factor: 'Handle',
+      done: false,
+      manual_required: true,
+      hint: `Set a custom @handle (max 20 chars):\n        ${detailUrl}`,
+    },
+    {
+      factor: '3+ Interactions',
+      done: false,
+      manual_required: true,
+      hint: `Run the Response QA Agent 3+ times:\n        ${detailUrl}`,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
 // Full deploy flow
 // ---------------------------------------------------------------------------
 
@@ -174,8 +290,8 @@ export async function deployAgent(
 
   const maxPolls = options.maxPolls ?? DEFAULT_MAX_POLLS;
 
-  // Step 1: Create agent
-  const created = await createAgent(apiKey, options.agentName);
+  // Step 1: Create agent (with metadata if provided)
+  const created = await createAgent(apiKey, options.agentName, options.metadata);
   const agentAddress = created.address;
   if (!agentAddress) {
     throw new Error('Agentverse did not return an agent address');
@@ -225,11 +341,21 @@ export async function deployAgent(
     }
   }
 
+  // Build optimization checklist
+  const optimization = buildOptimizationChecklist({
+    agentAddress,
+    hasReadme: !!options.metadata?.readme,
+    hasDescription: !!options.metadata?.short_description,
+    hasAvatar: !!options.metadata?.avatar_url,
+    isRunning: status === 'running',
+  });
+
   return {
     agentAddress,
     walletAddress,
     status,
     digest: uploaded.digest,
     secretErrors: secretErrors.length > 0 ? secretErrors : undefined,
+    optimization,
   };
 }

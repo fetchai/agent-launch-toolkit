@@ -63,4 +63,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `FEE_PERCENTAGE` | 2% — 100% to protocol treasury |
 | `TOKEN_DEPLOYMENT_FEE` | 120 FET (read dynamically) |
 
-[0.1.0]: https://github.com/agent-launch/sdk/releases/tag/v0.1.0
+[0.1.0]: https://github.com/fetchai/agent-launch-toolkit/releases/tag/v0.1.0

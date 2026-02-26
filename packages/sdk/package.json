@@ -48,10 +48,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/agent-launch/sdk"
+    "url": "https://github.com/fetchai/agent-launch-toolkit"
   },
   "homepage": "https://agent-launch.ai",
   "bugs": {
-    "url": "https://github.com/agent-launch/sdk/issues"
+    "url": "https://github.com/fetchai/agent-launch-toolkit/issues"
   }
 }

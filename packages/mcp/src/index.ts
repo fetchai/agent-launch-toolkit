@@ -257,8 +257,50 @@ export const TOOLS = [
             "Key/value pairs to store as Agentverse secrets (e.g. { AGENTLAUNCH_API_KEY: '...' })",
           additionalProperties: { type: "string" },
         },
+        readme: {
+          type: "string",
+          description:
+            "Markdown README content to set on the agent profile. Improves Agentverse ranking.",
+        },
+        shortDescription: {
+          type: "string",
+          description:
+            "Short description for the Agentverse directory (max 200 chars). Improves ranking.",
+        },
       },
       required: ["apiKey", "agentFile"],
+    },
+  },
+  // Agent optimization -------------------------------------------------------
+  {
+    name: "update_agent_metadata",
+    description:
+      "Update an existing Agentverse agent's metadata (README, description, avatar URL) to improve its ranking. Returns an optimization checklist showing which of the 7 ranking factors are addressed.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        apiKey: {
+          type: "string",
+          description: "Agentverse API key",
+        },
+        agentAddress: {
+          type: "string",
+          description: "Agent address (agent1q...)",
+        },
+        readme: {
+          type: "string",
+          description: "Markdown README content for the agent profile",
+        },
+        shortDescription: {
+          type: "string",
+          description: "Short description for Agentverse directory (max 200 chars)",
+        },
+        avatarUrl: {
+          type: "string",
+          description: "Public URL for the agent avatar image",
+        },
+      },
+      required: ["apiKey", "agentAddress"],
     },
   },
   // MCP-004 ----------------------------------------------------------------

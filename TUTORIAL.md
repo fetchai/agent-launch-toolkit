@@ -88,7 +88,7 @@ Dev URLs (Cloud Run) will be used when `AGENT_LAUNCH_ENV=dev` is set.
 ## Step 1: Clone and Setup
 
 ```bash
-git clone https://github.com/tonyoconnell/agent-launch-toolkit.git
+git clone https://github.com/fetchai/agent-launch-toolkit.git
 cd agent-launch-toolkit
 npm install
 cp .env.example .env

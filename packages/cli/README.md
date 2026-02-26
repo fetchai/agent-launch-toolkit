@@ -108,7 +108,7 @@ Generated files:
 
 ### `agentlaunch deploy`
 
-Deploy `agent.py` to Agentverse.
+Deploy `agent.py` to Agentverse. Auto-detects `README.md` and description from `agentlaunch.config.json` next to the agent file and uploads them as metadata to improve the agent's Agentverse ranking.
 
 ```bash
 agentlaunch deploy
@@ -129,11 +129,41 @@ agentlaunch deploy --json
 | `--json` | Output only JSON | false |
 
 Steps performed:
-1. Create agent on Agentverse
+1. Create agent on Agentverse (with README + description if detected)
 2. Upload code
 3. Set `AGENTVERSE_API_KEY` and `AGENTLAUNCH_API_KEY` secrets
 4. Start agent
 5. Poll until compiled (up to 60 seconds)
+6. Print optimization checklist (7 Agentverse ranking factors)
+
+---
+
+### `agentlaunch optimize <address>`
+
+Update metadata on an already-deployed agent to improve its Agentverse ranking. Auto-detects `README.md` in the current directory.
+
+```bash
+# Auto-detect README.md
+agentlaunch optimize agent1q...
+
+# Specify all fields
+agentlaunch optimize agent1q... \
+  --readme ./README.md \
+  --description "AI research reports on demand" \
+  --avatar https://example.com/avatar.png
+
+# JSON output
+agentlaunch optimize agent1q... --json
+```
+
+**Options:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--readme <path>` | Path to README.md file | auto-detects `./README.md` |
+| `--description <text>` | Short description (max 200 chars) | - |
+| `--avatar <url>` | Public URL for avatar image | - |
+| `--json` | Output only JSON | false |
 
 ---
 

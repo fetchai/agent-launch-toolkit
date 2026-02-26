@@ -5,7 +5,7 @@
 ## Deploy Your First Agent (5 minutes)
 
 ```bash
-git clone https://github.com/anthropics/agent-launch-toolkit.git
+git clone https://github.com/fetchai/agent-launch-toolkit.git
 cd agent-launch-toolkit
 npm install && cp .env.example .env
 # Add your Agentverse API key: https://agentverse.ai/profile/api-keys

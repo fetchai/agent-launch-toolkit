@@ -323,6 +323,16 @@ export interface ImportAgentverseResponse {
 // Agentverse deployment types
 // ---------------------------------------------------------------------------
 
+/** Metadata fields for Agentverse agent optimization (README, description, avatar). */
+export interface AgentMetadata {
+  /** Markdown README content uploaded to the agent profile. */
+  readme?: string;
+  /** Short description shown in Agentverse directory (max 200 chars). */
+  short_description?: string;
+  /** Public URL for the agent's avatar image. */
+  avatar_url?: string;
+}
+
 /** Options for deploying an agent to Agentverse hosting. */
 export interface AgentverseDeployOptions {
   /** Agentverse API key. Falls back to env vars if omitted. */
@@ -335,6 +345,20 @@ export interface AgentverseDeployOptions {
   secrets?: Record<string, string>;
   /** Max number of poll attempts for compilation (default: 12, each 5s apart = 60s). */
   maxPolls?: number;
+  /** Optional metadata to set on the agent (README, description, avatar). */
+  metadata?: AgentMetadata;
+}
+
+/** A single item in the agent optimization checklist. */
+export interface OptimizationCheckItem {
+  /** The ranking factor name. */
+  factor: string;
+  /** Whether this factor is addressed. */
+  done: boolean;
+  /** True if the factor requires manual action in the Agentverse UI. */
+  manual_required?: boolean;
+  /** Instruction or URL for manual steps. */
+  hint?: string;
 }
 
 /** Result from a successful Agentverse deployment. */
@@ -349,6 +373,28 @@ export interface AgentverseDeployResult {
   digest?: string;
   /** Any errors from setting secrets (non-fatal). */
   secretErrors?: string[];
+  /** Post-deploy optimization checklist (7 ranking factors). */
+  optimization?: OptimizationCheckItem[];
+}
+
+/** Options for updating an already-deployed agent's metadata on Agentverse. */
+export interface AgentverseUpdateOptions {
+  /** Agentverse API key. Falls back to env vars if omitted. */
+  apiKey?: string;
+  /** Agent address (agent1q...). */
+  agentAddress: string;
+  /** Metadata fields to update. */
+  metadata: AgentMetadata;
+}
+
+/** Result from updating agent metadata. */
+export interface AgentverseUpdateResult {
+  /** Whether the update succeeded. */
+  success: boolean;
+  /** Which fields were updated. */
+  updatedFields: string[];
+  /** Post-update optimization checklist. */
+  optimization: OptimizationCheckItem[];
 }
 
 /** Response from POST /hosting/agents on Agentverse. */
@@ -358,6 +404,8 @@ export interface AgentverseCreateResponse {
   running?: boolean;
   compiled?: boolean;
   wallet_address?: string;
+  readme?: string;
+  short_description?: string;
 }
 
 /** Response from GET /hosting/agents/:address on Agentverse. */

@@ -80,7 +80,7 @@ URLs are configured in `.env`. The `.env.example` ships with production URLs act
 - [Calculate](#calculate) — Bonding curve price calculations
 - [Write](#write) — Create and update token records
 - [Handoff](#handoff) — Generate links for human wallet interactions
-- [Agentverse](#agentverse) — Deploy and manage Agentverse agents
+- [Agentverse](#agentverse) — Deploy, manage, and optimize Agentverse agents
 - [Scaffold](#scaffold) — Generate agent project templates
 - [Combo](#combo) — End-to-end shortcuts
 
@@ -457,7 +457,7 @@ Prepare the full transaction data needed to deploy a token on-chain.
 
 ### `deploy_to_agentverse`
 
-Deploy a Python agent file to Agentverse hosted agents. Creates the agent record, uploads code, stores secrets, and starts it. Polls until compiled (up to 60 seconds).
+Deploy a Python agent file to Agentverse hosted agents. Creates the agent record, uploads code, stores secrets, and starts it. Polls until compiled (up to 60 seconds). Optionally sets README and short description at deploy time for better Agentverse ranking.
 
 **Input schema:**
 
@@ -469,7 +469,9 @@ Deploy a Python agent file to Agentverse hosted agents. Creates the agent record
   "secrets": {                          // optional — stored as Agentverse secrets
     "AGENTLAUNCH_API_KEY": "av-xxx",
     "HUGGINGFACE_API_KEY": "hf-xxx"
-  }
+  },
+  "readme": "# My Agent\n\nDoes research...",  // optional — markdown README for ranking
+  "shortDescription": "AI research agent"       // optional — max 200 chars, for ranking
 }
 ```
 
@@ -486,6 +488,47 @@ Deploy a Python agent file to Agentverse hosted agents. Creates the agent record
 **Example prompt:**
 ```
 Deploy my agent.py file to Agentverse with my API key av-xxx and name "Research Bot"
+```
+
+---
+
+### `update_agent_metadata`
+
+Update README, short description, and/or avatar URL on an existing Agentverse agent to improve its ranking. Returns a 7-item optimization checklist.
+
+**Input schema:**
+
+```json
+{
+  "apiKey": "av-xxxxxxxxxxxxxxxx",          // required — Agentverse API key
+  "agentAddress": "agent1q...",             // required — agent to update
+  "readme": "# My Agent\n\nDoes research...",  // optional — markdown README
+  "shortDescription": "AI research agent",      // optional — max 200 chars
+  "avatarUrl": "https://example.com/avatar.png" // optional — public image URL
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "updatedFields": ["readme", "short_description"],
+  "optimization": [
+    { "factor": "Chat Protocol", "done": true },
+    { "factor": "README", "done": true },
+    { "factor": "Short Description", "done": true },
+    { "factor": "Avatar", "done": false, "manual_required": true, "hint": "Upload in Agentverse dashboard..." },
+    { "factor": "Active Status", "done": true },
+    { "factor": "Handle", "done": false, "manual_required": true, "hint": "Set a custom @handle..." },
+    { "factor": "3+ Interactions", "done": false, "manual_required": true, "hint": "Run the Response QA Agent 3+ times..." }
+  ]
+}
+```
+
+**Example prompt:**
+```
+Update the README and description on my agent agent1q... to improve its ranking
 ```
 
 ---

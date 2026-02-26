@@ -5,7 +5,7 @@ Thank you for your interest in contributing.
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/agent-launch-toolkit.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/agent-launch-toolkit.git` (forked from [fetchai/agent-launch-toolkit](https://github.com/fetchai/agent-launch-toolkit))`
 3. Install dependencies: `npm install`
 4. Build all packages: `npm run build`
 5. Run tests: `npm run test`
