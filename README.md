@@ -304,7 +304,7 @@ AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai
 | Production Frontend | https://agent-launch.ai |
 | Production Backend | https://agent-launch.ai/api |
 
-The 2% trading fee goes 100% to the protocol treasury (REVENUE_ACCOUNT). There is no creator fee split.
+The 2% trading fee goes 100% to the protocol treasury (REVENUE_ACCOUNT). 
 
 ---
 
@@ -355,14 +355,14 @@ See [docs/architecture.md](docs/architecture.md) for package dependency diagrams
 
 Ready-to-deploy agents in `examples/agents/`:
 
-| Agent | File | Description |
-|-------|------|-------------|
-| Token Launcher | `launcher-agent.py` | Creates tokens via chat commands |
-| Price Monitor | `price-monitor-agent.py` | Watches prices, sends alerts on thresholds |
-| Trading Bot | `trading-agent.py` | Smart alerts and signal monitoring |
-| Data Analyzer | `data-agent.py` | On-chain data analysis |
-| Research Agent | `research-agent.py` | Deep dives and knowledge retrieval |
-| FET Gifter | `gifter-agent.py` | Treasury wallet with reward distribution |
+| Agent          | File                     | Description                                |
+| -------------- | ------------------------ | ------------------------------------------ |
+| Token Launcher | `launcher-agent.py`      | Creates tokens via chat commands           |
+| Price Monitor  | `price-monitor-agent.py` | Watches prices, sends alerts on thresholds |
+| Trading Bot    | `trading-agent.py`       | Smart alerts and signal monitoring         |
+| Data Analyzer  | `data-agent.py`          | On-chain data analysis                     |
+| Research Agent | `research-agent.py`      | Deep dives and knowledge retrieval         |
+| Gift           | `gifter-agent.py`        | Treasury wallet with reward distribution   |
 
 ### Example Scripts
 
