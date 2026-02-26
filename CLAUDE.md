@@ -123,6 +123,8 @@ You have access to these tools:
 | `/tokenize` | Create token for an existing agent |
 | `/market` | Browse tokens and prices |
 | `/status` | Check agent/token status |
+| `/todo` | Create TODO.md from a document |
+| `/grow` | Execute tasks from TODO.md autonomously |
 
 ## Architecture
 
@@ -248,3 +250,39 @@ POST  /hosting/agents/{addr}/stop         Stop agent
 GET   /hosting/agents/{addr}/logs         Get logs
 POST  /hosting/secrets                    Set a secret
 ```
+
+## Creating TODOs
+
+When asked to "create todo from doc" or similar:
+
+1. Read the source document (e.g., a strategy doc, roadmap, or feature spec)
+2. Use `docs/TODO-template.md` as the format template
+3. Create `docs/TODO.md` (or specified output file) with:
+   - YAML frontmatter (title, version, total_tasks, completed, status, depends_on)
+   - "Now" section with immediate next actions
+   - Phase-based task tables with columns: Status, ID, Task, How, KPI, Depends
+   - Gate criteria for each phase
+   - Dependency graph (ASCII or Mermaid)
+   - Progress overview with progress bars
+   - Relevant cheat sheets or monitoring info
+
+### Task Table Format
+
+```markdown
+| Status | ID | Task | How | KPI | Depends |
+|:---:|:---|:---|:---|:---|:---|
+| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` ... | All 7 running | — |
+| `[ ]` | L-2 | Fund wallets | Send ~15 FET ... | Balances confirmed | L-1 |
+```
+
+### Status Markers
+
+- `[ ]` - Pending
+- `[~]` - In Progress
+- `[x]` - Complete
+- `[!]` - Blocked
+
+### Dependency Format
+
+Use short IDs (L-1, P-2, G-3) and list dependencies in the "Depends" column.
+Tasks with `—` have no dependencies and can start immediately.

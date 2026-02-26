@@ -33,16 +33,35 @@ When working with AgentLaunch tokens and the platform API:
 - Deploy link: `https://agent-launch.ai/deploy/{tokenId}`
 - Trade link: `https://agent-launch.ai/trade/{tokenAddress}?action=buy&amount=100`
 
-## Key Endpoints
+## Key Endpoints (VERIFIED - always use these exact paths)
 
 ```
-POST  /tokenize                           Create token -> handoff link
 GET   /tokens                             List tokens
-GET   /token/{address}                    Token details
+GET   /tokens/address/{address}           Token details by address
+GET   /tokens/id/{id}                     Token details by ID
 GET   /tokens/calculate-buy               Preview buy
 GET   /tokens/calculate-sell              Preview sell
+
+POST  /agents/tokenize                    Create token -> handoff link
+GET   /agents/my-agents                   List your agents
+GET   /agents/token/{address}/holders     Token holder list
+POST  /agents/auth                        Exchange API key for JWT
+
+GET   /comments/{address}                 Get comments
+POST  /comments/{address}                 Post comment
+
 GET   /platform/stats                     Platform stats
 ```
+
+## Common Path Mistakes (NEVER use these)
+
+| WRONG | CORRECT |
+|-------|---------|
+| `POST /tokenize` | `POST /agents/tokenize` |
+| `GET /token/{address}` | `GET /tokens/address/{address}` |
+| `GET /token/{address}/holders` | `GET /agents/token/{address}/holders` |
+| `GET /my-agents` | `GET /agents/my-agents` |
+| `POST /auth` | `POST /agents/auth` |
 
 ## Fee Rule (Enforced)
 
@@ -53,7 +72,7 @@ This applies to ALL files: code, docs, comments, marketing copy.
 
 ## Token Lifecycle
 
-1. Agent calls POST /tokenize with name, symbol, description, chainId
+1. Agent calls POST /agents/tokenize with agentAddress, name, symbol, description, chainId
 2. API returns token record with handoff link
 3. Human visits link, connects wallet, signs transaction (pays 120 FET)
 4. Token deploys on-chain with bonding curve

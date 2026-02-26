@@ -64,12 +64,15 @@ export const MOCK_RESPONSES = {
     ],
     total: 1
   },
-  'GET /token/0x123': {
+  'GET /tokens/address/0x123': {
     id: 1, name: 'TestToken', symbol: 'TEST', price: '0.001', balance: '1000'
   },
-  'POST /tokenize': {
+  'GET /tokens/id/1': {
+    id: 1, name: 'TestToken', symbol: 'TEST', price: '0.001', balance: '1000'
+  },
+  'POST /agents/tokenize': {
     success: true,
-    data: { tokenId: 42, handoff_link: 'https://agent-launch.ai/deploy/42' }
+    data: { token_id: 42, handoff_link: 'https://agent-launch.ai/deploy/42' }
   },
 
   // Market
@@ -80,6 +83,12 @@ export const MOCK_RESPONSES = {
     fetReceived: '100', fee: '2', priceImpact: '0.5'
   },
 
+  // Holders
+  'GET /agents/token/0x123/holders': {
+    success: true,
+    data: { holders: [{ address: '0xabc...', balance: '1000', token_percentage: '10' }], total: 1 }
+  },
+
   // Comments
   'GET /comments/0x123': [
     { id: 1, message: 'Great token!', author: '0xabc...' }
@@ -87,8 +96,11 @@ export const MOCK_RESPONSES = {
   'POST /comments/0x123': { success: true },
 
   // Auth
-  'POST /auth': { token: 'jwt-token', expires_in: 3600 },
-  'GET /my-agents': { agents: [{ address: 'agent1q...', name: 'MyAgent' }] },
+  'POST /agents/auth': { token: 'jwt-token', expires_in: 3600 },
+  'GET /agents/my-agents': { agents: [{ address: 'agent1q...', name: 'MyAgent' }] },
+
+  // Platform
+  'GET /platform/stats': { totalTokens: 10, totalVolume: '30000', activeUsers: 5 },
 };
 
 export function createMockFetch() {
@@ -121,15 +133,18 @@ import { createMockFetch, MOCK_RESPONSES } from 'test-utils';
 
 const endpoints = [
   // [function, args, expectedPath, expectedMethod]
+  // IMPORTANT: These paths must match the verified API paths in docs/paths.md
   ['listTokens', [{}], '/tokens', 'GET'],
-  ['getToken', ['0x123'], '/token/0x123', 'GET'],
-  ['tokenize', [{ name: 'Test', symbol: 'TST' }], '/tokenize', 'POST'],
+  ['getToken', ['0x123'], '/tokens/address/0x123', 'GET'],
+  ['tokenize', [{ agentAddress: 'agent1q...', name: 'Test', symbol: 'TST' }], '/agents/tokenize', 'POST'],
   ['calculateBuy', ['0x123', '100'], '/tokens/calculate-buy', 'GET'],
   ['calculateSell', ['0x123', '1000'], '/tokens/calculate-sell', 'GET'],
+  ['getTokenHolders', ['0x123'], '/agents/token/0x123/holders', 'GET'],
   ['getComments', ['0x123'], '/comments/0x123', 'GET'],
-  ['postComment', ['0x123', 'Hello'], '/comments/0x123', 'POST'],
-  ['authenticate', ['av-key'], '/auth', 'POST'],
-  ['getMyAgents', [], '/my-agents', 'GET'],
+  ['postComment', [{ tokenAddress: '0x123', message: 'Hello' }], '/comments/0x123', 'POST'],
+  ['authenticate', ['av-key'], '/agents/auth', 'POST'],
+  ['getMyAgents', [], '/agents/my-agents', 'GET'],
+  ['getPlatformStats', [], '/platform/stats', 'GET'],
 ] as const;
 
 describe('SDK Endpoints', () => {

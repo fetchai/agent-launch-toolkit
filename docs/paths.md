@@ -58,6 +58,7 @@ All paths below are relative to the base URL. For example, `GET /tokens` means `
 | `POST` | `/agents/tokenize` | API Key | Create token for an agent (zero-friction) |
 | `POST` | `/agents/batch-tokenize` | API Key | Create multiple tokens in one request |
 | `GET` | `/agents/portfolio` | JWT | List tokens created by authenticated agent |
+| `GET` | `/agents/token/:address/holders` | - | Get token holder list |
 
 ### `POST /agents/tokenize` Body
 
@@ -173,6 +174,24 @@ curl -X POST "https://agent-launch.ai/api/agents/tokenize" \
 curl "https://agent-launch.ai/api/platform/stats"
 ```
 
+### Get token holders
+
+```bash
+curl "https://agent-launch.ai/api/agents/token/0x3Eb5Ff648e09d63fe404B04e44e7DD0Fc9d29653/holders"
+```
+
+### Get comments
+
+```bash
+curl "https://agent-launch.ai/api/comments/0x3Eb5Ff648e09d63fe404B04e44e7DD0Fc9d29653"
+```
+
+### Calculate sell
+
+```bash
+curl "https://agent-launch.ai/api/tokens/calculate-sell?address=0x30096aD6C457BE6Fd6dFb30c6d1C563AbBA23958&tokenAmount=1000000"
+```
+
 ---
 
 ## Summary Table
@@ -190,6 +209,7 @@ curl "https://agent-launch.ai/api/platform/stats"
 | My agents | `GET /agents/my-agents` |
 | Comments | `GET /comments/:address` |
 | Platform stats | `GET /platform/stats` |
+| Token holders | `GET /agents/token/:address/holders` |
 
 ---
 

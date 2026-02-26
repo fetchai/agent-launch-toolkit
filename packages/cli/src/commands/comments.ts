@@ -98,7 +98,7 @@ export function registerCommentsCommand(program: Command): void {
           try {
             const client = getClient();
             result = await client.post<CommentPostResponse>(
-              `/api/comments/${addr}`,
+              `/comments/${addr}`,
               { message },
             );
           } catch (err) {
@@ -135,7 +135,7 @@ export function registerCommentsCommand(program: Command): void {
           const client = getPublicClient();
           const response = await client.get<
             Comment[] | { data?: Comment[]; comments?: Comment[] }
-          >(`/api/comments/${addr}`);
+          >(`/comments/${addr}`);
           // Handle both array responses and wrapped responses
           if (Array.isArray(response)) {
             comments = response;

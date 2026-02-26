@@ -15,9 +15,9 @@ import { getPublicClient } from "../http.js";
 
 interface Holder {
   address: string;
-  token_percentage: number;
-  balance?: number;
-  creator?: boolean;
+  token_percentage: number | string;
+  balance?: number | string;
+  creator?: boolean | number;
 }
 
 export function registerHoldersCommand(program: Command): void {
@@ -45,10 +45,13 @@ export function registerHoldersCommand(program: Command): void {
       try {
         const client = getPublicClient();
         const response = await client.get<
-          Holder[] | { data?: Holder[]; holders?: Holder[] }
-        >(`/api/transactions/holders/${addr}`);
+          Holder[] | { data?: Holder[]; holders?: Holder[] } | { success: boolean; data: { holders: Holder[]; total: number } }
+        >(`/agents/token/${addr}/holders`);
         if (Array.isArray(response)) {
           holders = response;
+        } else if ('success' in response && response.data?.holders) {
+          // Handle { success: true, data: { holders: [...], total: N } }
+          holders = response.data.holders;
         } else {
           holders =
             (response as { data?: Holder[]; holders?: Holder[] }).data ??
@@ -89,20 +92,32 @@ export function registerHoldersCommand(program: Command): void {
 
       for (const h of holders) {
         const addrCol = h.address ?? "-";
-        const balanceCol =
-          h.balance !== undefined ? formatNumber(h.balance) : "-";
-        const pctCol = `${(h.token_percentage ?? 0).toFixed(2)}%`;
-        const creatorTag = h.creator ? " (creator)" : "";
+        const balanceNum = typeof h.balance === 'string'
+          ? parseFloat(h.balance)
+          : (h.balance ?? 0);
+        const balanceCol = h.balance !== undefined ? formatNumber(balanceNum) : "-";
+        const pctRaw = typeof h.token_percentage === 'string'
+          ? parseFloat(h.token_percentage)
+          : (h.token_percentage ?? 0);
+        const pctCol = `${pctRaw.toFixed(2)}%`;
+        const isCreator = (h.creator === true || h.creator === 1);
+        const creatorTag = isCreator ? " *" : "";
 
+        // Truncate address to fit column, accounting for creator tag
+        const maxAddrLen = colAddr - creatorTag.length - 2;
+        const displayAddr = addrCol.length > maxAddrLen
+          ? addrCol.slice(0, maxAddrLen - 3) + "..."
+          : addrCol;
         console.log(
-          pad(addrCol + creatorTag, colAddr) +
+          pad(displayAddr + creatorTag, colAddr) +
             pad(balanceCol, colBalance) +
             pctCol,
         );
       }
 
       console.log(hr);
-      console.log(`\n${holders.length} holder(s) total.\n`);
+      const hasCreator = holders.some(h => h.creator === true || h.creator === 1);
+      console.log(`\n${holders.length} holder(s) total.${hasCreator ? ' (* = creator)' : ''}\n`);
       console.log(`View on platform: ${getFrontendUrl()}/trade/${addr}`);
     });
 }

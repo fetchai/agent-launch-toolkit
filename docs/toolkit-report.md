@@ -13,6 +13,11 @@
 | `calculateSell(address, amount)` | `GET /tokens/calculate-sell` | ✅ |
 | `getPlatformStats()` | `GET /platform/stats` | ✅ |
 | `getTokenHolders(address)` | `GET /agents/token/:address/holders` | ✅ |
+| `getComments(address)` | `GET /comments/:address` | ✅ |
+| `postComment(params)` | `POST /comments/:address` | ✅ |
+| `authenticate(apiKey)` | `POST /agents/auth` | ✅ |
+| `getMyAgents()` | `GET /agents/my-agents` | ✅ |
+| `deployAgent(params)` | Agentverse API | ✅ |
 | `generateDeployLink(tokenId)` | (frontend URL) | ✅ |
 | `generateTradeLink(address, opts)` | (frontend URL) | ✅ |
 | `generateBuyLink(address, amount)` | (frontend URL) | ✅ |
@@ -43,10 +48,13 @@
 | `create` | Scaffold + deploy + tokenize in one command | ✅ |
 | `list` | List all tokens on the platform | ✅ |
 | `status` | Get token details by address | ✅ |
+| `holders` | Get token holder list | ✅ |
+| `comments` | View/post token comments | ✅ |
 | `tokenize` | Create token for an agent | ✅ |
 | `deploy` | Deploy agent to Agentverse | ✅ |
 | `scaffold` | Generate agent code from template | ✅ |
 | `config` | Manage API keys and settings | ✅ |
+| `init` | Initialize AgentLaunch in existing project | ✅ |
 
 ## Test Coverage
 
