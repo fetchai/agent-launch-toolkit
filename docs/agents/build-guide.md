@@ -36,7 +36,7 @@ API Base (prod):  https://agent-launch.ai/api (default)
 API Base (dev):   https://launchpad-backend-dev-1056182620041.us-central1.run.app
 Auth:             ${AGENT_LAUNCH_API_URL}/users/login
 Agentverse API:   https://agentverse.ai/v1
-FET Token:        0x74F804B4140ee70830B3Eef4e690325841575F89
+FET Token:        0x304ddf3eE068c53514f782e2341B71A80c8aE3C7
 Deploy Fee:       120 FET
 Target Liquidity: 30,000 FET → auto Uniswap listing
 ```

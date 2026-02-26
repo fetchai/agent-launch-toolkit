@@ -122,7 +122,7 @@ BSC_TESTNET_RPC = os.environ.get("BSC_TESTNET_RPC", "https://data-seed-prebsc-1-
 ETH_SEPOLIA_RPC = os.environ.get("ETH_SEPOLIA_RPC", "https://rpc.sepolia.org")
 
 # Testnet FET contract on BSC Testnet
-FET_CONTRACT_BSC_TESTNET = "0x210778e62C17b4F7B6De7ab27346e4C35e3b1b5"
+FET_CONTRACT_BSC_TESTNET = "0x304ddf3eE068c53514f782e2341B71A80c8aE3C7"  # TFET on BSC Testnet (checksummed)
 
 # ==============================================================================
 # BUSINESS CONFIG
@@ -466,7 +466,9 @@ class GifterBusiness:
             })
 
             signed = w3.eth.account.sign_transaction(tx, private_key)
-            tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+            # Handle both old (rawTransaction) and new (raw_transaction) web3.py versions
+            raw_tx = getattr(signed, 'raw_transaction', None) or getattr(signed, 'rawTransaction', None)
+            tx_hash = w3.eth.send_raw_transaction(raw_tx)
 
             self._daily_gifts[recipient]["fet"] += amount
             ctx.logger.info(
@@ -508,7 +510,9 @@ class GifterBusiness:
             }
 
             signed = w3.eth.account.sign_transaction(tx, private_key)
-            tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+            # Handle both old (rawTransaction) and new (raw_transaction) web3.py versions
+            raw_tx = getattr(signed, 'raw_transaction', None) or getattr(signed, 'rawTransaction', None)
+            tx_hash = w3.eth.send_raw_transaction(raw_tx)
 
             self._daily_gifts[recipient]["bnb"] += amount
             ctx.logger.info(

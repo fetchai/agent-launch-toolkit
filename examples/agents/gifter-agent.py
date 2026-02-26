@@ -19,6 +19,7 @@ from uuid import uuid4
 import json
 import os
 import re
+import time
 
 import requests
 from web3 import Web3
@@ -44,7 +45,7 @@ AGENTLAUNCH_API = os.environ.get("AGENT_LAUNCH_API_URL", "https://agent-launch.a
 
 # Reward amounts (testnet FET)
 WELCOME_FET = 150       # Covers 120 FET deploy fee + 30 FET seed capital
-WELCOME_BNB = 0.2       # Gas for multiple transactions
+WELCOME_BNB = 0.01      # Gas for a few transactions (reduced to save tBNB)
 REFERRAL_FET = 10       # Both parties get this
 BUILDER_FET = 20        # Weekly for agents with deployed tokens
 MILESTONE_100_HOLDERS = 50   # Bonus for reaching 100 holders
@@ -181,7 +182,7 @@ def check_rate_limit(ctx, sender: str) -> bool:
 # BSC Testnet
 BSC_RPC = "https://data-seed-prebsc-1-s1.binance.org:8545"
 BSC_CHAIN_ID = 97
-FET_TOKEN = "0x74F804B4140ee70830B3Eef4e690325841575F89"
+FET_TOKEN = "0x304ddf3eE068c53514f782e2341B71A80c8aE3C7"  # TFET on BSC Testnet (checksummed)
 
 # ERC-20 Transfer ABI
 ERC20_ABI = [
@@ -209,11 +210,13 @@ w3 = Web3(Web3.HTTPProvider(BSC_RPC))
 
 def get_treasury_wallet() -> tuple:
     """
-    Get treasury wallet address and account from TREASURY_PRIVATE_KEY secret.
+    Get treasury wallet address and account from GIFT_TREASURY_KEY secret.
     Returns (address, account) or (None, None) if not configured.
     """
-    private_key = os.environ.get("TREASURY_PRIVATE_KEY")
+    # Try unique key first, fallback to legacy name
+    private_key = os.environ.get("GIFT_TREASURY_KEY") or os.environ.get("TREASURY_PRIVATE_KEY")
     if not private_key:
+        print("[TREASURY_WALLET] No treasury key found in env")
         return None, None
 
     # Ensure proper format
@@ -222,30 +225,40 @@ def get_treasury_wallet() -> tuple:
 
     try:
         account = Account.from_key(private_key)
+        print(f"[TREASURY_WALLET] Loaded wallet: {account.address}")
         return account.address, account
-    except Exception:
+    except Exception as e:
+        print(f"[TREASURY_WALLET] Error loading wallet: {e}")
         return None, None
 
 
 def get_treasury_balance(ctx) -> dict:
     """Get real treasury balance from BSC Testnet."""
     address, _ = get_treasury_wallet()
+    ctx.logger.info(f"[TREASURY] Checking balance for address: {address}")
+
     if not address:
         # Fallback to simulated if no wallet configured
+        ctx.logger.warning("[TREASURY] No wallet configured, using fallback")
         return _get(ctx, "treasury", {"fet": 0, "bnb": 0, "address": None})
 
     try:
         # Get BNB balance
+        ctx.logger.info(f"[TREASURY] Connecting to BSC RPC: {BSC_RPC}")
         bnb_wei = w3.eth.get_balance(address)
         bnb = float(w3.from_wei(bnb_wei, 'ether'))
+        ctx.logger.info(f"[TREASURY] BNB balance: {bnb}")
 
         # Get FET balance
+        ctx.logger.info(f"[TREASURY] Checking TFET at contract: {FET_TOKEN}")
         fet_contract = w3.eth.contract(address=FET_TOKEN, abi=ERC20_ABI)
         fet_wei = fet_contract.functions.balanceOf(address).call()
         fet = float(w3.from_wei(fet_wei, 'ether'))
+        ctx.logger.info(f"[TREASURY] TFET balance: {fet}")
 
         return {"fet": fet, "bnb": bnb, "address": address}
     except Exception as e:
+        ctx.logger.error(f"[TREASURY] Error getting balance: {str(e)}")
         return {"fet": 0, "bnb": 0, "address": address, "error": str(e)}
 
 
@@ -276,7 +289,9 @@ def send_fet(recipient: str, amount: float, ctx) -> dict:
 
         # Sign and send
         signed = account.sign_transaction(tx)
-        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        # Handle both old (rawTransaction) and new (raw_transaction) web3.py versions
+        raw_tx = getattr(signed, 'raw_transaction', None) or getattr(signed, 'rawTransaction', None)
+        tx_hash = w3.eth.send_raw_transaction(raw_tx)
 
         ctx.logger.info(f"FET sent: {amount} to {recipient[:10]}... tx={tx_hash.hex()[:16]}")
         return {"success": True, "tx_hash": tx_hash.hex()}
@@ -308,7 +323,9 @@ def send_bnb(recipient: str, amount: float, ctx) -> dict:
         }
 
         signed = account.sign_transaction(tx)
-        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        # Handle both old (rawTransaction) and new (raw_transaction) web3.py versions
+        raw_tx = getattr(signed, 'raw_transaction', None) or getattr(signed, 'rawTransaction', None)
+        tx_hash = w3.eth.send_raw_transaction(raw_tx)
 
         ctx.logger.info(f"BNB sent: {amount} to {recipient[:10]}... tx={tx_hash.hex()[:16]}")
         return {"success": True, "tx_hash": tx_hash.hex()}
@@ -509,6 +526,9 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
                 "Please try again later or contact support.",
                 end=True)
             return
+
+        # Wait for FET tx to be picked up before sending BNB (avoid nonce conflict)
+        time.sleep(3)
 
         # Send BNB for gas
         bnb_result = send_bnb(evm_address, WELCOME_BNB, ctx)

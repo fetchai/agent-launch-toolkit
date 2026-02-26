@@ -189,6 +189,31 @@ These are baked into the smart contracts. Never change them:
 **Fee rule:** The 2% trading fee goes 100% to REVENUE_ACCOUNT (protocol treasury).
 There is NO creator fee split. The contract has no mechanism to send fees to creators.
 
+## Testnet Resources
+
+### TFET Contract (BSC Testnet)
+```
+0x304ddf3eE068c53514f782e2341B71A80c8aE3C7
+```
+
+### Get Testnet Tokens
+
+**Option 1: Message the $GIFT Agent (Recommended)**
+
+The $GIFT agent distributes testnet tokens to new developers:
+```
+Agent:    agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+Chat:     https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+```
+
+Commands:
+- `claim 0x<your-wallet>` — Get 150 TFET + 0.01 tBNB (one-time welcome gift)
+- `status` — Check treasury balance
+- `help` — Full command list
+
+**Option 2: BSC Testnet Faucet**
+- tBNB: https://testnet.bnbchain.org/faucet-smart
+
 ## Agentverse API Gotchas
 
 - **Code upload requires double-encoded JSON:**

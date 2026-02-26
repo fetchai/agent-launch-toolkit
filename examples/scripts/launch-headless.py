@@ -47,7 +47,7 @@ AGENTVERSE_API = "https://agentverse.ai/v1"
 PK = os.getenv("WALLET_PRIVATE_KEY")
 RPC = os.getenv("RPC_URL", "https://bsc-dataseed.binance.org")
 DEPLOYER = os.getenv("DEPLOYER_ADDRESS")
-FET = "0x74F804B4140ee70830B3Eef4e690325841575F89"
+FET = "0x304ddf3eE068c53514f782e2341B71A80c8aE3C7"  # TFET on BSC Testnet (checksummed)
 
 
 def list_agents():

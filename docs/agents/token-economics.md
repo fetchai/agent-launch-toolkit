@@ -125,7 +125,7 @@ Purpose: Anti-spam, platform revenue
 ## Key Addresses (Base Mainnet)
 
 ```
-FET Token:        0x74F804B4140ee70830B3Eef4e690325841575F89
+FET Token:        0x304ddf3eE068c53514f782e2341B71A80c8aE3C7
 Uniswap Router:   0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24
 Revenue Account:  0xCA651edad1909aAB7DeE7013DDca9e985bFb42cD
 Chain ID:         8453 (Base)

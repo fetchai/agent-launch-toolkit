@@ -177,7 +177,7 @@ Sell: https://agent-launch.ai/trade/{address}?action=sell&amount=50
 
 ```
 Chain:            BSC Mainnet (56) / BSC Testnet (97)
-FET Token:        0x74F804B4140ee70830B3Eef4e690325841575F89
+FET Token:        0x304ddf3eE068c53514f782e2341B71A80c8aE3C7
 Deploy Fee:       120 FET
 Target Liquidity: 30,000 FET -> auto DEX listing
 Bonding Curve:    800M tradeable, 200M DEX reserve
