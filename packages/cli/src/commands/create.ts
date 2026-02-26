@@ -224,70 +224,91 @@ export function registerCreateCommand(program: Command): void {
           let buildMode = options.mode ?? "";
           if (!buildMode) {
             console.log("\n  What are you building?\n");
-            console.log("    1) Quick Start         Deploy your first agent in 5 minutes");
-            console.log("    2) Agent Swarm         Build a team of agents that pay each other");
-            console.log("    3) Genesis Network     The full 7-agent economy");
-            const modeInput = (await prompt(rl, "\n  Choose (1/2/3): ")).trim();
+            console.log("    1) Single Agent    One agent that charges for a service");
+            console.log("    2) Agent Swarm     A team of agents that pay each other");
+            const modeInput = (await prompt(rl, "\n  Choose (1/2): ")).trim();
             if (modeInput === "2" || modeInput.toLowerCase() === "swarm") {
               buildMode = "swarm";
-            } else if (modeInput === "3" || modeInput.toLowerCase() === "genesis") {
-              buildMode = "genesis";
             } else {
-              buildMode = "quick";
+              buildMode = "single";
             }
           }
 
-          // Handle swarm and genesis modes
-          if (buildMode === "swarm" || buildMode === "genesis") {
-            let selectedPresets: string[];
+          // Show preset selection for both modes
+          console.log("\n  What kind of agent?\n");
+          console.log("    Recommended for earning fees:");
+          console.log("    1) Oracle       Sell market data (price feeds, OHLC) — 0.001 FET/call");
+          console.log("    2) Brain        Sell AI reasoning (analysis, summaries) — 0.01 FET/call");
+          console.log("    3) Analyst      Sell token scoring (quality, risk) — 0.005 FET/call");
+          console.log("");
+          console.log("    Infrastructure (other agents pay you):");
+          console.log("    4) Coordinator  Route queries to specialists — 0.0005 FET/call");
+          console.log("    5) Sentinel     Real-time monitoring & alerts — 0.002 FET/call");
+          console.log("");
+          console.log("    Advanced (autonomous growth):");
+          console.log("    6) Launcher     Find gaps, scaffold new agents — 0.02 FET/call");
+          console.log("    7) Scout        Discover & evaluate agents — 0.01 FET/call");
 
-            if (buildMode === "genesis") {
-              // Genesis mode: deploy all 7 presets
-              selectedPresets = GENESIS_PRESETS.map((p) => p.name);
-              console.log(`\n  Genesis Network: deploying all ${selectedPresets.length} agents`);
-            } else {
-              // Swarm mode: let user pick presets
-              console.log("\n  Available agent presets:\n");
-              for (let i = 0; i < GENESIS_PRESETS.length; i++) {
-                const p = GENESIS_PRESETS[i];
-                console.log(`    ${i + 1}) ${p.label.padEnd(14)} ${p.description}`);
-              }
-              const pickInput = (
-                await prompt(rl, "\n  Enter numbers (comma-separated, e.g. 1,3,4): ")
-              ).trim();
-              const picks = pickInput
-                .split(",")
-                .map((s) => parseInt(s.trim(), 10))
-                .filter((n) => n >= 1 && n <= GENESIS_PRESETS.length);
-              if (picks.length === 0) {
-                console.error("Error: No presets selected. Exiting.");
-                rl.close();
-                process.exit(1);
-              }
-              selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
+          let selectedPresets: string[];
+          if (buildMode === "swarm") {
+            const pickInput = (
+              await prompt(rl, "\n  Pick agents (comma-separated, e.g. 1,2,4): ")
+            ).trim();
+            const picks = pickInput
+              .split(",")
+              .map((s) => parseInt(s.trim(), 10))
+              .filter((n) => n >= 1 && n <= GENESIS_PRESETS.length);
+            if (picks.length === 0) {
+              console.error("Error: No agents selected. Exiting.");
+              rl.close();
+              process.exit(1);
             }
+            selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
+          } else {
+            // Single agent mode - pick one
+            const pickInput = (
+              await prompt(rl, "\n  Pick one (1-7): ")
+            ).trim();
+            const pick = parseInt(pickInput, 10);
+            if (pick < 1 || pick > GENESIS_PRESETS.length) {
+              // Default to Oracle if invalid
+              selectedPresets = ["oracle"];
+              console.log("  Defaulting to Oracle.");
+            } else {
+              selectedPresets = [GENESIS_PRESETS[pick - 1].name];
+            }
+          }
 
-            const baseName = name || "Swarm";
+          const isSingleAgent = buildMode === "single";
+          const baseName = name || (isSingleAgent ? selectedPresets[0] : "Swarm");
+
+          if (isSingleAgent) {
+            console.log(`\n  Deploying ${baseName}...\n`);
+          } else {
             console.log(`\n  Deploying ${selectedPresets.length} agents as "${baseName}"...\n`);
+          }
 
-            rl.close();
+          rl.close();
 
-            // Deploy each agent in sequence
-            const swarmResults: Array<{
-              name: string;
-              preset: string;
-              address: string;
-              status: string;
-              code?: string;
-              error?: string;
-            }> = [];
-            const peerAddresses: Record<string, string> = {};
+          // Deploy each agent in sequence
+          const deployResults: Array<{
+            name: string;
+            preset: string;
+            address: string;
+            status: string;
+            code?: string;
+            error?: string;
+          }> = [];
+          const peerAddresses: Record<string, string> = {};
 
-            for (const presetName of selectedPresets) {
-              const agentName = `${baseName}-${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`;
+          for (const presetName of selectedPresets) {
+            // For single agent, use baseName directly; for swarm, append preset
+            const agentName = isSingleAgent
+              ? baseName
+              : `${baseName}-${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`;
               const presetInfo = GENESIS_PRESETS.find((p) => p.name === presetName);
 
-              console.log(`  [${swarmResults.length + 1}/${selectedPresets.length}] Deploying ${agentName}...`);
+              console.log(`  [${deployResults.length + 1}/${selectedPresets.length}] Deploying ${agentName}...`);
 
               try {
                 // Generate agent code — try swarm-starter template, fall back to custom
@@ -320,7 +341,7 @@ export function registerCreateCommand(program: Command): void {
 
                 peerAddresses[`${presetName.toUpperCase()}_ADDRESS`] = result.agentAddress;
 
-                swarmResults.push({
+                deployResults.push({
                   name: agentName,
                   preset: presetName,
                   address: result.agentAddress,
@@ -332,7 +353,7 @@ export function registerCreateCommand(program: Command): void {
                 console.log(`    Status:  ${result.status}`);
               } catch (err) {
                 const errMsg = err instanceof Error ? err.message : String(err);
-                swarmResults.push({
+                deployResults.push({
                   name: agentName,
                   preset: presetName,
                   address: "",
@@ -344,201 +365,223 @@ export function registerCreateCommand(program: Command): void {
             }
 
             // Summary
-            const successful = swarmResults.filter((r) => r.status !== "failed");
-            const failed = swarmResults.filter((r) => r.status === "failed");
+            const successful = deployResults.filter((r) => r.status !== "failed");
+            const failed = deployResults.filter((r) => r.status === "failed");
 
-            // Create project directory for the swarm
-            const dirName = sanitizeDirName(baseName);
-            const targetDir = path.resolve(process.cwd(), dirName);
+          // Create project directory
+          const dirName = sanitizeDirName(baseName);
+          const targetDir = path.resolve(process.cwd(), dirName);
 
-            if (!fs.existsSync(targetDir)) {
-              fs.mkdirSync(targetDir, { recursive: true });
-            }
+          if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+          }
+          if (!isSingleAgent) {
             fs.mkdirSync(path.join(targetDir, "agents"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, "docs"), { recursive: true });
-            fs.mkdirSync(path.join(targetDir, "examples"), { recursive: true });
+          }
+          fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
+          fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
+          fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
+          fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
+          fs.mkdirSync(path.join(targetDir, "docs"), { recursive: true });
+          fs.mkdirSync(path.join(targetDir, "examples"), { recursive: true });
 
-            // Write agent code files
-            for (const agent of successful) {
-              if (agent.code) {
-                fs.writeFileSync(
-                  path.join(targetDir, "agents", `${agent.preset}.py`),
-                  agent.code,
-                  "utf8"
-                );
-              }
+          // Write agent code files
+          for (const agent of successful) {
+            if (agent.code) {
+              // Single agent: agent.py at root; Swarm: agents/<preset>.py
+              const codePath = isSingleAgent
+                ? path.join(targetDir, "agent.py")
+                : path.join(targetDir, "agents", `${agent.preset}.py`);
+              fs.writeFileSync(codePath, agent.code, "utf8");
             }
+          }
 
-            // Build swarm context
-            const swarmContext: SwarmContext = {
-              swarmName: baseName,
-              agents: successful.map((a) => ({
-                name: a.name,
-                preset: a.preset,
-                address: a.address,
-                status: a.status,
-              })),
-              peerAddresses,
-              deployedAt: new Date().toISOString(),
-            };
+          // Build context for CLAUDE.md (works for both single and swarm)
+          const swarmContext: SwarmContext = {
+            swarmName: baseName,
+            agents: successful.map((a) => ({
+              name: a.name,
+              preset: a.preset,
+              address: a.address,
+              status: a.status,
+            })),
+            peerAddresses,
+            deployedAt: new Date().toISOString(),
+          };
 
-            // Write swarm-specific files
-            fs.writeFileSync(
-              path.join(targetDir, "CLAUDE.md"),
-              buildSwarmClaudeMd(swarmContext),
-              "utf8"
-            );
-            fs.writeFileSync(
-              path.join(targetDir, "agentlaunch.config.json"),
-              buildSwarmConfig(swarmContext),
-              "utf8"
-            );
-            fs.writeFileSync(
-              path.join(targetDir, "package.json"),
-              buildSwarmPackageJson(baseName),
-              "utf8"
-            );
+          // Write context files
+          fs.writeFileSync(
+            path.join(targetDir, "CLAUDE.md"),
+            buildSwarmClaudeMd(swarmContext),
+            "utf8"
+          );
+          fs.writeFileSync(
+            path.join(targetDir, "agentlaunch.config.json"),
+            buildSwarmConfig(swarmContext),
+            "utf8"
+          );
+          fs.writeFileSync(
+            path.join(targetDir, "package.json"),
+            buildSwarmPackageJson(baseName),
+            "utf8"
+          );
 
-            // Write .env with API key
-            const envContent = `# AgentLaunch Environment Variables
+          // Write .env with API key
+          let envContent = `# AgentLaunch Environment Variables
 AGENTVERSE_API_KEY=${apiKey}
 AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
-
+`;
+          if (!isSingleAgent && Object.keys(peerAddresses).length > 0) {
+            envContent += `
 # Peer addresses (for agent-to-agent communication)
 ${Object.entries(peerAddresses).map(([k, v]) => `${k}=${v}`).join("\n")}
 `;
-            fs.writeFileSync(path.join(targetDir, ".env"), envContent, "utf8");
+          }
+          if (successful.length > 0) {
+            envContent += `
+# Your agent address
+AGENT_ADDRESS=${successful[0].address}
+`;
+          }
+          fs.writeFileSync(path.join(targetDir, ".env"), envContent, "utf8");
 
-            // Write Claude rules
-            for (const [filename, content] of Object.entries(RULES)) {
-              fs.writeFileSync(
-                path.join(targetDir, ".claude", "rules", filename),
-                content,
-                "utf8"
-              );
-            }
-
-            // Write Claude skills
-            for (const [filepath, content] of Object.entries(SKILLS)) {
-              const skillDir = path.dirname(filepath);
-              fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
-              fs.writeFileSync(
-                path.join(targetDir, ".claude", "skills", filepath),
-                content,
-                "utf8"
-              );
-            }
-
-            // Write .claude/settings.json
-            const claudeSettings = JSON.stringify({
-              mcpServers: {
-                "agent-launch": {
-                  command: "npx",
-                  args: ["-y", "agent-launch-mcp"],
-                  env: { AGENTVERSE_API_KEY: "${AGENTVERSE_API_KEY}" },
-                },
-              },
-            }, null, 2);
+          // Write Claude rules
+          for (const [filename, content] of Object.entries(RULES)) {
             fs.writeFileSync(
-              path.join(targetDir, ".claude", "settings.json"),
-              claudeSettings,
+              path.join(targetDir, ".claude", "rules", filename),
+              content,
               "utf8"
             );
+          }
 
-            // Write MCP config
-            fs.writeFileSync(path.join(targetDir, ".mcp.json"), claudeSettings, "utf8");
+          // Write Claude skills
+          for (const [filepath, content] of Object.entries(SKILLS)) {
+            const skillDir = path.dirname(filepath);
+            fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+            fs.writeFileSync(
+              path.join(targetDir, ".claude", "skills", filepath),
+              content,
+              "utf8"
+            );
+          }
 
-            // Write Cursor config
-            fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
-            fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
+          // Write .claude/settings.json
+          const claudeSettings = JSON.stringify({
+            mcpServers: {
+              "agent-launch": {
+                command: "npx",
+                args: ["-y", "agent-launch-mcp"],
+                env: { AGENTVERSE_API_KEY: "${AGENTVERSE_API_KEY}" },
+              },
+            },
+          }, null, 2);
+          fs.writeFileSync(
+            path.join(targetDir, ".claude", "settings.json"),
+            claudeSettings,
+            "utf8"
+          );
 
-            // Write docs
-            for (const [filename, content] of Object.entries(DOCS)) {
-              fs.writeFileSync(path.join(targetDir, "docs", filename), content, "utf8");
-            }
+          // Write MCP config
+          fs.writeFileSync(path.join(targetDir, ".mcp.json"), claudeSettings, "utf8");
 
-            // Write examples
-            for (const [filename, content] of Object.entries(EXAMPLES)) {
-              fs.writeFileSync(path.join(targetDir, "examples", filename), content, "utf8");
-            }
+          // Write Cursor config
+          fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
+          fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
 
-            if (isJson) {
-              console.log(JSON.stringify({
-                mode: buildMode,
-                baseName,
-                directory: targetDir,
-                totalDeployed: successful.length,
-                totalFailed: failed.length,
-                agents: swarmResults.map((a) => ({ name: a.name, preset: a.preset, address: a.address, status: a.status })),
-                peerAddresses,
-              }));
-              return;
-            }
+          // Write docs
+          for (const [filename, content] of Object.entries(DOCS)) {
+            fs.writeFileSync(path.join(targetDir, "docs", filename), content, "utf8");
+          }
 
-            console.log(`\n  Swarm deployment complete!`);
-            console.log(`  Deployed: ${successful.length}/${swarmResults.length} agents`);
-            console.log(`  Directory: ${targetDir}\n`);
+          // Write examples
+          for (const [filename, content] of Object.entries(EXAMPLES)) {
+            fs.writeFileSync(path.join(targetDir, "examples", filename), content, "utf8");
+          }
 
+          if (isJson) {
+            console.log(JSON.stringify({
+              mode: buildMode,
+              baseName,
+              directory: targetDir,
+              totalDeployed: successful.length,
+              totalFailed: failed.length,
+              agents: deployResults.map((a) => ({ name: a.name, preset: a.preset, address: a.address, status: a.status })),
+              peerAddresses,
+            }));
+            return;
+          }
+
+          if (isSingleAgent) {
+            console.log(`\n  Agent deployed!`);
             if (successful.length > 0) {
-              console.log("  Agent Addresses:");
+              const agent = successful[0];
+              console.log(`  Name:      ${agent.name}`);
+              console.log(`  Type:      ${agent.preset}`);
+              console.log(`  Address:   ${agent.address}`);
+            }
+          } else {
+            console.log(`\n  Swarm deployed!`);
+            console.log(`  Deployed: ${successful.length}/${deployResults.length} agents`);
+            if (successful.length > 0) {
+              console.log("\n  Agent Addresses:");
               for (const agent of successful) {
                 console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
               }
             }
+          }
+          console.log(`  Directory: ${targetDir}\n`);
 
-            if (failed.length > 0) {
-              console.log(`\n  Failed (${failed.length}):`);
-              for (const agent of failed) {
-                console.log(`    ${agent.preset}: ${agent.error}`);
-              }
+          if (failed.length > 0) {
+            console.log(`\n  Failed (${failed.length}):`);
+            for (const agent of failed) {
+              console.log(`    ${agent.preset}: ${agent.error}`);
             }
-
-            console.log(`\n  Created files:`);
-            console.log(`    CLAUDE.md              Swarm context for Claude Code`);
-            console.log(`    agentlaunch.config.json Swarm configuration`);
-            console.log(`    agents/                 Individual agent code`);
-            console.log(`    .claude/                Rules, skills, MCP config`);
-            console.log(`    docs/                   SDK, CLI documentation`);
-
-            // Install dependencies
-            console.log(`\n  Installing dependencies...`);
-            try {
-              execSync("npm install --silent", { cwd: targetDir, stdio: "ignore" });
-              console.log(`  Done.`);
-            } catch {
-              console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
-            }
-
-            // Launch Claude Code with welcome prompt
-            console.log(`\n  Launching Claude Code...`);
-
-            // Build a welcome prompt that summarizes what was deployed
-            const agentList = successful.map((a) => `${a.preset} (${a.address.slice(0, 12)}...)`).join(", ");
-            const welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}. Welcome me and give me 3 quick options for what to do next (like tokenize an agent, check status, or customize behavior). Keep it brief.`;
-
-            const claude = spawn("claude", [welcomePrompt], {
-              cwd: targetDir,
-              stdio: "inherit",
-              shell: true,
-            });
-
-            claude.on("error", (err) => {
-              console.error(`  Could not launch Claude Code: ${err.message}`);
-              console.log(`\n  Run manually:`);
-              console.log(`    cd ${dirName} && claude "${welcomePrompt}"`);
-            });
-
-            return;
           }
 
-          // Always use custom template for interactive quick-start flow
-          template = "custom";
+          console.log(`  Created files:`);
+          if (isSingleAgent) {
+            console.log(`    agent.py               Your agent code (edit this!)`);
+          } else {
+            console.log(`    agents/                Individual agent code`);
+          }
+          console.log(`    CLAUDE.md              Context for Claude Code`);
+          console.log(`    .claude/               Rules, skills, MCP config`);
 
-          rl.close();
+          // Install dependencies
+          console.log(`\n  Installing dependencies...`);
+          try {
+            execSync("npm install --silent", { cwd: targetDir, stdio: "ignore" });
+            console.log(`  Done.`);
+          } catch {
+            console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
+          }
+
+          // Launch Claude Code with welcome prompt
+          console.log(`\n  Launching Claude Code...`);
+
+          // Build a context-aware welcome prompt
+          let welcomePrompt: string;
+          if (isSingleAgent && successful.length > 0) {
+            const agent = successful[0];
+            welcomePrompt = `I just deployed a ${agent.preset} agent called "${agent.name}" at ${agent.address.slice(0, 16)}... It charges for services. Welcome me, then explain: (1) how to tokenize it so I can earn from trading, (2) how to customize the pricing, and (3) what makes an agent valuable on this platform. Be encouraging and brief.`;
+          } else {
+            const agentList = successful.map((a) => a.preset).join(", ");
+            welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}. These agents pay each other for services. Welcome me and explain: (1) how to tokenize one, (2) how the agents work together, (3) what makes a swarm valuable. Be encouraging and brief.`;
+          }
+
+          const claude = spawn("claude", [welcomePrompt], {
+            cwd: targetDir,
+            stdio: "inherit",
+            shell: true,
+          });
+
+          claude.on("error", (err) => {
+            console.error(`  Could not launch Claude Code: ${err.message}`);
+            console.log(`\n  Run manually:`);
+            console.log(`    cd ${dirName} && claude`);
+          });
+
+          return;
         }
 
         // Validate inputs

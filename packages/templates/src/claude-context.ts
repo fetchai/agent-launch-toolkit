@@ -1012,17 +1012,11 @@ export interface SwarmContext {
 }
 
 /**
- * Builds a CLAUDE.md specifically for a deployed swarm.
+ * Builds a CLAUDE.md for deployed agents (single or swarm).
  * This gives Claude Code full context about what was deployed.
  */
 export function buildSwarmClaudeMd(ctx: SwarmContext): string {
-  const agentTable = ctx.agents
-    .map((a) => `| ${a.preset} | \`${a.address}\` | ${a.status} |`)
-    .join("\n");
-
-  const addressList = ctx.agents
-    .map((a) => `${a.preset.toUpperCase()}_ADDRESS=${a.address}`)
-    .join("\n");
+  const isSingleAgent = ctx.agents.length === 1;
 
   const presetDescriptions: Record<string, string> = {
     oracle: "Market data provider — price feeds, OHLC history, market summaries (0.001 FET/call)",
@@ -1033,6 +1027,85 @@ export function buildSwarmClaudeMd(ctx: SwarmContext): string {
     launcher: "Gap finder — discovers unmet needs, scaffolds new agents (0.02 FET/call)",
     scout: "Agent scout — discovers promising agents, evaluates quality (0.01 FET/call)",
   };
+
+  if (isSingleAgent) {
+    const agent = ctx.agents[0];
+    const desc = presetDescriptions[agent.preset] || agent.preset;
+    return `# ${ctx.swarmName}
+
+## Your Agent
+
+| Field | Value |
+|-------|-------|
+| **Name** | ${agent.name} |
+| **Type** | ${agent.preset.charAt(0).toUpperCase() + agent.preset.slice(1)} |
+| **Address** | \`${agent.address}\` |
+| **Status** | ${agent.status} |
+
+**What it does:** ${desc}
+
+## Project Structure
+
+\`\`\`
+${ctx.swarmName}/
+  agent.py               # Your agent code (edit this!)
+  CLAUDE.md              # This file
+  agentlaunch.config.json
+  .env                   # API key (already configured)
+  .claude/               # Claude Code settings
+  docs/                  # Documentation
+\`\`\`
+
+## What's Already Done
+
+1. **Agent deployed** — Running on Agentverse at \`${agent.address}\`
+2. **Commerce ready** — Has pricing built in (${desc.split('—')[1]?.trim() || 'charges for services'})
+3. **API key set** — Your Agentverse API key is in \`.env\`
+
+## Next Steps
+
+### 1. Tokenize your agent (so you can earn from trading)
+\`\`\`bash
+agentlaunch tokenize --agent ${agent.address} --name "${agent.name}" --symbol "${agent.preset.slice(0, 4).toUpperCase()}"
+\`\`\`
+You'll get a handoff link. Share it with someone who has a wallet to pay the 120 FET deploy fee.
+
+### 2. Customize pricing
+Edit \`agent.py\` and look for the \`PRICING\` section. Adjust prices based on value you provide.
+
+### 3. Check status
+\`\`\`bash
+agentlaunch status ${agent.address}
+\`\`\`
+
+## What Makes an Agent Valuable?
+
+Agents earn fees when they provide **real value**:
+- **Data providers** (Oracle): Sell accurate, timely market data
+- **AI services** (Brain): Sell quality reasoning and analysis
+- **Infrastructure** (Coordinator): Become the routing layer other agents depend on
+
+The more agents that depend on yours, the more fees you earn. Consider:
+1. What unique data or capability do you have?
+2. Who would pay for it?
+3. How can you make other agents need your service?
+
+## Platform Constants
+
+- Deploy fee: **120 FET** (paid when tokenizing)
+- Graduation: **30,000 FET** liquidity → auto DEX listing
+- Trading fee: **2%** → 100% to protocol treasury (no creator fee)
+`;
+  }
+
+  // Multi-agent swarm
+  const agentTable = ctx.agents
+    .map((a) => `| ${a.preset} | \`${a.address}\` | ${a.status} |`)
+    .join("\n");
+
+  const addressList = ctx.agents
+    .map((a) => `${a.preset.toUpperCase()}_ADDRESS=${a.address}`)
+    .join("\n");
 
   const roleDetails = ctx.agents
     .map((a) => {
