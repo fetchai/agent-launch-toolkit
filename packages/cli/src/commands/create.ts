@@ -273,23 +273,23 @@ export function registerCreateCommand(program: Command): void {
             }
           }
 
-          // Show preset selection for both modes
-          console.log("\n  What kind of agent?\n");
-          console.log("    Recommended for earning fees:");
-          console.log("    1) Oracle       Sell market data (price feeds, OHLC) — 0.001 FET/call");
-          console.log("    2) Brain        Sell AI reasoning (analysis, summaries) — 0.01 FET/call");
-          console.log("    3) Analyst      Sell token scoring (quality, risk) — 0.005 FET/call");
-          console.log("");
-          console.log("    Infrastructure (other agents pay you):");
-          console.log("    4) Coordinator  Route queries to specialists — 0.0005 FET/call");
-          console.log("    5) Sentinel     Real-time monitoring & alerts — 0.002 FET/call");
-          console.log("");
-          console.log("    Advanced (autonomous growth):");
-          console.log("    6) Launcher     Find gaps, scaffold new agents — 0.02 FET/call");
-          console.log("    7) Scout        Discover & evaluate agents — 0.01 FET/call");
-
           let selectedPresets: string[];
           if (buildMode === "swarm") {
+            // Show preset selection for swarm mode only
+            console.log("\n  What kind of agents?\n");
+            console.log("    Recommended for earning fees:");
+            console.log("    1) Oracle       Sell market data (price feeds, OHLC) — 0.001 FET/call");
+            console.log("    2) Brain        Sell AI reasoning (analysis, summaries) — 0.01 FET/call");
+            console.log("    3) Analyst      Sell token scoring (quality, risk) — 0.005 FET/call");
+            console.log("");
+            console.log("    Infrastructure (other agents pay you):");
+            console.log("    4) Coordinator  Route queries to specialists — 0.0005 FET/call");
+            console.log("    5) Sentinel     Real-time monitoring & alerts — 0.002 FET/call");
+            console.log("");
+            console.log("    Advanced (autonomous growth):");
+            console.log("    6) Launcher     Find gaps, scaffold new agents — 0.02 FET/call");
+            console.log("    7) Scout        Discover & evaluate agents — 0.01 FET/call");
+
             const pickInput = (
               await prompt(rl, "\n  Pick agents (comma-separated, e.g. 1,2,4): ")
             ).trim();
@@ -298,24 +298,15 @@ export function registerCreateCommand(program: Command): void {
               .map((s) => parseInt(s.trim(), 10))
               .filter((n) => n >= 1 && n <= GENESIS_PRESETS.length);
             if (picks.length === 0) {
-              console.error("Error: No agents selected. Exiting.");
-              rl.close();
-              process.exit(1);
-            }
-            selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
-          } else {
-            // Single agent mode - pick one
-            const pickInput = (
-              await prompt(rl, "\n  Pick one (1-7): ")
-            ).trim();
-            const pick = parseInt(pickInput, 10);
-            if (pick < 1 || pick > GENESIS_PRESETS.length) {
-              // Default to Oracle if invalid
-              selectedPresets = ["oracle"];
-              console.log("  Defaulting to Oracle.");
+              // Default to oracle + brain if no valid input
+              selectedPresets = ["oracle", "brain"];
+              console.log("  Defaulting to Oracle + Brain.");
             } else {
-              selectedPresets = [GENESIS_PRESETS[pick - 1].name];
+              selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
             }
+          } else {
+            // Single agent mode - use "custom" preset (generic commerce agent)
+            selectedPresets = ["custom"];
           }
 
           const isSingleAgent = buildMode === "single";
