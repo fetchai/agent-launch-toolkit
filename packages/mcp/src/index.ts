@@ -14,6 +14,7 @@ import { agentverseHandlers } from "./tools/agentverse.js";
 import { tokenizeHandlers } from "./tools/tokenize.js";
 import { commentHandlers } from "./tools/comments.js";
 import { commerceHandlers } from "./tools/commerce.js";
+import { tradingHandlers } from "./tools/trading.js";
 
 // Create the server
 const server = new Server(
@@ -456,6 +457,89 @@ export const TOOLS = [
       required: ["addresses"],
     },
   },
+  // On-chain trading --------------------------------------------------------
+  {
+    name: "buy_tokens",
+    description:
+      "Buy tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Approves FET, calls buyTokens on-chain, returns tx hash and tokens received.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        address: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        fetAmount: {
+          type: "string",
+          description: "Amount of FET to spend (e.g. '10')",
+        },
+        chainId: {
+          type: "number",
+          description:
+            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+        slippagePercent: {
+          type: "number",
+          description: "Slippage tolerance percentage (0-100). Default: 5",
+        },
+        dryRun: {
+          type: "boolean",
+          description:
+            "If true, only preview the trade via API (no wallet needed). Default: false",
+        },
+      },
+      required: ["address", "fetAmount"],
+    },
+  },
+  {
+    name: "sell_tokens",
+    description:
+      "Sell tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Calls sell() on-chain, returns tx hash and FET received.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        address: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        tokenAmount: {
+          type: "string",
+          description: "Amount of tokens to sell (e.g. '100000')",
+        },
+        chainId: {
+          type: "number",
+          description:
+            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+        dryRun: {
+          type: "boolean",
+          description:
+            "If true, only preview the trade via API (no wallet needed). Default: false",
+        },
+      },
+      required: ["address", "tokenAmount"],
+    },
+  },
+  {
+    name: "get_wallet_balances",
+    description:
+      "Get wallet balances for BNB (gas), FET, and a specific token. Requires WALLET_PRIVATE_KEY env var.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        address: {
+          type: "string",
+          description: "Token contract address to check balance of (0x...)",
+        },
+        chainId: {
+          type: "number",
+          description:
+            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+      },
+      required: ["address"],
+    },
+  },
   // EXT-06 ----------------------------------------------------------------
   {
     name: "deploy_swarm",
@@ -517,6 +601,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(tokenizeHandlers as Record<string, AnyHandler>),
       ...(commentHandlers as Record<string, AnyHandler>),
       ...(commerceHandlers as Record<string, AnyHandler>),
+      ...(tradingHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {

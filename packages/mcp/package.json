@@ -23,7 +23,8 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "agentlaunch-sdk": "*",
-    "agentlaunch-templates": "*"
+    "agentlaunch-templates": "*",
+    "ethers": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

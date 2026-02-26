@@ -35,6 +35,7 @@ import {
   getAgentCommerceStatus,
   getNetworkGDP,
 } from './commerce.js';
+import { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
 import type { StorageEntry } from './storage.js';
 import type {
   AgentRevenue,
@@ -42,6 +43,12 @@ import type {
   AgentCommerceStatus,
   NetworkGDP,
 } from './commerce.js';
+import type {
+  OnchainConfig,
+  BuyResult,
+  SellResult,
+  WalletBalances,
+} from './onchain.js';
 import type {
   AgentLaunchConfig,
   TokenizeParams,
@@ -218,6 +225,38 @@ export interface CommerceNamespace {
   getNetworkGDP(addresses: string[]): Promise<NetworkGDP>;
 }
 
+/** On-chain trading operations (requires ethers). */
+export interface OnchainNamespace {
+  /**
+   * Execute a buy on a bonding curve token contract.
+   * @see buyTokens
+   */
+  buy(
+    tokenAddress: string,
+    fetAmount: string,
+    config?: Omit<OnchainConfig, 'client'>,
+  ): Promise<BuyResult>;
+
+  /**
+   * Execute a sell on a bonding curve token contract.
+   * @see sellTokens
+   */
+  sell(
+    tokenAddress: string,
+    tokenAmount: string,
+    config?: Omit<OnchainConfig, 'client'>,
+  ): Promise<SellResult>;
+
+  /**
+   * Query wallet balances: BNB, FET, and a specific token.
+   * @see getWalletBalances
+   */
+  getBalances(
+    tokenAddress: string,
+    config?: Omit<OnchainConfig, 'client'>,
+  ): Promise<WalletBalances>;
+}
+
 // ---------------------------------------------------------------------------
 // AgentLaunch class
 // ---------------------------------------------------------------------------
@@ -271,6 +310,9 @@ export class AgentLaunch {
 
   /** Commerce data from agent storage (revenue, pricing, GDP). */
   readonly commerce: CommerceNamespace;
+
+  /** On-chain trading operations (requires ethers as peer dependency). */
+  readonly onchain: OnchainNamespace;
 
   constructor(config: AgentLaunchConfig = {}) {
     this.client = new AgentLaunchClient(config);
@@ -342,6 +384,15 @@ export class AgentLaunch {
         getAgentCommerceStatus(agentAddress, apiKey),
       getNetworkGDP: (addresses: string[]) =>
         getNetworkGDP(addresses, apiKey),
+    };
+
+    this.onchain = {
+      buy: (tokenAddress: string, fetAmount: string, cfg?: Omit<OnchainConfig, 'client'>) =>
+        buyTokens(tokenAddress, fetAmount, { ...cfg, client }),
+      sell: (tokenAddress: string, tokenAmount: string, cfg?: Omit<OnchainConfig, 'client'>) =>
+        sellTokens(tokenAddress, tokenAmount, { ...cfg, client }),
+      getBalances: (tokenAddress: string, cfg?: Omit<OnchainConfig, 'client'>) =>
+        getWalletBalances(tokenAddress, cfg),
     };
   }
 }

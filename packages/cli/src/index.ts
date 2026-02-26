@@ -20,7 +20,26 @@
  * All commands support --json for machine-readable output (AI agent use).
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import { Command } from "commander";
+
+// Load .env file from cwd (no dependency needed)
+try {
+  const envPath = path.resolve(process.cwd(), ".env");
+  const envContent = fs.readFileSync(envPath, "utf8");
+  for (const line of envContent.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const val = trimmed.slice(eqIdx + 1).trim();
+    if (!process.env[key]) process.env[key] = val;
+  }
+} catch {
+  // No .env file — that's fine
+}
 import { registerCommentsCommand } from "./commands/comments.js";
 import { registerConfigCommand } from "./commands/config.js";
 import { registerCreateCommand } from "./commands/create.js";
@@ -32,6 +51,8 @@ import { registerStatusCommand } from "./commands/status.js";
 import { registerInit } from "./commands/init.js";
 import { registerTokenizeCommand } from "./commands/tokenize.js";
 import { registerOptimizeCommand } from "./commands/optimize.js";
+import { registerBuyCommand } from "./commands/buy.js";
+import { registerSellCommand } from "./commands/sell.js";
 
 const program = new Command();
 
@@ -53,6 +74,8 @@ registerStatusCommand(program);
 registerCommentsCommand(program);
 registerHoldersCommand(program);
 registerOptimizeCommand(program);
+registerBuyCommand(program);
+registerSellCommand(program);
 registerInit(program);
 
 // Show help if no command is given

@@ -20,8 +20,8 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
-| **CLI** | `packages/cli/` | 11 commands, one-command full lifecycle |
-| **MCP Server** | `packages/mcp/` | 14+ tools for Claude Code / Cursor |
+| **CLI** | `packages/cli/` | 13 commands, one-command full lifecycle |
+| **MCP Server** | `packages/mcp/` | 17+ tools for Claude Code / Cursor |
 | **Templates** | `packages/templates/` | 7 production-ready agent blueprints (swarm-starter recommended) |
 
 ## Authentication
@@ -62,6 +62,11 @@ npx agentlaunch create                     # Interactive: scaffold -> deploy -> 
 npx agentlaunch list                       # List all tokens
 npx agentlaunch status 0x...               # Check a token
 npx agentlaunch optimize agent1q...        # Update README/description/avatar for ranking
+
+# On-chain trading (requires WALLET_PRIVATE_KEY in .env)
+npx agentlaunch buy 0x... --amount 10     # Buy tokens with 10 FET
+npx agentlaunch sell 0x... --amount 50000 # Sell 50000 tokens for FET
+npx agentlaunch buy 0x... --amount 10 --dry-run  # Preview without executing
 
 # Run MCP server (for Claude Code integration)
 npx agent-launch-mcp
@@ -112,6 +117,9 @@ You have access to these tools:
 | `check_agent_commerce` | Revenue, pricing, balance for an agent |
 | `network_status` | Swarm GDP, per-agent health |
 | `deploy_swarm` | Deploy multiple agents as a swarm |
+| `buy_tokens` | Buy tokens on-chain (or dry-run preview) |
+| `sell_tokens` | Sell tokens on-chain (or dry-run preview) |
+| `get_wallet_balances` | Check wallet BNB, FET, and token balances |
 | `get_comments` | Read token comments |
 | `post_comment` | Post a comment on a token |
 

@@ -43,6 +43,7 @@ export type {
   AgentsNamespace,
   StorageNamespace,
   CommerceNamespace,
+  OnchainNamespace,
 } from './agentlaunch.js';
 
 // Core HTTP client
@@ -134,6 +135,22 @@ export type { StorageEntry, StorageListResponse } from './storage.js';
 // EXT-02: Commerce data operations
 export { getAgentRevenue, getPricingTable, getAgentCommerceStatus, getNetworkGDP } from './commerce.js';
 export type { AgentRevenue, PricingEntry, AgentCommerceStatus, NetworkGDP } from './commerce.js';
+
+// On-chain trading operations (requires ethers as optional peer dependency)
+export { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
+export type {
+  OnchainConfig,
+  BuyResult,
+  SellResult,
+  WalletBalances,
+  ChainConfig,
+} from './onchain.js';
+export {
+  DEFAULT_SLIPPAGE_PERCENT,
+  TOKEN_CONTRACT_ABI,
+  ERC20_ABI,
+  CHAIN_CONFIGS,
+} from './onchain.js';
 
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';
