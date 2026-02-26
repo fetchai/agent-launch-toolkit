@@ -13,6 +13,7 @@ import { scaffoldHandlers } from "./tools/scaffold.js";
 import { agentverseHandlers } from "./tools/agentverse.js";
 import { tokenizeHandlers } from "./tools/tokenize.js";
 import { commentHandlers } from "./tools/comments.js";
+import { commerceHandlers } from "./tools/commerce.js";
 
 // Create the server
 const server = new Server(
@@ -216,7 +217,7 @@ export const TOOLS = [
         },
         type: {
           type: "string",
-          enum: ["faucet", "research", "trading", "data"],
+          enum: ["faucet", "research", "trading", "data", "genesis"],
           description:
             "Agent type — controls default domain, rate limits, and business logic scaffold. Defaults to 'research'.",
         },
@@ -278,7 +279,7 @@ export const TOOLS = [
         },
         template: {
           type: "string",
-          enum: ["faucet", "research", "trading", "data"],
+          enum: ["faucet", "research", "trading", "data", "genesis"],
           description:
             "Agent template type — controls the scaffolded business logic. Defaults to 'research'.",
         },
@@ -345,6 +346,110 @@ export const TOOLS = [
       required: ["address", "message"],
     },
   },
+  // EXT-03 ----------------------------------------------------------------
+  {
+    name: "scaffold_genesis",
+    description:
+      "Scaffold a Genesis Network agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        name: {
+          type: "string",
+          description: "Agent name",
+        },
+        preset: {
+          type: "string",
+          enum: [
+            "oracle",
+            "brain",
+            "analyst",
+            "coordinator",
+            "sentinel",
+            "launcher",
+            "scout",
+            "custom",
+          ],
+          description:
+            "Genesis preset (determines role, pricing, services)",
+        },
+        outputDir: {
+          type: "string",
+          description: "Output directory path",
+        },
+      },
+      required: ["name"],
+    },
+  },
+  // EXT-04 ----------------------------------------------------------------
+  {
+    name: "check_agent_commerce",
+    description:
+      "Check an agent's commerce status: revenue, pricing, balance, effort mode, holdings",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        address: {
+          type: "string",
+          description: "Agent address (agent1q...)",
+        },
+      },
+      required: ["address"],
+    },
+  },
+  // EXT-05 ----------------------------------------------------------------
+  {
+    name: "network_status",
+    description:
+      "Check the status of an agent swarm: per-agent revenue, total GDP, health, cross-holdings",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        addresses: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of agent addresses in the swarm",
+        },
+      },
+      required: ["addresses"],
+    },
+  },
+  // EXT-06 ----------------------------------------------------------------
+  {
+    name: "deploy_swarm",
+    description:
+      "Deploy a complete agent swarm. Deploys each agent in sequence, sets secrets, starts them, returns addresses and status.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        presets: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "oracle",
+              "brain",
+              "analyst",
+              "coordinator",
+              "sentinel",
+              "launcher",
+              "scout",
+            ],
+          },
+          description: "List of preset names to deploy",
+        },
+        baseName: {
+          type: "string",
+          description: "Base name for agents (e.g. 'MySwarm')",
+        },
+        apiKey: {
+          type: "string",
+          description: "Agentverse API key",
+        },
+      },
+      required: ["presets", "apiKey"],
+    },
+  },
 ];
 
 // Handle list_tools request
@@ -369,6 +474,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(agentverseHandlers as Record<string, AnyHandler>),
       ...(tokenizeHandlers as Record<string, AnyHandler>),
       ...(commentHandlers as Record<string, AnyHandler>),
+      ...(commerceHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {

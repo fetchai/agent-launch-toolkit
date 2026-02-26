@@ -32,6 +32,7 @@ const LEGACY_TYPE_MAP: Record<string, string> = {
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
+  genesis: "genesis",
 };
 
 /** All valid --type / --template values accepted by the scaffold command. */
@@ -40,6 +41,7 @@ const VALID_TYPES = [
   "research",
   "trading",
   "data",
+  "genesis",
   ...listTemplates().map((t) => t.name),
 ];
 
@@ -51,7 +53,7 @@ export function registerScaffoldCommand(program: Command): void {
     )
     .option(
       "--type <type>",
-      "Agent type: faucet, research, trading, data, custom, price-monitor, trading-bot, data-analyzer, gifter (default: research)",
+      "Agent type: faucet, research, trading, data, genesis, custom, price-monitor, trading-bot, data-analyzer, gifter (default: research)",
       "research",
     )
     .option("--json", "Output only JSON (machine-readable)")

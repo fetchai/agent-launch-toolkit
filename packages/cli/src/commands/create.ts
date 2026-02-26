@@ -33,7 +33,7 @@ import { requireApiKey } from "../config.js";
 // Types
 // ---------------------------------------------------------------------------
 
-type TemplateId = "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter";
+type TemplateId = "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter" | "genesis";
 
 const TEMPLATES: Record<string, { label: string; description: string }> = {};
 
@@ -48,7 +48,19 @@ const LEGACY_ALIAS: Record<string, string> = {
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
+  genesis: "genesis",
 };
+
+// Genesis preset names for swarm mode
+const GENESIS_PRESETS = [
+  { name: "oracle", label: "Oracle", description: "Market data provider (0.001 FET/call)" },
+  { name: "brain", label: "Brain", description: "LLM reasoning engine (0.01 FET/call)" },
+  { name: "analyst", label: "Analyst", description: "Token scoring & evaluation (0.005 FET/call)" },
+  { name: "coordinator", label: "Coordinator", description: "Query routing (0.0005 FET/call)" },
+  { name: "sentinel", label: "Sentinel", description: "Real-time alerts (0.002 FET/call)" },
+  { name: "launcher", label: "Launcher", description: "Autonomous agent creation (0.02 FET/call)" },
+  { name: "scout", label: "Scout", description: "Agent & opportunity discovery (0.01 FET/call)" },
+];
 
 const TEMPLATE_LIST = listTemplates().map((t) => ({
   id: t.name as TemplateId,
@@ -148,6 +160,7 @@ export function registerCreateCommand(program: Command): void {
     )
     .option("--deploy", "Deploy agent to Agentverse after scaffolding")
     .option("--tokenize", "Create token record on AgentLaunch after deploy")
+    .option("--mode <mode>", "Build mode: quick (single agent), swarm (multi-agent), genesis (full 7-agent economy)")
     .option("--json", "Output only JSON (machine-readable, disables prompts)")
     .action(
       async (options: {
@@ -158,6 +171,7 @@ export function registerCreateCommand(program: Command): void {
         chain: string;
         deploy?: boolean;
         tokenize?: boolean;
+        mode?: string;
         json?: boolean;
       }) => {
         const isJson = options.json === true;
@@ -206,7 +220,168 @@ export function registerCreateCommand(program: Command): void {
             process.env.AGENTVERSE_API_KEY = apiKey;
           }
 
-          // Always use custom template for interactive flow
+          // Build mode prompt (unless --mode is already set)
+          let buildMode = options.mode ?? "";
+          if (!buildMode) {
+            console.log("\n  What are you building?\n");
+            console.log("    1) Quick Start         Deploy your first agent in 5 minutes");
+            console.log("    2) Agent Swarm         Build a team of agents that pay each other");
+            console.log("    3) Genesis Network     The full 7-agent economy");
+            const modeInput = (await prompt(rl, "\n  Choose (1/2/3): ")).trim();
+            if (modeInput === "2" || modeInput.toLowerCase() === "swarm") {
+              buildMode = "swarm";
+            } else if (modeInput === "3" || modeInput.toLowerCase() === "genesis") {
+              buildMode = "genesis";
+            } else {
+              buildMode = "quick";
+            }
+          }
+
+          // Handle swarm and genesis modes
+          if (buildMode === "swarm" || buildMode === "genesis") {
+            let selectedPresets: string[];
+
+            if (buildMode === "genesis") {
+              // Genesis mode: deploy all 7 presets
+              selectedPresets = GENESIS_PRESETS.map((p) => p.name);
+              console.log(`\n  Genesis Network: deploying all ${selectedPresets.length} agents`);
+            } else {
+              // Swarm mode: let user pick presets
+              console.log("\n  Available agent presets:\n");
+              for (let i = 0; i < GENESIS_PRESETS.length; i++) {
+                const p = GENESIS_PRESETS[i];
+                console.log(`    ${i + 1}) ${p.label.padEnd(14)} ${p.description}`);
+              }
+              const pickInput = (
+                await prompt(rl, "\n  Enter numbers (comma-separated, e.g. 1,3,4): ")
+              ).trim();
+              const picks = pickInput
+                .split(",")
+                .map((s) => parseInt(s.trim(), 10))
+                .filter((n) => n >= 1 && n <= GENESIS_PRESETS.length);
+              if (picks.length === 0) {
+                console.error("Error: No presets selected. Exiting.");
+                rl.close();
+                process.exit(1);
+              }
+              selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
+            }
+
+            const baseName = name || "Swarm";
+            console.log(`\n  Deploying ${selectedPresets.length} agents as "${baseName}"...\n`);
+
+            rl.close();
+
+            // Deploy each agent in sequence
+            const swarmResults: Array<{
+              name: string;
+              preset: string;
+              address: string;
+              status: string;
+              error?: string;
+            }> = [];
+            const peerAddresses: Record<string, string> = {};
+
+            for (const presetName of selectedPresets) {
+              const agentName = `${baseName}-${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`;
+              const presetInfo = GENESIS_PRESETS.find((p) => p.name === presetName);
+
+              console.log(`  [${swarmResults.length + 1}/${selectedPresets.length}] Deploying ${agentName}...`);
+
+              try {
+                // Generate agent code — try genesis template, fall back to custom
+                let agentCode: string;
+                try {
+                  const generated = generateFromTemplate("genesis", {
+                    agent_name: agentName,
+                    description: presetInfo?.description ?? "",
+                    preset: presetName,
+                  });
+                  agentCode = generated.code;
+                } catch {
+                  const generated = generateFromTemplate("custom", {
+                    agent_name: agentName,
+                    description: presetInfo?.description ?? "",
+                  });
+                  agentCode = generated.code;
+                }
+
+                const result = await deployAgent({
+                  apiKey,
+                  agentName,
+                  sourceCode: agentCode,
+                  secrets: {
+                    ...peerAddresses,
+                    AGENTVERSE_API_KEY: apiKey,
+                    AGENTLAUNCH_API_KEY: apiKey,
+                  },
+                });
+
+                peerAddresses[`${presetName.toUpperCase()}_ADDRESS`] = result.agentAddress;
+
+                swarmResults.push({
+                  name: agentName,
+                  preset: presetName,
+                  address: result.agentAddress,
+                  status: result.status,
+                });
+
+                console.log(`    Address: ${result.agentAddress}`);
+                console.log(`    Status:  ${result.status}`);
+              } catch (err) {
+                const errMsg = err instanceof Error ? err.message : String(err);
+                swarmResults.push({
+                  name: agentName,
+                  preset: presetName,
+                  address: "",
+                  status: "failed",
+                  error: errMsg,
+                });
+                console.error(`    FAILED: ${errMsg}`);
+              }
+            }
+
+            // Summary
+            const successful = swarmResults.filter((r) => r.status !== "failed");
+            const failed = swarmResults.filter((r) => r.status === "failed");
+
+            if (isJson) {
+              console.log(JSON.stringify({
+                mode: buildMode,
+                baseName,
+                totalDeployed: successful.length,
+                totalFailed: failed.length,
+                agents: swarmResults,
+                peerAddresses,
+              }));
+            } else {
+              console.log(`\n  Swarm deployment complete!`);
+              console.log(`  Deployed: ${successful.length}/${swarmResults.length} agents\n`);
+
+              if (successful.length > 0) {
+                console.log("  Agent Addresses:");
+                for (const agent of successful) {
+                  console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
+                }
+              }
+
+              if (failed.length > 0) {
+                console.log(`\n  Failed (${failed.length}):`);
+                for (const agent of failed) {
+                  console.log(`    ${agent.preset}: ${agent.error}`);
+                }
+              }
+
+              console.log("\n  Next steps:");
+              console.log("    - Use 'agentlaunch status <address>' to check each agent");
+              console.log("    - Use 'agentlaunch create --tokenize --deploy' to tokenize individual agents");
+              console.log("    - View your agents at https://agentverse.ai/agents");
+            }
+
+            return;
+          }
+
+          // Always use custom template for interactive quick-start flow
           template = "custom";
 
           rl.close();
