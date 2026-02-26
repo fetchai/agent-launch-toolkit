@@ -10,7 +10,6 @@ agent_teams: enabled
 source_doc: docs/organic-growth-strategy.md
 depends_on:
   - docs/TODO-toolkit.md (48 tasks — Commerce Layer + Genesis Templates)
-  - /fetchlaunchpad/docs/TODO-custodial-trading.md (18 tasks — Platform HD wallets)
 cost_estimate: "~1,190 FET (~$400) + ~$50/month for 3 months"
 timeline: "14 days bootstrap + 6 months to graduation"
 ---
@@ -35,9 +34,12 @@ Before starting this TODO, complete:
 | Dependency | Tasks | Status | Purpose |
 |------------|-------|--------|---------|
 | [TODO-toolkit.md](./TODO-toolkit.md) | 48 | Not started | Commerce modules, Genesis templates |
-| [TODO-custodial-trading.md](/fetchlaunchpad/docs/TODO-custodial-trading.md) | 18 | Not started | Platform HD wallet endpoints |
 
-**This TODO is the execution layer.** The other TODOs build the infrastructure.
+**No platform changes required.** Agent-to-agent FET payments run on the Fetch.ai
+Cosmos chain via `ctx.ledger`. Cross-holdings (token buying on BSC) use agent-side
+`web3.py` with per-agent BSC wallets — no platform custodial trading needed.
+
+**This TODO is the execution layer.** The toolkit TODO builds the infrastructure.
 
 ---
 
@@ -112,11 +114,11 @@ Before starting this TODO, complete:
 
 | Status | ID | Day | Task | Details | Cost |
 |:---:|:---|:---:|:---|:---|---:|
-| `[ ]` | BOOT-009 | 11 | Seed agent wallets | Send ~15 FET to each agent wallet (7 × 15 = 105 FET). | 105 FET |
-| `[ ]` | BOOT-010 | 11 | Verify wallet balances | Query each agent's wallet via `GET /agents/wallet`. | — |
-| `[ ]` | BOOT-011 | 12 | Test agent-to-agent payment | Brain pays Oracle 0.01 FET. Verify balances update. | — |
-| `[ ]` | BOOT-012 | 13 | Manual cross-holdings (5 key) | Sign buy txs: Coord→$DATA, Coord→$THINK, Brain→$DATA, Analyst→$DATA, Sentinel→$DATA. | 250 FET |
-| `[ ]` | BOOT-013 | 14 | Verify cross-holdings | Check `/token/{addr}/holders` for each. All 5 visible. | — |
+| `[ ]` | BOOT-009 | 11 | Seed agent wallets | Send ~15 FET to each agent wallet on Fetch.ai chain (7 × 15 = 105 FET). Use cosmpy or manual transfer to each agent's Fetch address. | 105 FET |
+| `[ ]` | BOOT-010 | 11 | Verify wallet balances | Query each agent's Fetch.ai balance via cosmpy RPC or block explorer. | — |
+| `[ ]` | BOOT-011 | 12 | Test agent-to-agent payment | Brain pays Oracle 0.01 FET via ctx.ledger on Fetch.ai chain. Verify balances update. | — |
+| `[ ]` | BOOT-012 | 13 | Manual cross-holdings (5 key) | Use the existing frontend trade page (agent-launch.ai/trade/{addr}) to buy tokens manually: Coord→$DATA, Coord→$THINK, Brain→$DATA, Analyst→$DATA, Sentinel→$DATA. | 250 FET |
+| `[ ]` | BOOT-013 | 14 | Verify cross-holdings | Check `GET /token/{addr}/holders` for each. All 5 visible. | — |
 | `[ ]` | BOOT-014 | 14 | Confirm Genesis Network live | All 7 running. All 7 tokens on bonding curve. Commerce working. | — |
 
 ### Phase 1 Gate
@@ -180,12 +182,12 @@ Before starting this TODO, complete:
 | `[ ]` | REPRO-001 | Review Launcher gap analysis | Check `gaps` storage. Identify top 3 HIGH-confidence gaps. | 3 gaps |
 | `[ ]` | REPRO-002 | Deploy first child agent | Launcher scaffolds → deploys → tokenizes. Human signs. | 1 deployed |
 | `[ ]` | REPRO-003 | Deploy second child agent | Different category than first. Diversify. | 2 deployed |
-| `[ ]` | REPRO-004 | Verify child agents buy infrastructure | New agents should buy $DATA, $THINK within 7 days. | Holdings |
+| `[ ]` | REPRO-004 | Verify child agents buy infrastructure | New agents use `cross_holdings.py` (web3.py) to buy $DATA, $THINK within 7 days via their BSC wallets. | Holdings |
 | `[ ]` | REPRO-005 | Review Scout discoveries | Check `discovered_agents` storage. Quality >50 threshold. | ≥10 found |
 | `[ ]` | REPRO-006 | Tokenize first Scout discovery | Pick highest quality. Create token. Present to $FIND holders. | 1 tokenized |
 | `[ ]` | REPRO-007 | Brain revenue analysis | Calculate: FET earned vs API cost. Target: revenue > cost. | Profitable |
 | `[ ]` | REPRO-008 | Verify Analyst accuracy | Compare Phase 2 predictions to outcomes. Calculate r². | r² > 0.3 |
-| `[ ]` | REPRO-009 | Organic cross-holdings growth | Count agent-initiated token buys (not manual). Should grow. | ≥5 organic |
+| `[ ]` | REPRO-009 | Organic cross-holdings growth | Count agent-initiated token buys via web3.py (not manual). Should grow. | ≥5 organic |
 | `[ ]` | REPRO-010 | Network census | Total agents, total GDP, holder distribution. Document. | ≥12 agents |
 
 ### Phase 3 Gate
@@ -303,7 +305,7 @@ Address these during execution:
 
 | Problem | Solution | Status |
 |---------|----------|--------|
-| Token-gating gap | Registration: user sends wallet once, agent stores mapping | `[ ]` |
+| Token-gating gap | Registration: user sends wallet once, agent stores mapping. Token holdings checked via `GET /token/{addr}/holders` (existing API) | `[ ]` |
 | Agent-to-agent latency | Pre-fetch pattern: publish to storage, read not query | `[ ]` |
 | Revenue bootstrap | Seed 100 FET. Break-even at ~5 premium queries/day | `[ ]` |
 | Storage constraints | Tiered: intraday buffer + daily OHLC compression | `[ ]` |
@@ -337,12 +339,15 @@ Track moat depth over time:
 │  └── P3: Rules + Patterns (6 tasks) ← Can run parallel                     │
 │  └── P4: Integration + Test (10 tasks) ← MUST COMPLETE BEFORE BOOT-001     │
 │                                                                             │
-│  TODO-custodial-trading.md (18 tasks)                                       │
-│  └── Wave 1-4: Platform HD wallets ← MUST COMPLETE BEFORE BOOT-009         │
-│      (Agents need platform to have wallet endpoints for commerce)           │
+│  NO PLATFORM CHANGES REQUIRED                                               │
+│  └── Commerce: Fetch.ai chain via ctx.ledger (cosmpy)                       │
+│  └── Cross-holdings: Agent-side web3.py with per-agent BSC wallets          │
+│  └── Token creation: POST /tokenize (already exists)                        │
+│  └── Token data: GET /token/{addr} + /holders (already exists)              │
+│  └── Manual trading: Frontend trade page (already exists)                   │
 │                                                                             │
 │  THIS TODO (52 tasks)                                                       │
-│  └── Phase 1: Bootstrap ← After toolkit P0+P1+P4 and custodial trading     │
+│  └── Phase 1: Bootstrap ← After toolkit P0+P1+P4                           │
 │  └── Phase 2-5: Execution ← Sequential, each gate must pass                │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -354,21 +359,22 @@ Track moat depth over time:
 
 ```
 WEEK -2 to -1:  Complete TODO-toolkit.md (48 tasks)
-                Complete TODO-custodial-trading.md (18 tasks)
+                (No platform changes needed)
 
 WEEK 1-2:       PHASE 1: BOOTSTRAP (14 tasks)
-                - Deploy 7 agents
-                - Seed wallets
-                - Manual cross-holdings
+                - Deploy 7 agents to Agentverse
+                - Seed Fetch.ai wallets via cosmpy
+                - Manual cross-holdings via frontend trade page
 
 WEEK 3-4:       PHASE 2: DATA MOAT (8 tasks)
                 - Accumulate data
                 - First organic queries
-                - Commerce metrics
+                - Commerce metrics (from agent storage)
 
 MONTH 2:        PHASE 3: REPRODUCTION (10 tasks)
                 - Launcher active
                 - Scout active
+                - Autonomous cross-holdings via agent web3.py
                 - Network grows to 12-15
 
 MONTH 3-6:      PHASE 4: NETWORK EFFECTS (12 tasks)

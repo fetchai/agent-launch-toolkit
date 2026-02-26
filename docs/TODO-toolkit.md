@@ -173,7 +173,7 @@ strategy: BUILD THE ECONOMY — Payment Protocol + 7 Genesis Agents + Commerce S
 |:---:|:---|:---|:---|:---|
 | `[ ]` | COM-005 | Create `wallet` module | `wallet.py`: `WalletManager` class. `get_balance(ctx)` via `ctx.ledger.query_bank_balance()`. `fund_check(ctx, min_balance)` — warn if low. `get_address(ctx)` → agent's Fetch.ai wallet address. | COM-001 |
 | `[ ]` | COM-006 | Create `revenue` module | `revenue.py`: `RevenueTracker` class. Tracks all incoming/outgoing FET. `record_income(ctx, amount, source, service)`, `record_expense(ctx, amount, dest, service)`. Daily summaries in storage. `get_gdp_contribution(ctx)` → this agent's share of network GDP. | COM-002 |
-| `[ ]` | COM-007 | Create `cross_holdings` module | `cross_holdings.py`: `HoldingsManager` class. Track which tokens this agent holds. `should_buy(ctx, token_addr)` — heuristic: do I use this agent's service? Is my holding below minimum? `generate_buy_link(token_addr, amount)` → handoff link for operator. For autonomous buys on BSC: `buy_via_web3(ctx, token_addr, amount)` using `web3` + agent's EVM wallet (if configured). | COM-002 |
+| `[ ]` | COM-007 | Create `cross_holdings` module | `cross_holdings.py`: `HoldingsManager` class. Track which tokens this agent holds. `should_buy(ctx, token_addr)` — heuristic: do I use this agent's service? Is my holding below minimum? Primary path: `buy_via_web3(ctx, token_addr, amount)` using `web3` + `eth_account` with agent's BSC private key (stored as `BSC_PRIVATE_KEY` secret). Handles: approve FET → call `buyTokens()` on FETAgentCoin contract. Fallback: `generate_buy_link(token_addr, amount)` → handoff link for manual signing. Also: `sell_via_web3()`, `get_token_balance()`, `get_holdings_summary()`. ABI extracted from frontend `FETAgentcoin.json`. | COM-002 |
 | `[ ]` | COM-008 | Create `self_aware` mixin | `self_aware.py`: `SelfAwareMixin` class. `on_interval_self_monitor(ctx)` — reads own token price, holder count, volume. Stores 30-day history. Computes 7-day moving averages. Sets `effort_mode` in storage. Other modules read `effort_mode` to adapt behavior. | COM-005 |
 
 **Gate:** All 8 modules compile, import cleanly, have docstrings. Unit tests for `commerce.py` and `revenue.py`.
@@ -231,8 +231,8 @@ strategy: BUILD THE ECONOMY — Payment Protocol + 7 Genesis Agents + Commerce S
 
 | Status | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | EXT-001 | Add `sdk.agents.getWalletAddress(agentAddress)` | Query Agentverse API for agent's wallet address. Might need to parse from agent details or storage. | GEN-014 |
-| `[ ]` | EXT-002 | Add `sdk.agents.getBalance(walletAddress)` | Query Fetch.ai chain for FET balance via public RPC or CosmPy. Returns balance in FET. | EXT-001 |
+| `[ ]` | EXT-001 | Add `sdk.agents.getWalletAddress(agentAddress)` | Query Agentverse API for agent's Fetch.ai wallet address. Parse from agent details or read from agent storage. | GEN-014 |
+| `[ ]` | EXT-002 | Add `sdk.agents.getBalance(walletAddress)` | Query Fetch.ai chain for FET balance via public RPC. No platform endpoint needed — hits chain directly. Returns balance in FET. | EXT-001 |
 | `[ ]` | EXT-003 | Add `sdk.commerce.getNetworkGDP(period)` | Calculate total FET transacted between Genesis agents. Reads revenue logs from agent storage (via Agentverse storage API). Returns daily/weekly/monthly GDP. | GEN-014 |
 | `[ ]` | EXT-004 | Add `sdk.commerce.getAgentRevenue(agentAddress)` | Read agent's revenue tracker from storage. Returns income, expenses, net, by service. | GEN-014 |
 | `[ ]` | EXT-005 | Add `sdk.commerce.getPricingTable(agentAddress)` | Read agent's pricing table from storage. Returns service → price mapping. | GEN-014 |
@@ -241,8 +241,8 @@ strategy: BUILD THE ECONOMY — Payment Protocol + 7 Genesis Agents + Commerce S
 
 | Status | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | EXT-006 | Add `fund_agent_wallet` MCP tool | Input: agent address, amount. Output: instructions to send FET to agent's wallet address. Generates Fetch.ai chain transfer instructions. | EXT-001, EXT-002 |
-| `[ ]` | EXT-007 | Add `check_agent_balance` MCP tool | Input: agent address. Output: FET balance, recent transactions, revenue summary. | EXT-002, EXT-004 |
+| `[ ]` | EXT-006 | Add `fund_agent_wallet` MCP tool | Input: agent address, amount. Output: instructions to send FET to agent's Fetch.ai wallet + BNB to agent's BSC wallet. No platform endpoint needed — generates chain transfer instructions. | EXT-001, EXT-002 |
+| `[ ]` | EXT-007 | Add `check_agent_balance` MCP tool | Input: agent address. Output: Fetch.ai FET balance (via RPC), BSC token holdings (via web3), revenue summary (via agent storage). | EXT-002, EXT-004 |
 | `[ ]` | EXT-008 | Add `network_gdp` MCP tool | Input: period (day/week/month). Output: total FET transacted, per-agent breakdown, trend. | EXT-003 |
 | `[ ]` | EXT-009 | Add `deploy_genesis_network` MCP tool | Meta-tool: scaffolds all 7 Genesis agents, deploys them in sequence (Oracle first), returns all addresses + deploy links. Guided flow with human confirmation at each step. | GEN-014 |
 | `[ ]` | EXT-010 | Add `commerce_status` MCP tool | Input: none or agent address. Output: if no address: full network commerce status (all agents, GDP, health). If address: that agent's revenue, pricing, balance, tier distribution. | EXT-003→005 |
@@ -360,9 +360,11 @@ FETCH.AI COSMOS CHAIN (agent wallets):
 
 BSC (bonding curves):
   └── Token creation, buying, selling (equity market)
-  └── web3.py — EVM interaction from Agentverse
-  └── Agents CAN buy tokens if they have BSC wallet + FET on BSC
-  └── Cross-holdings happen here
+  └── Agent-side web3.py + eth_account on Agentverse (no platform needed)
+  └── Each agent has BSC_PRIVATE_KEY secret → own BSC wallet
+  └── cross_holdings.py: approve FET → buyTokens() on FETAgentCoin
+  └── Fund each agent's BSC wallet with small BNB for gas
+  └── ABI extracted from frontend FETAgentcoin.json
 
 TWO CHAINS, TWO PURPOSES:
   Fetch.ai = operating revenue (service payments)
@@ -381,12 +383,19 @@ UAGENTS FRAMEWORK (github.com/fetchai/uAgents):
 Every Genesis agent includes:
 
 agent.py              ← Main agent code (Chat Protocol + on_interval)
-commerce.py           ← PaymentService: charge(), pay(), get_balance()
+commerce.py           ← PaymentService: charge(), pay(), get_balance() [Fetch.ai chain]
 pricing.py            ← PricingTable: per-service pricing, auto-adjust
 tier.py               ← TierManager: free/premium from token holdings
-wallet.py             ← WalletManager: balance checks, fund alerts
+wallet.py             ← WalletManager: Fetch.ai balance checks, fund alerts
 revenue.py            ← RevenueTracker: income/expense/GDP tracking
 self_aware.py         ← SelfAwareMixin: read own token price, adapt
+cross_holdings.py     ← HoldingsManager: web3.py buy/sell on BSC bonding curves
+
+Secrets per agent:
+  AGENTVERSE_API_KEY   ← Agentverse auth
+  BSC_PRIVATE_KEY      ← Agent's BSC wallet (for cross-holdings)
+  ANTHROPIC_API_KEY    ← Brain only
+  ASI_ONE_API_KEY      ← Brain only
 ```
 
 ### Pricing Defaults (agents can adjust)
@@ -422,7 +431,7 @@ Query routing                  0.02 FET     Coordinator
 ║   4. Oracle charges Brain 0.01 FET                                       ║
 ║   5. FET transfers on Fetch.ai chain                                     ║
 ║   6. Both agents log the transaction in revenue tracker                  ║
-║   7. Revenue is queryable via SDK: getAgentRevenue()                     ║
+║   7. Revenue is queryable via SDK: getAgentRevenue() (reads agent storage)║
 ║                                                                          ║
 ║   RESULT:                                                                ║
 ║   ✓ Agent-to-agent FET payment executed autonomously                     ║
@@ -478,8 +487,7 @@ Query routing                  0.02 FET     Coordinator
 | **uAgents Docs** | [uagents.fetch.ai/docs](https://uagents.fetch.ai/docs) | Official documentation |
 | **cosmpy** | [PyPI: cosmpy](https://pypi.org/project/cosmpy/) | Ledger operations |
 | **Send Tokens Guide** | [fetch.ai/docs](https://fetch.ai/docs/guides/agents/send-tokens) | How to send FET |
-| **Platform TODO** | `/fetchlaunchpad/docs/TODO-toolkit.md` | Platform API extensions |
-| **Custodial Trading** | `/fetchlaunchpad/docs/TODO-custodial-trading.md` | HD wallet for agents |
+| **Platform TODO** | `/fetchlaunchpad/docs/TODO-toolkit.md` | Platform API extensions (optional) |
 | **uAgent Patterns** | `.claude/rules/uagent-patterns.md` | Code patterns + Payment Protocol |
 
 ---
