@@ -513,9 +513,14 @@ ${Object.entries(peerAddresses).map(([k, v]) => `${k}=${v}`).join("\n")}
               console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
             }
 
-            // Launch Claude Code
+            // Launch Claude Code with welcome prompt
             console.log(`\n  Launching Claude Code...`);
-            const claude = spawn("claude", [], {
+
+            // Build a welcome prompt that summarizes what was deployed
+            const agentList = successful.map((a) => `${a.preset} (${a.address.slice(0, 12)}...)`).join(", ");
+            const welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}. Welcome me and give me 3 quick options for what to do next (like tokenize an agent, check status, or customize behavior). Keep it brief.`;
+
+            const claude = spawn("claude", [welcomePrompt], {
               cwd: targetDir,
               stdio: "inherit",
               shell: true,
@@ -524,7 +529,7 @@ ${Object.entries(peerAddresses).map(([k, v]) => `${k}=${v}`).join("\n")}
             claude.on("error", (err) => {
               console.error(`  Could not launch Claude Code: ${err.message}`);
               console.log(`\n  Run manually:`);
-              console.log(`    cd ${dirName} && claude`);
+              console.log(`    cd ${dirName} && claude "${welcomePrompt}"`);
             });
 
             return;
@@ -840,9 +845,20 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
           console.log(`Handoff: ${result.handoffLink}`);
         }
 
-        // Launch Claude Code in the new directory
+        // Launch Claude Code in the new directory with welcome prompt
         console.log(`\nLaunching Claude Code in ${dirName}...`);
-        const claude = spawn("claude", [], {
+
+        // Build welcome prompt based on what was done
+        let welcomePrompt: string;
+        if (result.agentAddress && result.handoffLink) {
+          welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...) and have a handoff link ready. Welcome me and explain the handoff link, then give me 2-3 quick next steps. Keep it brief.`;
+        } else if (result.agentAddress) {
+          welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...). Welcome me and give me 3 quick options: tokenize it, check status, or customize the code. Keep it brief.`;
+        } else {
+          welcomePrompt = `I just scaffolded a new agent project called "${name}". Welcome me and explain what's in the project, then give me 3 quick options for what to do next. Keep it brief.`;
+        }
+
+        const claude = spawn("claude", [welcomePrompt], {
           cwd: targetDir,
           stdio: "inherit",
           shell: true,
