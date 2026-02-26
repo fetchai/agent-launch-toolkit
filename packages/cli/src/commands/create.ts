@@ -25,7 +25,7 @@ import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { execSync } from "node:child_process";
-import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, type SwarmContext } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -278,6 +278,7 @@ export function registerCreateCommand(program: Command): void {
               preset: string;
               address: string;
               status: string;
+              code?: string;
               error?: string;
             }> = [];
             const peerAddresses: Record<string, string> = {};
@@ -324,6 +325,7 @@ export function registerCreateCommand(program: Command): void {
                   preset: presetName,
                   address: result.agentAddress,
                   status: result.status,
+                  code: agentCode,
                 });
 
                 console.log(`    Address: ${result.agentAddress}`);
@@ -345,38 +347,185 @@ export function registerCreateCommand(program: Command): void {
             const successful = swarmResults.filter((r) => r.status !== "failed");
             const failed = swarmResults.filter((r) => r.status === "failed");
 
+            // Create project directory for the swarm
+            const dirName = sanitizeDirName(baseName);
+            const targetDir = path.resolve(process.cwd(), dirName);
+
+            if (!fs.existsSync(targetDir)) {
+              fs.mkdirSync(targetDir, { recursive: true });
+            }
+            fs.mkdirSync(path.join(targetDir, "agents"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, "docs"), { recursive: true });
+            fs.mkdirSync(path.join(targetDir, "examples"), { recursive: true });
+
+            // Write agent code files
+            for (const agent of successful) {
+              if (agent.code) {
+                fs.writeFileSync(
+                  path.join(targetDir, "agents", `${agent.preset}.py`),
+                  agent.code,
+                  "utf8"
+                );
+              }
+            }
+
+            // Build swarm context
+            const swarmContext: SwarmContext = {
+              swarmName: baseName,
+              agents: successful.map((a) => ({
+                name: a.name,
+                preset: a.preset,
+                address: a.address,
+                status: a.status,
+              })),
+              peerAddresses,
+              deployedAt: new Date().toISOString(),
+            };
+
+            // Write swarm-specific files
+            fs.writeFileSync(
+              path.join(targetDir, "CLAUDE.md"),
+              buildSwarmClaudeMd(swarmContext),
+              "utf8"
+            );
+            fs.writeFileSync(
+              path.join(targetDir, "agentlaunch.config.json"),
+              buildSwarmConfig(swarmContext),
+              "utf8"
+            );
+            fs.writeFileSync(
+              path.join(targetDir, "package.json"),
+              buildSwarmPackageJson(baseName),
+              "utf8"
+            );
+
+            // Write .env with API key
+            const envContent = `# AgentLaunch Environment Variables
+AGENTVERSE_API_KEY=${apiKey}
+AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
+
+# Peer addresses (for agent-to-agent communication)
+${Object.entries(peerAddresses).map(([k, v]) => `${k}=${v}`).join("\n")}
+`;
+            fs.writeFileSync(path.join(targetDir, ".env"), envContent, "utf8");
+
+            // Write Claude rules
+            for (const [filename, content] of Object.entries(RULES)) {
+              fs.writeFileSync(
+                path.join(targetDir, ".claude", "rules", filename),
+                content,
+                "utf8"
+              );
+            }
+
+            // Write Claude skills
+            for (const [filepath, content] of Object.entries(SKILLS)) {
+              const skillDir = path.dirname(filepath);
+              fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+              fs.writeFileSync(
+                path.join(targetDir, ".claude", "skills", filepath),
+                content,
+                "utf8"
+              );
+            }
+
+            // Write .claude/settings.json
+            const claudeSettings = JSON.stringify({
+              mcpServers: {
+                "agent-launch": {
+                  command: "npx",
+                  args: ["-y", "agent-launch-mcp"],
+                  env: { AGENTVERSE_API_KEY: "${AGENTVERSE_API_KEY}" },
+                },
+              },
+            }, null, 2);
+            fs.writeFileSync(
+              path.join(targetDir, ".claude", "settings.json"),
+              claudeSettings,
+              "utf8"
+            );
+
+            // Write MCP config
+            fs.writeFileSync(path.join(targetDir, ".mcp.json"), claudeSettings, "utf8");
+
+            // Write Cursor config
+            fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
+            fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
+
+            // Write docs
+            for (const [filename, content] of Object.entries(DOCS)) {
+              fs.writeFileSync(path.join(targetDir, "docs", filename), content, "utf8");
+            }
+
+            // Write examples
+            for (const [filename, content] of Object.entries(EXAMPLES)) {
+              fs.writeFileSync(path.join(targetDir, "examples", filename), content, "utf8");
+            }
+
             if (isJson) {
               console.log(JSON.stringify({
                 mode: buildMode,
                 baseName,
+                directory: targetDir,
                 totalDeployed: successful.length,
                 totalFailed: failed.length,
-                agents: swarmResults,
+                agents: swarmResults.map((a) => ({ name: a.name, preset: a.preset, address: a.address, status: a.status })),
                 peerAddresses,
               }));
-            } else {
-              console.log(`\n  Swarm deployment complete!`);
-              console.log(`  Deployed: ${successful.length}/${swarmResults.length} agents\n`);
-
-              if (successful.length > 0) {
-                console.log("  Agent Addresses:");
-                for (const agent of successful) {
-                  console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
-                }
-              }
-
-              if (failed.length > 0) {
-                console.log(`\n  Failed (${failed.length}):`);
-                for (const agent of failed) {
-                  console.log(`    ${agent.preset}: ${agent.error}`);
-                }
-              }
-
-              console.log("\n  Next steps:");
-              console.log("    - Use 'agentlaunch status <address>' to check each agent");
-              console.log("    - Use 'agentlaunch create --tokenize --deploy' to tokenize individual agents");
-              console.log("    - View your agents at https://agentverse.ai/agents");
+              return;
             }
+
+            console.log(`\n  Swarm deployment complete!`);
+            console.log(`  Deployed: ${successful.length}/${swarmResults.length} agents`);
+            console.log(`  Directory: ${targetDir}\n`);
+
+            if (successful.length > 0) {
+              console.log("  Agent Addresses:");
+              for (const agent of successful) {
+                console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
+              }
+            }
+
+            if (failed.length > 0) {
+              console.log(`\n  Failed (${failed.length}):`);
+              for (const agent of failed) {
+                console.log(`    ${agent.preset}: ${agent.error}`);
+              }
+            }
+
+            console.log(`\n  Created files:`);
+            console.log(`    CLAUDE.md              Swarm context for Claude Code`);
+            console.log(`    agentlaunch.config.json Swarm configuration`);
+            console.log(`    agents/                 Individual agent code`);
+            console.log(`    .claude/                Rules, skills, MCP config`);
+            console.log(`    docs/                   SDK, CLI documentation`);
+
+            // Install dependencies
+            console.log(`\n  Installing dependencies...`);
+            try {
+              execSync("npm install --silent", { cwd: targetDir, stdio: "ignore" });
+              console.log(`  Done.`);
+            } catch {
+              console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
+            }
+
+            // Launch Claude Code
+            console.log(`\n  Launching Claude Code...`);
+            const claude = spawn("claude", [], {
+              cwd: targetDir,
+              stdio: "inherit",
+              shell: true,
+            });
+
+            claude.on("error", (err) => {
+              console.error(`  Could not launch Claude Code: ${err.message}`);
+              console.log(`\n  Run manually:`);
+              console.log(`    cd ${dirName} && claude`);
+            });
 
             return;
           }
@@ -574,6 +723,10 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
               apiKey,
               agentName: name,
               sourceCode: agentCode,
+              metadata: {
+                readme: generated.readme,
+                short_description: generated.shortDescription,
+              },
             });
 
             result.agentAddress = deployed.agentAddress;

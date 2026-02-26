@@ -851,6 +851,11 @@ export function buildClaudeMd(name: string): string {
 An AI agent built with the AgentLaunch Toolkit. It runs on Agentverse and
 has a tradeable ERC-20 token on the bonding curve.
 
+## Authentication
+
+**The Agentverse API key is already configured in \`.env\`** — do NOT ask the user for it again.
+To deploy or tokenize, simply run the commands below. The SDK and CLI read from \`.env\` automatically.
+
 ## Templates
 
 | Template | Description | Use Case |
@@ -986,3 +991,207 @@ Use the genesis template for agents with a full commerce stack:
 - Graduation: 30,000 FET liquidity
 - Trading fee: 2% to protocol treasury (NO creator fee)
 `;
+
+// ---------------------------------------------------------------------------
+// Swarm-specific generators
+// ---------------------------------------------------------------------------
+
+export interface SwarmAgent {
+  name: string;
+  preset: string;
+  address: string;
+  status: string;
+  code?: string;
+}
+
+export interface SwarmContext {
+  swarmName: string;
+  agents: SwarmAgent[];
+  peerAddresses: Record<string, string>;
+  deployedAt: string;
+}
+
+/**
+ * Builds a CLAUDE.md specifically for a deployed swarm.
+ * This gives Claude Code full context about what was deployed.
+ */
+export function buildSwarmClaudeMd(ctx: SwarmContext): string {
+  const agentTable = ctx.agents
+    .map((a) => `| ${a.preset} | \`${a.address}\` | ${a.status} |`)
+    .join("\n");
+
+  const addressList = ctx.agents
+    .map((a) => `${a.preset.toUpperCase()}_ADDRESS=${a.address}`)
+    .join("\n");
+
+  const presetDescriptions: Record<string, string> = {
+    oracle: "Market data provider — price feeds, OHLC history, market summaries (0.001 FET/call)",
+    brain: "LLM reasoning engine — query classification, summarization, deep analysis (0.01 FET/call)",
+    analyst: "Token scoring engine — quality evaluation, risk assessment, ranking (0.005 FET/call)",
+    coordinator: "Query router — discovers agents, routes queries to specialists (0.0005 FET/call)",
+    sentinel: "Real-time watchdog — monitors tokens, detects anomalies, sends alerts (0.002 FET/call)",
+    launcher: "Gap finder — discovers unmet needs, scaffolds new agents (0.02 FET/call)",
+    scout: "Agent scout — discovers promising agents, evaluates quality (0.01 FET/call)",
+  };
+
+  const roleDetails = ctx.agents
+    .map((a) => {
+      const desc = presetDescriptions[a.preset] || a.preset;
+      return `### ${a.preset.charAt(0).toUpperCase() + a.preset.slice(1)}
+
+- **Address:** \`${a.address}\`
+- **Status:** ${a.status}
+- **Description:** ${desc}
+- **Code:** \`agents/${a.preset}.py\``;
+    })
+    .join("\n\n");
+
+  return `# ${ctx.swarmName} — Agent Swarm
+
+## What This Is
+
+A deployed multi-agent swarm on the Fetch.ai Agentverse platform.
+Deployed at: ${ctx.deployedAt}
+
+## Deployed Agents
+
+| Role | Address | Status |
+|------|---------|--------|
+${agentTable}
+
+## Agent Roles
+
+${roleDetails}
+
+## Peer Addresses
+
+These environment variables are set as secrets on each agent so they can communicate:
+
+\`\`\`bash
+${addressList}
+\`\`\`
+
+## Project Structure
+
+\`\`\`
+${ctx.swarmName}/
+  CLAUDE.md              # This file (swarm context)
+  agentlaunch.config.json # Swarm configuration with all addresses
+  .env                   # API key (already configured)
+  agents/                # Individual agent code
+${ctx.agents.map((a) => `    ${a.preset}.py`).join("\n")}
+  .claude/               # Claude Code settings
+    settings.json        # MCP server config
+    rules/               # Coding guidelines
+    skills/              # Slash commands
+  docs/                  # SDK, CLI, MCP documentation
+  examples/              # Working code samples
+\`\`\`
+
+## What's Already Done
+
+1. **Agents deployed** — All ${ctx.agents.length} agents are running on Agentverse
+2. **Secrets configured** — Each agent knows its peers' addresses
+3. **API key set** — Your Agentverse API key is in \`.env\`
+
+## Next Steps
+
+### 1. Verify agents are running
+\`\`\`bash
+agentlaunch status ${ctx.agents[0]?.address || "<address>"}
+\`\`\`
+
+### 2. Tokenize an agent
+\`\`\`bash
+agentlaunch tokenize \\
+  --agent ${ctx.agents[0]?.address || "<address>"} \\
+  --name "${ctx.agents[0]?.name || "AgentName"}" \\
+  --symbol "${ctx.agents[0]?.preset?.slice(0, 4).toUpperCase() || "SYMB"}"
+\`\`\`
+
+You'll receive a handoff link. Share it with someone who has a wallet to deploy the token on-chain (120 FET fee).
+
+### 3. Customize agent behavior
+Edit the code in \`agents/<role>.py\` and redeploy:
+\`\`\`bash
+agentlaunch deploy --code agents/oracle.py --address ${ctx.agents.find((a) => a.preset === "oracle")?.address || "<oracle-address>"}
+\`\`\`
+
+### 4. Monitor the swarm
+\`\`\`bash
+agentlaunch list  # See all your tokens
+\`\`\`
+
+## Platform Constants
+
+- Deploy fee: **120 FET** (paid when tokenizing)
+- Graduation: **30,000 FET** liquidity → auto DEX listing
+- Trading fee: **2%** → 100% to protocol treasury (no creator fee)
+
+## MCP Tools Available
+
+This project has MCP tools pre-configured. You can use:
+- \`list_tokens\` — Browse all tokens
+- \`get_token\` — Get details for a specific token
+- \`calculate_buy\` / \`calculate_sell\` — Preview trades
+- \`create_token_record\` — Tokenize an agent
+- \`deploy_to_agentverse\` — Deploy code updates
+- \`check_agent_commerce\` — Revenue, pricing, balance
+- \`network_status\` — Swarm GDP, per-agent health
+
+## Resources
+
+- [AgentLaunch Platform](https://agent-launch.ai)
+- [Agentverse](https://agentverse.ai)
+- [Your Agents](https://agentverse.ai/agents)
+`;
+}
+
+/**
+ * Builds agentlaunch.config.json for a deployed swarm.
+ */
+export function buildSwarmConfig(ctx: SwarmContext): string {
+  const agents: Record<string, { address: string; status: string }> = {};
+  for (const a of ctx.agents) {
+    agents[a.preset] = { address: a.address, status: a.status };
+  }
+
+  return JSON.stringify(
+    {
+      name: ctx.swarmName,
+      type: "swarm",
+      chain: 97,
+      deployedAt: ctx.deployedAt,
+      agents,
+      peerAddresses: ctx.peerAddresses,
+    },
+    null,
+    2
+  ) + "\n";
+}
+
+/**
+ * Builds package.json for a deployed swarm.
+ */
+export function buildSwarmPackageJson(swarmName: string): string {
+  return JSON.stringify(
+    {
+      name: swarmName.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+      version: "1.0.0",
+      description: `${swarmName} - AgentLaunch Swarm`,
+      scripts: {
+        status: "agentlaunch status",
+        list: "agentlaunch list",
+        tokenize: "agentlaunch tokenize",
+      },
+      dependencies: {
+        "agentlaunch-sdk": "^0.2.0",
+      },
+      devDependencies: {
+        "agentlaunch-cli": "^1.1.0",
+      },
+    },
+    null,
+    2
+  ) + "\n";
+}
