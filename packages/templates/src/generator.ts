@@ -548,7 +548,7 @@ export function generateFromTemplate(
 ): GenerateResult {
   const template = getTemplate(templateName);
   if (!template) {
-    const available = ["custom", "price-monitor", "trading-bot", "data-analyzer", "research", "gifter"];
+    const available = ["genesis", "custom", "price-monitor", "trading-bot", "data-analyzer", "research", "gifter"];
     throw new Error(
       `Template "${templateName}" not found. Available templates: ${available.join(", ")}`,
     );
