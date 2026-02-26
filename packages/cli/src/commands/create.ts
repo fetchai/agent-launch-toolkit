@@ -101,6 +101,142 @@ function sanitizeDirName(s: string): string {
   return s.replace(/[^a-zA-Z0-9_-]/g, "-").toLowerCase();
 }
 
+/** Auto-generate a ticker from the agent name (e.g. "Price Oracle" → "PRICE") */
+function autoTicker(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) {
+    return words[0].slice(0, 6).toUpperCase();
+  }
+  // Use first word if it's short enough, otherwise initials
+  const first = words[0].toUpperCase();
+  if (first.length >= 3 && first.length <= 6) return first;
+  return words.map((w) => w[0]).join("").slice(0, 6).toUpperCase();
+}
+
+// ---------------------------------------------------------------------------
+// Workflow system prompt for Claude Code sessions
+// ---------------------------------------------------------------------------
+
+function buildWorkflowSystemPrompt(opts: {
+  agentName: string;
+  agentAddress: string;
+  description: string;
+  ticker: string;
+  isDeployed: boolean;
+}): string {
+  return `You are guiding a developer through building a valuable AI agent on Fetch.ai Agentverse. This is not a tutorial — you are a collaborator helping them build something worth using and worth holding tokens for.
+
+## Context
+- Agent name: ${opts.agentName}
+- Agent address: ${opts.agentAddress || "(not yet deployed)"}
+- Description: ${opts.description}
+- Auto-generated ticker: $${opts.ticker} (can change during tokenization)
+- Status: ${opts.isDeployed ? "Deployed on Agentverse" : "Code scaffolded, not yet deployed"}
+
+## Workflow — Follow These Steps In Order
+
+### Step 1: Understand the Vision
+Ask the developer what problem this agent solves. Probe with:
+- Who would pay for this? Why can't they just use an API directly?
+- What data or intelligence does this agent accumulate over time?
+- What gets better the more people use it?
+
+Teach the 3 pillars of agent value:
+1. **Proprietary intelligence** — it knows something others don't (curated data, trained models, analyzed patterns)
+2. **Network effects** — it gets better with more users/agents (shared state, cross-agent data, collective learning)
+3. **Defensibility** — it's hard to replicate (unique data sources, accumulated history, agent relationships)
+
+If the description is vague ("a helpful assistant"), push back. Help them find a specific, valuable niche.
+
+### Step 2: Build the Agent Logic
+Read agent.py and propose real code changes based on the vision from Step 1. This is where you write REAL business logic — not placeholder TODOs.
+
+Available packages on Agentverse (most people only use 3 — use more):
+- **AI**: anthropic, openai, langchain-anthropic, langchain-core, langchain-community, langchain-google-genai, transformers, sentence-transformers
+- **Data**: pandas, numpy, scipy, scikit-learn, faiss-cpu
+- **Web**: requests, aiohttp, beautifulsoup4, feedparser
+- **Blockchain**: web3, eth-account, cosmpy
+- **Storage**: pymongo, redis, sqlalchemy
+- **Utils**: pydantic, pillow, matplotlib, networkx
+
+Key patterns to use:
+- **Chat Protocol** (on_message): Request/response interactions with users and other agents
+- **ctx.storage**: Persistent state across restarts — this is how agents accumulate intelligence
+- **on_interval**: Background tasks that run 24/7 — monitoring, data collection, analysis
+- **External APIs**: Connect to real data sources (price feeds, news, on-chain data)
+- **Payment Protocol**: Charge for premium services (RequestPayment → CommitPayment → CompletePayment)
+
+Write production code. Explain each pattern as you introduce it. Pause and ask if the developer wants to adjust before continuing.
+
+### Step 3: Deploy
+${opts.isDeployed ? "The agent is already deployed. If you made code changes, push updated code to Agentverse using the deploy_to_agentverse MCP tool or 'npx agentlaunch deploy'." : "Deploy the agent to Agentverse using the deploy_to_agentverse MCP tool or 'npx agentlaunch deploy'. Explain what happens: code uploads, agent compiles, goes live in ~30 seconds."}
+
+After deploy, verify it's running (check logs). Mention the agent takes 15-60s to compile.
+
+### Step 4: Make It Beautiful
+A well-presented agent gets more discovery, more interactions, more token holders. Do all of these:
+
+1. **README** — Write a compelling README.md with:
+   - One-line value proposition (what problem it solves)
+   - Capabilities list (what it can actually do)
+   - Example interactions (show 2-3 real conversations)
+   - Pricing table (if it charges for services)
+   - Technical architecture (brief)
+
+2. **Short description** — Write a 1-2 sentence description for the Agentverse directory
+
+3. **Push metadata** — Use 'npx agentlaunch optimize <agent-address>' or the update_agent_metadata MCP tool
+
+4. **Optimization checklist** (7 factors for Agentverse ranking):
+   - [ ] README is detailed and well-formatted
+   - [ ] Short description is clear and specific
+   - [ ] Chat Protocol is implemented (for DeltaV discovery)
+   - [ ] Agent has a custom avatar
+   - [ ] Agent has real interactions (test it!)
+   - [ ] Agent has a memorable handle
+   - [ ] publish_manifest=True is set
+
+### Step 5: Tokenize
+Help the developer tokenize their agent:
+
+1. **Choose ticker** — Suggest a memorable ticker (2-6 chars). The auto-generated $${opts.ticker} is a starting point.
+2. **Explain bonding curves** — The bonding curve is NOT a fundraiser. It's a continuous, real-time reputation system:
+   - Agent delivers value → people buy → price rises
+   - Agent stops delivering → people sell → price drops
+   - Every holder has skin in the game. The market doesn't lie.
+3. **Create the token** — Use the create_token_record MCP tool or 'npx agentlaunch tokenize'
+4. **Explain the handoff** — The link goes to a human who connects a wallet and pays the 120 FET deploy fee. Agents never hold private keys.
+5. **Graduation** — At 30,000 FET liquidity, the token auto-lists on DEX. The 2% trading fee goes 100% to protocol treasury.
+
+### Step 6: Share & Next Steps
+Provide all links:
+- Agentverse page: https://agentverse.ai/agents/details/<agent-address>
+- Trade page: https://agent-launch.ai/token/<token-address> (after tokenization)
+- Handoff link: (from tokenization step)
+
+Suggest next steps:
+- Test the agent by chatting with it on Agentverse
+- Share the trade link to get early holders
+- Build a complementary agent (data feeds, analysis, monitoring)
+- Add cross-holdings (buy tokens of agents yours depends on)
+
+## 6 Architecture Patterns for Inspiration
+1. **Intelligence Agent** — Uses AI to analyze, summarize, or reason (Brain, Analyst)
+2. **Sentinel Agent** — Monitors 24/7, alerts on conditions (price drops, anomalies)
+3. **Research Agent** — Deep dives on demand (on-chain analysis, market research)
+4. **Oracle Agent** — Serves live data feeds (prices, metrics, events)
+5. **Coordinator Agent** — Routes queries to specialists, takes a routing fee
+6. **Incubator Agent** — Finds gaps in the ecosystem, scaffolds new agents
+
+## Style Guide
+- Be educational but action-oriented. Explain WHY as you DO.
+- Pause between major steps — don't dump everything at once.
+- Never write placeholder code (# TODO: implement this). Write real logic or ask what to build.
+- Use the MCP tools (deploy_to_agentverse, create_token_record, update_agent_metadata, etc.) when possible.
+- Be encouraging but honest. If an idea won't create value, say so and suggest alternatives.
+- Keep responses focused. Don't repeat information the developer already knows.`;
+}
+
 async function validateApiKey(apiKey: string): Promise<{ valid: boolean; error?: string }> {
   try {
     const response = await fetch("https://agentverse.ai/v1/hosting/agents", {
@@ -223,8 +359,9 @@ export function registerCreateCommand(program: Command): void {
             name = (await prompt(rl, "Agent name: ")).trim();
           }
 
+          // Auto-generate ticker from name (user can refine during tokenization)
           if (!ticker) {
-            ticker = (await prompt(rl, "Ticker symbol: ")).trim();
+            ticker = autoTicker(name);
           }
 
           if (!description) {
@@ -259,19 +396,8 @@ export function registerCreateCommand(program: Command): void {
             console.log("  Valid.\n");
           }
 
-          // Build mode prompt (unless --mode is already set)
-          let buildMode = options.mode ?? "";
-          if (!buildMode) {
-            console.log("\n  What are you building?\n");
-            console.log("    1) Single Agent    One agent that charges for a service");
-            console.log("    2) Agent Swarm     A team of agents that pay each other");
-            const modeInput = (await prompt(rl, "\n  Choose (1/2): ")).trim();
-            if (modeInput === "2" || modeInput.toLowerCase() === "swarm") {
-              buildMode = "swarm";
-            } else {
-              buildMode = "single";
-            }
-          }
+          // Default to single agent mode; swarm reachable via --mode=swarm
+          const buildMode = options.mode ?? "single";
 
           let selectedPresets: string[];
           if (buildMode === "swarm") {
@@ -632,40 +758,37 @@ AGENT_ADDRESS=${successful[0].address}
             console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
           }
 
-          // Launch Claude Code with welcome prompt
+          // Launch Claude Code with workflow prompt
           console.log(`\n  Launching Claude Code...`);
 
-          // Build a context-aware welcome prompt
+          const firstAgent = successful[0];
+          const agentAddr = firstAgent?.address ?? "";
+          const isDeployed = !skipDeploy && !!agentAddr;
+
+          // Welcome message (first "user" message Claude sees)
           let welcomePrompt: string;
-          if (skipDeploy) {
-            // Scaffolded but not deployed
-            if (isSingleAgent) {
-              welcomePrompt = `I just scaffolded a ${selectedPresets[0]} agent called "${baseName}". The code is ready but NOT deployed yet. Welcome me, explain what's in the project, and show me how to deploy it with "agentlaunch deploy". Be encouraging and brief.`;
-            } else {
-              welcomePrompt = `I just scaffolded a ${selectedPresets.length}-agent swarm called "${baseName}" with: ${selectedPresets.join(", ")}. The code is ready but NOT deployed yet. Welcome me, show me the agent files, and explain how to deploy them. Be encouraging and brief.`;
-            }
-          } else if (isSingleAgent && successful.length > 0) {
-            const agent = successful[0];
-            welcomePrompt = `I just deployed a ${agent.preset} agent called "${agent.name}" at ${agent.address.slice(0, 16)}... It charges for services. Welcome me, then explain: (1) how to tokenize it so I can earn from trading, (2) how to customize the pricing, and (3) what makes an agent valuable on this platform. Be encouraging and brief.`;
+          if (isSingleAgent) {
+            welcomePrompt = isDeployed
+              ? `I just created an agent called "${baseName}" and deployed it to Agentverse at ${agentAddr}.\n\nDescription: ${description}\n\nPlease start from Step 1 of the workflow.`
+              : `I just scaffolded an agent called "${baseName}". The code is in agent.py but it's NOT deployed yet.\n\nDescription: ${description}\n\nPlease start from Step 1 of the workflow.`;
           } else {
-            const agentList = successful.map((a) => a.preset).join(", ");
-            welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}. These agents pay each other for services. Welcome me and explain: (1) how to tokenize one, (2) how the agents work together, (3) what makes a swarm valuable. Be encouraging and brief.`;
+            const agentList = successful.map((a) => `${a.preset}: ${a.address}`).join(", ");
+            welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}.\n\nDescription: ${description}\n\nPlease start from Step 1 of the workflow.`;
           }
 
-          // Build system prompt with agent context
-          let systemContext: string;
-          if (skipDeploy) {
-            systemContext = `You are helping a developer who just scaffolded ${isSingleAgent ? "an agent" : "a swarm"} for Fetch.ai Agentverse. The code is ready but NOT deployed yet. API key is in .env. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server. Focus on helping them understand the code, customize it, and deploy when ready.`;
-          } else {
-            const agentAddresses = successful.map((a) => `${a.preset}: ${a.address}`).join(", ");
-            systemContext = `You are helping a developer who just deployed ${isSingleAgent ? "an agent" : "a swarm"} to the Fetch.ai Agentverse. The API key is already in .env. Agent addresses: ${agentAddresses}. Available tools: agentlaunch-sdk, agentlaunch-cli, MCP server (agent-launch). Focus on helping them tokenize, customize pricing, and understand value creation.`;
-          }
+          // Full system prompt via helper
+          const systemPrompt = buildWorkflowSystemPrompt({
+            agentName: baseName,
+            agentAddress: agentAddr,
+            description,
+            ticker,
+            isDeployed,
+          });
 
-          // Launch Claude with enhanced flags for better UX
           const claudeArgs = [
             welcomePrompt,
-            "--append-system-prompt", systemContext,
-            "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Glob,Grep",
+            "--append-system-prompt", systemPrompt,
+            "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Write,Glob,Grep",
           ];
 
           const claude = spawn("claude", claudeArgs, {
@@ -993,28 +1116,26 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
           console.log(`Handoff: ${result.handoffLink}`);
         }
 
-        // Launch Claude Code in the new directory with welcome prompt
+        // Launch Claude Code in the new directory with workflow prompt
         console.log(`\nLaunching Claude Code in ${dirName}...`);
 
-        // Build welcome prompt based on what was done
-        let welcomePrompt: string;
-        let systemContext: string;
-        if (result.agentAddress && result.handoffLink) {
-          welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...) and have a handoff link ready. Welcome me and explain the handoff link, then give me 2-3 quick next steps. Keep it brief.`;
-          systemContext = `You are helping a developer who just deployed an agent to Fetch.ai Agentverse. Agent: ${result.agentAddress}. Handoff link ready for tokenization. API key is in .env.`;
-        } else if (result.agentAddress) {
-          welcomePrompt = `I just created and deployed agent "${name}" (${result.agentAddress.slice(0, 12)}...). Welcome me and give me 3 quick options: tokenize it, check status, or customize the code. Keep it brief.`;
-          systemContext = `You are helping a developer who just deployed an agent to Fetch.ai Agentverse. Agent: ${result.agentAddress}. API key is in .env. Available: agentlaunch-sdk, agentlaunch-cli, MCP tools.`;
-        } else {
-          welcomePrompt = `I just scaffolded a new agent project called "${name}". Welcome me and explain what's in the project, then give me 3 quick options for what to do next. Keep it brief.`;
-          systemContext = `You are helping a developer who just scaffolded an agent project for Fetch.ai Agentverse. The project uses the ${template} template. Available: agentlaunch-sdk, agentlaunch-cli, MCP tools.`;
-        }
+        const batchIsDeployed = !!result.agentAddress;
+        const batchWelcome = batchIsDeployed
+          ? `I just created an agent called "${name}" and deployed it to Agentverse at ${result.agentAddress}.\n\nDescription: ${description || "No description provided."}\n\nPlease start from Step 1 of the workflow.`
+          : `I just scaffolded an agent called "${name}". The code is in agent.py but it's NOT deployed yet.\n\nDescription: ${description || "No description provided."}\n\nPlease start from Step 1 of the workflow.`;
 
-        // Launch Claude with enhanced flags
+        const batchSystemPrompt = buildWorkflowSystemPrompt({
+          agentName: name,
+          agentAddress: result.agentAddress ?? "",
+          description: description || "No description provided.",
+          ticker: result.ticker,
+          isDeployed: batchIsDeployed,
+        });
+
         const claudeArgs = [
-          welcomePrompt,
-          "--append-system-prompt", systemContext,
-          "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Glob,Grep",
+          batchWelcome,
+          "--append-system-prompt", batchSystemPrompt,
+          "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Write,Glob,Grep",
         ];
 
         const claude = spawn("claude", claudeArgs, {
