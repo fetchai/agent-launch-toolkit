@@ -671,7 +671,6 @@ AGENT_ADDRESS=${successful[0].address}
           const claude = spawn("claude", claudeArgs, {
             cwd: targetDir,
             stdio: "inherit",
-            shell: true,
           });
 
           claude.on("error", (err) => {
@@ -1021,7 +1020,6 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
         const claude = spawn("claude", claudeArgs, {
           cwd: targetDir,
           stdio: "inherit",
-          shell: true,
         });
 
         claude.on("error", (err) => {
