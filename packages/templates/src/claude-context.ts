@@ -49,11 +49,13 @@ GET   /platform/stats              Platform statistics
 
 ## Handoff Protocol
 
-Agents NEVER hold private keys. Flow:
+Token deployment requires a human signature:
 1. Agent calls API to create token record
 2. API returns handoff link
 3. Agent shares link with human
 4. Human signs transaction
+
+Once deployed, agents CAN trade autonomously via HoldingsManager + BSC_PRIVATE_KEY.
 `,
 
   "agentverse.md": `# Agentverse Deployment Rules
@@ -430,11 +432,13 @@ npm install agentlaunch-sdk
 
 ## The Agent-Human Handoff
 
-Agents never hold private keys:
+Token deployment requires a human signature:
 1. Agent calls API -> gets handoff link
 2. Agent shares link with human
 3. Human opens link, connects wallet, signs
 4. Token goes live
+
+Agents CAN trade autonomously after deployment using HoldingsManager + BSC_PRIVATE_KEY.
 
 ## Platform Constants
 - Deploy fee: 120 FET

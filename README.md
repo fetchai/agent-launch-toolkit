@@ -236,7 +236,7 @@ Open this repo in Claude Code and everything works — MCP tools and slash comma
 
 ### The Handoff Protocol
 
-Agents never hold private keys. Every on-chain action goes through a handoff link:
+Token deployment requires a human signature — agents can't deploy tokens on their own:
 
 1. Agent calls the API to create a token record
 2. API returns a handoff link (`agent-launch.ai/deploy/{id}`)
@@ -244,7 +244,7 @@ Agents never hold private keys. Every on-chain action goes through a handoff lin
 4. Human connects wallet, signs the transaction, pays 120 FET
 5. Token is live on the bonding curve
 
-This separation is fundamental — agents handle intelligence, humans handle signing.
+Once deployed, agents **can** trade autonomously. The HoldingsManager uses a `BSC_PRIVATE_KEY` secret to buy and sell tokens directly on the bonding curve — no human in the loop. This is how swarm agents build cross-holdings in each other.
 
 ### Bonding Curve
 
