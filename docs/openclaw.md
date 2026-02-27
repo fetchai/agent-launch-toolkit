@@ -141,37 +141,58 @@ OpenClaw uses a skill system. Skills are markdown files that instruct your agent
 
 The skill file is pure instructions — no executables, no hidden code. Your agent reads it and gains new capabilities.
 
-### The Handoff Protocol (Token Deployment)
+### Every Agent Has a Wallet
 
-Deploying a token contract requires paying 120 FET and signing on-chain transactions. The **Handoff Protocol** keeps humans in the loop for this critical step:
+This is the key insight: **Agentverse agents have wallets by default.**
 
-1. **Agent decides** to launch a token
-2. **Agent calls API** → receives a handoff link
-3. **Agent sends link** to you (the human)
-4. **You click the link** → connect wallet → sign two transactions
-5. **Token is live** on-chain
+When you deploy an agent to Agentverse, it automatically gets:
+- A Fetch.ai wallet address
+- The ability to send and receive FET
+- The ability to pay other agents for services
+- The ability to receive payments for its services
 
-Your involvement: 2 clicks and 2 signatures. Everything else — the decision, the configuration, the naming, the timing — is handled by your agent.
+**One API call activates the full economic stack.** Your agent can immediately:
+- Charge for its services
+- Pay Oracles for data
+- Pay Brains for reasoning
+- Accumulate revenue in its wallet
+- Check its balance and transaction history
 
-**Why handoff for deployment?** Creating a token contract is irreversible and costs 120 FET. Human oversight ensures you approve the name, symbol, and economics before committing.
+No wallet setup. No key management. No blockchain complexity. It just works.
 
-### Autonomous Trading (Post-Deployment)
+### Handoff Links (When You Want Human Involvement)
 
-Once a token exists, your agent CAN trade autonomously — if you give it a wallet:
+Handoff links let your agent propose actions for you to authorize. The pattern:
 
-```bash
-export WALLET_PRIVATE_KEY="your_private_key"
-```
+1. **Agent decides** on an action
+2. **Agent generates** a handoff link
+3. **Agent sends** the link to you
+4. **You click** → review → authorize
+5. **Action executes**
 
-With a private key, your agent can:
-- Buy tokens of other agents it depends on
-- Sell tokens to rebalance its portfolio
-- Execute trades based on market signals
-- Build cross-holdings automatically
+**Use cases for handoff links:**
 
-**This is opt-in.** If you don't provide a private key, your agent generates trade links for you to execute manually. If you do provide one, your agent trades on its own.
+| Action | Link | Why Handoff |
+|--------|------|-------------|
+| Token deployment | `/deploy/{id}` | Irreversible, costs 120 FET |
+| Large trade | `/trade/{addr}?amount=1000` | Human approval for big moves |
+| First purchase | `/trade/{addr}?action=buy` | Onboard new users |
+| Sell signal | `/trade/{addr}?action=sell` | Alert + action in one link |
 
-The design: **handoff for deployment, autonomy for trading.**
+Handoff links are a communication tool. Your agent does the analysis, makes the decision, and presents a one-click action. The human just authorizes.
+
+**Token deployment requires handoff** (120 FET, immutable contract). Everything else is optional — use handoff when you want human oversight, trade autonomously when you don't.
+
+### Autonomous Everything Else
+
+Once the token exists, your agent operates independently:
+- Buys and sells tokens with its wallet
+- Pays for services from other agents
+- Receives payments for its services
+- Builds cross-holdings automatically
+- Manages its treasury
+
+No handoff needed. No human approval required. Your agent is an autonomous economic actor.
 
 ### Settlement in FET
 
@@ -562,29 +583,29 @@ ClawHub has had [serious security issues](https://www.koi.ai/blog/clawhavoc-341-
 
 | Concern | Our Approach |
 |---------|--------------|
-| Token deployment | Handoff protocol — human signs contract creation |
-| Trading private keys | Opt-in only. You choose whether to give your agent a wallet. |
+| Token deployment | Handoff protocol — human pays 120 FET, signs contract |
+| Trading & payments | Autonomous — agent uses its built-in Agentverse wallet |
 | Hidden code | Skill is pure markdown. No executables. Inspect it yourself. |
 | Trust | Open source. MIT license. Verify everything. |
 | Provenance | Official Fetch.ai / ASI Alliance project. |
 
-### Two-Tier Security Model
+### The Security Model
 
-**Tier 1: Handoff (Token Deployment)**
+**Handoff for irreversible actions:**
 ```
-Agent proposes token → Human reviews → Human signs → Contract deploys
-```
-
-Creating a token is irreversible. The handoff ensures you approve before committing 120 FET.
-
-**Tier 2: Autonomous (Trading)**
-```
-Agent decides to trade → Agent signs → Trade executes
+Agent proposes token → Human reviews → Human pays 120 FET → Contract deploys
 ```
 
-If you provide `WALLET_PRIVATE_KEY`, your agent trades autonomously. This is opt-in — don't provide the key if you want manual control.
+Token deployment is irreversible and costs money. The handoff ensures human approval.
 
-**You choose the trust level.** Handoff-only for maximum control. Autonomous for hands-off operation.
+**Autonomy for everything else:**
+```
+Agent receives payment → Agent pays for service → Agent buys tokens → Agent sells tokens
+```
+
+Agentverse agents have wallets. They transact freely. This is the point — agents that can participate in an economy.
+
+**Your agent is designed to be autonomous.** That's not a bug, it's the feature.
 
 ### Verify Everything
 

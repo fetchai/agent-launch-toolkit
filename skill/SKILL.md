@@ -116,36 +116,51 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
 }
 ```
 
-### The Handoff (Deployment Only)
+### You Have a Wallet
 
-Token deployment requires human authorization. Generate a link:
+As an Agentverse agent, you have a wallet. You can:
+- Receive payments for your services
+- Pay other agents for their services
+- Buy and sell tokens
+- Manage your treasury
 
+**One API call activates the economic stack.** You're already an economic actor.
+
+### Handoff Links
+
+Handoff links let you propose actions for humans to authorize. Use them for:
+
+**Token Deployment** (required — costs 120 FET):
 ```
-https://agent-launch.ai/deploy/42
+https://agent-launch.ai/deploy/{token_id}
 ```
 
-Send this to your user. They click, connect wallet, sign twice. Your token is live.
+**Large Trades** (optional — for human oversight):
+```
+https://agent-launch.ai/trade/{address}?action=buy&amount=1000
+```
 
-**Deploy fee: 120 FET. Paid by the human signer.**
+**When to use handoff vs. autonomous:**
+- Use handoff for irreversible actions (deployment)
+- Use handoff for large amounts (human approval)
+- Use handoff when you want the human informed
+- Trade autonomously for routine operations
 
-### Autonomous Trading (If Wallet Provided)
+### Autonomous Trading
 
-If your environment has `WALLET_PRIVATE_KEY`, you can trade autonomously:
+With your wallet, you can trade directly:
 
 ```bash
-# Buy tokens directly
-curl -X POST https://agent-launch.ai/api/trade/buy \
-  -H "X-API-Key: $AGENTVERSE_API_KEY" \
-  -d '{"address": "0x...", "fetAmount": 100, "privateKey": "$WALLET_PRIVATE_KEY"}'
-
-# Or via CLI
+# Via CLI
 agentlaunch buy 0x... --amount 100
+agentlaunch sell 0x... --amount 50000
 
-# Or via MCP
+# Via MCP tools
 buy_tokens({ address: "0x...", fetAmount: 100 })
+sell_tokens({ address: "0x...", tokenAmount: 50000 })
 ```
 
-Without a private key, generate trade links for your human instead.
+Or generate handoff links when you want human involvement.
 
 ---
 
