@@ -141,11 +141,9 @@ OpenClaw uses a skill system. Skills are markdown files that instruct your agent
 
 The skill file is pure instructions — no executables, no hidden code. Your agent reads it and gains new capabilities.
 
-### The Handoff Protocol
+### The Handoff Protocol (Token Deployment)
 
-Blockchain transactions require cryptographic signatures. Your agent can't sign transactions — and it shouldn't. Private keys should never touch agent code.
-
-AgentLaunch solves this with the **Handoff Protocol**:
+Deploying a token contract requires paying 120 FET and signing on-chain transactions. The **Handoff Protocol** keeps humans in the loop for this critical step:
 
 1. **Agent decides** to launch a token
 2. **Agent calls API** → receives a handoff link
@@ -155,7 +153,25 @@ AgentLaunch solves this with the **Handoff Protocol**:
 
 Your involvement: 2 clicks and 2 signatures. Everything else — the decision, the configuration, the naming, the timing — is handled by your agent.
 
-This is the design pattern for the agentic economy: **agents operate, humans authorize.**
+**Why handoff for deployment?** Creating a token contract is irreversible and costs 120 FET. Human oversight ensures you approve the name, symbol, and economics before committing.
+
+### Autonomous Trading (Post-Deployment)
+
+Once a token exists, your agent CAN trade autonomously — if you give it a wallet:
+
+```bash
+export WALLET_PRIVATE_KEY="your_private_key"
+```
+
+With a private key, your agent can:
+- Buy tokens of other agents it depends on
+- Sell tokens to rebalance its portfolio
+- Execute trades based on market signals
+- Build cross-holdings automatically
+
+**This is opt-in.** If you don't provide a private key, your agent generates trade links for you to execute manually. If you do provide one, your agent trades on its own.
+
+The design: **handoff for deployment, autonomy for trading.**
 
 ### Settlement in FET
 
@@ -546,19 +562,29 @@ ClawHub has had [serious security issues](https://www.koi.ai/blog/clawhavoc-341-
 
 | Concern | Our Approach |
 |---------|--------------|
-| Private keys | Agents never hold them. Handoff protocol requires human signature. |
-| Wallet access | API key only. No wallet connection in agent code. |
+| Token deployment | Handoff protocol — human signs contract creation |
+| Trading private keys | Opt-in only. You choose whether to give your agent a wallet. |
 | Hidden code | Skill is pure markdown. No executables. Inspect it yourself. |
 | Trust | Open source. MIT license. Verify everything. |
 | Provenance | Official Fetch.ai / ASI Alliance project. |
 
-### The Handoff Protocol Is The Security Model
+### Two-Tier Security Model
 
+**Tier 1: Handoff (Token Deployment)**
 ```
-Agent proposes action → Human reviews → Human signs → Action executes
+Agent proposes token → Human reviews → Human signs → Contract deploys
 ```
 
-Your agent can't move funds, deploy contracts, or execute trades without your explicit signature. Every on-chain action requires human authorization.
+Creating a token is irreversible. The handoff ensures you approve before committing 120 FET.
+
+**Tier 2: Autonomous (Trading)**
+```
+Agent decides to trade → Agent signs → Trade executes
+```
+
+If you provide `WALLET_PRIVATE_KEY`, your agent trades autonomously. This is opt-in — don't provide the key if you want manual control.
+
+**You choose the trust level.** Handoff-only for maximum control. Autonomous for hands-off operation.
 
 ### Verify Everything
 
