@@ -1,3 +1,21 @@
+---
+name: agentlaunch
+description: Economic infrastructure for AI agents. Create tokens, charge for services, pay other agents, track revenue. Triggers on "tokenize", "launch token", "agent economy", "charge for service", "create handoff link", "bonding curve", "agent token".
+version: 1.0.0
+metadata:
+  openclaw:
+    requires:
+      env:
+        - AGENTVERSE_API_KEY
+    primaryEnv: AGENTVERSE_API_KEY
+    emoji: "🦞"
+    homepage: https://agent-launch.ai
+    install:
+      - kind: node
+        package: agentlaunch-sdk
+        bins: []
+---
+
 # AgentLaunch Skill
 
 > **One API Key. One Command. Token Launched.**
@@ -16,7 +34,7 @@ npm install agentlaunch-sdk
 
 ```typescript
 import { AgentLaunch } from 'agentlaunch-sdk';
-const client = new AgentLaunch({ apiKey: process.env.AGENT_LAUNCH_API_KEY });
+const client = new AgentLaunch({ apiKey: process.env.AGENTVERSE_API_KEY });
 const result = await client.tokenize({ name: 'MyBot', symbol: 'MYB', description: 'My AI agent' });
 console.log(result.handoffLink); // https://agent-launch.ai/deploy/42
 ```
@@ -34,7 +52,7 @@ agentlaunch create --name "MyBot" --symbol "MYB" --description "My AI agent"
 
 CLI docs: https://agent-launch.ai/docs/cli
 
-### Option C — MCP (Claude Code / Cursor)
+### Option C — MCP (Claude Code / Cursor / OpenClaw)
 
 ```json
 {
@@ -42,13 +60,13 @@ CLI docs: https://agent-launch.ai/docs/cli
     "agent-launch": {
       "command": "npx",
       "args": ["-y", "agent-launch-mcp@latest"],
-      "env": { "AGENT_LAUNCH_API_KEY": "your_agentverse_api_key" }
+      "env": { "AGENTVERSE_API_KEY": "your_agentverse_api_key" }
     }
   }
 }
 ```
 
-Add to `~/.claude/claude_desktop_config.json` and restart Claude Code. Then ask in natural language:
+Add to `~/.claude/claude_desktop_config.json` (Claude Code) or `~/.openclaw/mcp.json` (OpenClaw) and restart. Then ask in natural language:
 ```
 > Create a token called MyBot with symbol MYB for my trading agent
 ```
@@ -64,7 +82,7 @@ MCP docs: https://agent-launch.ai/docs/mcp
 # Production (default):
 export AGENT_LAUNCH_API_URL="https://agent-launch.ai/api"
 
-curl -X POST $AGENT_LAUNCH_API_URL/agents/launch \
+curl -X POST $AGENT_LAUNCH_API_URL/agents/tokenize \
   -H "X-API-Key: YOUR_AGENTVERSE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -95,19 +113,6 @@ curl -X POST $AGENT_LAUNCH_API_URL/agents/launch \
 
 ---
 
-## Skill Metadata
-
-```yaml
-name: agentlaunch
-version: 2.1.0
-description: Create, manage, and trade AI agent tokens
-author: Fetch.ai / ASI Alliance
-protocol: MCP (Model Context Protocol)
-endpoint: https://agent-launch.ai
-```
-
----
-
 ## Authentication
 
 ### API Key (Recommended for Agents)
@@ -135,7 +140,7 @@ Header: Authorization: Bearer {token}
 
 ### Create Token
 ```
-POST https://agent-launch.ai/api/tokenize
+POST https://agent-launch.ai/api/agents/tokenize
 Auth: X-API-Key header
 
 Body:
@@ -161,7 +166,7 @@ Params: page, limit, search, categoryId, chainId, sortBy, sortOrder
 
 ### Get Token
 ```
-GET https://agent-launch.ai/api/token/{address}
+GET https://agent-launch.ai/api/tokens/address/{address}
 Returns: price, market_cap, holders, progress, balance, etc.
 ```
 
@@ -254,7 +259,7 @@ API_URL = os.getenv("AGENT_LAUNCH_API_URL", "https://agent-launch.ai/api")
 FRONTEND_URL = os.getenv("AGENT_LAUNCH_FRONTEND_URL", "https://agent-launch.ai")
 
 response = requests.post(
-    f"{API_URL}/agents/launch",
+    f"{API_URL}/agents/tokenize",
     headers={
         "X-API-Key": API_KEY,
         "Content-Type": "application/json"
