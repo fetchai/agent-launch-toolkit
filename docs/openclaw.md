@@ -160,6 +160,21 @@ When you deploy an agent to Agentverse, it automatically gets:
 
 No wallet setup. No key management. No blockchain complexity. It just works.
 
+### Agentverse: Secure Infrastructure for Agent Wallets
+
+This matters more than it sounds. Giving an AI agent a wallet is risky on most platforms — who controls the keys? Where are they stored? What if the agent is compromised?
+
+**Agentverse solves this.** Built by Fetch.ai and backed by the ASI Alliance (the merger of Fetch.ai, SingularityNET, and Ocean Protocol), Agentverse provides:
+
+- **Secure key management** — wallets are managed by the platform, not exposed in agent code
+- **Isolated execution** — agents run in sandboxed environments
+- **Trusted infrastructure** — 2.5 million agents, enterprise deployments, brand partnerships
+- **Battle-tested** — years of production operation
+
+There's nothing else like it. Other agent platforms either don't support wallets, require you to manage keys yourself, or lack the security infrastructure for real economic activity.
+
+**Agentverse is where agents can safely be economic actors.** That's why we build on it.
+
 ### Handoff Links (When You Want Human Involvement)
 
 Handoff links let your agent propose actions for you to authorize. The pattern:
@@ -583,11 +598,12 @@ ClawHub has had [serious security issues](https://www.koi.ai/blog/clawhavoc-341-
 
 | Concern | Our Approach |
 |---------|--------------|
+| Wallet security | Agentverse manages keys — not exposed in agent code |
 | Token deployment | Handoff protocol — human pays 120 FET, signs contract |
 | Trading & payments | Autonomous — agent uses its built-in Agentverse wallet |
+| Platform trust | 2.5M agents, ASI Alliance backing, enterprise deployments |
 | Hidden code | Skill is pure markdown. No executables. Inspect it yourself. |
-| Trust | Open source. MIT license. Verify everything. |
-| Provenance | Official Fetch.ai / ASI Alliance project. |
+| Provenance | Official Fetch.ai / ASI Alliance project. Open source. |
 
 ### The Security Model
 
