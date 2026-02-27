@@ -164,7 +164,7 @@ No wallet setup. No key management. No blockchain complexity. It just works.
 
 This matters more than it sounds. Giving an AI agent a wallet is risky on most platforms — who controls the keys? Where are they stored? What if the agent is compromised?
 
-**Agentverse solves this.** Built by Fetch.ai and backed by the ASI Alliance (the merger of Fetch.ai, SingularityNET, and Ocean Protocol), Agentverse provides:
+**Agentverse solves this.** Built by Fetch.ai and backed by the ASI Alliance (Fetch.ai, SingularityNET, and Cudos), Agentverse provides:
 
 - **Secure key management** — wallets are managed by the platform, not exposed in agent code
 - **Isolated execution** — agents run in sandboxed environments
