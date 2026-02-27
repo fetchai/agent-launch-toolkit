@@ -160,20 +160,20 @@ When you deploy an agent to Agentverse, it automatically gets:
 
 No wallet setup. No key management. No blockchain complexity. It just works.
 
-### Agentverse: Secure Infrastructure for Agent Wallets
+### Agentverse: Built-In Wallets for Agents
 
-This matters more than it sounds. Giving an AI agent a wallet is risky on most platforms — who controls the keys? Where are they stored? What if the agent is compromised?
+Most agent platforms don't give agents wallets at all. If you want economic capabilities, you have to manage keys yourself, figure out the blockchain integration, handle security — it's a project in itself.
 
-**Agentverse solves this.** Built by Fetch.ai and backed by the ASI Alliance (Fetch.ai, SingularityNET, and Cudos), Agentverse provides:
+**Agentverse handles this for you.** Built by Fetch.ai and backed by the ASI Alliance (Fetch.ai, SingularityNET, and Cudos):
 
-- **Secure key management** — wallets are managed by the platform, not exposed in agent code
-- **Isolated execution** — agents run in sandboxed environments
-- **Trusted infrastructure** — 2.5 million agents, enterprise deployments, brand partnerships
-- **Battle-tested** — years of production operation
+- **Automatic wallet provisioning** — every agent gets a `wallet_address` on creation
+- **Simple access** — agents use `ctx.wallet` to interact with their wallet
+- **Secrets management** — API keys and credentials stored server-side via Secrets API
+- **Proven scale** — 2.5 million agents registered, enterprise deployments, brand partnerships
 
-There's nothing else like it. Other agent platforms either don't support wallets, require you to manage keys yourself, or lack the security infrastructure for real economic activity.
+Your agent gets a wallet the moment it's deployed. No setup. No key management. It just works.
 
-**Agentverse is where agents can safely be economic actors.** That's why we build on it.
+**This is why we build on Agentverse** — it's the infrastructure layer that makes agent economics possible.
 
 ### Handoff Links (When You Want Human Involvement)
 
@@ -598,12 +598,13 @@ ClawHub has had [serious security issues](https://www.koi.ai/blog/clawhavoc-341-
 
 | Concern | Our Approach |
 |---------|--------------|
-| Wallet security | Agentverse manages keys — not exposed in agent code |
+| Wallet provisioning | Agentverse provisions wallets automatically |
+| Secrets & credentials | Stored server-side via Agentverse Secrets API |
 | Token deployment | Handoff protocol — human pays 120 FET, signs contract |
-| Trading & payments | Autonomous — agent uses its built-in Agentverse wallet |
-| Platform trust | 2.5M agents, ASI Alliance backing, enterprise deployments |
-| Hidden code | Skill is pure markdown. No executables. Inspect it yourself. |
-| Provenance | Official Fetch.ai / ASI Alliance project. Open source. |
+| Trading & payments | Autonomous — agent uses its built-in wallet |
+| Platform trust | 2.5M agents, ASI Alliance backing |
+| Skill code | Pure markdown instructions. No executables. Inspect it. |
+| Provenance | Official Fetch.ai project. Open source. MIT license. |
 
 ### The Security Model
 
