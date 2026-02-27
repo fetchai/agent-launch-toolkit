@@ -206,17 +206,23 @@ BUSINESS = {
     "max_input_length": 5000,
 }
 
-# Bonding curve contract ABI (approve + buyTokens + sellTokens)
-BONDING_CURVE_ABI = [
+# FETAgentCoin contract ABI — the token IS the bonding curve
+TOKEN_ABI = [
     {"name": "buyTokens", "type": "function",
-     "inputs": [{"name": "tokenAddress", "type": "address"},
-                {"name": "minTokensOut", "type": "uint256"}],
-     "outputs": [], "stateMutability": "payable"},
-    {"name": "sellTokens", "type": "function",
-     "inputs": [{"name": "tokenAddress", "type": "address"},
-                {"name": "tokenAmount", "type": "uint256"},
-                {"name": "minFetOut", "type": "uint256"}],
+     "inputs": [{"name": "buyer", "type": "address"},
+                {"name": "slippageAmount", "type": "uint256"},
+                {"name": "_buyAmount", "type": "uint256"}],
      "outputs": [], "stateMutability": "nonpayable"},
+    {"name": "sellTokens", "type": "function",
+     "inputs": [{"name": "tokenAmount", "type": "uint256"}],
+     "outputs": [], "stateMutability": "nonpayable"},
+    {"name": "FET_TOKEN", "type": "function",
+     "inputs": [], "outputs": [{"name": "", "type": "address"}],
+     "stateMutability": "view"},
+    {"name": "calculateTokensReceived", "type": "function",
+     "inputs": [{"name": "fetAmount", "type": "uint256"}],
+     "outputs": [{"name": "", "type": "uint256"}],
+     "stateMutability": "view"},
 ]
 
 ERC20_ABI = [
@@ -224,6 +230,10 @@ ERC20_ABI = [
      "inputs": [{"name": "spender", "type": "address"},
                 {"name": "amount", "type": "uint256"}],
      "outputs": [{"name": "", "type": "bool"}], "stateMutability": "nonpayable"},
+    {"name": "allowance", "type": "function",
+     "inputs": [{"name": "owner", "type": "address"},
+                {"name": "spender", "type": "address"}],
+     "outputs": [{"name": "", "type": "uint256"}], "stateMutability": "view"},
     {"name": "balanceOf", "type": "function",
      "inputs": [{"name": "account", "type": "address"}],
      "outputs": [{"name": "", "type": "uint256"}], "stateMutability": "view"},
@@ -235,6 +245,9 @@ ERC20_ABI = [
                 {"name": "value", "type": "uint256"}],
      "outputs": [{"name": "", "type": "bool"}], "stateMutability": "nonpayable"},
 ]
+
+# Default TFET address on BSC Testnet
+TFET_ADDRESS = "0x304ddf3eE068c53514f782e2341B71A80c8aE3C7"
 
 
 # ==========================================================================
@@ -697,8 +710,13 @@ class HoldingsManager:
 
     def buy_via_web3(
         self, ctx: Context, token_address: str, fet_amount_wei: int,
-        bonding_curve_address: str = "",
+        slippage_percent: int = 5,
     ) -> Tuple[bool, str]:
+        """
+        Buy tokens on the bonding curve. The token IS the bonding curve.
+
+        Flow: approve FET -> call buyTokens(buyer, minTokens, fetAmount) on token.
+        """
         try:
             from web3 import Web3
 
@@ -711,32 +729,76 @@ class HoldingsManager:
                 return False, "Cannot connect to BSC RPC."
 
             account = w3.eth.account.from_key(private_key)
-            nonce = w3.eth.get_transaction_count(account.address)
+            token_addr = Web3.to_checksum_address(token_address)
 
-            if not bonding_curve_address:
-                return False, self.generate_buy_link(token_address, fet_amount_wei)
+            token_contract = w3.eth.contract(address=token_addr, abi=TOKEN_ABI)
 
-            # Approve FET spend on bonding curve
-            # Then call buyTokens
-            curve = w3.eth.contract(
-                address=Web3.to_checksum_address(bonding_curve_address),
-                abi=BONDING_CURVE_ABI,
+            # 1. Resolve FET token address from contract (fallback to testnet TFET)
+            try:
+                fet_addr = token_contract.functions.FET_TOKEN().call()
+            except Exception:
+                fet_addr = TFET_ADDRESS
+            fet_contract = w3.eth.contract(
+                address=Web3.to_checksum_address(fet_addr), abi=ERC20_ABI,
             )
-            tx = curve.functions.buyTokens(
-                Web3.to_checksum_address(token_address), 0
+
+            # 2. Check FET balance
+            balance = fet_contract.functions.balanceOf(account.address).call()
+            if balance < fet_amount_wei:
+                return False, (
+                    f"Insufficient FET. Have {balance}, need {fet_amount_wei}. "
+                    f"Deficit: {fet_amount_wei - balance}"
+                )
+
+            nonce = w3.eth.get_transaction_count(account.address)
+            gas_price = w3.eth.gas_price
+            chain_id = w3.eth.chain_id
+
+            # 3. Approve FET spend on the token contract (if needed)
+            allowance = fet_contract.functions.allowance(
+                account.address, token_addr,
+            ).call()
+            if allowance < fet_amount_wei:
+                approve_tx = fet_contract.functions.approve(
+                    token_addr, fet_amount_wei,
+                ).build_transaction({
+                    "from": account.address, "nonce": nonce,
+                    "gas": 100000, "gasPrice": gas_price, "chainId": chain_id,
+                })
+                signed_approve = w3.eth.account.sign_transaction(approve_tx, private_key)
+                approve_hash = w3.eth.send_raw_transaction(signed_approve.raw_transaction)
+                w3.eth.wait_for_transaction_receipt(approve_hash, timeout=60)
+                nonce += 1
+                Logger.info(ctx, "FET_APPROVED", {
+                    "spender": token_address[:12], "amount": fet_amount_wei,
+                })
+
+            # 4. Calculate expected tokens and apply slippage
+            expected_tokens = token_contract.functions.calculateTokensReceived(
+                fet_amount_wei,
+            ).call()
+            min_tokens = expected_tokens * (100 - slippage_percent) // 100
+
+            # 5. Buy: buyTokens(buyer, slippageAmount, _buyAmount)
+            buy_tx = token_contract.functions.buyTokens(
+                account.address, min_tokens, fet_amount_wei,
             ).build_transaction({
-                "from": account.address,
-                "value": fet_amount_wei,
-                "nonce": nonce,
-                "gas": 300000,
-                "gasPrice": w3.eth.gas_price,
-                "chainId": w3.eth.chain_id,
+                "from": account.address, "nonce": nonce,
+                "gas": 300000, "gasPrice": gas_price, "chainId": chain_id,
             })
-            signed = w3.eth.account.sign_transaction(tx, private_key)
-            tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+            signed_buy = w3.eth.account.sign_transaction(buy_tx, private_key)
+            tx_hash = w3.eth.send_raw_transaction(signed_buy.raw_transaction)
+
+            # 6. Wait for confirmation
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+            if receipt.status != 1:
+                return False, f"Buy transaction reverted: {tx_hash.hex()}"
+
             Logger.info(ctx, "BUY_VIA_WEB3", {
                 "token": token_address[:12],
-                "amount": fet_amount_wei,
+                "fet_spent": fet_amount_wei,
+                "expected_tokens": expected_tokens,
+                "min_tokens": min_tokens,
                 "tx": tx_hash.hex(),
             })
             return True, f"0x{tx_hash.hex()}"
@@ -744,12 +806,18 @@ class HoldingsManager:
         except ImportError:
             return False, self.generate_buy_link(token_address, fet_amount_wei)
         except Exception as e:
+            Logger.error(ctx, "BUY_ERROR", str(e))
             return False, str(e)
 
     def sell_via_web3(
         self, ctx: Context, token_address: str, token_amount: int,
-        bonding_curve_address: str = "",
     ) -> Tuple[bool, str]:
+        """
+        Sell tokens back to the bonding curve. No approval needed — the token
+        contract burns from msg.sender directly.
+
+        Flow: call sellTokens(tokenAmount) on the token contract.
+        """
         try:
             from web3 import Web3
 
@@ -762,44 +830,33 @@ class HoldingsManager:
                 return False, "Cannot connect to BSC RPC."
 
             account = w3.eth.account.from_key(private_key)
+            token_addr = Web3.to_checksum_address(token_address)
+
+            # 1. Check token balance
+            token_contract = w3.eth.contract(address=token_addr, abi=TOKEN_ABI + ERC20_ABI)
+            balance = token_contract.functions.balanceOf(account.address).call()
+            if balance < token_amount:
+                return False, (
+                    f"Insufficient tokens. Have {balance}, want to sell {token_amount}."
+                )
+
+            # 2. Sell: sellTokens(tokenAmount) — no approval needed
             nonce = w3.eth.get_transaction_count(account.address)
-
-            if not bonding_curve_address:
-                return False, self.generate_sell_link(token_address, token_amount)
-
-            # Approve token spend on bonding curve, then sell
-            token_contract = w3.eth.contract(
-                address=Web3.to_checksum_address(token_address),
-                abi=ERC20_ABI,
-            )
-            approve_tx = token_contract.functions.approve(
-                Web3.to_checksum_address(bonding_curve_address), token_amount
+            sell_tx = token_contract.functions.sellTokens(
+                token_amount,
             ).build_transaction({
-                "from": account.address,
-                "nonce": nonce,
-                "gas": 100000,
-                "gasPrice": w3.eth.gas_price,
-                "chainId": w3.eth.chain_id,
-            })
-            signed_approve = w3.eth.account.sign_transaction(approve_tx, private_key)
-            w3.eth.send_raw_transaction(signed_approve.raw_transaction)
-
-            nonce += 1
-            curve = w3.eth.contract(
-                address=Web3.to_checksum_address(bonding_curve_address),
-                abi=BONDING_CURVE_ABI,
-            )
-            sell_tx = curve.functions.sellTokens(
-                Web3.to_checksum_address(token_address), token_amount, 0
-            ).build_transaction({
-                "from": account.address,
-                "nonce": nonce,
-                "gas": 300000,
-                "gasPrice": w3.eth.gas_price,
+                "from": account.address, "nonce": nonce,
+                "gas": 300000, "gasPrice": w3.eth.gas_price,
                 "chainId": w3.eth.chain_id,
             })
             signed_sell = w3.eth.account.sign_transaction(sell_tx, private_key)
             tx_hash = w3.eth.send_raw_transaction(signed_sell.raw_transaction)
+
+            # 3. Wait for confirmation
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+            if receipt.status != 1:
+                return False, f"Sell transaction reverted: {tx_hash.hex()}"
+
             Logger.info(ctx, "SELL_VIA_WEB3", {
                 "token": token_address[:12],
                 "amount": token_amount,
@@ -810,7 +867,62 @@ class HoldingsManager:
         except ImportError:
             return False, self.generate_sell_link(token_address, token_amount)
         except Exception as e:
+            Logger.error(ctx, "SELL_ERROR", str(e))
             return False, str(e)
+
+    def get_balances(
+        self, ctx: Context, token_address: str = "",
+    ) -> Dict[str, Any]:
+        """Check wallet BNB, FET, and (optionally) token balances."""
+        result: Dict[str, Any] = {"bnb": 0, "fet": 0, "token": 0, "wallet": ""}
+        try:
+            from web3 import Web3
+
+            private_key = os.environ.get("BSC_PRIVATE_KEY", "")
+            if not private_key:
+                return result
+
+            w3 = Web3(Web3.HTTPProvider(self.BSC_RPC))
+            if not w3.is_connected():
+                return result
+
+            account = w3.eth.account.from_key(private_key)
+            result["wallet"] = account.address
+
+            # BNB balance
+            result["bnb"] = w3.eth.get_balance(account.address)
+
+            # FET balance
+            try:
+                if token_address:
+                    tc = w3.eth.contract(
+                        address=Web3.to_checksum_address(token_address), abi=TOKEN_ABI,
+                    )
+                    fet_addr = tc.functions.FET_TOKEN().call()
+                else:
+                    fet_addr = TFET_ADDRESS
+                fet_contract = w3.eth.contract(
+                    address=Web3.to_checksum_address(fet_addr), abi=ERC20_ABI,
+                )
+                result["fet"] = fet_contract.functions.balanceOf(account.address).call()
+            except Exception:
+                pass
+
+            # Token balance (if address provided)
+            if token_address:
+                try:
+                    token_contract = w3.eth.contract(
+                        address=Web3.to_checksum_address(token_address), abi=ERC20_ABI,
+                    )
+                    result["token"] = token_contract.functions.balanceOf(account.address).call()
+                except Exception:
+                    pass
+
+        except ImportError:
+            pass
+        except Exception:
+            pass
+        return result
 
     def get_holdings_summary(self, ctx: Context, token_addresses: List[str]) -> List[Dict]:
         results = []
@@ -940,7 +1052,7 @@ async def handle_business(
         wallet      — WalletManager: get_balance(), get_address(), fund_check()
         revenue     — RevenueTracker: record_income/expense(), get_summary()
         self_aware  — SelfAwareMixin: update(), get_effort_mode(), get_token_summary()
-        holdings    — HoldingsManager: buy_via_web3(), sell_via_web3(), get_holdings_summary()
+        holdings    — HoldingsManager: buy_via_web3(), sell_via_web3(), get_balances(), get_holdings_summary()
         cache       — Cache: get(), set()
 
     Args:
