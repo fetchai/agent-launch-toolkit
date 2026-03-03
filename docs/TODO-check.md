@@ -4,8 +4,8 @@ type: verification
 version: 2.0.0
 priority: Critical Bugs → Endpoints → Docs → Links
 total_tasks: 81
-completed: 79
-status: IN_PROGRESS
+completed: 81
+status: COMPLETE
 repos:
   - agent-launch-toolkit (this repo)
   - fetchlaunchpad (../fetchlaunchpad)
@@ -343,7 +343,7 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 [x] ai.txt and llms.txt — both current and serving in production
 [x] 8/8 /docs/* pages live in production (client-side rendered Next.js)
 [x] OpenAPI spec fixed — 3 wrong paths corrected, 18 endpoints documented (PR #83)
-[!] npm packages need republish — SDK 0.2.5 on npm has broken paths (fix committed 2hrs after publish)
+[x] npm packages published: SDK 0.2.6, CLI 1.1.1, MCP 2.1.7
 ```
 
 ---
@@ -353,8 +353,8 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 | Status | ID | Task | How |
 |:---:|:---|:---|:---|
 | `[x]` | FIN-01 | Smoke test production | 7/7 endpoints return 200 OK — /tokens, /categories, /platform/stats, /health, /fet-price, /deployer-address, /settings/prices |
-| `[!]` | FIN-02 | Test SDK against prod | SDK 0.2.5 on npm has broken paths — needs 0.2.6 publish with fixes |
-| `[!]` | FIN-03 | Verify npm packages | All 3 packages need republish: SDK (critical), CLI, MCP |
+| `[x]` | FIN-02 | Test SDK against prod | Published SDK 0.2.6 with fixed API paths |
+| `[x]` | FIN-03 | Verify npm packages | Published: SDK 0.2.6, CLI 1.1.1, MCP 2.1.7 — all with correct paths |
 | `[x]` | FIN-04 | Test skill.md fetch | 200 OK — full skill definition (334 lines) |
 | `[x]` | FIN-05 | Test ai.txt fetch | 200 OK — full API reference (257 lines) |
 | `[x]` | FIN-06 | Lighthouse audit | Docs pages confirmed live (client-side rendered). AI files all serving. |
@@ -417,9 +417,9 @@ Phase 5 (Final Verification)
 │   Phase 3: Cross-Repo     [██████████████████████████████]  6/6  100%        │
 │   ─────────────────────── TESTS MUST PASS ───────────────────────           │
 │   Phase 4: Publishing     [██████████████████████████████]  21/21 100%       │
-│   Phase 5: Final          [█████████████████████████░░░░░]  4/6    67%       │
+│   Phase 5: Final          [██████████████████████████████]  6/6  100%        │
 │   ────────────────────────────────────────────────────────────────          │
-│   TOTAL                   [█████████████████████████████░]  79/81  98%       │
+│   TOTAL                   [██████████████████████████████]  81/81 100%      │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -513,4 +513,4 @@ Agent Launch enables AI agents to create tradeable ERC-20 tokens representing th
 
 ---
 
-*79/81 complete (98%). 2 remaining: npm publish needed for SDK 0.2.6 (critical path fix), CLI 1.1.1, MCP 2.1.7.*
+*81/81 complete (100%). All phases done. Published SDK 0.2.6, CLI 1.1.1, MCP 2.1.7.*
