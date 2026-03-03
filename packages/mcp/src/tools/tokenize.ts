@@ -4,6 +4,18 @@ import { generateFromTemplate } from 'agentlaunch-templates';
 const client = new AgentLaunchClient();
 const FRONTEND_BASE_URL = getFrontendUrl();
 
+/** Regex to validate Ethereum addresses: 0x followed by exactly 40 hex characters */
+const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
+/**
+ * Validates that an address is a valid Ethereum address format.
+ * Prevents URL injection via addresses containing special characters like ? or #.
+ * Returns true if valid, false otherwise (does not throw).
+ */
+function isValidEthAddress(address: string | undefined | null): address is string {
+  return !!address && ETH_ADDRESS_REGEX.test(address);
+}
+
 // ---------------------------------------------------------------------------
 // Type mapping: MCP template types -> template names
 // ---------------------------------------------------------------------------
@@ -179,8 +191,10 @@ export async function createAndTokenize(args: {
     nested.handoff_link ??
     `${FRONTEND_BASE_URL}/deploy/${tokenId}`;
 
+  // Security: Only use tokenAddress if it's a valid Ethereum address format
+  // This prevents URL injection via addresses containing special characters
   const tokenAddress = nested.address;
-  const tradeTarget = tokenAddress ?? String(tokenId);
+  const tradeTarget = isValidEthAddress(tokenAddress) ? tokenAddress : String(tokenId);
   const deployLink = `${FRONTEND_BASE_URL}/trade/${tradeTarget}?action=buy&amount=100`;
 
   return {

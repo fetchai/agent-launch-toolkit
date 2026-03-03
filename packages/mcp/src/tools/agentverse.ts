@@ -1,6 +1,20 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { deployAgent, updateAgent, buildOptimizationChecklist } from 'agentlaunch-sdk';
 import type { AgentverseDeployResult, AgentMetadata, OptimizationCheckItem } from 'agentlaunch-sdk';
+
+/**
+ * Validates that a file path is within the current working directory.
+ * Prevents path traversal attacks (e.g., reading /etc/passwd via ../../).
+ */
+function validatePathWithinCwd(filePath: string, paramName: string): string {
+  const resolved = path.resolve(filePath);
+  const cwd = path.resolve(process.cwd());
+  if (!resolved.startsWith(cwd + path.sep) && resolved !== cwd) {
+    throw new Error(`${paramName} must be within the current working directory`);
+  }
+  return resolved;
+}
 
 // ---------------------------------------------------------------------------
 // Return type
@@ -34,12 +48,15 @@ export async function deployToAgentverse(args: {
   readme?: string;
   shortDescription?: string;
 }): Promise<DeployToAgentverseResult> {
+  // Security: Validate file path is within current working directory
+  const safeAgentFile = validatePathWithinCwd(args.agentFile, 'agentFile');
+
   // Read agent source code
-  if (!fs.existsSync(args.agentFile)) {
+  if (!fs.existsSync(safeAgentFile)) {
     throw new Error(`Agent file not found: ${args.agentFile}`);
   }
 
-  const sourceCode = fs.readFileSync(args.agentFile, 'utf8');
+  const sourceCode = fs.readFileSync(safeAgentFile, 'utf8');
   if (!sourceCode.trim()) {
     throw new Error(`Agent file is empty: ${args.agentFile}`);
   }

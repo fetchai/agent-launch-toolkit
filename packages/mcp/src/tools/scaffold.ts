@@ -2,6 +2,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { generateFromTemplate } from 'agentlaunch-templates';
 
+/**
+ * Validates that a directory path is within the current working directory.
+ * Prevents path traversal attacks (e.g., writing to /etc/ via ../../).
+ */
+function validatePathWithinCwd(dirPath: string, paramName: string): string {
+  const resolved = path.resolve(dirPath);
+  const cwd = path.resolve(process.cwd());
+  if (!resolved.startsWith(cwd + path.sep) && resolved !== cwd) {
+    throw new Error(`${paramName} must be within the current working directory`);
+  }
+  return resolved;
+}
+
 // ---------------------------------------------------------------------------
 // Type mapping: MCP agent types -> template names
 // ---------------------------------------------------------------------------
@@ -44,10 +57,9 @@ export async function scaffoldAgent(args: {
   const agentType = args.type ?? 'research';
   const templateName = TYPE_TO_TEMPLATE[agentType] ?? 'custom';
 
-  // Resolve output directory
-  const outputDir = path.resolve(
-    args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-')),
-  );
+  // Resolve output directory with security validation
+  const rawOutputDir = args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-'));
+  const outputDir = validatePathWithinCwd(rawOutputDir, 'outputDir');
 
   // Create base directory and .claude/ subdirectory
   fs.mkdirSync(outputDir, { recursive: true });
@@ -143,10 +155,9 @@ export async function scaffoldSwarm(args: {
 }): Promise<ScaffoldSwarmResult> {
   const presetName = args.preset ?? 'custom';
 
-  // Resolve output directory
-  const outputDir = path.resolve(
-    args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-')),
-  );
+  // Resolve output directory with security validation
+  const rawOutputDir = args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-'));
+  const outputDir = validatePathWithinCwd(rawOutputDir, 'outputDir');
 
   // Create base directory and .claude/ subdirectory
   fs.mkdirSync(outputDir, { recursive: true });

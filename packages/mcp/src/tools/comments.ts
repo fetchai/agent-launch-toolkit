@@ -3,6 +3,19 @@ import type { Comment } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient();
 
+/** Regex to validate Ethereum addresses: 0x followed by exactly 40 hex characters */
+const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
+/**
+ * Validates that an address is a valid Ethereum address format.
+ * Prevents URL injection via addresses containing special characters.
+ */
+function validateEthAddress(address: string): void {
+  if (!ETH_ADDRESS_REGEX.test(address)) {
+    throw new Error(`Invalid token address format: ${address}. Expected 0x followed by 40 hex characters.`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tool implementations
 // ---------------------------------------------------------------------------
@@ -19,6 +32,9 @@ export async function getComments(args: {
   if (!args.address || !args.address.trim()) {
     throw new Error('address is required');
   }
+
+  // Security: Validate address format
+  validateEthAddress(args.address);
 
   return client.get<Comment[]>(`/comments/${encodeURIComponent(args.address)}`);
 }
@@ -39,6 +55,9 @@ export async function postComment(args: {
   if (!args.message || !args.message.trim()) {
     throw new Error('message is required');
   }
+
+  // Security: Validate address format
+  validateEthAddress(args.address);
 
   return client.post<unknown>(`/comments/${encodeURIComponent(args.address)}`, {
     message: args.message,
