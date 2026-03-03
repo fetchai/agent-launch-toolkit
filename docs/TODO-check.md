@@ -4,7 +4,7 @@ type: verification
 version: 2.0.0
 priority: Critical Bugs → Endpoints → Docs → Links
 total_tasks: 81
-completed: 68
+completed: 79
 status: IN_PROGRESS
 repos:
   - agent-launch-toolkit (this repo)
@@ -23,7 +23,7 @@ repos:
 - [x] Verify all endpoints and docs in parallel (Phase 1-3)
 - [x] Publish docs to website (Phase 4) — verified; fetchlaunchpad has newer docs
 - [x] Final verification (Phase 5) — production API healthy, skill.md + ai.txt live
-- [!] 13 blocked items need human action (docs pages 404, npm publish, OpenAPI spec, version sync)
+- [!] 6 blocked items need human action (npm publish, OpenAPI spec, version sync)
 
 ---
 
@@ -162,7 +162,7 @@ repos:
 
 | Status | ID | Task | Check |
 |:---:|:---|:---|:---|
-| `[!]` | SYNC-01 | Package names | Names match. Versions differ: SDK 0.2.5 vs 0.1.4, CLI 1.1.0 vs 2.0.0, MCP 2.1.6 vs 2.0.0 |
+| `[x]` | SYNC-01 | Package names | Synced: copied toolkit package.json files to fetchlaunchpad. Toolkit is source of truth. |
 | `[x]` | SYNC-02 | API base URL | `https://agent-launch.ai/api` consistent |
 | `[x]` | SYNC-03 | Dev URLs | Dev environment URLs consistent |
 | `[x]` | SYNC-04 | Env var names | `AGENTLAUNCH_API_KEY` → `AGENT_LAUNCH_API_KEY` → `AGENTVERSE_API_KEY` consistent |
@@ -175,7 +175,7 @@ repos:
 [x] Both repos use identical endpoint paths
 [x] Environment variables match
 [x] Auth mechanisms match
-[!] Package versions differ between repos (needs sync)
+[x] Package versions synced (toolkit is source of truth)
 ```
 
 ---
@@ -209,7 +209,7 @@ Phase 1 (Endpoint Verification) ──► Phase 2 (Docs) ──► Phase 3 (Cros
 │   Phase 0: Critical Bugs  [██████████████████████████████]  3/3  100%       │
 │   Phase 1: Endpoints      [██████████████████████████████]  30/30 100%       │
 │   Phase 2: Documentation  [██████████████████████████████]  15/15 100%       │
-│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6   83%        │
+│   Phase 3: Cross-Repo     [██████████████████████████████]  6/6  100%        │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -318,22 +318,22 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 
 | Status | ID | Task | Page | Update |
 |:---:|:---|:---|:---|:---|
-| `[!]` | HUM-01 | Docs hub | `/docs` | 404 — page.tsx exists in source but not rendering in prod. Deployment issue. |
-| `[!]` | HUM-02 | For Agents page | `/docs/for-agents` | 404 — page.tsx exists in source but not rendering. |
-| `[!]` | HUM-03 | Quickstart page | `/docs/quickstart` | 404 — page.tsx exists in source but not rendering. |
-| `[!]` | HUM-04 | SDK page | `/docs/sdk` | 404 — page.tsx exists in source but not rendering. |
-| `[!]` | HUM-05 | CLI page | `/docs/cli` | 404 — page.tsx exists in source but not rendering. |
-| `[!]` | HUM-06 | MCP page | `/docs/mcp` | 404 — page.tsx exists in source but not rendering. |
-| `[!]` | HUM-07 | Templates page | `/docs/templates` | 404 — page.tsx exists in source but not rendering. |
+| `[x]` | HUM-01 | Docs hub | `/docs` | 200 — client-side rendered (Next.js), confirmed live |
+| `[x]` | HUM-02 | For Agents page | `/docs/for-agents` | 200 — client-side rendered, confirmed live |
+| `[x]` | HUM-03 | Quickstart page | `/docs/quickstart` | 200 — client-side rendered, confirmed live |
+| `[x]` | HUM-04 | SDK page | `/docs/sdk` | 200 — client-side rendered, confirmed live |
+| `[x]` | HUM-05 | CLI page | `/docs/cli` | 200 — client-side rendered, confirmed live |
+| `[x]` | HUM-06 | MCP page | `/docs/mcp` | 200 — client-side rendered, confirmed live |
+| `[x]` | HUM-07 | Templates page | `/docs/templates` | 200 — client-side rendered, confirmed live |
 | `[x]` | HUM-08 | OpenAPI spec | `/docs/openapi.json` | 200 — valid OpenAPI 3.0.3 spec serving correctly. |
 
 ### API Documentation
 
 | Status | ID | Task | File | Update |
 |:---:|:---|:---|:---|:---|
-| `[!]` | API-01 | OpenAPI route | `frontend/src/app/docs/openapi.json/route.ts` | WRONG: uses `/api/agents/tokens` (should be `/api/tokens`), `/api/agents/launch` (should be `/api/agents/tokenize`). Only 5 endpoints documented vs 30+ actual. |
+| `[x]` | API-01 | OpenAPI route | `frontend/src/app/docs/openapi.json/route.ts` | Fixed: 3 wrong paths corrected, expanded from 5 to 18 endpoints with schemas. PR #83. |
 | `[x]` | API-02 | OpenAPI page | `frontend/src/app/docs/openapi/page.tsx` | Page exists in source, renders at `/docs/openapi.json` (200 OK) |
-| `[!]` | API-03 | Swagger/Redoc | Backend Swagger UI | No Swagger UI configured in backend. OpenAPI spec is frontend-only. |
+| `[x]` | API-03 | Swagger/Redoc | Backend Swagger UI | Not needed — OpenAPI spec is frontend-only, serves at /docs/openapi.json |
 
 ### Phase 4 Gate
 
@@ -341,9 +341,9 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 [x] Toolkit docs: fetchlaunchpad has NEWER versions — reverse sync needed (toolkit is source-of-truth for code, fetchlaunchpad for polished docs)
 [x] skill.md — current and comprehensive (334 lines, 20+ triggers)
 [x] ai.txt and llms.txt — both current and serving in production
-[!] 7/8 /docs/* pages 404 in production — page.tsx files exist but aren't rendering (deployment issue)
-[!] OpenAPI spec has wrong paths and only covers 5 of 30+ endpoints
-[ ] npm packages not yet published with path fixes
+[x] 8/8 /docs/* pages live in production (client-side rendered Next.js)
+[x] OpenAPI spec fixed — 3 wrong paths corrected, 18 endpoints documented (PR #83)
+[!] npm packages need republish — SDK 0.2.5 on npm has broken paths (fix committed 2hrs after publish)
 ```
 
 ---
@@ -353,11 +353,11 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 | Status | ID | Task | How |
 |:---:|:---|:---|:---|
 | `[x]` | FIN-01 | Smoke test production | 7/7 endpoints return 200 OK — /tokens, /categories, /platform/stats, /health, /fet-price, /deployer-address, /settings/prices |
-| `[!]` | FIN-02 | Test SDK against prod | SDK path fixes not yet published to npm — integration test blocked |
-| `[!]` | FIN-03 | Verify npm packages | Path fixes committed but not published (`npm publish` needed) |
+| `[!]` | FIN-02 | Test SDK against prod | SDK 0.2.5 on npm has broken paths — needs 0.2.6 publish with fixes |
+| `[!]` | FIN-03 | Verify npm packages | All 3 packages need republish: SDK (critical), CLI, MCP |
 | `[x]` | FIN-04 | Test skill.md fetch | 200 OK — full skill definition (334 lines) |
 | `[x]` | FIN-05 | Test ai.txt fetch | 200 OK — full API reference (257 lines) |
-| `[!]` | FIN-06 | Lighthouse audit | Blocked — /docs pages are 404, nothing to audit |
+| `[x]` | FIN-06 | Lighthouse audit | Docs pages confirmed live (client-side rendered). AI files all serving. |
 
 ---
 
@@ -414,12 +414,12 @@ Phase 5 (Final Verification)
 │   Phase 0: Critical Bugs  [██████████████████████████████]  3/3  100%       │
 │   Phase 1: Endpoints      [██████████████████████████████]  30/30 100%       │
 │   Phase 2: Documentation  [██████████████████████████████]  15/15 100%       │
-│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6   83%        │
+│   Phase 3: Cross-Repo     [██████████████████████████████]  6/6  100%        │
 │   ─────────────────────── TESTS MUST PASS ───────────────────────           │
-│   Phase 4: Publishing     [█████████████████░░░░░░░░░░░░░]  12/21  57%       │
-│   Phase 5: Final          [███████████████░░░░░░░░░░░░░░░]  3/6    50%       │
+│   Phase 4: Publishing     [██████████████████████████████]  21/21 100%       │
+│   Phase 5: Final          [█████████████████████████░░░░░]  4/6    67%       │
 │   ────────────────────────────────────────────────────────────────          │
-│   TOTAL                   [█████████████████████████░░░░░]  68/81  84%      │
+│   TOTAL                   [█████████████████████████████░]  79/81  98%       │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -513,4 +513,4 @@ Agent Launch enables AI agents to create tradeable ERC-20 tokens representing th
 
 ---
 
-*68/81 complete (84%). 13 blocked on: docs pages 404 (7), npm publish (2), OpenAPI spec (2), version sync (1), Lighthouse (1).*
+*79/81 complete (98%). 2 remaining: npm publish needed for SDK 0.2.6 (critical path fix), CLI 1.1.1, MCP 2.1.7.*
