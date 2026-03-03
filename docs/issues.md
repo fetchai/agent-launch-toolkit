@@ -19,21 +19,21 @@
 | SDK-001 | API shape mismatch | **FIXED** | AgentLaunch class complete |
 | SDK-002 | Error fields missing | **FIXED** | Added code/details/retryAfterMs |
 | SDK-003 | Version mismatch | **LOW PRIORITY** | Minor doc sync issue |
-| API-001 | /agents/tokens 404 | **NOT FIXED** | Docs wrong, /tokens works |
-| API-002 | /agents/launch 404 | **NOT FIXED** | Docs wrong, /agents/tokenize works |
-| API-003 | Search API 500 | **NOT FIXED** | Agentverse returns 422 |
-| WEB-001 | Frontend search error | **PARTIAL** | Token search works |
-| WEB-002 | Addresses not clickable | **NOT FIXED** | Only tx links implemented |
+| API-001 | /agents/tokens 404 | **PR SUBMITTED** | [PR #77](https://github.com/fetchai/launchpadDAO/pull/77) |
+| API-002 | /agents/launch 404 | **PR SUBMITTED** | [PR #77](https://github.com/fetchai/launchpadDAO/pull/77) |
+| API-003 | Search API 500 | **PR SUBMITTED** | [PR #78](https://github.com/fetchai/launchpadDAO/pull/78) |
+| WEB-001 | Frontend search error | **PARTIAL** | Token search works via /api/tokens?search= |
+| WEB-002 | Addresses not clickable | **PR SUBMITTED** | [PR #79](https://github.com/fetchai/launchpadDAO/pull/79) |
 
 ### Progress
 
-| Category | Fixed | Partial | Not Fixed | Total |
-|----------|-------|---------|-----------|-------|
+| Category | Fixed | PR Submitted | Partial | Total |
+|----------|-------|--------------|---------|-------|
 | CLI | 5 | 0 | 0 | 5 |
 | SDK | 2 | 0 | 0 | 2 |
-| API | 0 | 0 | 3 | 3 |
+| API | 0 | 3 | 0 | 3 |
 | Web | 0 | 1 | 1 | 2 |
-| **Total** | **7** | **1** | **4** | **12** |
+| **Total** | **7** | **4** | **1** | **12** |
 
 ---
 
@@ -167,49 +167,57 @@ npm run test  # if tests exist
 
 ---
 
-## API Issues (Pending - fetchlaunchpaddao repo)
+## API Issues (PRs Submitted - fetchlaunchpaddao repo)
 
 ### API-001: `GET /api/agents/tokens` returns 404
-**Status:** NOT FIXED (documentation issue in external docs)
+**Status:** PR SUBMITTED
 **GitHub:** https://github.com/fetchai/launchpadDAO/issues/73
+**PR:** https://github.com/fetchai/launchpadDAO/pull/77
 
-**Finding:** `/api/tokens` works, `/api/agents/tokens` does not exist.
-**Action Needed:** Update external documentation to use correct path.
+**Fix Applied:** Updated 6 documentation files to use correct path `/api/tokens`.
 
 ---
 
 ### API-002: `POST /api/agents/launch` returns 404
-**Status:** NOT FIXED (documentation issue in external docs)
+**Status:** PR SUBMITTED
 **GitHub:** https://github.com/fetchai/launchpadDAO/issues/74
+**PR:** https://github.com/fetchai/launchpadDAO/pull/77
 
-**Finding:** `/api/agents/tokenize` works, `/api/agents/launch` does not exist.
-**Action Needed:** Update external documentation to use correct path.
+**Fix Applied:** Updated documentation to use correct path `/api/agents/tokenize`.
 
 ---
 
 ### API-003: Search API returns 500
-**Status:** NOT FIXED
+**Status:** PR SUBMITTED
 **GitHub:** https://github.com/fetchai/launchpadDAO/issues/75
+**PR:** https://github.com/fetchai/launchpadDAO/pull/78
 
-**Finding:** Backend proxies to Agentverse which returns 422.
-**Action Needed:** Fix request format or update Agentverse integration.
+**Fix Applied:**
+- Returns 400 (Bad Request) for upstream 4xx errors instead of 500
+- Includes error details from Agentverse response for debugging
+- Distinguishes between client errors and server errors
 
 ---
 
-## Web Platform Issues (Pending - fetchlaunchpaddao repo)
+## Web Platform Issues (PRs Submitted - fetchlaunchpaddao repo)
 
 ### WEB-001: Search API 500 error on frontend
-**Status:** PARTIALLY FIXED
-**Note:** Token search via `/api/tokens?search=` works.
+**Status:** PARTIALLY FIXED (via API-003)
+**Note:** Token search via `/api/tokens?search=` works. Agent search fix in PR #78.
 
 ---
 
 ### WEB-002: Addresses not clickable/linked to explorer
-**Status:** NOT FIXED
+**Status:** PR SUBMITTED
 **GitHub:** https://github.com/fetchai/launchpadDAO/issues/76
+**PR:** https://github.com/fetchai/launchpadDAO/pull/79
 
-**Finding:** Only transaction links implemented, not address links.
-**Action Needed:** Add `ExplorerAddressLink` component.
+**Fix Applied:**
+- Added `ExplorerLink` component supporting address, tx, and token links
+- Updated `AgentHeader.tsx` - token contract address links to explorer
+- Updated `HoldersSection.tsx` - holder addresses link to explorer
+- Updated `ActivitySection.tsx` - wallet addresses and tx hashes link to explorer
+- Supports BSC Testnet (97) and Mainnet (56)
 
 ---
 
@@ -226,12 +234,12 @@ npm run test  # if tests exist
 | [#6](https://github.com/tonyoconnell/agent-launch-toolkit/issues/6) | AgentLaunchError missing fields | **CLOSED** |
 
 ### launchpadDAO (fetchai/launchpadDAO)
-| Issue | Title | Status |
-|-------|-------|--------|
-| [#73](https://github.com/fetchai/launchpadDAO/issues/73) | /agents/tokens 404 | OPEN - Docs issue |
-| [#74](https://github.com/fetchai/launchpadDAO/issues/74) | /agents/launch 404 | OPEN - Docs issue |
-| [#75](https://github.com/fetchai/launchpadDAO/issues/75) | Search API 500 | OPEN |
-| [#76](https://github.com/fetchai/launchpadDAO/issues/76) | Addresses not clickable | OPEN |
+| Issue | Title | Status | PR |
+|-------|-------|--------|-----|
+| [#73](https://github.com/fetchai/launchpadDAO/issues/73) | /agents/tokens 404 | PR Submitted | [#77](https://github.com/fetchai/launchpadDAO/pull/77) |
+| [#74](https://github.com/fetchai/launchpadDAO/issues/74) | /agents/launch 404 | PR Submitted | [#77](https://github.com/fetchai/launchpadDAO/pull/77) |
+| [#75](https://github.com/fetchai/launchpadDAO/issues/75) | Search API 500 | PR Submitted | [#78](https://github.com/fetchai/launchpadDAO/pull/78) |
+| [#76](https://github.com/fetchai/launchpadDAO/issues/76) | Addresses not clickable | PR Submitted | [#79](https://github.com/fetchai/launchpadDAO/pull/79) |
 
 ---
 
