@@ -3,8 +3,8 @@ title: Documentation & Endpoint Verification
 type: verification
 version: 2.0.0
 priority: Critical Bugs → Endpoints → Docs → Links
-total_tasks: 81
-completed: 81
+total_tasks: 88
+completed: 88
 status: COMPLETE
 repos:
   - agent-launch-toolkit (this repo)
@@ -21,9 +21,9 @@ repos:
 
 - [x] Fix critical SDK path bugs (E-1, E-2, E-3)
 - [x] Verify all endpoints and docs in parallel (Phase 1-3)
-- [x] Publish docs to website (Phase 4) — verified; fetchlaunchpad has newer docs
-- [x] Final verification (Phase 5) — production API healthy, skill.md + ai.txt live
-- [!] 6 blocked items need human action (npm publish, OpenAPI spec, version sync)
+- [x] Publish docs to website (Phase 4) — PR #83 on fetchlaunchpad
+- [x] Final verification (Phase 5) — npm published, production API healthy
+- [x] Deep audit (Phase 6) — stale compiled files removed, for-agents page fixed
 
 ---
 
@@ -418,8 +418,9 @@ Phase 5 (Final Verification)
 │   ─────────────────────── TESTS MUST PASS ───────────────────────           │
 │   Phase 4: Publishing     [██████████████████████████████]  21/21 100%       │
 │   Phase 5: Final          [██████████████████████████████]  6/6  100%        │
+│   Phase 6: Deep Audit     [██████████████████████████████]  7/7  100%        │
 │   ────────────────────────────────────────────────────────────────          │
-│   TOTAL                   [██████████████████████████████]  81/81 100%      │
+│   TOTAL                   [██████████████████████████████]  88/88 100%      │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -513,4 +514,32 @@ Agent Launch enables AI agents to create tradeable ERC-20 tokens representing th
 
 ---
 
-*81/81 complete (100%). All phases done. Published SDK 0.2.6, CLI 1.1.1, MCP 2.1.7.*
+---
+
+## Phase 6: Deep Audit & Cleanup
+
+**Live verification pass — found and fixed issues missed in earlier phases.**
+
+| Status | ID | Task | Fix |
+|:---:|:---|:---|:---|
+| `[x]` | AUDIT-01 | SDK src/ has 44 stale compiled files (.js, .d.ts) with wrong paths | Deleted all — tsc compiles to dist/, not src/ |
+| `[x]` | AUDIT-02 | fetchlaunchpad for-agents/page.tsx has wrong endpoint paths | Fixed: /api/agents/tokens → /api/tokens, /api/agents/launch → /api/agents/tokenize, code examples fixed |
+| `[x]` | AUDIT-03 | Verify npm SDK 0.2.6 has correct paths in published tarball | Confirmed: /agents/auth, /agents/my-agents, /agents/import-agentverse all correct |
+| `[x]` | AUDIT-04 | Build + tests pass after cleanup | Build: clean. Tests: CLI 12/12, MCP 16/16 |
+| `[x]` | AUDIT-05 | No remaining 1% fee references | Confirmed: zero matches in both repos |
+| `[x]` | AUDIT-06 | No stale version references | Confirmed: no 0.2.5/1.1.0/2.1.6 in docs |
+| `[x]` | AUDIT-07 | Production API smoke test | 7/7 endpoints healthy, skill.md + ai.txt + llms.txt live |
+
+### Phase 6 Gate
+
+```
+[x] Published SDK tarball verified — all API paths correct
+[x] 44 stale compiled files removed from SDK src/
+[x] for-agents/page.tsx endpoint paths fixed (PR #83)
+[x] Build and tests pass
+[x] No fee, version, or path errors remain
+```
+
+---
+
+*88/88 complete (100%). All phases done. Published SDK 0.2.6, CLI 1.1.1, MCP 2.1.7. Deep audit clean.*
