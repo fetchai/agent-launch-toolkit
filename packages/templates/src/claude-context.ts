@@ -91,12 +91,12 @@ payload = {"code": json.dumps(code_array)}
 
   "uagent-patterns.md": `# uAgent Code Patterns
 
-> For new agents, use the genesis template: \`agentlaunch scaffold myagent --type genesis\`
+> For new agents, run: \`npx agentlaunch myagent\` (uses chat-memory template by default)
 
 ## Minimal Working Agent
 
 \`\`\`python
-from uagents import Agent, Context
+from uagents import Agent, Context, Protocol
 from uagents_core.contrib.protocols.chat import (
     ChatMessage, ChatAcknowledgement, TextContent,
     EndSessionContent, chat_protocol_spec
@@ -104,7 +104,7 @@ from uagents_core.contrib.protocols.chat import (
 from datetime import datetime
 
 agent = Agent()
-chat_proto = agent.create_protocol(spec=chat_protocol_spec)
+chat_proto = Protocol(spec=chat_protocol_spec)
 
 @chat_proto.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
@@ -141,10 +141,10 @@ from uagents_core.contrib.protocols.payment import (
 )
 
 # Seller (service provider)
-seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+seller_proto = Protocol(spec=payment_protocol_spec)
 
 # Buyer (service consumer)
-buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+buyer_proto = Protocol(spec=payment_protocol_spec)
 \`\`\`
 
 ## Commerce Layer (Genesis Template)
@@ -179,10 +179,10 @@ from uagents_core.contrib.protocols.payment import (
 
 \`\`\`python
 # Seller (service provider)
-seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+seller_proto = Protocol(spec=payment_protocol_spec)
 
 # Buyer (service consumer)
-buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+buyer_proto = Protocol(spec=payment_protocol_spec)
 \`\`\`
 
 ## Payment Flow
@@ -419,12 +419,14 @@ export const DOCS: Record<string, string> = {
 # Set API key
 export AGENTVERSE_API_KEY=av-xxx
 
-# Create agent project (genesis template recommended)
-npx agentlaunch-cli create --type genesis
+# Create agent project (deploys by default)
+npx agentlaunch my-agent
+
+# Or scaffold only (no deploy)
+npx agentlaunch my-agent --local
 
 # Or deploy a full swarm
-npx agentlaunch-cli create --type genesis --preset oracle
-npx agentlaunch-cli create --type genesis --preset brain
+npx agentlaunch --mode swarm
 
 # Or use SDK
 npm install agentlaunch-sdk
@@ -492,14 +494,16 @@ console.log(data.handoff_link); // Share with human
   "cli-reference.md": `# CLI Reference
 
 \`\`\`bash
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 \`\`\`
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| \`agentlaunch create\` | Interactive: scaffold + deploy + tokenize |
+| \`npx agentlaunch\` | Interactive: prompts for name, deploys by default |
+| \`npx agentlaunch <name>\` | Create agent with name (deploys by default) |
+| \`npx agentlaunch <name> --local\` | Scaffold only, no deploy |
 | \`agentlaunch deploy\` | Deploy agent.py to Agentverse |
 | \`agentlaunch tokenize\` | Create token + handoff link |
 | \`agentlaunch list\` | List tokens |
@@ -509,9 +513,8 @@ npm install -g agentlaunch-cli
 ## Full Workflow
 
 \`\`\`bash
-agentlaunch config set-key av-xxx
-agentlaunch create
-# Answer prompts -> agent deployed + tokenized
+npx agentlaunch my-agent
+# Prompts for description + API key -> agent deployed
 \`\`\`
 `,
 
@@ -835,7 +838,7 @@ export function buildPackageJson(name: string): string {
         "agentlaunch-sdk": "^0.2.0",
       },
       devDependencies: {
-        "agentlaunch-cli": "^1.1.0",
+        "agentlaunch": "^1.1.0",
       },
     },
     null,
@@ -1324,7 +1327,7 @@ export function buildSwarmPackageJson(swarmName: string): string {
         "agentlaunch-sdk": "^0.2.0",
       },
       devDependencies: {
-        "agentlaunch-cli": "^1.1.0",
+        "agentlaunch": "^1.1.0",
       },
     },
     null,

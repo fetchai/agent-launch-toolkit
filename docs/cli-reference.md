@@ -1,16 +1,16 @@
-# CLI Reference — `agentlaunch-cli`
+# CLI Reference — `agentlaunch` v1.1.0
 
-Full command reference for the AgentLaunch CLI. Scaffold, deploy, and tokenize AI agents from the terminal.
+Full command reference for the AgentLaunch CLI. Scaffold, deploy, tokenize, and trade AI agent tokens from the terminal.
 
 **Install globally:**
 ```bash
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 ```
 
 **Verify:**
 ```bash
 agentlaunch --version
-# 1.0.0
+# 1.1.0
 
 agentlaunch --help
 ```
@@ -80,6 +80,141 @@ agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-centra
   "baseUrl": "https://agent-launch.ai/api"
 }
 ```
+
+### Environment URL Configuration
+
+The CLI defaults to production (`https://agent-launch.ai/api`). You can switch environments in two ways:
+
+**Option 1: Environment variable**
+
+Set `AGENT_LAUNCH_ENV=dev` to use the dev backend automatically:
+
+```bash
+export AGENT_LAUNCH_ENV=dev
+agentlaunch list   # Uses dev backend
+```
+
+| Variable | Production (default) | Dev |
+|----------|---------------------|-----|
+| `AGENT_LAUNCH_API_URL` | `https://agent-launch.ai/api` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
+
+**Option 2: Direct override**
+
+Set `AGENT_LAUNCH_API_URL` directly to point at any backend:
+
+```bash
+export AGENT_LAUNCH_API_URL=https://my-custom-backend.example.com
+agentlaunch list   # Uses custom backend
+```
+
+Priority order: `AGENT_LAUNCH_API_URL` > `config set-url` > `AGENT_LAUNCH_ENV` > production default.
+
+---
+
+## `agentlaunch [name]` — default command
+
+Create an agent, deploy it to Agentverse, and open Claude Code.
+
+```bash
+npx agentlaunch                           # Interactive — prompts for name, description, API key
+npx agentlaunch my-bot                    # Create agent named "my-bot" (deploys by default)
+npx agentlaunch my-bot --local            # Scaffold only, no deploy
+npx agentlaunch my-bot --template research --local  # Scaffold with specific template
+```
+
+**Flags:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--local` | Scaffold only, don't deploy to Agentverse | false (deploys by default) |
+| `--template <t>` | chat-memory, swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter | chat-memory |
+| `--json` | Output only JSON | false |
+
+**Default template:** `chat-memory` — includes LLM integration and conversation memory out of the box.
+
+**Example output:**
+
+```
+Creating agent: my-bot
+Template: chat-memory (LLM + conversation memory)
+Directory: /home/user/my-bot
+  Created: agent.py
+  Created: README.md
+  Created: .env.example
+
+Deploying to Agentverse...
+  Agent Address: agent1q...
+  Status: compiled
+
+Opening Claude Code...
+```
+
+---
+
+## `agentlaunch create`
+
+Interactive agent creation with a 6-step value-building workflow. Launches Claude Code to guide you through building, deploying, and tokenizing an agent.
+
+```bash
+agentlaunch create [options]
+```
+
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--name <name>` | string | prompted | Agent name |
+| `--ticker <ticker>` | string | auto-generated | Token ticker (e.g. MYAG) |
+| `--template <template>` | string | `custom` | Template: `swarm-starter`, `custom`, `research`, `trading-bot`, `data-analyzer`, `price-monitor`, `gifter` |
+| `--description <desc>` | string | `""` | Token description (max 500 chars) |
+| `--chain <chainId>` | string | `97` | Chain: 97 (BSC Testnet) or 56 (BSC Mainnet) |
+| `--deploy` | boolean | false | Deploy to Agentverse after scaffolding |
+| `--tokenize` | boolean | false | Create token record after deploy |
+| `--mode <mode>` | string | `single` | Build mode: `quick` (single), `swarm` (multi), `genesis` (full 7-agent economy) |
+| `--preset <preset>` | string | -- | Preset: `oracle`, `brain`, `analyst`, `coordinator`, `sentinel`, `launcher`, `scout` |
+| `--json` | boolean | false | Machine-readable JSON output |
+
+### Auto-Ticker Logic
+
+If `--ticker` is not provided, a ticker is auto-generated from the agent name:
+
+| Name | Generated Ticker | Rule |
+|------|-----------------|------|
+| `"Price Oracle"` | `PRICE` | First word is 3-6 chars, use it |
+| `"DataFeed"` | `DATAFE` | Single word, first 6 chars |
+| `"AI Research Assistant"` | `ARA` | Multiple words, use initials |
+
+### 6-Step Workflow
+
+When `create` launches Claude Code, it guides you through:
+
+1. **Understand the Vision** -- What problem does the agent solve? Who pays? What is the defensible moat?
+2. **Build the Agent Logic** -- Read `agent.py` and propose real code changes using available packages (AI, Data, Web, Blockchain, Storage)
+3. **Deploy** -- Use `deploy_to_agentverse` MCP tool or `npx agentlaunch deploy`
+4. **Make It Beautiful** -- Write README.md, description, optimize with `npx agentlaunch optimize`
+5. **Tokenize** -- Choose ticker, explain bonding curves, create token with handoff link
+6. **Share & Next Steps** -- Provide links (Agentverse page, trade page, handoff link), suggest next actions
+
+### Mode Behavior
+
+| Mode | Behavior |
+|------|----------|
+| `quick` / `single` | Single agent, no preset selection |
+| `swarm` | Multi-agent, shows preset picker (oracle, brain, analyst, coordinator, sentinel, launcher, scout) |
+| `genesis` | Full 7-agent economy |
+
+**Swarm presets:**
+
+| # | Preset | Description | Price |
+|---|--------|-------------|-------|
+| 1 | Oracle | Market data | 0.001 FET/call |
+| 2 | Brain | LLM reasoning | 0.01 FET/call |
+| 3 | Analyst | Token scoring | 0.005 FET/call |
+| 4 | Coordinator | Query routing | 0.0005 FET/call |
+| 5 | Sentinel | Monitoring | 0.002 FET/call |
+| 6 | Launcher | Agent creation | 0.02 FET/call |
+| 7 | Scout | Discovery | 0.01 FET/call |
 
 ---
 
@@ -284,10 +419,12 @@ agentlaunch tokenize \
 |------|----------|-------------|
 | `--agent <address>` | Yes | Agentverse agent address (must start with `agent1q`) |
 | `--name <name>` | Yes | Token name (max 32 characters) |
-| `--symbol <symbol>` | Yes | Ticker symbol (2–11 characters, auto-uppercased) |
+| `--symbol <symbol>` | Yes | Ticker symbol (2-11 characters, auto-uppercased) |
 | `--description <desc>` | No | Token description (max 500 characters) |
 | `--image <url>` | No | URL to a token logo image |
 | `--chain <chainId>` | No | `97` (BSC testnet) or `56` (BSC mainnet) — default: `97` |
+
+**API endpoint:** `POST /agents/tokenize`
 
 **Example output:**
 
@@ -328,22 +465,24 @@ agentlaunch list --limit 20 --sort market_cap --json
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--limit <n>` | Number of tokens to show (1–100) | `10` |
+| `--limit <n>` | Number of tokens to show (1-100) | `10` |
 | `--sort <by>` | Sort order: `trending`, `latest`, `market_cap` | `latest` |
 | `--json` | Output raw JSON (machine-readable, suppresses table) | off |
+
+**API endpoint:** `GET /tokens`
 
 **Example output (table):**
 
 ```
 AgentLaunch Tokens  (sort: latest, limit: 10)
 
-──────────────────────────────────────────────────────────────
+--------------------------------------------------------------
 Name                  Symbol  Price (FET)   Progress  Status
-──────────────────────────────────────────────────────────────
+--------------------------------------------------------------
 Alpha Research Bot    ARB     0.000125 FET  33.3%     Active
 My Trading Agent      MTA     0.000089 FET  12.1%     Active
 DataFeed Pro          DFP     0.002341 FET  78.9%     Active
-──────────────────────────────────────────────────────────────
+--------------------------------------------------------------
 
 Showing 3 token(s). Use --limit to see more.
 
@@ -371,9 +510,178 @@ View on platform: https://agent-launch.ai
 
 ---
 
+## `agentlaunch status <address>`
+
+Fetch details for a specific token by its contract address.
+
+```bash
+agentlaunch status 0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+agentlaunch status 0xF7e2F77f... --json
+```
+
+**Flags:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--json` | Output raw JSON (machine-readable) | off |
+
+**API endpoint:** `GET /tokens/address/{address}`
+
+---
+
+## `agentlaunch buy <address>`
+
+Execute a buy on a bonding curve token contract, or preview with `--dry-run`.
+
+**Requires:** `WALLET_PRIVATE_KEY` env var (unless `--dry-run`)
+
+```bash
+agentlaunch buy <address> --amount <FET> [--slippage 5] [--chain 97] [--dry-run] [--json]
+```
+
+**Flags:**
+
+| Flag | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `--amount <fet>` | string | Yes | -- | Amount of FET to spend |
+| `--slippage <percent>` | string | No | `5` | Slippage tolerance (0-100%) |
+| `--chain <chainId>` | string | No | `97` | Chain: 97 (BSC Testnet), 56 (BSC Mainnet) |
+| `--dry-run` | boolean | No | false | Preview trade without executing (no wallet needed) |
+| `--json` | boolean | No | false | Machine-readable JSON output |
+
+**API endpoint (dry-run):** `GET /tokens/calculate-buy`
+
+**Example output (dry-run):**
+
+```
+==================================================
+BUY PREVIEW (dry run)
+==================================================
+Token:          0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+Chain:          BSC Testnet
+FET to spend:   10 FET
+Tokens to receive: 125000.50
+Price per token: 0.000080 FET
+Price impact:   0.5%
+Protocol fee:   0.20 FET (2% to treasury)
+Net FET spent:  9.80 FET
+Slippage:       5%
+==================================================
+
+Re-run without --dry-run to execute the trade.
+```
+
+**Example output (executed):**
+
+```
+==================================================
+BUY EXECUTED
+==================================================
+Token:          0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+Chain:          BSC Testnet
+Tx Hash:        0xabc123...
+Block:          12345678
+FET spent:      10 FET
+Tokens received: 125000.50
+Protocol fee:   0.20 FET (2% to treasury)
+Price impact:   0.5%
+Approval Tx:    0xdef456...
+==================================================
+```
+
+---
+
+## `agentlaunch sell <address>`
+
+Execute a sell on a bonding curve token contract, or preview with `--dry-run`.
+
+**Requires:** `WALLET_PRIVATE_KEY` env var (unless `--dry-run`)
+
+```bash
+agentlaunch sell <address> --amount <tokens> [--chain 97] [--dry-run] [--json]
+```
+
+**Flags:**
+
+| Flag | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `--amount <tokens>` | string | Yes | -- | Amount of tokens to sell |
+| `--chain <chainId>` | string | No | `97` | Chain: 97 (BSC Testnet), 56 (BSC Mainnet) |
+| `--dry-run` | boolean | No | false | Preview trade without executing (no wallet needed) |
+| `--json` | boolean | No | false | Machine-readable JSON output |
+
+**API endpoint (dry-run):** `GET /tokens/calculate-sell`
+
+**Example output (dry-run):**
+
+```
+==================================================
+SELL PREVIEW (dry run)
+==================================================
+Token:          0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+Chain:          BSC Testnet
+Tokens to sell: 50000
+FET to receive: 3.92 FET
+Price per token: 0.000080 FET
+Price impact:   0.3%
+Protocol fee:   0.08 FET (2% to treasury)
+Net FET received: 3.84 FET
+==================================================
+
+Re-run without --dry-run to execute the trade.
+```
+
+**Example output (executed):**
+
+```
+==================================================
+SELL EXECUTED
+==================================================
+Token:          0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+Chain:          BSC Testnet
+Tx Hash:        0xabc123...
+Block:          12345678
+Tokens sold:    50000
+FET received:   3.92 FET
+Protocol fee:   0.08 FET (2% to treasury)
+Price impact:   0.3%
+==================================================
+```
+
+**Validation rules (both buy and sell):**
+- Address must start with `0x` and be at least 10 chars
+- Amount must be a positive number
+- Chain must be 97 or 56
+- Slippage must be 0-100 (buy only)
+
+---
+
 ## Common Workflows
 
-### Full workflow: scaffold → deploy → optimize → tokenize
+### Full workflow: create -> optimize -> tokenize
+
+```bash
+# 1. One command to create and deploy
+npx agentlaunch my-bot
+
+# 2. (Optional) Customize agent.py in the new directory
+cd my-bot
+# Edit agent.py with your business logic
+
+# 3. (Optional) Update metadata for better ranking
+npx agentlaunch optimize agent1q... --description "AI research reports on demand"
+
+# 4. Tokenize (use agent address from deploy output)
+npx agentlaunch tokenize \
+  --agent agent1q... \
+  --name "My Bot" \
+  --symbol MBOT \
+  --chain 97
+
+# 5. Share the handoff link with a human to deploy on-chain
+```
+
+### Full workflow: scaffold -> deploy -> tokenize
 
 ```bash
 # 1. Configure API key once
@@ -390,20 +698,17 @@ cp .env.example .env
 # 4. Customize agent.py with your business logic
 # Edit MyBotBusiness.handle() in agent.py
 
-# 5. Deploy to Agentverse (auto-uploads README + description)
+# 5. Deploy to Agentverse
 agentlaunch deploy --name "My Bot"
 
-# 6. (Optional) Update metadata for better ranking
-agentlaunch optimize agent1q... --description "AI research reports on demand"
-
-# 7. Tokenize (use agent address from deploy output)
+# 6. Tokenize (use agent address from deploy output)
 agentlaunch tokenize \
   --agent agent1q... \
   --name "My Bot" \
   --symbol MBOT \
   --chain 97
 
-# 8. Share the handoff link with a human to deploy on-chain
+# 7. Share the handoff link with a human to deploy on-chain
 ```
 
 ### Monitor tokens in a script (JSON output)
@@ -416,6 +721,23 @@ agentlaunch list --limit 5 --sort market_cap --json | jq '.tokens[].name'
 agentlaunch list --limit 100 --json > tokens.json
 ```
 
+### On-chain trading
+
+```bash
+# Preview a buy (no wallet needed)
+agentlaunch buy 0xF7e2F77f... --amount 10 --dry-run
+
+# Execute a buy (requires WALLET_PRIVATE_KEY env var)
+export WALLET_PRIVATE_KEY=0xabc123...
+agentlaunch buy 0xF7e2F77f... --amount 10 --slippage 5
+
+# Preview a sell
+agentlaunch sell 0xF7e2F77f... --amount 50000 --dry-run
+
+# Execute a sell
+agentlaunch sell 0xF7e2F77f... --amount 50000
+```
+
 ### Using production (default)
 
 ```bash
@@ -426,9 +748,31 @@ agentlaunch tokenize --agent agent1q... --name "Test Token" --symbol TEST --chai
 ### Switching to dev environment
 
 ```bash
+# Option 1: Environment variable
+export AGENT_LAUNCH_ENV=dev
+agentlaunch list
+
+# Option 2: CLI config
 agentlaunch config set-url https://launchpad-backend-dev-1056182620041.us-central1.run.app
 agentlaunch tokenize --agent agent1q... --name "Test Token" --symbol TEST --chain 97
+
+# Reset to production
+agentlaunch config set-url https://agent-launch.ai/api
 ```
+
+---
+
+## API Endpoints Used
+
+These are the correct API paths used by the CLI (base URL: `https://agent-launch.ai/api`):
+
+| Command | Method | Path |
+|---------|--------|------|
+| `list` | `GET` | `/tokens` |
+| `status` | `GET` | `/tokens/address/{address}` |
+| `tokenize` | `POST` | `/agents/tokenize` |
+| `buy --dry-run` | `GET` | `/tokens/calculate-buy` |
+| `sell --dry-run` | `GET` | `/tokens/calculate-sell` |
 
 ---
 

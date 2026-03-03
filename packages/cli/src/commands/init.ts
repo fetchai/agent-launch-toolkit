@@ -554,7 +554,7 @@ AgentLaunch (agent-launch.ai) — AI agent token launchpad on Fetch.ai
 
 ## Packages
 - SDK: \`agentlaunch-sdk\` — TypeScript client for all API operations
-- CLI: \`agentlaunch-cli\` — Command-line interface
+- CLI: \`agentlaunch\` — Command-line interface
 - MCP: \`agent-launch-mcp\` — Model Context Protocol server (19+ tools)
 - Templates: \`agentlaunch-templates\` — Agent code generators
 

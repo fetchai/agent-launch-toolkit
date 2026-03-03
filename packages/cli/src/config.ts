@@ -79,18 +79,69 @@ export function getBaseUrl(): string {
 }
 
 /**
- * Return the active API key. Throws a descriptive error if not set.
+ * Load .env file from current directory if it exists.
+ * This is a simple loader that doesn't require dotenv package.
+ */
+function loadEnvFile(): void {
+  const envPath = path.join(process.cwd(), ".env");
+  if (!fs.existsSync(envPath)) return;
+
+  try {
+    const content = fs.readFileSync(envPath, "utf8");
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIndex = trimmed.indexOf("=");
+      if (eqIndex === -1) continue;
+      const key = trimmed.slice(0, eqIndex).trim();
+      let value = trimmed.slice(eqIndex + 1).trim();
+      // Remove surrounding quotes if present
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+      // Only set if not already in env (don't override explicit env vars)
+      if (!process.env[key]) {
+        process.env[key] = value;
+      }
+    }
+  } catch {
+    // Ignore errors reading .env
+  }
+}
+
+/**
+ * Return the active API key. Checks in order:
+ * 1. ~/.agentlaunch/config.json (set via `agentlaunch config set-key`)
+ * 2. AGENTVERSE_API_KEY environment variable
+ * 3. .env file in current directory
+ *
+ * Throws a descriptive error if not found in any location.
  */
 export function requireApiKey(): string {
+  // First check config file
   const cfg = readConfig();
-  if (!cfg.apiKey) {
-    throw new Error(
-      "API key not configured.\n" +
-        "Run: agentlaunch config set-key <apiKey>\n" +
-        "Get a key at: https://agentverse.ai/profile/api-keys",
-    );
+  if (cfg.apiKey) {
+    return cfg.apiKey;
   }
-  return cfg.apiKey;
+
+  // Load .env file if present (populates process.env)
+  loadEnvFile();
+
+  // Check environment variable
+  const envKey = process.env.AGENTVERSE_API_KEY;
+  if (envKey) {
+    return envKey;
+  }
+
+  throw new Error(
+    "API key not configured.\n" +
+      "Options:\n" +
+      "  1. Run: agentlaunch config set-key <apiKey>\n" +
+      "  2. Set AGENTVERSE_API_KEY in your environment\n" +
+      "  3. Add AGENTVERSE_API_KEY=... to .env in current directory\n" +
+      "Get a key at: https://agentverse.ai/profile/api-keys",
+  );
 }
 
 /**

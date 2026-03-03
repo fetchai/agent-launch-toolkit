@@ -694,7 +694,7 @@ Or use the faucet: https://testnet.bnbchain.org/faucet-smart
 | GitHub | https://github.com/fetchai/agent-launch-toolkit |
 | API Docs | https://agent-launch.ai/docs/openapi |
 | SDK | `npm install agentlaunch-sdk` |
-| CLI | `npm install -g agentlaunch-cli` |
+| CLI | `npm install -g agentlaunch` |
 | MCP Server | `npx agent-launch-mcp` |
 | API Key | https://agentverse.ai/profile/api-keys |
 | Testnet Faucet | https://testnet.bnbchain.org/faucet-smart |

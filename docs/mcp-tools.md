@@ -1,6 +1,6 @@
-# MCP Tools Reference — `agent-launch-mcp`
+# MCP Tools Reference — `agent-launch-mcp` v2.1.6
 
-The AgentLaunch MCP server exposes all platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, and generate handoff links entirely from your IDE.
+The AgentLaunch MCP server exposes 22 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, execute on-chain trades, and generate handoff links entirely from your IDE.
 
 **Install:**
 ```bash
@@ -69,8 +69,14 @@ Add to `~/.cursor/mcp.json`:
 | `AGENT_LAUNCH_API_KEY` | — | Agentverse API key — used as `X-API-Key` on write endpoints |
 | `AGENT_LAUNCH_BASE_URL` | `https://agent-launch.ai/api` | API base URL. Set to dev URL for testing. |
 | `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | Frontend base for handoff links. Set to dev URL for testing. |
+| `WALLET_PRIVATE_KEY` | — | Wallet private key — required for `buy_tokens`, `sell_tokens`, `get_wallet_balances` trading tools |
 
-URLs are configured in `.env`. The `.env.example` ships with production URLs active. Set `AGENT_LAUNCH_ENV=dev` to use dev URLs.
+URLs are configured in `.env`. The `.env.example` ships with production URLs active. Set `AGENT_LAUNCH_ENV=dev` to use dev URLs:
+
+| Variable | Production (default) | Dev |
+|----------|---------------------|-----|
+| `AGENT_LAUNCH_BASE_URL` | `https://agent-launch.ai/api` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
 
 ---
 
@@ -83,6 +89,8 @@ URLs are configured in `.env`. The `.env.example` ships with production URLs act
 - [Agentverse](#agentverse) — Deploy, manage, and optimize Agentverse agents
 - [Scaffold](#scaffold) — Generate agent project templates
 - [Combo](#combo) — End-to-end shortcuts
+- [Commerce](#commerce) — Agent revenue, pricing, and swarm health
+- [Trading](#trading) — On-chain buy/sell and wallet balances
 
 ---
 
@@ -578,14 +586,14 @@ Stop a running Agentverse agent.
 
 ### `scaffold_agent`
 
-Generate a ready-to-run Agentverse agent project from the agent-business-template pattern. Creates `agent.py`, `README.md`, and `.env.example` in a new directory.
+Generate a ready-to-run Agentverse agent project from a template. Creates `agent.py`, `README.md`, and `.env.example` in a new directory.
 
 **Input schema:**
 
 ```json
 {
   "name": "AlphaBot",            // required — agent/project name
-  "type": "research",            // optional — "faucet"|"research"|"trading"|"data" (default: "research")
+  "type": "chat-memory",        // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data"|"genesis" (default: "chat-memory")
   "outputDir": "./my-agents/AlphaBot"  // optional — where to create the project
 }
 ```
@@ -611,6 +619,41 @@ Scaffold a trading agent project called "AlphaTrader" in the current directory
 
 ---
 
+### `scaffold_swarm`
+
+Scaffold a swarm-starter agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.
+
+**Input schema:**
+
+```json
+{
+  "name": "OracleBot",          // required — agent name
+  "preset": "oracle",           // optional — "oracle"|"brain"|"analyst"|"coordinator"|"sentinel"|"launcher"|"scout"|"custom"
+  "outputDir": "./swarm/oracle" // optional — output directory path
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "files": [
+    "/home/user/swarm/oracle/agent.py",
+    "/home/user/swarm/oracle/README.md",
+    "/home/user/swarm/oracle/.env.example"
+  ],
+  "path": "/home/user/swarm/oracle"
+}
+```
+
+**Example prompt:**
+```
+Scaffold a swarm oracle agent called "DataOracle"
+```
+
+---
+
 ### `get_agent_templates`
 
 List available agent templates with descriptions and use-case guidance.
@@ -623,28 +666,29 @@ List available agent templates with descriptions and use-case guidance.
 {
   "templates": [
     {
+      "type": "chat-memory",
+      "description": "LLM + conversation memory — smart conversations out of the box",
+      "default": true
+    },
+    {
+      "type": "swarm-starter",
+      "description": "Full commerce stack — agents that charge for services"
+    },
+    {
       "type": "faucet",
-      "description": "Distribute FET tokens to agents on request",
-      "freeRequestsPerDay": 5,
-      "rateLimitPerMinute": 10
+      "description": "Distribute FET tokens to agents on request"
     },
     {
       "type": "research",
-      "description": "Answer questions and retrieve data from external sources",
-      "freeRequestsPerDay": 10,
-      "rateLimitPerMinute": 20
+      "description": "Answer questions and retrieve data from external sources"
     },
     {
       "type": "trading",
-      "description": "Execute autonomous trading strategies and report positions",
-      "freeRequestsPerDay": 20,
-      "rateLimitPerMinute": 30
+      "description": "Execute autonomous trading strategies and report positions"
     },
     {
       "type": "data",
-      "description": "Collect, transform, and serve structured data feeds",
-      "freeRequestsPerDay": 50,
-      "rateLimitPerMinute": 60
+      "description": "Collect, transform, and serve structured data feeds"
     }
   ]
 }
@@ -656,7 +700,7 @@ List available agent templates with descriptions and use-case guidance.
 
 ### `create_and_tokenize`
 
-End-to-end shortcut: create a token record tied to a live Agentverse agent address. Calls `POST /agents/tokenize` and returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link.
+End-to-end shortcut: scaffold agent code from template, optionally deploy to Agentverse, then call `POST /agents/tokenize` to create the token record. Returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link. The human still needs to click the handoff link to sign the on-chain deployment transaction — the agent never touches private keys.
 
 **Requires:** `apiKey` in input (or `AGENT_LAUNCH_API_KEY` env var).
 
@@ -664,13 +708,14 @@ End-to-end shortcut: create a token record tied to a live Agentverse agent addre
 
 ```json
 {
-  "apiKey": "av-xxxxxxxxxxxxxxxx",       // required — Agentverse API key
-  "agentAddress": "agent1q...",          // required — Agentverse agent address
-  "name": "My Research Bot",             // optional — max 32 chars
-  "symbol": "MRB",                       // optional — 2-11 chars
-  "description": "Delivers reports...",  // optional — max 500 chars
-  "image": "https://example.com/logo.png", // optional — logo URL
-  "chainId": 97                          // optional — default: 97
+  "name": "My Research Bot",             // required — agent and token name (max 32 chars)
+  "description": "Delivers reports...",  // required — max 500 chars
+  "template": "chat-memory",            // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data"|"genesis"
+  "ticker": "MRB",                       // optional — 2-11 chars, uppercase (derived from name if omitted)
+  "chainId": 97,                         // optional — default: 97
+  "maxWalletAmount": 0,                  // optional — 0=unlimited, 1=0.5%, 2=1%
+  "initialBuyAmount": "0",               // optional — FET to buy immediately after deploy
+  "category": 1                          // optional — 1=AI, 2=DeFi, 3=Gaming, 4=Social, 5=Meme, 6=Utility
 }
 ```
 
@@ -687,10 +732,266 @@ End-to-end shortcut: create a token record tied to a live Agentverse agent addre
 
 **Example prompt:**
 ```
-Create and tokenize my Agentverse agent at agent1qf8... with name "Research Bot" and symbol RB on BSC testnet
+Create and tokenize my Agentverse agent with name "Research Bot" and symbol RB on BSC testnet
 ```
 
 This is the most commonly used tool for the agent-human handoff workflow.
+
+---
+
+## Commerce
+
+### `check_agent_commerce`
+
+Check an agent's commerce status: revenue, pricing, balance, effort mode, and holdings.
+
+**Input schema:**
+
+```json
+{
+  "address": "agent1q..."  // required — agent address
+}
+```
+
+**Output:** Commerce status object with revenue, pricing table, balance, and holdings data.
+
+**Example prompt:**
+```
+Check the commerce status for agent agent1q...
+```
+
+---
+
+### `network_status`
+
+Check the status of an agent swarm: per-agent revenue, total GDP, health, and cross-holdings.
+
+**Input schema:**
+
+```json
+{
+  "addresses": ["agent1q...", "agent1q...", "agent1q..."]  // required — list of agent addresses in the swarm
+}
+```
+
+**Output:** Swarm-level health metrics including per-agent revenue, total GDP, and cross-holding map.
+
+**Example prompt:**
+```
+Show me the network status for my swarm of 3 agents
+```
+
+---
+
+### `deploy_swarm`
+
+Deploy a complete agent swarm. Deploys each agent in sequence, sets secrets, starts them, returns addresses and status.
+
+**Input schema:**
+
+```json
+{
+  "presets": ["oracle", "coordinator", "analyst"],  // required — list of preset names
+  "apiKey": "av-xxxxxxxxxxxxxxxx",                  // required — Agentverse API key
+  "baseName": "MySwarm"                             // optional — base name for agents
+}
+```
+
+**Output:** Array of deployed agent addresses with status for each preset.
+
+**Example prompt:**
+```
+Deploy a swarm with oracle, coordinator, and analyst presets
+```
+
+---
+
+## Comments
+
+### `get_comments`
+
+Get comments for a token by contract address.
+
+Maps to `GET /comments/:address`.
+
+**Input schema:**
+
+```json
+{
+  "address": "0xAbCd1234..."  // required — token contract address
+}
+```
+
+**Output:** Array of comment objects with author, message, and timestamp.
+
+---
+
+### `post_comment`
+
+Post a comment on a token.
+
+**Requires:** `AGENT_LAUNCH_API_KEY`.
+
+Maps to `POST /comments/:address`.
+
+**Input schema:**
+
+```json
+{
+  "address": "0xAbCd1234...",         // required — token contract address
+  "message": "Great agent, bought!"  // required — max 500 chars
+}
+```
+
+**Output:** Created comment object.
+
+---
+
+## Trading
+
+On-chain trading tools for buying and selling tokens directly on the bonding curve. All trading tools support a `dryRun` mode that previews the trade without executing it (no wallet required for dry runs).
+
+### `buy_tokens`
+
+Buy tokens on a bonding curve. With `dryRun=true`, returns a preview only.
+
+**Requires:** `WALLET_PRIVATE_KEY` environment variable (unless `dryRun=true`).
+
+**Input schema:**
+
+```json
+{
+  "address": "0xF7e2F77f...",     // required — token contract address
+  "fetAmount": "10",              // required — FET to spend (decimal string)
+  "chainId": 97,                  // optional — 97 (testnet) or 56 (mainnet), default: 97
+  "slippagePercent": 5,           // optional — 0-100, default: 5
+  "dryRun": false                 // optional — true = preview only (no wallet needed)
+}
+```
+
+**Output (dryRun: false):**
+
+```json
+{
+  "dryRun": false,
+  "txHash": "0xabc123...",
+  "tokensReceived": "125000.50",
+  "fetSpent": "10",
+  "fee": "0.20",
+  "priceImpact": 0.5,
+  "approvalTxHash": "0xdef456...",
+  "blockNumber": 12345678
+}
+```
+
+**Output (dryRun: true):**
+
+```json
+{
+  "dryRun": true,
+  "tokensReceived": "125000.50",
+  "pricePerToken": "0.000080",
+  "fee": "0.20",
+  "priceImpact": 0.5,
+  "netFetSpent": "9.80"
+}
+```
+
+**Example prompt:**
+```
+Buy 10 FET worth of token 0xF7e2F77f... on BSC testnet with 5% slippage
+```
+
+**Dry run example prompt:**
+```
+Preview buying 10 FET of token 0xF7e2F77f... without executing
+```
+
+---
+
+### `sell_tokens`
+
+Sell tokens on a bonding curve. With `dryRun=true`, returns a preview only.
+
+**Requires:** `WALLET_PRIVATE_KEY` environment variable (unless `dryRun=true`).
+
+**Input schema:**
+
+```json
+{
+  "address": "0xF7e2F77f...",     // required — token contract address
+  "tokenAmount": "50000",         // required — tokens to sell (decimal string)
+  "chainId": 97,                  // optional — default: 97
+  "dryRun": false                 // optional — true = preview only
+}
+```
+
+**Output (dryRun: false):**
+
+```json
+{
+  "dryRun": false,
+  "txHash": "0xabc123...",
+  "fetReceived": "3.92",
+  "tokensSold": "50000",
+  "fee": "0.08",
+  "priceImpact": 0.3,
+  "blockNumber": 12345678
+}
+```
+
+**Output (dryRun: true):**
+
+```json
+{
+  "dryRun": true,
+  "fetReceived": "3.92",
+  "pricePerToken": "0.000080",
+  "fee": "0.08",
+  "priceImpact": 0.3,
+  "netFetReceived": "3.84"
+}
+```
+
+**Example prompt:**
+```
+Sell 50000 tokens at 0xF7e2F77f... on BSC testnet
+```
+
+---
+
+### `get_wallet_balances`
+
+Query BNB, FET, and specific token balance for the configured wallet.
+
+**Requires:** `WALLET_PRIVATE_KEY` environment variable.
+
+**Input schema:**
+
+```json
+{
+  "address": "0xF7e2F77f...",     // required — token contract address
+  "chainId": 97                   // optional — default: 97
+}
+```
+
+**Output:**
+
+```json
+{
+  "wallet": "0x1234abcd...",
+  "bnb": "0.015",
+  "fet": "142.50",
+  "token": "50000.00",
+  "tokenAddress": "0xF7e2F77f...",
+  "chainId": 97
+}
+```
+
+**Example prompt:**
+```
+What are my wallet balances for token 0xF7e2F77f...?
+```
 
 ---
 
@@ -704,7 +1005,7 @@ All tools return errors as MCP error responses with a descriptive message:
   "content": [
     {
       "type": "text",
-      "text": "Error executing tool \"create_and_tokenize\": POST ${AGENT_LAUNCH_BASE_URL}/tokenize failed with status 401: Invalid API key"
+      "text": "Error executing tool \"create_and_tokenize\": POST https://agent-launch.ai/api/agents/tokenize failed with status 401: Invalid API key"
     }
   ]
 }
@@ -719,3 +1020,23 @@ Common errors:
 | `404 Not Found` | Token address or ID does not exist |
 | `Agent file not found` | `agentFile` path does not point to an existing file |
 | `Invalid tokenId` | `tokenId` must be a positive integer |
+| `WALLET_PRIVATE_KEY not set` | Trading tools require wallet key (unless `dryRun=true`) |
+
+---
+
+## API Path Reference
+
+For reference, these are the correct API paths used by the tools:
+
+| Tool | Method | Path |
+|------|--------|------|
+| `list_tokens` | `GET` | `/tokens` |
+| `get_token` | `GET` | `/tokens/address/:address` or `/tokens/id/:id` |
+| `get_platform_stats` | `GET` | `/platform/stats` |
+| `calculate_buy` | `GET` | `/tokens/calculate-buy` |
+| `calculate_sell` | `GET` | `/tokens/calculate-sell` |
+| `create_token_record` | `POST` | `/agents/tokenize` |
+| `get_comments` | `GET` | `/comments/:address` |
+| `post_comment` | `POST` | `/comments/:address` |
+| `get_deploy_instructions` | `GET` | `/tokens/id/:id` (derived) |
+| `get_trade_link` | — | URL construction only |

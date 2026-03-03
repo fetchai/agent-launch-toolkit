@@ -47,8 +47,10 @@ async function avFetch<T>(
   if (!response.ok) {
     let detail = '';
     try {
-      const errBody = (await response.json()) as { message?: string };
-      detail = errBody.message ? `: ${errBody.message}` : '';
+      const errBody = (await response.json()) as { message?: string; detail?: string };
+      // Agentverse uses "detail", some APIs use "message"
+      const errMsg = errBody.detail ?? errBody.message;
+      detail = errMsg ? `: ${errMsg}` : '';
     } catch {
       // ignore — body may not be JSON
     }

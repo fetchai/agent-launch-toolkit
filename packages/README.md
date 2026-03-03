@@ -8,7 +8,7 @@ Platform and API URLs are configured via `.env` (`AGENT_LAUNCH_API_URL`, `AGENT_
 | Package | Version | Description |
 |---------|---------|-------------|
 | [`agentlaunch-sdk`](./sdk/README.md) | 0.1.0 | TypeScript SDK — create tokens, query market data, generate handoff links |
-| [`agentlaunch-cli`](./cli/) | 1.0.0 | CLI tool — scaffold, deploy, and tokenize AI agents from the command line |
+| [`agentlaunch`](./cli/) | 1.0.0 | CLI tool — one command to create, deploy, and tokenize AI agents |
 | [`agent-launch-mcp`](./mcp/) | 1.1.0 | MCP server — create AI agent tokens via Claude Code |
 
 ## Installation
@@ -22,7 +22,7 @@ npm install agentlaunch-sdk
 ### CLI
 
 ```bash
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 agentlaunch --help
 ```
 

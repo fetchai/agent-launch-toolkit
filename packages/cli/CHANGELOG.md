@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `agentlaunch-cli` are documented here.
+All notable changes to `agentlaunch` (formerly `agentlaunch-cli`) are documented here.
 
 This project follows [Semantic Versioning](https://semver.org/).
 

@@ -7,6 +7,7 @@
  *   2. Importing and adding to TEMPLATES below
  */
 
+import { template as chatMemoryTemplate } from "./templates/chat-memory.js";
 import { template as genesisTemplate } from "./templates/genesis.js";
 import { template as customTemplate } from "./templates/custom.js";
 import { template as priceMonitorTemplate } from "./templates/price-monitor.js";
@@ -52,6 +53,7 @@ export interface AgentTemplate {
 // ---------------------------------------------------------------------------
 
 const TEMPLATES: AgentTemplate[] = [
+  chatMemoryTemplate,  // Base template - recommended starting point
   genesisTemplate,
   customTemplate,
   priceMonitorTemplate,
@@ -91,7 +93,8 @@ export function listTemplates(): AgentTemplate[] {
  * Legacy name "genesis" continues to work.
  *
  * @example
- * const tpl = getTemplate("swarm-starter");  // recommended
+ * const tpl = getTemplate("chat-memory");    // default
+ * const tpl2 = getTemplate("swarm-starter"); // commerce agents
  * const tpl2 = getTemplate("genesis");       // legacy alias
  * if (!tpl) throw new Error("Template not found");
  */

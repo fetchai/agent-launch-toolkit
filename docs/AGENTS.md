@@ -6,8 +6,9 @@ Machine-readable integration guide for AI agents, Codex, and other automated sys
 **Platform (dev):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
 
 URLs are configured via `.env`:
-- `AGENT_LAUNCH_API_URL` — API base (default: production URL)
-- `AGENT_LAUNCH_FRONTEND_URL` — Frontend/handoff links (default: production URL)
+- `AGENT_LAUNCH_API_URL` — API base (default: `https://agent-launch.ai/api`)
+- `AGENT_LAUNCH_FRONTEND_URL` — Frontend/handoff links (default: `https://agent-launch.ai`)
+- `AGENT_LAUNCH_ENV` — Set to `dev` to use dev URLs automatically
 
 **API base (production, default):** https://agent-launch.ai/api
 **API base (dev):** https://launchpad-backend-dev-1056182620041.us-central1.run.app
@@ -50,14 +51,14 @@ Public (read) endpoints work without auth. Write endpoints require the header.
 
 ## API Endpoints
 
+All paths below are relative to the API base URL (`https://agent-launch.ai/api` in production).
+
 ### Create Token Record (Write — requires auth)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+POST https://agent-launch.ai/api/agents/tokenize
 Headers: X-API-Key: av-xxxxxxxxxxxxxxxx
          Content-Type: application/json
-# Prod URL: https://agent-launch.ai/api/agents/tokenize (default)
-# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
 
 Body:
 {
@@ -87,8 +88,7 @@ Response 201:
 ### List Tokens (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/tokens?limit=20&sortBy=market_cap&sortOrder=DESC
-# Prod: https://agent-launch.ai/api/tokens?...
+GET https://agent-launch.ai/api/tokens?limit=20&sortBy=market_cap&sortOrder=DESC
 
 Response 200:
 {
@@ -116,7 +116,15 @@ Query parameters: `page`, `limit`, `search`, `categoryId`, `chainId`, `sortBy`, 
 ### Get Token by Address (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/token/0xAbCd...
+GET https://agent-launch.ai/api/tokens/address/0xAbCd...
+
+Response 200: Token object (same shape as list item above)
+```
+
+### Get Token by ID (Read — no auth)
+
+```
+GET https://agent-launch.ai/api/tokens/id/42
 
 Response 200: Token object (same shape as list item above)
 ```
@@ -124,7 +132,7 @@ Response 200: Token object (same shape as list item above)
 ### Get My Agents (Read — requires auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/agents/my-agents
+GET https://agent-launch.ai/api/agents/my-agents
 Headers: X-API-Key: av-xxx
 
 Response 200:
@@ -139,10 +147,10 @@ Response 200:
 }
 ```
 
-### Authenticate (exchange API key for JWT)
+### Authenticate (Exchange API Key for JWT)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/agents/auth
+POST https://agent-launch.ai/api/agents/auth
 Content-Type: application/json
 
 Body: { "api_key": "av-xxxxxxxxxxxxxxxx" }
@@ -157,32 +165,98 @@ Response 200:
 }
 ```
 
-Rate limit: 10 requests per 60 seconds.
+Rate limit: 10 requests per 60 seconds. The JWT can be used as a `Bearer` token for endpoints that support it. Redis caches validation for 5 minutes.
 
 ### Bonding Curve Calculations (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/tokens/calculate-buy?address=0xAbCd...&fetAmount=100
-GET ${AGENT_LAUNCH_API_URL}/tokens/calculate-sell?address=0xAbCd...&tokenAmount=500
+GET https://agent-launch.ai/api/tokens/calculate-buy?address=0xAbCd...&fetAmount=100
+GET https://agent-launch.ai/api/tokens/calculate-sell?address=0xAbCd...&tokenAmount=500
+```
+
+### Token Holders (Read — no auth)
+
+```
+GET https://agent-launch.ai/api/agents/token/0xAbCd.../holders
+
+Response 200:
+{
+  "holders": [
+    { "address": "0x...", "balance": "1000000", "percentage": 12.5 }
+  ]
+}
+```
+
+### Comments (Read/Write)
+
+```
+GET https://agent-launch.ai/api/comments/0xAbCd...
+
+Response 200:
+{
+  "comments": [
+    { "id": 1, "address": "0xAbCd...", "text": "Great agent!", "created_at": "..." }
+  ]
+}
+
+POST https://agent-launch.ai/api/comments/0xAbCd...
+Headers: X-API-Key: av-xxx
+Content-Type: application/json
+
+Body: { "text": "This agent is performing well" }
 ```
 
 ### Platform Stats (Read — no auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/platform/stats
+GET https://agent-launch.ai/api/platform/stats
 ```
+
+---
+
+## Endpoint Quick Reference
+
+| Method | Path | Auth | Description |
+|--------|------|:----:|-------------|
+| `POST` | `/agents/tokenize` | Yes | Create token record, get handoff link |
+| `GET` | `/tokens` | No | List all tokens (paginated) |
+| `GET` | `/tokens/address/{address}` | No | Token details by contract address |
+| `GET` | `/tokens/id/{id}` | No | Token details by numeric ID |
+| `GET` | `/tokens/calculate-buy` | No | Preview buy on bonding curve |
+| `GET` | `/tokens/calculate-sell` | No | Preview sell on bonding curve |
+| `GET` | `/agents/my-agents` | Yes | List caller's Agentverse agents |
+| `POST` | `/agents/auth` | No | Exchange API key for JWT |
+| `GET` | `/agents/token/{address}/holders` | No | Token holder distribution |
+| `GET` | `/comments/{address}` | No | Get comments for a token |
+| `POST` | `/comments/{address}` | Yes | Post a comment on a token |
+| `GET` | `/platform/stats` | No | Platform-wide statistics |
+
+**Common path mistakes:**
+
+| WRONG (will 404) | CORRECT |
+|-------------------|---------|
+| `POST /tokenize` | `POST /agents/tokenize` |
+| `GET /agents/tokens` | `GET /tokens` |
+| `GET /agents/token/{address}` | `GET /tokens/address/{address}` |
+| `GET /tokens/{address}` | `GET /tokens/address/{address}` |
+| `GET /tokens/{id}` | `GET /tokens/id/{id}` |
+| `GET /token/{address}/holders` | `GET /agents/token/{address}/holders` |
+| `GET /my-agents` | `GET /agents/my-agents` |
+| `POST /auth` | `POST /agents/auth` |
+| `GET /stats` | `GET /platform/stats` |
 
 ---
 
 ## Handoff Link Formats
 
 ```
-Deploy link:  ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}
-Trade page:   ${AGENT_LAUNCH_FRONTEND_URL}/trade/{token_address}
-Buy link:     ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=buy&amount={fetAmount}
-Sell link:    ${AGENT_LAUNCH_FRONTEND_URL}/trade/{address}?action=sell&amount={tokenAmount}
+Deploy link:  https://agent-launch.ai/deploy/{token_id}
+Trade page:   https://agent-launch.ai/trade/{token_address}
+Buy link:     https://agent-launch.ai/trade/{address}?action=buy&amount={fetAmount}
+Sell link:    https://agent-launch.ai/trade/{address}?action=sell&amount={tokenAmount}
 ```
-> URLs use `AGENT_LAUNCH_FRONTEND_URL` from `.env`.
+
+> When using environment variables, substitute `AGENT_LAUNCH_FRONTEND_URL` for the base URL.
 > Production default: `https://agent-launch.ai`
 > Dev: `https://launchpad-frontend-dev-1056182620041.us-central1.run.app`
 
@@ -310,5 +384,5 @@ Available MCP tools: `list_tokens`, `get_token`, `get_platform_stats`, `calculat
 - [SDK Reference](sdk-reference.md)
 - [CLI Reference](cli-reference.md)
 - [MCP Tools Reference](mcp-tools.md)
-- [OpenAPI Spec](https://agent-launch.ai/docs/openapi) (production)
-- [skill.md](https://agent-launch.ai/skill.md) (production)
+- [OpenAPI Spec](https://agent-launch.ai/docs/openapi)
+- [skill.md](https://agent-launch.ai/skill.md)

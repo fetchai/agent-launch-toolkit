@@ -1,6 +1,6 @@
 # Getting Started with AgentLaunch Toolkit
 
-The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentverse agents, query market data, and generate human handoff links — all without holding private keys or signing blockchain transactions directly.
+The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentverse agents, query market data, generate human handoff links, and execute on-chain trades autonomously.
 
 **Production platform (default):** https://agent-launch.ai
 **Dev platform (alternative):** https://launchpad-frontend-dev-1056182620041.us-central1.run.app
@@ -12,6 +12,21 @@ The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentver
 - Node.js 18 or higher (the SDK uses the global `fetch()` available since Node 18)
 - An Agentverse API key — get one at https://agentverse.ai/profile/api-keys
 - (Optional) BSC wallet with FET for on-chain deployment — only needed for the human who clicks the handoff link
+- (Optional) `WALLET_PRIVATE_KEY` env var — only needed for autonomous on-chain trading (Path D)
+
+---
+
+## Environment Configuration
+
+The toolkit defaults to production (`https://agent-launch.ai`):
+
+| Variable | Production (default) | Dev |
+|----------|---------------------|-----|
+| `AGENT_LAUNCH_API_URL` | `https://agent-launch.ai/api` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
+
+Set `AGENT_LAUNCH_ENV=dev` to use dev URLs. Production is the default.
+Or override directly with `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
 
 ---
 
@@ -64,7 +79,7 @@ Agents never hold private keys. The flow is always:
 ```
 Agent                         Platform                     Human
   |                               |                           |
-  |-- POST /agents/tokenize ----->|                           |
+  |-- POST /agents/tokenize ---->|                           |
   |<-- { token_id, handoff_link } |                           |
   |                               |                           |
   |-- share handoff_link -------->|-------------------------->|
@@ -293,10 +308,71 @@ Use the list_tokens MCP tool to show trending tokens
 
 ---
 
+## Path D: Autonomous On-Chain Trading
+
+For agents that need to buy and sell tokens directly on the bonding curve without human handoff.
+
+### Requirements
+
+- `ethers@^6` peer dependency (SDK only)
+- `WALLET_PRIVATE_KEY` environment variable
+
+**Security:** Use a dedicated testnet wallet. Never use your main wallet's private key. The `.env` file is already in `.gitignore`.
+
+### Setup
+
+```bash
+npm install agentlaunch-sdk ethers@^6
+export WALLET_PRIVATE_KEY=0xabc123...your_private_key_here
+```
+
+### Quick example (SDK)
+
+```ts
+import { buyTokens, sellTokens, getWalletBalances } from 'agentlaunch-sdk';
+
+const TOKEN = '0xF7e2F77f014a5ad3C121b1942968be33BA89e03c';
+
+// Check balances
+const balances = await getWalletBalances(TOKEN);
+console.log(`FET: ${balances.fet}, Token: ${balances.token}`);
+
+// Buy 10 FET worth of tokens
+const buy = await buyTokens(TOKEN, '10', { slippagePercent: 5 });
+console.log(`Bought! Tx: ${buy.txHash}, Received: ${buy.tokensReceived} tokens`);
+
+// Sell 50000 tokens
+const sell = await sellTokens(TOKEN, '50000');
+console.log(`Sold! Tx: ${sell.txHash}, Received: ${sell.fetReceived} FET`);
+```
+
+### Quick example (CLI)
+
+```bash
+# Preview a trade (no wallet needed)
+agentlaunch buy 0xF7e2F77f... --amount 10 --dry-run
+
+# Execute the trade
+agentlaunch buy 0xF7e2F77f... --amount 10
+agentlaunch sell 0xF7e2F77f... --amount 50000
+```
+
+### Quick example (MCP)
+
+With `WALLET_PRIVATE_KEY` set in your MCP server env, ask Claude:
+
+```
+Buy 10 FET worth of token 0xF7e2F77f... on BSC testnet
+```
+
+Claude will call the `buy_tokens` tool and return the transaction hash and details.
+
+---
+
 ## Next Steps
 
 - [SDK Reference](./sdk-reference.md) — Full API for `agentlaunch-sdk`
 - [CLI Reference](./cli-reference.md) — All CLI commands and flags
-- [MCP Tools](./mcp-tools.md) — All MCP tools with input schemas
+- [MCP Tools](./mcp-tools.md) — All 20+ MCP tools with input schemas
 - [API Docs](https://agent-launch.ai/docs/openapi) — OpenAPI spec (production)
 - [skill.md](https://agent-launch.ai/skill.md) — Machine-readable capability spec (production)

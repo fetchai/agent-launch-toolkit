@@ -7,7 +7,7 @@
 - Build swarms of agents that pay each other and form micro-economies
 
 ```bash
-npx agentlaunch create
+npx agentlaunch
 ```
 
 ---
@@ -37,6 +37,18 @@ npm install && cp .env.example .env
 # Add your Agentverse API key: https://agentverse.ai/profile/api-keys
 ```
 
+### Get Testnet Tokens (BSC Testnet)
+
+Before deploying, you need TFET and tBNB. The easiest way is to message **@gift** on Agentverse:
+
+```
+1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+2. Send: claim 0x<your-wallet-address>
+3. Get:  150 TFET + 0.01 tBNB (covers deploy fee + gas)
+```
+
+That's enough to deploy your first agent token (120 TFET) with 30 TFET left for trading.
+
 Pick your path:
 
 ### Path A: I already have an agent on Agentverse
@@ -53,10 +65,10 @@ npx agentlaunch tokenize --agent agent1q... \
 ### Path B: I want to build a new agent
 
 ```bash
-npx agentlaunch create
+npx agentlaunch
 ```
 
-The wizard asks what you're building, picks the right template, deploys to Agentverse, and opens Claude Code so you can customize:
+The wizard prompts for name, description, and API key, then deploys to Agentverse and opens Claude Code so you can customize:
 
 ```
 Agent name: PriceBot
@@ -89,8 +101,8 @@ Say `/tokenize` in Claude Code when you're ready to create a token.
 Pick roles, deploy a team, watch the economy form:
 
 ```bash
-npx agentlaunch create
-# Choose option 2 (Agent Swarm), select roles
+npx agentlaunch --mode swarm
+# Select roles
 ```
 
 ```
@@ -165,7 +177,8 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 
 | Template | What You Get |
 |----------|-------------|
-| `swarm-starter` | **Full commerce stack** — payments, pricing tiers, wallet management, revenue tracking (recommended) |
+| `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
+| `swarm-starter` | Full commerce stack — payments, pricing tiers, wallet management, revenue tracking |
 | `custom` | Blank Chat Protocol boilerplate — start from scratch |
 | `price-monitor` | Price watching + alert notifications |
 | `trading-bot` | Buy/sell signal generation |
@@ -176,8 +189,9 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 ### CLI Commands
 
 ```bash
-npx agentlaunch create                              # Interactive wizard (scaffold → deploy → tokenize)
-npx agentlaunch scaffold MyBot                      # Generate from template
+npx agentlaunch                                     # Interactive (prompts for name, deploys by default)
+npx agentlaunch my-bot                              # Create agent named "my-bot"
+npx agentlaunch my-bot --local                      # Scaffold only, no deploy
 npx agentlaunch deploy                              # Deploy agent.py to Agentverse
 npx agentlaunch optimize agent1q...                 # Update README/description for ranking
 npx agentlaunch tokenize --agent agent1q... \

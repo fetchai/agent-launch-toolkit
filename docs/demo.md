@@ -1,7 +1,5 @@
 # AgentLaunch Toolkit Demo
 
-This document demonstrates all features of the AgentLaunch Toolkit — a complete system for building, deploying, and tokenizing AI agents on the Fetch.ai ecosystem.
-
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
@@ -12,39 +10,16 @@ This document demonstrates all features of the AgentLaunch Toolkit — a complet
 6. [End-to-End Workflows](#end-to-end-workflows)
 7. [Platform Constants](#platform-constants)
 
----
 
-## Quick Start
-
-### Prerequisites
-
-```bash
-# Clone and install
-git clone https://github.com/fetchai/agent-launch-toolkit.git
-cd agent-launch-toolkit
-npm install
-npm run build
-```
-
-### Environment Setup
-
-```bash
-# Copy example env
-cp .env.example .env
-
-# Add your Agentverse API key
-# Get it at: https://agentverse.ai/profile/api-keys
-echo "AGENTVERSE_API_KEY=av-xxx" >> .env
-```
-
-### One-Command Agent Creation
+### npx agentlaunch 
+Create a new agent and token with one request
 
 ```bash
 # Interactive mode — scaffold, deploy, and tokenize in one go
-npx agentlaunch create
+npx agentlaunch 
 
 # Non-interactive mode with all flags
-npx agentlaunch create \
+npx agentlaunch \
   --name "My Research Agent" \
   --ticker RSRCH \
   --template research \
@@ -54,9 +29,28 @@ npx agentlaunch create \
   --tokenize
 
 # Note: In interactive mode, template defaults to "custom"
-# Use --template flag for non-interactive: custom, research, trading-bot,
-# data-analyzer, price-monitor, gifter
 ```
+
+### Add your key
+
+```bash
+# Add your Agentverse API key
+# Get it at: https://agentverse.ai/profile/api-keys
+echo "AGENTVERSE_API_KEY=av-xxx" >> .env
+```
+
+## Develop
+
+```bash
+# Clone and install
+git clone https://github.com/fetchai/agent-launch-toolkit.git
+cd agent-launch-toolkit
+claude cursor or fetch coder
+bun install
+bun dev
+bun build
+```
+
 
 ---
 
@@ -70,7 +64,7 @@ Creates a new agent project with scaffolding, optional deployment, and optional 
 
 ```bash
 # Interactive mode (prompts for all inputs)
-npx agentlaunch create
+npx agentlaunch
 
 # Full automation
 npx agentlaunch create \

@@ -1148,7 +1148,7 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 
 # Payment protocol (seller side)
 if PAYMENT_PROTOCOL_AVAILABLE and payment_protocol_spec is not None:
-    pay_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+    pay_proto = Protocol(spec=payment_protocol_spec)
 else:
     pay_proto = Protocol(name="payment", version="1.0.0")
 
