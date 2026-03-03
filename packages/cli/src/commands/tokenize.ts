@@ -210,7 +210,32 @@ export function registerTokenizeCommand(program: Command): void {
           category: { id: categoryId },
         };
         if (options.description) body.description = options.description;
-        if (options.image) body.image = options.image;
+        if (options.image) {
+          // Validate image URL scheme to prevent SSRF with file:// or other protocols
+          try {
+            const imageUrl = new URL(options.image);
+            if (imageUrl.protocol !== 'https:' && imageUrl.protocol !== 'http:') {
+              if (isJson) {
+                console.log(
+                  JSON.stringify({ error: "--image must be an HTTP or HTTPS URL" }),
+                );
+              } else {
+                console.error("Error: --image must be an HTTP or HTTPS URL");
+              }
+              process.exit(1);
+            }
+          } catch {
+            if (isJson) {
+              console.log(
+                JSON.stringify({ error: "--image must be a valid URL" }),
+              );
+            } else {
+              console.error("Error: --image must be a valid URL");
+            }
+            process.exit(1);
+          }
+          body.image = options.image;
+        }
         if (initialBuyAmount !== undefined)
           body.initialBuyAmount = initialBuyAmount;
 

@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { deployAgent, updateAgent, buildOptimizationChecklist } from 'agentlaunch-sdk';
 import type { AgentverseDeployResult, AgentMetadata, OptimizationCheckItem } from 'agentlaunch-sdk';
 
@@ -34,12 +35,23 @@ export async function deployToAgentverse(args: {
   readme?: string;
   shortDescription?: string;
 }): Promise<DeployToAgentverseResult> {
-  // Read agent source code
-  if (!fs.existsSync(args.agentFile)) {
-    throw new Error(`Agent file not found: ${args.agentFile}`);
+  // Security: resolve and validate agentFile is within cwd to prevent path traversal
+  const resolvedPath = path.resolve(args.agentFile);
+  const cwd = process.cwd();
+  if (!resolvedPath.startsWith(cwd + path.sep) && resolvedPath !== cwd) {
+    throw new Error(
+      `Security: agentFile must be within the current working directory.\n` +
+      `  cwd:       ${cwd}\n` +
+      `  resolved:  ${resolvedPath}`,
+    );
   }
 
-  const sourceCode = fs.readFileSync(args.agentFile, 'utf8');
+  // Read agent source code
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error(`Agent file not found: ${resolvedPath}`);
+  }
+
+  const sourceCode = fs.readFileSync(resolvedPath, 'utf8');
   if (!sourceCode.trim()) {
     throw new Error(`Agent file is empty: ${args.agentFile}`);
   }

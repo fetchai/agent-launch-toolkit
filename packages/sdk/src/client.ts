@@ -154,9 +154,13 @@ export class AgentLaunchClient {
       const delayMs = 1000 * Math.pow(2, attempt);
       attempt++;
 
-      // Respect Retry-After header if the server sends one
+      // Respect Retry-After header if the server sends one (capped at 30s to
+      // prevent a malicious server from stalling the client indefinitely).
       const retryAfter = response.headers.get('Retry-After');
-      const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : delayMs;
+      const MAX_RETRY_WAIT_MS = 30_000;
+      const waitMs = retryAfter
+        ? Math.min(parseInt(retryAfter, 10) * 1000, MAX_RETRY_WAIT_MS)
+        : delayMs;
 
       await sleep(waitMs);
 

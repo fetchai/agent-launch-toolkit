@@ -90,6 +90,13 @@ export function generateTradeLink(
   opts: TradeLinkOptions = {},
   baseUrl?: string,
 ): string {
+  // Validate Ethereum address format to prevent URL injection
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    throw new Error(
+      `generateTradeLink: address must be a valid 0x-prefixed Ethereum address (40 hex chars), got "${address}"`,
+    );
+  }
+
   const base = resolveBaseUrl(baseUrl);
   const params = new URLSearchParams();
 

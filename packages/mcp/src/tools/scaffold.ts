@@ -49,6 +49,16 @@ export async function scaffoldAgent(args: {
     args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-')),
   );
 
+  // Security: validate outputDir is within cwd to prevent arbitrary file writes
+  const cwd = process.cwd();
+  if (!outputDir.startsWith(cwd + path.sep) && outputDir !== cwd) {
+    throw new Error(
+      `Security: outputDir must be within the current working directory.\n` +
+      `  cwd:       ${cwd}\n` +
+      `  resolved:  ${outputDir}`,
+    );
+  }
+
   // Create base directory and .claude/ subdirectory
   fs.mkdirSync(outputDir, { recursive: true });
   fs.mkdirSync(path.join(outputDir, '.claude'), { recursive: true });
@@ -147,6 +157,16 @@ export async function scaffoldSwarm(args: {
   const outputDir = path.resolve(
     args.outputDir ?? path.join(process.cwd(), args.name.toLowerCase().replace(/\s+/g, '-')),
   );
+
+  // Security: validate outputDir is within cwd to prevent arbitrary file writes
+  const cwd = process.cwd();
+  if (!outputDir.startsWith(cwd + path.sep) && outputDir !== cwd) {
+    throw new Error(
+      `Security: outputDir must be within the current working directory.\n` +
+      `  cwd:       ${cwd}\n` +
+      `  resolved:  ${outputDir}`,
+    );
+  }
 
   // Create base directory and .claude/ subdirectory
   fs.mkdirSync(outputDir, { recursive: true });
