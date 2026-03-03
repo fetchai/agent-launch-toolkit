@@ -37,7 +37,8 @@ const LEGACY_TYPE_MAP: Record<string, string> = {
 
 /** All valid --type / --template values accepted by the scaffold command. */
 const VALID_TYPES = [
-  "swarm-starter", // Primary name (recommended)
+  "chat-memory",   // Base template (recommended for most agents)
+  "swarm-starter", // Full commerce stack
   "faucet",
   "research",
   "trading",
@@ -54,8 +55,8 @@ export function registerScaffoldCommand(program: Command): void {
     )
     .option(
       "--type <type>",
-      "Agent type: swarm-starter (recommended), custom, price-monitor, trading-bot, data-analyzer, research, gifter (default: research)",
-      "research",
+      "Agent type: chat-memory (default), swarm-starter, custom, price-monitor, trading-bot, data-analyzer, research, gifter",
+      "chat-memory",
     )
     .option("--json", "Output only JSON (machine-readable)")
     .action((name: string, options: { type: string; json?: boolean }) => {

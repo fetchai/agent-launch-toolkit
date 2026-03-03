@@ -1,4 +1,4 @@
-from uagents import Agent, Context
+from uagents import Agent, Context, Protocol
 from uagents_core.contrib.protocols.chat import (
     ChatMessage, ChatAcknowledgement, TextContent,
     EndSessionContent, chat_protocol_spec
@@ -7,7 +7,7 @@ from datetime import datetime
 import random
 
 agent = Agent()
-chat_proto = agent.create_protocol(spec=chat_protocol_spec)
+chat_proto = Protocol(spec=chat_protocol_spec)
 
 JOKES = [
     "Why do programmers prefer dark mode? Because light attracts bugs!",
