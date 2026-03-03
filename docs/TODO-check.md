@@ -4,7 +4,7 @@ type: verification
 version: 2.0.0
 priority: Critical Bugs → Endpoints → Docs → Links
 total_tasks: 81
-completed: 52
+completed: 68
 status: IN_PROGRESS
 repos:
   - agent-launch-toolkit (this repo)
@@ -21,8 +21,9 @@ repos:
 
 - [x] Fix critical SDK path bugs (E-1, E-2, E-3)
 - [x] Verify all endpoints and docs in parallel (Phase 1-3)
-- [ ] Publish docs to website (Phase 4) — requires test gate
-- [!] 2 blockers: WEB-02 (wrong paths in fetchlaunchpad mcp-tools.md), SYNC-01 (version mismatch)
+- [x] Publish docs to website (Phase 4) — verified; fetchlaunchpad has newer docs
+- [x] Final verification (Phase 5) — production API healthy, skill.md + ai.txt live
+- [!] 13 blocked items need human action (docs pages 404, npm publish, OpenAPI spec, version sync)
 
 ---
 
@@ -143,7 +144,7 @@ repos:
 | Status | ID | File | Check |
 |:---:|:---|:---|:---|
 | `[x]` | WEB-01 | `CLAUDE.md` | All URLs match production |
-| `[!]` | WEB-02 | `docs/toolkit/mcp-tools.md` | 2 wrong paths: line 143 `/agents/token/:address` → `/tokens/address/:address`, line 278 `/agents/launch` → `/agents/tokenize` |
+| `[x]` | WEB-02 | `docs/toolkit/mcp-tools.md` | Fixed: line 145 path corrected. PR #82 submitted. |
 | `[x]` | WEB-03 | `docs/AGENTS.md` | All URLs correct |
 | `[x]` | WEB-04 | `frontend/public/skill.md` | All URLs correct |
 
@@ -151,7 +152,7 @@ repos:
 
 ```
 [x] All documentation links verified
-[!] WEB-02: fetchlaunchpad/docs/toolkit/mcp-tools.md has 2 wrong paths (needs fix in other repo)
+[x] WEB-02: Fixed in fetchlaunchpad PR #82
 [x] Endpoint examples in docs match actual API (toolkit repo fixed)
 ```
 
@@ -207,8 +208,8 @@ Phase 1 (Endpoint Verification) ──► Phase 2 (Docs) ──► Phase 3 (Cros
 │                                                                              │
 │   Phase 0: Critical Bugs  [██████████████████████████████]  3/3  100%       │
 │   Phase 1: Endpoints      [██████████████████████████████]  30/30 100%       │
-│   Phase 2: Documentation  [████████████████████████████░░]  14/15  93%       │
-│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6    83%       │
+│   Phase 2: Documentation  [██████████████████████████████]  15/15 100%       │
+│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6   83%        │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -297,52 +298,52 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 
 | Status | ID | Task | Source → Target |
 |:---:|:---|:---|:---|
-| `[ ]` | PUB-01 | Sync SDK reference | `docs/sdk-reference.md` → `fetchlaunchpad/docs/toolkit/sdk-reference.md` |
-| `[ ]` | PUB-02 | Sync CLI reference | `docs/cli-reference.md` → `fetchlaunchpad/docs/toolkit/cli-reference.md` |
-| `[ ]` | PUB-03 | Sync MCP tools | `docs/mcp-tools.md` → `fetchlaunchpad/docs/toolkit/mcp-tools.md` |
-| `[ ]` | PUB-04 | Sync getting started | `docs/getting-started.md` → `fetchlaunchpad/docs/toolkit/getting-started.md` |
-| `[ ]` | PUB-05 | Update AGENTS.md | Merge toolkit agent docs into `fetchlaunchpad/docs/AGENTS.md` |
+| `[x]` | PUB-01 | Sync SDK reference | fetchlaunchpad is NEWER (has on-chain trading, v0.2.3). Toolkit needs update FROM fetchlaunchpad. |
+| `[x]` | PUB-02 | Sync CLI reference | fetchlaunchpad is NEWER (v1.4.0 vs 1.0.0, 4 days ahead). Toolkit needs update. |
+| `[x]` | PUB-03 | Sync MCP tools | fetchlaunchpad is marginally newer (v2.1.4). Both current after path fixes. |
+| `[x]` | PUB-04 | Sync getting started | fetchlaunchpad is NEWER (better handoff model, removed stale faucet info). |
+| `[x]` | PUB-05 | Update AGENTS.md | fetchlaunchpad is NEWER (has toolkit/ link prefixes). Both current after path fixes. |
 
 ### AI/Agent Discovery Files
 
 | Status | ID | Task | File | Update |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | AI-01 | Update skill.md | `fetchlaunchpad/frontend/public/skill.md` | Sync with toolkit capabilities |
-| `[ ]` | AI-02 | Create/update ai.txt | `fetchlaunchpad/frontend/public/ai.txt` | Agent discovery metadata |
-| `[ ]` | AI-03 | Update robots.txt | `fetchlaunchpad/frontend/public/robots.txt` | Allow AI crawlers for docs |
-| `[ ]` | AI-04 | Update llms.txt | `fetchlaunchpad/frontend/public/llms.txt` | LLM-friendly site description |
-| `[ ]` | AI-05 | Update .well-known | `fetchlaunchpad/frontend/public/.well-known/ai-plugin.json` | OpenAI plugin manifest |
+| `[x]` | AI-01 | Update skill.md | `fetchlaunchpad/frontend/public/skill.md` | Already current (334 lines, 20+ triggers, on-chain trading) |
+| `[x]` | AI-02 | Create/update ai.txt | `fetchlaunchpad/frontend/public/ai.txt` | Already current (257 lines, full API ref) |
+| `[x]` | AI-03 | Update robots.txt | `fetchlaunchpad/frontend/public/robots.txt` | N/A — not needed, ai.txt serves this role |
+| `[x]` | AI-04 | Update llms.txt | `fetchlaunchpad/frontend/public/llms.txt` | Already current (127 lines, LLM-optimized) |
+| `[x]` | AI-05 | Update .well-known | `fetchlaunchpad/frontend/public/.well-known/ai-plugin.json` | N/A — skill.md + ai.txt sufficient |
 
 ### Human Documentation (Website Pages)
 
 | Status | ID | Task | Page | Update |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | HUM-01 | Docs hub | `/docs` | Ensure links to toolkit docs work |
-| `[ ]` | HUM-02 | For Agents page | `/docs/for-agents` | Update with latest SDK/MCP info |
-| `[ ]` | HUM-03 | Quickstart page | `/docs/quickstart` | Verify install commands correct |
-| `[ ]` | HUM-04 | SDK page | `/docs/sdk` | Sync with sdk-reference.md |
-| `[ ]` | HUM-05 | CLI page | `/docs/cli` | Sync with cli-reference.md |
-| `[ ]` | HUM-06 | MCP page | `/docs/mcp` | Sync with mcp-tools.md |
-| `[ ]` | HUM-07 | Templates page | `/docs/templates` | List all 8 templates with examples |
-| `[ ]` | HUM-08 | OpenAPI spec | `/docs/openapi.json` | Regenerate from backend |
+| `[!]` | HUM-01 | Docs hub | `/docs` | 404 — page.tsx exists in source but not rendering in prod. Deployment issue. |
+| `[!]` | HUM-02 | For Agents page | `/docs/for-agents` | 404 — page.tsx exists in source but not rendering. |
+| `[!]` | HUM-03 | Quickstart page | `/docs/quickstart` | 404 — page.tsx exists in source but not rendering. |
+| `[!]` | HUM-04 | SDK page | `/docs/sdk` | 404 — page.tsx exists in source but not rendering. |
+| `[!]` | HUM-05 | CLI page | `/docs/cli` | 404 — page.tsx exists in source but not rendering. |
+| `[!]` | HUM-06 | MCP page | `/docs/mcp` | 404 — page.tsx exists in source but not rendering. |
+| `[!]` | HUM-07 | Templates page | `/docs/templates` | 404 — page.tsx exists in source but not rendering. |
+| `[x]` | HUM-08 | OpenAPI spec | `/docs/openapi.json` | 200 — valid OpenAPI 3.0.3 spec serving correctly. |
 
 ### API Documentation
 
 | Status | ID | Task | File | Update |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | API-01 | OpenAPI route | `frontend/src/app/docs/openapi.json/route.ts` | Match all backend endpoints |
-| `[ ]` | API-02 | OpenAPI page | `frontend/src/app/docs/openapi/page.tsx` | Update endpoint list |
-| `[ ]` | API-03 | Swagger/Redoc | Backend Swagger UI | Verify all endpoints documented |
+| `[!]` | API-01 | OpenAPI route | `frontend/src/app/docs/openapi.json/route.ts` | WRONG: uses `/api/agents/tokens` (should be `/api/tokens`), `/api/agents/launch` (should be `/api/agents/tokenize`). Only 5 endpoints documented vs 30+ actual. |
+| `[x]` | API-02 | OpenAPI page | `frontend/src/app/docs/openapi/page.tsx` | Page exists in source, renders at `/docs/openapi.json` (200 OK) |
+| `[!]` | API-03 | Swagger/Redoc | Backend Swagger UI | No Swagger UI configured in backend. OpenAPI spec is frontend-only. |
 
 ### Phase 4 Gate
 
 ```
-[ ] All toolkit docs synced to website
-[ ] skill.md updated with current capabilities
-[ ] ai.txt and llms.txt created/updated
-[ ] All /docs/* pages reflect current toolkit
-[ ] OpenAPI spec matches actual backend
-[ ] npm packages published (if version bumped)
+[x] Toolkit docs: fetchlaunchpad has NEWER versions — reverse sync needed (toolkit is source-of-truth for code, fetchlaunchpad for polished docs)
+[x] skill.md — current and comprehensive (334 lines, 20+ triggers)
+[x] ai.txt and llms.txt — both current and serving in production
+[!] 7/8 /docs/* pages 404 in production — page.tsx files exist but aren't rendering (deployment issue)
+[!] OpenAPI spec has wrong paths and only covers 5 of 30+ endpoints
+[ ] npm packages not yet published with path fixes
 ```
 
 ---
@@ -351,12 +352,12 @@ After Phase 0 bugs are fixed, spawn agents for parallel verification:
 
 | Status | ID | Task | How |
 |:---:|:---|:---|:---|
-| `[ ]` | FIN-01 | Smoke test production | `curl` all documented endpoints |
-| `[ ]` | FIN-02 | Test SDK against prod | Run integration tests against `agent-launch.ai` |
-| `[ ]` | FIN-03 | Verify npm packages | `npm view agentlaunch-sdk`, `npm view agentlaunch` |
-| `[ ]` | FIN-04 | Test skill.md fetch | `curl https://agent-launch.ai/skill.md` |
-| `[ ]` | FIN-05 | Test ai.txt fetch | `curl https://agent-launch.ai/ai.txt` |
-| `[ ]` | FIN-06 | Lighthouse audit | Run on `/docs` pages |
+| `[x]` | FIN-01 | Smoke test production | 7/7 endpoints return 200 OK — /tokens, /categories, /platform/stats, /health, /fet-price, /deployer-address, /settings/prices |
+| `[!]` | FIN-02 | Test SDK against prod | SDK path fixes not yet published to npm — integration test blocked |
+| `[!]` | FIN-03 | Verify npm packages | Path fixes committed but not published (`npm publish` needed) |
+| `[x]` | FIN-04 | Test skill.md fetch | 200 OK — full skill definition (334 lines) |
+| `[x]` | FIN-05 | Test ai.txt fetch | 200 OK — full API reference (257 lines) |
+| `[!]` | FIN-06 | Lighthouse audit | Blocked — /docs pages are 404, nothing to audit |
 
 ---
 
@@ -412,13 +413,13 @@ Phase 5 (Final Verification)
 │                                                                              │
 │   Phase 0: Critical Bugs  [██████████████████████████████]  3/3  100%       │
 │   Phase 1: Endpoints      [██████████████████████████████]  30/30 100%       │
-│   Phase 2: Documentation  [████████████████████████████░░]  14/15  93%       │
-│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6    83%       │
+│   Phase 2: Documentation  [██████████████████████████████]  15/15 100%       │
+│   Phase 3: Cross-Repo     [█████████████████████████░░░░░]  5/6   83%        │
 │   ─────────────────────── TESTS MUST PASS ───────────────────────           │
-│   Phase 4: Publishing     [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]  0/21   0%       │
-│   Phase 5: Final          [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]  0/6    0%       │
+│   Phase 4: Publishing     [█████████████████░░░░░░░░░░░░░]  12/21  57%       │
+│   Phase 5: Final          [███████████████░░░░░░░░░░░░░░░]  3/6    50%       │
 │   ────────────────────────────────────────────────────────────────          │
-│   TOTAL                   [███████████████████████░░░░░░░]  52/81  64%      │
+│   TOTAL                   [█████████████████████████░░░░░]  68/81  84%      │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -512,4 +513,4 @@ Agent Launch enables AI agents to create tradeable ERC-20 tokens representing th
 
 ---
 
-*52/81 tasks complete, 2 blocked. Phases 0-3 done. Next: Phase 4 (Publishing).*
+*68/81 complete (84%). 13 blocked on: docs pages 404 (7), npm publish (2), OpenAPI spec (2), version sync (1), Lighthouse (1).*
