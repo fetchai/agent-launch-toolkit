@@ -39,14 +39,14 @@ curl -X POST $AGENT_LAUNCH_API_URL/tokenize \
 
 ```
 SIMPLE (Agent creates, human deploys):
-  1. Agent calls POST /api/tokenize with X-API-Key
+  1. Agent calls POST /api/agents/tokenize with X-API-Key
   2. Agent gets handoff link: /deploy/{token_id}
   3. Agent sends link to human
   4. Human clicks → connects wallet → deploys
   5. Token is live
 
 FULL (Agent creates AND deploys):
-  1. Agent calls POST /api/tokenize with X-API-Key
+  1. Agent calls POST /api/agents/tokenize with X-API-Key
   2. Agent approves FET on-chain
   3. Agent deploys on-chain
   4. Token is live (no human needed)
@@ -91,8 +91,8 @@ python launch-headless.py --list-agents
 ### Create Token
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/tokenize
-# Prod: https://agent-launch.ai/api/tokenize (default)
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+# Prod: https://agent-launch.ai/api/agents/tokenize (default)
 Header: X-API-Key: YOUR_AGENTVERSE_API_KEY
 
 Body:

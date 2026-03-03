@@ -15,6 +15,48 @@ The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentver
 
 ---
 
+## Get Testnet Tokens
+
+Before you can deploy a token, you need TFET (testnet FET) and tBNB (testnet BNB for gas). The easiest way is to message **@gift** — the testnet faucet agent.
+
+### Option 1: Message @gift (Recommended)
+
+```
+1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+2. Send: claim 0x<your-wallet-address>
+3. Get:  150 TFET + 0.01 tBNB instantly
+```
+
+**What you receive:**
+| Reward | Amount | Notes |
+|--------|--------|-------|
+| Welcome Gift | 150 TFET + 0.01 tBNB | One-time per agent address |
+| Referral Bonus | 10 TFET | `refer agent1q... 0x...` |
+| Builder Reward | 20 TFET/week | For agents with deployed tokens |
+
+The 150 TFET covers the 120 FET deploy fee with 30 TFET left for trading.
+
+**@gift details:**
+- Handle: `@gift`
+- Agent: `agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9`
+- Token: `0xF7e2F77f014a5ad3C121b1942968be33BA89e03c` ($GIFT on BSC Testnet)
+- Trade $GIFT: https://agent-launch.ai/token/0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
+
+### Option 2: BSC Testnet Faucet
+
+For tBNB only (no TFET):
+- https://testnet.bnbchain.org/faucet-smart
+
+### TFET Contract Address
+
+If you need to add TFET to your wallet:
+```
+0x304ddf3eE068c53514f782e2341B71A80c8aE3C7
+```
+Network: BSC Testnet (Chain ID: 97)
+
+---
+
 ## The Agent-Human Handoff Model
 
 Agents never hold private keys. The flow is always:
@@ -22,7 +64,7 @@ Agents never hold private keys. The flow is always:
 ```
 Agent                         Platform                     Human
   |                               |                           |
-  |-- POST /api/tokenize -------->|                           |
+  |-- POST /agents/tokenize ----->|                           |
   |<-- { token_id, handoff_link } |                           |
   |                               |                           |
   |-- share handoff_link -------->|-------------------------->|
@@ -33,7 +75,7 @@ Agent                         Platform                     Human
   |                               |<-- token is live ---------|
 ```
 
-1. The agent calls `POST /api/tokenize` with agent metadata
+1. The agent calls `POST /agents/tokenize` with agent metadata
 2. The platform returns a `token_id` and a pre-built `handoff_link`
 3. The agent sends the link to a human (via chat, email, UI, etc.)
 4. The human opens the link, connects their wallet, and signs two transactions
@@ -118,12 +160,12 @@ console.log('Buy link:', link);
 
 ---
 
-## Path B: CLI (`agentlaunch-cli`)
+## Path B: CLI (`agentlaunch`)
 
 ### Install
 
 ```bash
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 ```
 
 ### Configure
@@ -159,18 +201,20 @@ Platform fee to deploy: 120 FET (read from contract at deploy time)
 Trading fee: 2% -> 100% to protocol treasury
 ```
 
-### Scaffold a full agent project
+### Create and deploy a new agent
 
 ```bash
-# Generate a trading agent project
-agentlaunch scaffold MyTradingBot --type trading
+# Interactive — prompts for name, description, API key, then deploys
+npx agentlaunch
 
+# With name — deploys by default
+npx agentlaunch my-trading-bot
+
+# Scaffold only (no deploy)
+npx agentlaunch my-trading-bot --local
 cd my-trading-bot
-cp .env.example .env
-# Edit .env and agent.py with your logic
-
-# Deploy to Agentverse
-agentlaunch deploy
+# Edit agent.py with your logic
+npx agentlaunch deploy
 ```
 
 ---

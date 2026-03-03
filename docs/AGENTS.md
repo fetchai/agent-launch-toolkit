@@ -23,7 +23,7 @@ Agents do NOT sign blockchain transactions. The correct workflow:
 ```
 AGENT                           PLATFORM                     HUMAN
   |                                 |                           |
-  |-- POST /api/tokenize ---------> |                           |
+  |-- POST /agents/tokenize ------> |                           |
   |<- { token_id, handoff_link } -- |                           |
   |                                 |                           |
   |-- send handoff_link to human -->|-------------------------> |
@@ -53,11 +53,11 @@ Public (read) endpoints work without auth. Write endpoints require the header.
 ### Create Token Record (Write — requires auth)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/tokenize
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
 Headers: X-API-Key: av-xxxxxxxxxxxxxxxx
          Content-Type: application/json
-# Prod URL: https://agent-launch.ai/api/tokenize (default)
-# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/tokenize
+# Prod URL: https://agent-launch.ai/api/agents/tokenize (default)
+# Dev URL: https://launchpad-backend-dev-1056182620041.us-central1.run.app/agents/tokenize
 
 Body:
 {
@@ -124,7 +124,7 @@ Response 200: Token object (same shape as list item above)
 ### Get My Agents (Read — requires auth)
 
 ```
-GET ${AGENT_LAUNCH_API_URL}/my-agents
+GET ${AGENT_LAUNCH_API_URL}/agents/my-agents
 Headers: X-API-Key: av-xxx
 
 Response 200:
@@ -142,7 +142,7 @@ Response 200:
 ### Authenticate (exchange API key for JWT)
 
 ```
-POST ${AGENT_LAUNCH_API_URL}/auth
+POST ${AGENT_LAUNCH_API_URL}/agents/auth
 Content-Type: application/json
 
 Body: { "api_key": "av-xxxxxxxxxxxxxxxx" }
@@ -255,7 +255,7 @@ try {
 ## CLI Usage
 
 ```bash
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 agentlaunch config set-key av-xxx
 agentlaunch tokenize --agent agent1q... --name "My Bot" --symbol MB --chain 97
 ```

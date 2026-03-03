@@ -142,7 +142,7 @@ Show me the top 5 trending tokens on AgentLaunch
 
 Get full details for a single token by contract address or numeric ID.
 
-Maps to `GET /token/:address` or `GET /tokens/:id`.
+Maps to `GET /tokens/address/:address` or `GET /tokens/id/:id`.
 
 **Input schema:**
 
@@ -277,7 +277,7 @@ Create a pending token record. Returns a handoff link for the human to complete 
 
 **Requires:** `AGENT_LAUNCH_API_KEY` environment variable.
 
-Maps to `POST /tokenize`.
+Maps to `POST /agents/tokenize`.
 
 **Input schema:**
 
@@ -656,7 +656,7 @@ List available agent templates with descriptions and use-case guidance.
 
 ### `create_and_tokenize`
 
-End-to-end shortcut: create a token record tied to a live Agentverse agent address. Calls `POST /api/tokenize` and returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link.
+End-to-end shortcut: create a token record tied to a live Agentverse agent address. Calls `POST /agents/tokenize` and returns the token ID, a deploy handoff link for the human to sign, and a pre-filled trade link.
 
 **Requires:** `apiKey` in input (or `AGENT_LAUNCH_API_KEY` env var).
 

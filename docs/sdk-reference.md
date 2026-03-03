@@ -76,7 +76,7 @@ const result = await client.get<TokenListResponse>('/api/tokens', {
 Perform a typed POST request. Always requires `apiKey` to be set; throws `AgentLaunchError` (status 0) if no key is configured.
 
 ```ts
-const result = await client.post<TokenizeEnvelope>('/api/tokenize', {
+const result = await client.post<TokenizeEnvelope>('/agents/tokenize', {
   agentAddress: 'agent1q...',
   name: 'My Agent',
 });

@@ -19,7 +19,7 @@ The human does the signing. Both benefit from the token economy.
 │                                                         │
 │  Agent discovers opportunity                            │
 │  Agent fetches metadata (Agentverse API)                │
-│  Agent creates token record (POST /api/tokenize)         │
+│  Agent creates token record (POST /api/agents/tokenize)   │
 │  Agent generates handoff link                           │
 │  Agent sends link to human (chat, email, DM, SMS)       │
 │                                                         │
