@@ -1,30 +1,26 @@
 #!/usr/bin/env node
 /**
- * agentlaunch-cli
+ * agentlaunch
  *
- * CLI for the AgentLaunch platform — scaffold, deploy, and tokenize AI agents.
+ * The simplest way to build AI agents on Fetch.ai.
  *
- * Commands:
- *   agentlaunch create                      Flagship one-command flow: scaffold + deploy + tokenize
- *   agentlaunch config set-key <apiKey>     Store API key
- *   agentlaunch config show                 Show current config
- *   agentlaunch config set-url <url>        Set custom base URL
- *   agentlaunch scaffold <name>             Generate agent project from template
- *   agentlaunch deploy                      Deploy agent.py to Agentverse
- *   agentlaunch tokenize                    Create token record + handoff link
- *   agentlaunch list                        List tokens with pagination
- *   agentlaunch status <address>            Show token status
- *   agentlaunch comments <address>          List or post comments for a token
- *   agentlaunch holders <address>           Show token holder list
+ * Usage:
+ *   npx agentlaunch                    Interactive: name, description, deploy
+ *   npx agentlaunch my-agent           Create agent with name "my-agent"
+ *   npx agentlaunch my-agent --local   Scaffold only, don't deploy
  *
- * All commands support --json for machine-readable output (AI agent use).
+ * Other commands:
+ *   agentlaunch deploy                 Deploy agent.py to Agentverse
+ *   agentlaunch tokenize               Create token + handoff link
+ *   agentlaunch status <address>       Check agent/token status
+ *   agentlaunch config set-key <key>   Store API key
  */
 
 import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
 
-// Load .env file from cwd (no dependency needed)
+// Load .env file from cwd
 try {
   const envPath = path.resolve(process.cwd(), ".env");
   const envContent = fs.readFileSync(envPath, "utf8");
@@ -40,33 +36,45 @@ try {
 } catch {
   // No .env file — that's fine
 }
+
 import { registerCommentsCommand } from "./commands/comments.js";
 import { registerConfigCommand } from "./commands/config.js";
-import { registerCreateCommand } from "./commands/create.js";
+import { runCreate } from "./commands/create.js";
 import { registerDeployCommand } from "./commands/deploy.js";
 import { registerHoldersCommand } from "./commands/holders.js";
 import { registerListCommand } from "./commands/list.js";
-import { registerScaffoldCommand } from "./commands/scaffold.js";
 import { registerStatusCommand } from "./commands/status.js";
 import { registerInit } from "./commands/init.js";
 import { registerTokenizeCommand } from "./commands/tokenize.js";
 import { registerOptimizeCommand } from "./commands/optimize.js";
 import { registerBuyCommand } from "./commands/buy.js";
 import { registerSellCommand } from "./commands/sell.js";
+import { registerClaimCommand } from "./commands/claim.js";
+import { registerScaffoldCommand } from "./commands/scaffold.js";
 
 const program = new Command();
 
 program
   .name("agentlaunch")
-  .description(
-    "AgentLaunch CLI — scaffold, deploy, and tokenize AI agents on agent-launch.ai",
-  )
-  .version("1.0.0");
+  .description("Build AI agents on Fetch.ai in seconds")
+  .version("1.6.0")
+  .argument("[name]", "Agent name (prompted if omitted)")
+  .option("--local", "Scaffold only, don't deploy to Agentverse")
+  .option("--description <desc>", "What your agent does")
+  .option("--no-editor", "Skip launching an editor after scaffolding")
+  .option("--json", "Output JSON (for scripts)")
+  .action(async (name?: string, options?: { local?: boolean; description?: string; editor?: boolean; json?: boolean }) => {
+    await runCreate({
+      name,
+      skipDeploy: options?.local,
+      description: options?.description,
+      noEditor: options?.editor === false,
+      json: options?.json,
+    });
+  });
 
-// Register all subcommands
-registerCreateCommand(program);
+// Register subcommands for power users
 registerConfigCommand(program);
-registerScaffoldCommand(program);
 registerDeployCommand(program);
 registerTokenizeCommand(program);
 registerListCommand(program);
@@ -76,12 +84,9 @@ registerHoldersCommand(program);
 registerOptimizeCommand(program);
 registerBuyCommand(program);
 registerSellCommand(program);
+registerClaimCommand(program);
 registerInit(program);
-
-// Show help if no command is given
-if (process.argv.length <= 2) {
-  program.help();
-}
+registerScaffoldCommand(program);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error((err as Error).message ?? String(err));

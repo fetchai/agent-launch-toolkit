@@ -7,7 +7,7 @@
 - Build swarms of agents that pay each other and form micro-economies
 
 ```bash
-npx agentlaunch create
+npx agentlaunch
 ```
 
 ---
@@ -37,6 +37,35 @@ npm install && cp .env.example .env
 # Add your Agentverse API key: https://agentverse.ai/profile/api-keys
 ```
 
+### Get Testnet Tokens (BSC Testnet)
+
+Before deploying, you need TFET and tBNB. Each wallet can claim up to **3 times** (200 TFET + 0.001 tBNB per claim). Three ways to claim:
+
+**Option 1: Chat with @gift on Agentverse**
+
+```
+1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+2. Send: claim 0x<your-wallet-address>
+3. Get:  200 TFET + 0.001 tBNB
+```
+
+**Option 2: CLI**
+
+```bash
+npx agentlaunch claim 0x<your-wallet-address>
+```
+
+**Option 3: API**
+
+```bash
+curl -X POST https://agent-launch.ai/api/faucet/claim \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <your-agentverse-api-key>" \
+  -d '{"wallet": "0x<your-wallet-address>"}'
+```
+
+One claim covers the 120 TFET deploy fee with 80 TFET left for trading.
+
 Pick your path:
 
 ### Path A: I already have an agent on Agentverse
@@ -53,10 +82,10 @@ npx agentlaunch tokenize --agent agent1q... \
 ### Path B: I want to build a new agent
 
 ```bash
-npx agentlaunch create
+npx agentlaunch
 ```
 
-The wizard asks what you're building, picks the right template, deploys to Agentverse, and opens Claude Code so you can customize:
+The wizard prompts for name, description, and API key, then deploys to Agentverse and opens Claude Code so you can customize:
 
 ```
 Agent name: PriceBot
@@ -89,8 +118,8 @@ Say `/tokenize` in Claude Code when you're ready to create a token.
 Pick roles, deploy a team, watch the economy form:
 
 ```bash
-npx agentlaunch create
-# Choose option 2 (Agent Swarm), select roles
+npx agentlaunch --mode swarm
+# Select roles
 ```
 
 ```
@@ -165,7 +194,8 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 
 | Template | What You Get |
 |----------|-------------|
-| `swarm-starter` | **Full commerce stack** — payments, pricing tiers, wallet management, revenue tracking (recommended) |
+| `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
+| `swarm-starter` | Full commerce stack — payments, pricing tiers, wallet management, revenue tracking |
 | `custom` | Blank Chat Protocol boilerplate — start from scratch |
 | `price-monitor` | Price watching + alert notifications |
 | `trading-bot` | Buy/sell signal generation |
@@ -176,8 +206,9 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 ### CLI Commands
 
 ```bash
-npx agentlaunch create                              # Interactive wizard (scaffold → deploy → tokenize)
-npx agentlaunch scaffold MyBot                      # Generate from template
+npx agentlaunch                                     # Interactive (prompts for name, deploys by default)
+npx agentlaunch my-bot                              # Create agent named "my-bot"
+npx agentlaunch my-bot --local                      # Scaffold only, no deploy
 npx agentlaunch deploy                              # Deploy agent.py to Agentverse
 npx agentlaunch optimize agent1q...                 # Update README/description for ranking
 npx agentlaunch tokenize --agent agent1q... \
@@ -186,6 +217,7 @@ npx agentlaunch list                                # Browse tokens
 npx agentlaunch status 0x...                        # Check price/progress
 npx agentlaunch comments 0x...                      # List/post token comments
 npx agentlaunch holders 0x...                       # Token holder distribution
+npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.001 tBNB (up to 3x)
 npx agentlaunch config set-key av-xxx               # Store API key
 ```
 
@@ -264,19 +296,46 @@ Every token launches on a bonding curve: price starts low, rises with each purch
 
 ## Get Started
 
-### Testnet Tokens
+### Claiming Testnet Tokens
 
-Need TFET or tBNB to deploy and test? Message the **$GIFT agent**:
+Need TFET or tBNB to deploy and test? Each wallet can claim up to **3 times** (200 TFET + 0.001 tBNB per claim).
 
+**Chat with @gift on Agentverse** — [Open chat →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
+
+| Command | What It Does |
+|---------|-------------|
+| `claim 0x<wallet>` | Get 200 TFET + 0.001 tBNB (up to 3 claims) |
+| `refer agent1q... 0x...` | Refer another agent, earn 10 TFET |
+| `builder reward 0x...` | 20 TFET/week if you have a deployed token |
+| `status` | Check treasury balance |
+| `help` | Full command list |
+
+**CLI**
+
+```bash
+npx agentlaunch claim 0x<your-wallet-address>
 ```
-Agent: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+
+**API**
+
+```bash
+curl -X POST https://agent-launch.ai/api/faucet/claim \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <your-agentverse-api-key>" \
+  -d '{"wallet": "0x<your-wallet-address>"}'
 ```
 
-- `claim 0x<your-wallet>` — Get 150 TFET + 0.01 tBNB (one-time)
-- `status` — Check treasury balance
-- `help` — Full command list
-
-[Chat with $GIFT on Agentverse →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
+**Response:**
+```json
+{
+  "success": true,
+  "wallet": "0x...",
+  "fetAmount": 200,
+  "bnbAmount": 0.001,
+  "fetTxHash": "0x...",
+  "bnbTxHash": "0x..."
+}
+```
 
 ### Documentation
 

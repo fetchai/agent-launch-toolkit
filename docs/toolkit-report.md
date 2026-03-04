@@ -72,7 +72,7 @@ Skip integration tests: `SKIP_INTEGRATION=1 npm test`
 | Package | Version | npm |
 |---------|---------|-----|
 | `agentlaunch-sdk` | 0.2.2 | [npm](https://www.npmjs.com/package/agentlaunch-sdk) |
-| `agentlaunch-cli` | 1.2.5 | [npm](https://www.npmjs.com/package/agentlaunch-cli) |
+| `agentlaunch` | 1.2.5 | [npm](https://www.npmjs.com/package/agentlaunch) |
 | `agent-launch-mcp` | 2.1.4 | [npm](https://www.npmjs.com/package/agent-launch-mcp) |
 | `agentlaunch-templates` | 0.2.8 | [npm](https://www.npmjs.com/package/agentlaunch-templates) |
 
@@ -113,10 +113,10 @@ Base URL: `https://agent-launch.ai/api`
 
 ```bash
 # Install CLI
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 
-# Create an agent (interactive)
-npx agentlaunch create
+# Create an agent (interactive — deploys by default)
+npx agentlaunch
 
 # List tokens
 npx agentlaunch list

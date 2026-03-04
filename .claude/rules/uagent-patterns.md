@@ -8,7 +8,7 @@ When writing Agentverse agent code:
 ## Minimal Working Agent
 
 ```python
-from uagents import Agent, Context
+from uagents import Agent, Context, Protocol
 from uagents_core.contrib.protocols.chat import (
     ChatMessage, ChatAcknowledgement, TextContent,
     EndSessionContent, chat_protocol_spec
@@ -16,7 +16,7 @@ from uagents_core.contrib.protocols.chat import (
 from datetime import datetime
 
 agent = Agent()  # Zero params on Agentverse
-chat_proto = agent.create_protocol(spec=chat_protocol_spec)
+chat_proto = Protocol(spec=chat_protocol_spec)
 
 @chat_proto.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 - Always use `ctx.logger` (never `print`)
 - Always use `datetime.now()` (never `utcnow`, it is deprecated)
 - Always include `publish_manifest=True` in `agent.include()`
-- Use `Protocol(spec=chat_protocol_spec)` or `agent.create_protocol(spec=chat_protocol_spec)`
+- Use `Protocol(spec=chat_protocol_spec)` — `agent.create_protocol()` does NOT exist on Agentverse
 
 ## Required Imports
 
@@ -86,15 +86,20 @@ from uagents_core.contrib.protocols.payment import (
 )
 ```
 
-### Role-Based Protocol Creation
+### Protocol Creation
 
 ```python
-# Seller (service provider) -- receives payments
-seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+from uagents import Protocol
 
-# Buyer (service consumer) -- sends payments
-buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+# Create payment protocol instance
+payment_proto = Protocol(spec=payment_protocol_spec)
+
+# Role is inferred from which handlers you register:
+# - Seller: handles CommitPayment, RejectPayment, CancelPayment
+# - Buyer: handles RequestPayment, CompletePayment
 ```
+
+**Note:** `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=...)`.
 
 ### Payment Flow
 
@@ -284,3 +289,4 @@ datetime, json, hashlib, uuid   # Standard library
 5. **Wait for compilation** -- 15-60s after start before agent responds
 6. **Balance in atestfet** -- 1 FET = 10^18 atestfet, always use int not float
 7. **Use official payment protocol** -- Import from `uagents_core.contrib.protocols.payment`, not custom models
+8. **agent.create_protocol() does NOT exist** -- Use `Protocol(spec=...)` directly

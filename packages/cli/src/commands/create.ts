@@ -25,7 +25,7 @@ import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { execSync } from "node:child_process";
-import { generateFromTemplate, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from "agentlaunch-templates";
+import { generateFromTemplate, generateSystemPrompt, generateWelcomeMessage, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey } from "../config.js";
 
@@ -33,7 +33,7 @@ import { requireApiKey } from "../config.js";
 // Types
 // ---------------------------------------------------------------------------
 
-type TemplateId = "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter" | "swarm-starter";
+type TemplateId = "chat-memory" | "custom" | "research" | "trading-bot" | "data-analyzer" | "price-monitor" | "gifter" | "swarm-starter";
 
 const TEMPLATES: Record<string, { label: string; description: string }> = {};
 
@@ -307,7 +307,7 @@ export function registerCreateCommand(program: Command): void {
     .option("--ticker <ticker>", "Token ticker symbol e.g. MYAG (prompted if omitted)")
     .option(
       "--template <template>",
-      "Agent template: swarm-starter (recommended), custom, research, trading-bot, data-analyzer, price-monitor, gifter (default: custom)",
+      "Agent template: chat-memory (default), swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter",
     )
     .option("--description <desc>", "Token description (max 500 chars)")
     .option(
@@ -320,6 +320,7 @@ export function registerCreateCommand(program: Command): void {
     .option("--mode <mode>", "Build mode: quick (single agent), swarm (multi-agent), genesis (full 7-agent economy)")
     .option("--preset <preset>", "Agent preset: oracle, brain, analyst, coordinator, sentinel, launcher, scout")
     .option("--no-deploy", "Scaffold only, don't deploy to Agentverse")
+    .option("--no-editor", "Skip launching an editor after scaffolding")
     .option("--json", "Output only JSON (machine-readable, disables prompts)")
     .action(
       async (options: {
@@ -332,6 +333,7 @@ export function registerCreateCommand(program: Command): void {
         tokenize?: boolean;
         mode?: string;
         preset?: string;
+        editor?: boolean;
         json?: boolean;
       }) => {
         const isJson = options.json === true;
@@ -431,8 +433,8 @@ export function registerCreateCommand(program: Command): void {
               selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
             }
           } else {
-            // Single agent mode - use "custom" preset (generic commerce agent)
-            selectedPresets = ["custom"];
+            // Single agent mode - use "chat-memory" (the base template with LLM + memory)
+            selectedPresets = ["chat-memory"];
           }
 
           const isSingleAgent = buildMode === "single";
@@ -470,21 +472,39 @@ export function registerCreateCommand(program: Command): void {
               console.log(`  [${deployResults.length + 1}/${selectedPresets.length}] ${action} ${agentName}...`);
 
               try {
-                // Generate agent code — try swarm-starter template, fall back to custom
+                // Generate agent code — use chat-memory for single agents, swarm-starter for swarm presets
                 let agentCode: string;
-                try {
-                  const generated = generateFromTemplate("swarm-starter", {
+                let templateUsed: string;
+                if (isSingleAgent || presetName === "chat-memory") {
+                  const agentDesc = description || presetInfo?.description || "";
+                  const agentSystemPrompt = generateSystemPrompt(agentDesc);
+                  const generated = generateFromTemplate("chat-memory", {
                     agent_name: agentName,
-                    description: presetInfo?.description ?? "",
-                    preset: presetName,
+                    description: agentDesc,
+                    system_prompt: agentSystemPrompt,
                   });
                   agentCode = generated.code;
-                } catch {
-                  const generated = generateFromTemplate("custom", {
-                    agent_name: agentName,
-                    description: presetInfo?.description ?? "",
-                  });
-                  agentCode = generated.code;
+                  templateUsed = "chat-memory";
+                } else {
+                  try {
+                    const generated = generateFromTemplate("swarm-starter", {
+                      agent_name: agentName,
+                      description: presetInfo?.description ?? "",
+                      preset: presetName,
+                    });
+                    agentCode = generated.code;
+                    templateUsed = "swarm-starter";
+                  } catch {
+                    const agentDesc = description || presetInfo?.description || "";
+                    const agentSystemPrompt = generateSystemPrompt(agentDesc);
+                    const generated = generateFromTemplate("chat-memory", {
+                      agent_name: agentName,
+                      description: agentDesc,
+                      system_prompt: agentSystemPrompt,
+                    });
+                    agentCode = generated.code;
+                    templateUsed = "chat-memory";
+                  }
                 }
 
                 if (skipDeploy) {
@@ -499,15 +519,20 @@ export function registerCreateCommand(program: Command): void {
                   console.log("    Scaffolded (not deployed)");
                 } else {
                   // Deploy to Agentverse
+                  const deploySecrets: Record<string, string> = {
+                    ...peerAddresses,
+                    AGENTVERSE_API_KEY: apiKey,
+                    AGENTLAUNCH_API_KEY: apiKey,
+                  };
+                  // For chat-memory agents, set the default ASI1 LLM key
+                  if (templateUsed === "chat-memory") {
+                    deploySecrets.LLM_API_KEY = "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b";
+                  }
                   const result = await deployAgent({
                     apiKey,
                     agentName,
                     sourceCode: agentCode,
-                    secrets: {
-                      ...peerAddresses,
-                      AGENTVERSE_API_KEY: apiKey,
-                      AGENTLAUNCH_API_KEY: apiKey,
-                    },
+                    secrets: deploySecrets,
                   });
 
                   peerAddresses[`${presetName.toUpperCase()}_ADDRESS`] = result.agentAddress;
@@ -701,37 +726,9 @@ AGENT_ADDRESS=${successful[0].address}
             return;
           }
 
-          if (skipDeploy) {
-            // Scaffolded without deploying
-            if (isSingleAgent) {
-              console.log(`\n  Agent scaffolded!`);
-              console.log(`  Name:      ${baseName}`);
-              console.log(`  Type:      ${selectedPresets[0]}`);
-            } else {
-              console.log(`\n  Swarm scaffolded!`);
-              console.log(`  Agents:    ${selectedPresets.join(", ")}`);
-            }
-            console.log(`  Directory: ${targetDir}`);
-            console.log(`\n  To deploy: npx agentlaunch deploy --code ${isSingleAgent ? "agent.py" : "agents/<preset>.py"}`);
-          } else if (isSingleAgent) {
-            console.log(`\n  Agent deployed!`);
-            if (successful.length > 0) {
-              const agent = successful[0];
-              console.log(`  Name:      ${agent.name}`);
-              console.log(`  Type:      ${agent.preset}`);
-              console.log(`  Address:   ${agent.address}`);
-            }
-          } else {
-            console.log(`\n  Swarm deployed!`);
-            console.log(`  Deployed: ${successful.length}/${deployResults.length} agents`);
-            if (successful.length > 0) {
-              console.log("\n  Agent Addresses:");
-              for (const agent of successful) {
-                console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
-              }
-            }
-          }
-          console.log(`  Directory: ${targetDir}\n`);
+          const firstAgent = successful[0];
+          const agentAddr = firstAgent?.address ?? "";
+          const isDeployed = !skipDeploy && !!agentAddr;
 
           if (failed.length > 0) {
             console.log(`\n  Failed (${failed.length}):`);
@@ -739,15 +736,6 @@ AGENT_ADDRESS=${successful[0].address}
               console.log(`    ${agent.preset}: ${agent.error}`);
             }
           }
-
-          console.log(`  Created files:`);
-          if (isSingleAgent) {
-            console.log(`    agent.py               Your agent code (edit this!)`);
-          } else {
-            console.log(`    agents/                Individual agent code`);
-          }
-          console.log(`    CLAUDE.md              Context for Claude Code`);
-          console.log(`    .claude/               Rules, skills, MCP config`);
 
           // Install dependencies
           console.log(`\n  Installing dependencies...`);
@@ -758,14 +746,111 @@ AGENT_ADDRESS=${successful[0].address}
             console.log(`  Warning: npm install failed. Run 'npm install' manually.`);
           }
 
-          // Launch Claude Code with workflow prompt
+          // ---------------------------------------------------------------
+          // Post-deployment summary
+          // ---------------------------------------------------------------
+
+          if (isSingleAgent && isDeployed) {
+            console.log(`\n  ${"=".repeat(56)}`);
+            console.log(`  Agent deployed!`);
+            console.log(`  ${"=".repeat(56)}`);
+            console.log(`  Name:      ${baseName}`);
+            console.log(`  Address:   ${agentAddr}`);
+            console.log(`  Directory: ${targetDir}`);
+            console.log(`\n  Features installed:`);
+            console.log(`    Conversation memory    Remembers last 10 exchanges per user`);
+            console.log(`    LLM (ASI1-mini)        AI responses via api.asi1.ai`);
+            console.log(`    Chat Protocol v0.3.0   Discoverable on Agentverse + DeltaV`);
+            console.log(`    Agent wallet            Fetch.ai wallet (auto-created)`);
+            console.log(`    Session persistence    State saved via ctx.storage`);
+            console.log(`    Commands               help, clear, status built in`);
+            console.log(`\n  Links:`);
+            console.log(`    Chat:  https://agentverse.ai/agents/details/${agentAddr}`);
+            console.log(`    Docs:  https://docs.agentverse.ai`);
+            console.log(`\n  Created files:`);
+            console.log(`    agent.py               Your agent code (edit this!)`);
+            console.log(`    CLAUDE.md              Context for Claude Code`);
+            console.log(`    .claude/               Rules, skills, MCP config`);
+            console.log(`    .cursor/               Cursor IDE config`);
+          } else if (isSingleAgent && skipDeploy) {
+            console.log(`\n  Agent scaffolded!`);
+            console.log(`  Name:      ${baseName}`);
+            console.log(`  Directory: ${targetDir}`);
+            console.log(`\n  To deploy: npx agentlaunch deploy --code agent.py`);
+          } else if (!isSingleAgent) {
+            console.log(`\n  Swarm deployed!`);
+            console.log(`  Deployed: ${successful.length}/${deployResults.length} agents`);
+            if (successful.length > 0) {
+              console.log("\n  Agent Addresses:");
+              for (const agent of successful) {
+                console.log(`    ${agent.preset.padEnd(14)} ${agent.address}`);
+              }
+            }
+            console.log(`  Directory: ${targetDir}`);
+          }
+
+          // ---------------------------------------------------------------
+          // Editor selection
+          // ---------------------------------------------------------------
+
+          // Skip editor selection if --no-editor flag is passed
+          if (options.editor === false) {
+            console.log(`\n  To open in an editor later:`);
+            console.log(`    cd ${dirName} && claude\n`);
+            return;
+          }
+
+          const rl2 = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+          });
+
+          console.log(`\n  Open project in:\n`);
+          console.log(`    1) Claude Code    (Recommended)`);
+          console.log(`    2) Cursor`);
+          console.log(`    3) Windsurf`);
+          console.log(`    4) Skip\n`);
+
+          const editorChoice = (await prompt(rl2, "  Choice [1]: ")).trim() || "1";
+          rl2.close();
+
+          if (editorChoice === "4") {
+            console.log(`\n  To open later:`);
+            console.log(`    cd ${dirName} && claude\n`);
+            return;
+          }
+
+          if (editorChoice === "2") {
+            console.log(`\n  Opening in Cursor...`);
+            const cursor = spawn("cursor", [targetDir], {
+              stdio: "inherit",
+              detached: true,
+            });
+            cursor.unref();
+            cursor.on("error", () => {
+              console.log(`  Could not launch Cursor. Open manually:`);
+              console.log(`    cursor ${targetDir}`);
+            });
+            return;
+          }
+
+          if (editorChoice === "3") {
+            console.log(`\n  Opening in Windsurf...`);
+            const windsurf = spawn("windsurf", [targetDir], {
+              stdio: "inherit",
+              detached: true,
+            });
+            windsurf.unref();
+            windsurf.on("error", () => {
+              console.log(`  Could not launch Windsurf. Open manually:`);
+              console.log(`    windsurf ${targetDir}`);
+            });
+            return;
+          }
+
+          // Default: Claude Code
           console.log(`\n  Launching Claude Code...`);
 
-          const firstAgent = successful[0];
-          const agentAddr = firstAgent?.address ?? "";
-          const isDeployed = !skipDeploy && !!agentAddr;
-
-          // Welcome message (first "user" message Claude sees)
           let welcomePrompt: string;
           if (isSingleAgent) {
             welcomePrompt = isDeployed
@@ -776,7 +861,6 @@ AGENT_ADDRESS=${successful[0].address}
             welcomePrompt = `I just deployed a ${successful.length}-agent swarm called "${baseName}" with: ${agentList}.\n\nDescription: ${description}\n\nPlease start from Step 1 of the workflow.`;
           }
 
-          // Full system prompt via helper
           const systemPrompt = buildWorkflowSystemPrompt({
             agentName: baseName,
             agentAddress: agentAddr,
@@ -820,7 +904,7 @@ AGENT_ADDRESS=${successful[0].address}
         }
 
         if (!template || !TEMPLATES[template]) {
-          template = "custom";
+          template = "chat-memory";
         }
 
         const chainId = parseInt(options.chain, 10);
@@ -875,6 +959,10 @@ AGENT_ADDRESS=${successful[0].address}
         };
         if (options.preset) {
           templateVars.preset = options.preset;
+        }
+        // Generate domain-specific system prompt for chat-memory agents
+        if (templateToUse === "chat-memory" || template === "chat-memory") {
+          templateVars.system_prompt = generateSystemPrompt(finalDescription);
         }
         const generated = generateFromTemplate(templateToUse, templateVars);
 
@@ -1150,4 +1238,312 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
         });
       },
     );
+}
+
+// ---------------------------------------------------------------------------
+// Simplified entry point for `npx agentlaunch [name]`
+// ---------------------------------------------------------------------------
+
+export interface RunCreateOptions {
+  name?: string;
+  description?: string;
+  skipDeploy?: boolean;
+  noEditor?: boolean;
+  json?: boolean;
+}
+
+/**
+ * Simplified create flow for the default CLI command.
+ * Called by index.ts when running `npx agentlaunch [name]`.
+ */
+export async function runCreate(options: RunCreateOptions): Promise<void> {
+  const isJson = options.json === true;
+  const skipDeploy = options.skipDeploy === true;
+
+  let name = options.name?.trim() ?? "";
+  let description = options.description?.trim() ?? "";
+  let apiKey = process.env.AGENTVERSE_API_KEY ?? "";
+
+  // Interactive prompts (only when not --json)
+  if (!isJson) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    console.log("\n  agentlaunch — Build AI agents on Fetch.ai\n");
+
+    if (!name) {
+      name = (await prompt(rl, "  Agent name: ")).trim();
+    }
+
+    if (!name) {
+      console.error("  Error: Agent name is required.");
+      rl.close();
+      process.exit(1);
+    }
+
+    if (!description) {
+      description = (await prompt(rl, "  What does it do? ")).trim();
+    }
+
+    // Prompt for API key
+    if (!skipDeploy) {
+      console.log("\n  Get your API key at: https://agentverse.ai/profile/api-keys\n");
+      const existingKey = apiKey ? ` [${apiKey.slice(0, 6)}...${apiKey.slice(-4)}]` : "";
+      const keyInput = (await prompt(rl, `  Agentverse API key${existingKey}: `)).trim();
+      if (keyInput) {
+        apiKey = keyInput;
+      }
+
+      if (!apiKey) {
+        console.log("\n  No API key provided. Scaffolding locally only.\n");
+      } else {
+        process.env.AGENTVERSE_API_KEY = apiKey;
+        console.log("\n  Validating API key...");
+        const validation = await validateApiKey(apiKey);
+        if (!validation.valid) {
+          console.error(`  Error: ${validation.error ?? "Invalid API key"}`);
+          console.log("  Get your API key at: https://agentverse.ai/profile/api-keys");
+          rl.close();
+          process.exit(1);
+        }
+        console.log("  Valid.\n");
+      }
+    }
+
+    rl.close();
+  }
+
+  const shouldDeploy = !skipDeploy && !!apiKey;
+  const baseName = name;
+  const dirName = sanitizeDirName(baseName);
+  const targetDir = path.resolve(process.cwd(), dirName);
+
+  // Check if directory exists
+  if (fs.existsSync(targetDir)) {
+    if (isJson) {
+      console.log(JSON.stringify({ error: `Directory "${dirName}" already exists.` }));
+    } else {
+      console.error(`  Error: Directory "${dirName}" already exists.`);
+    }
+    process.exit(1);
+  }
+
+  // Generate agent code
+  if (!isJson) {
+    console.log(`  ${shouldDeploy ? "Deploying" : "Scaffolding"} ${baseName}...`);
+  }
+
+  // Generate a domain-specific system prompt from the description
+  const systemPrompt = generateSystemPrompt(description);
+
+  const generated = generateFromTemplate("chat-memory", {
+    agent_name: baseName,
+    description: description || "AI assistant with conversation memory",
+    system_prompt: systemPrompt,
+  });
+
+  // Create directory structure
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
+  fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
+  fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
+  fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
+
+  // Write files
+  fs.writeFileSync(path.join(targetDir, "agent.py"), generated.code, "utf8");
+  fs.writeFileSync(path.join(targetDir, "README.md"), generated.readme, "utf8");
+  fs.writeFileSync(path.join(targetDir, ".env.example"), generated.envExample, "utf8");
+  fs.writeFileSync(path.join(targetDir, "CLAUDE.md"), generated.claudeMd, "utf8");
+  fs.writeFileSync(path.join(targetDir, ".claude", "settings.json"), generated.claudeSettings, "utf8");
+  fs.writeFileSync(path.join(targetDir, "agentlaunch.config.json"), generated.agentlaunchConfig, "utf8");
+
+  // Write .env with API key
+  if (apiKey) {
+    fs.writeFileSync(path.join(targetDir, ".env"), `AGENTVERSE_API_KEY=${apiKey}\nAGENT_LAUNCH_API_URL=https://agent-launch.ai/api\n`, "utf8");
+  }
+
+  // Write rules
+  for (const [filename, content] of Object.entries(RULES)) {
+    fs.writeFileSync(path.join(targetDir, ".claude", "rules", filename), content, "utf8");
+  }
+
+  // Write skills
+  for (const [filepath, content] of Object.entries(SKILLS)) {
+    const skillDir = path.dirname(filepath);
+    fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
+  }
+
+  // Write Cursor config
+  fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
+  fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
+
+  let agentAddress = "";
+  
+  // Deploy if API key provided
+  if (shouldDeploy) {
+    try {
+      const deploySecrets: Record<string, string> = {
+        AGENTVERSE_API_KEY: apiKey,
+        AGENTLAUNCH_API_KEY: apiKey,
+        LLM_API_KEY: "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b",
+      };
+
+      const result = await deployAgent({
+        apiKey,
+        agentName: baseName,
+        sourceCode: generated.code,
+        secrets: deploySecrets,
+        metadata: {
+          readme: generated.readme,
+          short_description: generated.shortDescription,
+        },
+      });
+
+      agentAddress = result.agentAddress;
+
+      // Update .env with agent address
+      fs.appendFileSync(path.join(targetDir, ".env"), `AGENT_ADDRESS=${agentAddress}\n`);
+
+      if (!isJson) {
+        console.log(`  Address: ${agentAddress}`);
+        if (result.status === "compiled" || result.status === "running") {
+          console.log("  Status:  Running");
+        }
+      }
+    } catch (err) {
+      if (isJson) {
+        console.log(JSON.stringify({ error: `Deploy failed: ${(err as Error).message}` }));
+      } else {
+        console.error(`\n  Deploy failed: ${(err as Error).message}`);
+        console.log(`  Your code is saved in ${targetDir}/agent.py`);
+        console.log("  Run 'npx agentlaunch deploy' to try again.");
+      }
+      process.exit(1);
+    }
+  }
+
+  // JSON output
+  if (isJson) {
+    console.log(JSON.stringify({
+      name: baseName,
+      directory: targetDir,
+      agentAddress: agentAddress || undefined,
+      deployed: shouldDeploy,
+    }));
+    return;
+  }
+
+  // Success output
+  console.log(`\n  ${"=".repeat(56)}`);
+  console.log(`  ${shouldDeploy ? "Agent deployed!" : "Agent created!"}`);
+  console.log(`  ${"=".repeat(56)}`);
+  console.log(`  Name:      ${baseName}`);
+  if (agentAddress) {
+    console.log(`  Address:   ${agentAddress}`);
+  }
+  console.log(`  Directory: ${targetDir}`);
+
+  if (agentAddress) {
+    console.log(`\n  Chat: https://agentverse.ai/agents/details/${agentAddress}`);
+  }
+
+  // ---------------------------------------------------------------
+  // Editor selection + launch
+  // ---------------------------------------------------------------
+
+  // Skip editor selection if --no-editor flag is passed
+  if (options.noEditor) {
+    console.log(`\n  To open in an editor later:`);
+    console.log(`    cd ${dirName} && claude\n`);
+    return;
+  }
+
+  const rl2 = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  console.log(`\n  Open project in:\n`);
+  console.log(`    1) Claude Code    (Recommended)`);
+  console.log(`    2) Cursor`);
+  console.log(`    3) Windsurf`);
+  console.log(`    4) Skip\n`);
+
+  const editorChoice = (await prompt(rl2, "  Choice [1]: ")).trim() || "1";
+  rl2.close();
+
+  if (editorChoice === "4") {
+    console.log(`\n  To open later:`);
+    console.log(`    cd ${dirName} && claude\n`);
+    return;
+  }
+
+  if (editorChoice === "2") {
+    console.log(`\n  Opening in Cursor...`);
+    const cursor = spawn("cursor", [targetDir], {
+      stdio: "inherit",
+      detached: true,
+    });
+    cursor.unref();
+    cursor.on("error", () => {
+      console.log(`  Could not launch Cursor. Open manually:`);
+      console.log(`    cursor ${targetDir}`);
+    });
+    return;
+  }
+
+  if (editorChoice === "3") {
+    console.log(`\n  Opening in Windsurf...`);
+    const windsurf = spawn("windsurf", [targetDir], {
+      stdio: "inherit",
+      detached: true,
+    });
+    windsurf.unref();
+    windsurf.on("error", () => {
+      console.log(`  Could not launch Windsurf. Open manually:`);
+      console.log(`    windsurf ${targetDir}`);
+    });
+    return;
+  }
+
+  // Default: Claude Code
+  console.log(`\n  Launching Claude Code...`);
+
+  const ticker = autoTicker(baseName);
+  const isDeployed = shouldDeploy && !!agentAddress;
+
+  const welcomePrompt = generateWelcomeMessage({
+    name: baseName,
+    description: description || "AI assistant with conversation memory",
+    agentAddress,
+    isDeployed,
+  });
+
+  const workflowSystemPrompt = buildWorkflowSystemPrompt({
+    agentName: baseName,
+    agentAddress,
+    description: description || "AI assistant with conversation memory",
+    ticker,
+    isDeployed,
+  });
+
+  const claudeArgs = [
+    welcomePrompt,
+    "--append-system-prompt", workflowSystemPrompt,
+    "--allowedTools", "Bash(npm run *),Bash(npx agentlaunch *),Bash(agentlaunch *),Edit,Read,Write,Glob,Grep",
+  ];
+
+  const claude = spawn("claude", claudeArgs, {
+    cwd: targetDir,
+    stdio: "inherit",
+  });
+
+  claude.on("error", (err) => {
+    console.error(`  Could not launch Claude Code: ${err.message}`);
+    console.log(`\n  Run manually:`);
+    console.log(`    cd ${dirName} && claude`);
+  });
 }

@@ -1,15 +1,15 @@
-# agentlaunch-cli
+# agentlaunch
 
-Command-line interface for [AgentLaunch](https://agent-launch.ai) — scaffold, deploy, and tokenize AI agents from your terminal or CI pipeline.
+Command-line interface for [AgentLaunch](https://agent-launch.ai) — one command to create, deploy, and tokenize AI agents.
 
 ## Install
 
 ```bash
 # Global install (recommended for interactive use)
-npm install -g agentlaunch-cli
+npm install -g agentlaunch
 
 # Or run without installing
-npx agentlaunch-cli <command>
+npx agentlaunch
 ```
 
 Requires Node.js >= 18.
@@ -36,71 +36,41 @@ agentlaunch config set-url https://your-instance.example.com/api
 
 ## Commands
 
-### `agentlaunch create` — flagship one-command flow
+### `agentlaunch` — the default command
 
-Scaffold an agent, deploy it to Agentverse, and create a token record in one step.
+Create an agent, deploy it to Agentverse, and open Claude Code — all in one step.
 
 ```bash
-# Interactive — prompts for name, ticker, template, and workflow steps
-agentlaunch create
+# Interactive — prompts for name, description, and API key
+npx agentlaunch
 
-# Fully specified — no prompts
-agentlaunch create \
-  --name "My Research Agent" \
-  --ticker RSRCH \
-  --template research \
-  --description "Delivers on-demand research reports" \
-  --chain 97 \
-  --deploy \
-  --tokenize
+# With name — skips the name prompt
+npx agentlaunch my-agent
+
+# Scaffold only (no deploy)
+npx agentlaunch my-agent --local
 
 # Machine-readable output for AI agents (no prompts, JSON only)
-agentlaunch create \
-  --name "My Agent" --ticker MYAG --template custom \
-  --deploy --tokenize --json
+npx agentlaunch my-agent --json
 ```
 
 **Options:**
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--name <name>` | Agent name (max 32 chars) | prompted |
-| `--ticker <ticker>` | Token ticker e.g. MYAG | prompted |
-| `--template <t>` | custom, faucet, research, trading, data | prompted |
-| `--description <desc>` | Token description (max 500 chars) | template default |
-| `--chain <chainId>` | 97 = BSC Testnet, 56 = BSC Mainnet | 97 |
-| `--deploy` | Deploy agent to Agentverse after scaffolding | false |
-| `--tokenize` | Create token record after deploy | false |
+| `--local` | Scaffold only, don't deploy to Agentverse | false (deploys by default) |
+| `--template <t>` | chat-memory (default), swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter | chat-memory |
 | `--json` | Output only JSON (disables interactive prompts) | false |
 
 **Flow:**
 
-1. Scaffold — generates `agent.py`, `README.md`, `.env.example` in a new directory
-2. Deploy (if `--deploy`) — uploads code to Agentverse, sets secrets, starts agent, polls until compiled
-3. Tokenize (if `--tokenize`) — calls `POST /tokenize`, prints handoff link
-
----
-
-### `agentlaunch scaffold <name>`
-
-Generate an agent project directory from a template.
-
-```bash
-agentlaunch scaffold my-agent --type research
-
-# JSON output
-agentlaunch scaffold my-agent --type faucet --json
-```
-
-**Options:**
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--type <type>` | faucet, research, trading, data | research |
-| `--json` | Output only JSON | false |
+1. Prompts for name, description, and API key (if not already configured)
+2. Scaffolds agent code from the chat-memory template (LLM + conversation memory)
+3. Deploys to Agentverse (unless `--local`)
+4. Opens Claude Code in the new project directory
 
 Generated files:
-- `agent.py` — ready-to-edit uAgents code with security, rate limiting, and AgentLaunch integration
+- `agent.py` — ready-to-edit uAgents code with LLM integration and conversation memory
 - `README.md` — quickstart instructions
 - `.env.example` — required environment variables
 
@@ -384,17 +354,13 @@ Every command supports `--json`. In JSON mode:
 - Interactive prompts are disabled (missing required flags cause an error JSON)
 - Exit code 0 on success, 1 on error
 
-**Example — AI agent creates a token programmatically:**
+**Example — AI agent creates and deploys programmatically:**
 
 ```bash
-RESULT=$(agentlaunch create \
-  --name "Autonomous Analyst" \
-  --ticker ANLT \
-  --template research \
-  --deploy --tokenize --json)
+RESULT=$(npx agentlaunch my-analyst --json)
 
-HANDOFF=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin)['handoffLink'])")
-echo "Share with human: $HANDOFF"
+ADDRESS=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin)['agentAddress'])")
+echo "Agent deployed: $ADDRESS"
 ```
 
 ---
@@ -431,36 +397,29 @@ The 2% trading fee goes **entirely to the protocol treasury (REVENUE_ACCOUNT)**.
 ### One-command launch (interactive)
 
 ```bash
-agentlaunch config set-key $MY_API_KEY
-agentlaunch create
+npx agentlaunch
 ```
 
-### Step-by-step
+### With name specified
 
 ```bash
-agentlaunch config set-key $MY_API_KEY
-agentlaunch scaffold my-agent --type research
+npx agentlaunch my-agent
+```
+
+### Scaffold only (no deploy)
+
+```bash
+npx agentlaunch my-agent --local
 cd my-agent
-cp .env.example .env  # fill in values
 # Edit agent.py to add your business logic
-agentlaunch deploy
-# Copy the agent address printed above
-agentlaunch tokenize --agent agent1qXXX --name "My Agent" --symbol MYAG
-# Share the handoff link with a human to complete on-chain deployment
+npx agentlaunch deploy
 ```
 
 ### Headless CI pipeline
 
 ```bash
-# All flags provided, JSON output — no interactive prompts
-agentlaunch create \
-  --name "Price Oracle" \
-  --ticker PORC \
-  --template trading \
-  --chain 97 \
-  --deploy \
-  --tokenize \
-  --json | jq .handoffLink
+# JSON output — no interactive prompts
+npx agentlaunch my-agent --json | jq .agentAddress
 ```
 
 ---

@@ -14,15 +14,20 @@ from uagents_core.contrib.protocols.payment import (
 )
 ```
 
-## Role-Based Protocol Creation
+## Protocol Creation
 
 ```python
-# Seller (service provider)
-seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+from uagents import Protocol
 
-# Buyer (service consumer)
-buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+# Create payment protocol instance (role is inferred from handlers you register)
+payment_proto = Protocol(spec=payment_protocol_spec)
+
+# Register seller handlers (CommitPayment, RejectPayment, CancelPayment)
+# OR buyer handlers (RequestPayment, CompletePayment)
+# The handlers you register determine the role
 ```
+
+**Note:** `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=...)`.
 
 ## Payment Flow
 

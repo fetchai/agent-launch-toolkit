@@ -41,7 +41,7 @@ export { listTemplates, getTemplate, getCanonicalName } from "./registry.js";
 
 // Re-export generator types and function
 export type { GenerateResult, GenerateOptions } from "./generator.js";
-export { generateFromTemplate } from "./generator.js";
+export { generateFromTemplate, generateSystemPrompt, generateWelcomeMessage } from "./generator.js";
 
 // Re-export presets
 export type { Preset } from "./presets.js";

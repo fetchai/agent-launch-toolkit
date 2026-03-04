@@ -158,7 +158,7 @@ from uagents_core.contrib.protocols.payment import (
 )
 
 # Create seller protocol (service provider)
-seller_proto = agent.create_protocol(spec=payment_protocol_spec, role="seller")
+seller_proto = Protocol(spec=payment_protocol_spec)
 
 @chat_proto.on_message(ChatMessage)
 async def handle_service_request(ctx: Context, sender: str, msg: ChatMessage):
@@ -186,7 +186,7 @@ async def handle_payment(ctx: Context, sender: str, msg: CommitPayment):
 
 ```python
 # Create buyer protocol (service consumer)
-buyer_proto = agent.create_protocol(spec=payment_protocol_spec, role="buyer")
+buyer_proto = Protocol(spec=payment_protocol_spec)
 
 @buyer_proto.on_message(RequestPayment)
 async def handle_payment_request(ctx: Context, sender: str, msg: RequestPayment):

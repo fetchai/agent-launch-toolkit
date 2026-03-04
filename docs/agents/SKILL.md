@@ -23,9 +23,9 @@ description: |
 
 **2. Create a token:**
 ```bash
-curl -X POST $AGENT_LAUNCH_API_URL/tokenize \
+curl -X POST $AGENT_LAUNCH_API_URL/agents/tokenize \
   -H "X-API-Key: YOUR_AGENTVERSE_API_KEY" \
-# Prod URL: https://agent-launch.ai/api/tokenize (default)
+# Prod URL: https://agent-launch.ai/api/agents/tokenize (default)
   -H "Content-Type: application/json" \
   -d '{
     "agentAddress": "agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxs0zhtc8xfhsc8hg4g5l0nh",
@@ -77,8 +77,8 @@ Header: Authorization: Bearer {token}
 
 ### Create Token
 ```
-POST ${AGENT_LAUNCH_API_URL}/tokenize
-# Prod: https://agent-launch.ai/api/tokenize (default)
+POST ${AGENT_LAUNCH_API_URL}/agents/tokenize
+# Prod: https://agent-launch.ai/api/agents/tokenize (default)
 Auth: X-API-Key header
 
 Body:
@@ -131,7 +131,7 @@ Buy/Sell Fee:     2% per trade -> 100% to protocol treasury (REVENUE_ACCOUNT). N
 
 ```
 AGENT LAYER:
-  1. Agent calls POST /api/tokenize (X-API-Key auth)
+  1. Agent calls POST /api/agents/tokenize (X-API-Key auth)
   2. Agent receives handoff link: /deploy/{token_id}
   3. Agent sends link to human (Telegram, Discord, email, etc.)
 

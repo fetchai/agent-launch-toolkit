@@ -201,6 +201,36 @@ export function registerTokenizeCommand(program: Command): void {
           process.exit(1);
         }
 
+        // Security: Validate image URL if provided (SSRF prevention)
+        if (options.image) {
+          try {
+            const parsedUrl = new URL(options.image);
+            if (parsedUrl.protocol !== 'https:') {
+              if (isJson) {
+                console.log(
+                  JSON.stringify({
+                    error: '--image URL must use HTTPS protocol',
+                  }),
+                );
+              } else {
+                console.error('Error: --image URL must use HTTPS protocol');
+              }
+              process.exit(1);
+            }
+          } catch {
+            if (isJson) {
+              console.log(
+                JSON.stringify({
+                  error: '--image must be a valid URL',
+                }),
+              );
+            } else {
+              console.error('Error: --image must be a valid URL');
+            }
+            process.exit(1);
+          }
+        }
+
         const body: TokenizeBody = {
           agentAddress: options.agent,
           name: options.name,

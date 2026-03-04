@@ -84,6 +84,8 @@ export type {
   AgentverseUpdateOptions,
   AgentverseUpdateResult,
   OptimizationCheckItem,
+  // SDK-002: Error code type
+  AgentLaunchErrorCode,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 

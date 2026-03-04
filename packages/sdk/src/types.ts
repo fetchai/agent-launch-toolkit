@@ -29,18 +29,56 @@ export interface AgentLaunchConfig {
 // Error
 // ---------------------------------------------------------------------------
 
+/** Error codes for semantic error handling */
+export type AgentLaunchErrorCode =
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'RATE_LIMITED'
+  | 'VALIDATION_ERROR'
+  | 'INTERNAL_ERROR'
+  | 'NETWORK_ERROR';
+
+/** Map HTTP status to error code */
+function statusToCode(status: number): AgentLaunchErrorCode {
+  switch (status) {
+    case 401: return 'UNAUTHORIZED';
+    case 403: return 'FORBIDDEN';
+    case 404: return 'NOT_FOUND';
+    case 429: return 'RATE_LIMITED';
+    case 422: return 'VALIDATION_ERROR';
+    case 0: return 'NETWORK_ERROR';
+    default: return status >= 500 ? 'INTERNAL_ERROR' : 'VALIDATION_ERROR';
+  }
+}
+
 /** Typed error thrown by every SDK method on a non-2xx response. */
 export class AgentLaunchError extends Error {
   /** HTTP status code returned by the server (0 if network-level failure). */
   readonly status: number;
   /** Original server message when available. */
   readonly serverMessage: string | undefined;
+  /** Semantic error code for switch-based handling. */
+  readonly code: AgentLaunchErrorCode;
+  /** Additional error details when available. */
+  readonly details?: Record<string, unknown>;
+  /** Retry delay in ms for rate-limited requests (from Retry-After header). */
+  readonly retryAfterMs?: number;
 
-  constructor(message: string, status: number, serverMessage?: string) {
+  constructor(
+    message: string,
+    status: number,
+    serverMessage?: string,
+    details?: Record<string, unknown>,
+    retryAfterMs?: number
+  ) {
     super(message);
     this.name = 'AgentLaunchError';
     this.status = status;
     this.serverMessage = serverMessage;
+    this.code = statusToCode(status);
+    this.details = details;
+    this.retryAfterMs = retryAfterMs;
     // Restore prototype chain when targeting older runtimes
     Object.setPrototypeOf(this, AgentLaunchError.prototype);
   }

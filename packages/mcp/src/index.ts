@@ -218,9 +218,9 @@ export const TOOLS = [
         },
         type: {
           type: "string",
-          enum: ["swarm-starter", "faucet", "research", "trading", "data", "genesis"],
+          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data", "genesis"],
           description:
-            "Agent type — controls default domain, rate limits, and business logic scaffold. 'swarm-starter' (recommended) includes full commerce stack. Defaults to 'research'.",
+            "Agent template type — controls business logic scaffold. 'chat-memory' (default) includes LLM + conversation memory. 'swarm-starter' includes full commerce stack. Defaults to 'chat-memory'.",
         },
         outputDir: {
           type: "string",
@@ -322,9 +322,9 @@ export const TOOLS = [
         },
         template: {
           type: "string",
-          enum: ["swarm-starter", "faucet", "research", "trading", "data", "genesis"],
+          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data", "genesis"],
           description:
-            "Agent template type — controls the scaffolded business logic. 'swarm-starter' (recommended) includes full commerce stack. Defaults to 'research'.",
+            "Agent template type — controls the scaffolded business logic. 'chat-memory' (default) includes LLM + conversation memory. 'swarm-starter' includes full commerce stack. Defaults to 'chat-memory'.",
         },
         ticker: {
           type: "string",

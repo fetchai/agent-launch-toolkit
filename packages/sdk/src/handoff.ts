@@ -16,6 +16,19 @@
 import type { TradeLinkOptions, TradeAction } from './types.js';
 import { getFrontendUrl } from './urls.js';
 
+/** Regex to validate Ethereum addresses: 0x followed by exactly 40 hex characters */
+const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
+/**
+ * Validates that an address is a valid Ethereum address format.
+ * Prevents URL injection via addresses containing special characters like ? or #.
+ */
+function validateEthAddress(address: string): void {
+  if (!ETH_ADDRESS_REGEX.test(address)) {
+    throw new Error(`Invalid token address format: ${address}. Expected 0x followed by 40 hex characters.`);
+  }
+}
+
 /** Resolve the platform base URL from the optional override or environment. */
 function resolveBaseUrl(baseUrl?: string): string {
   return (
@@ -90,6 +103,9 @@ export function generateTradeLink(
   opts: TradeLinkOptions = {},
   baseUrl?: string,
 ): string {
+  // Security: Validate address format to prevent URL injection
+  validateEthAddress(address);
+
   const base = resolveBaseUrl(baseUrl);
   const params = new URLSearchParams();
 

@@ -7,7 +7,7 @@ building, deploying, and tokenizing AI agents on the Fetch.ai ecosystem.
 
 This toolkit lets AI agents (including you) do the full lifecycle:
 
-1. **Scaffold** agent code from 7 templates (swarm-starter recommended)
+1. **Create** an agent with one command (chat-memory template by default)
 2. **Deploy** to Agentverse (Fetch.ai's agent hosting platform)
 3. **Tokenize** on AgentLaunch (create a tradeable ERC-20 token)
 4. **Hand off** a link for a human to sign the blockchain transaction
@@ -22,7 +22,7 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
 | **CLI** | `packages/cli/` | 13 commands, one-command full lifecycle |
 | **MCP Server** | `packages/mcp/` | 17+ tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 7 production-ready agent blueprints (swarm-starter recommended) |
+| **Templates** | `packages/templates/` | 8 agent blueprints (chat-memory is default) |
 
 ## Authentication
 
@@ -58,7 +58,9 @@ npm run test
 npm run clean
 
 # Run CLI
-npx agentlaunch create                     # Interactive: scaffold -> deploy -> tokenize
+npx agentlaunch                            # Interactive: prompts for name, deploys, opens Claude Code
+npx agentlaunch my-agent                   # Create agent named "my-agent" (deploys by default)
+npx agentlaunch my-agent --local           # Scaffold only, no deploy
 npx agentlaunch list                       # List all tokens
 npx agentlaunch status 0x...               # Check a token
 npx agentlaunch optimize agent1q...        # Update README/description/avatar for ranking
@@ -83,9 +85,9 @@ agent-launch-toolkit/
   CLAUDE.md                 # This file (Claude Code reads it first)
   packages/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
-    cli/                    # agentlaunch-cli (interactive + scripted commands)
+    cli/                    # agentlaunch (interactive + scripted commands)
     mcp/                    # agent-launch-mcp (14+ tools for Claude Code)
-    templates/              # agentlaunch-templates (7 agent blueprints, swarm-starter recommended)
+    templates/              # agentlaunch-templates (8 agent blueprints, chat-memory is default)
   .claude/
     settings.json           # MCP server config, permissions
     rules/                  # Auto-loaded coding rules
@@ -164,7 +166,8 @@ You have access to these tools:
 
 | Template | Description | Use Case |
 |----------|-------------|----------|
-| `swarm-starter` | **Full commerce stack** (recommended) | Any agent that charges for services |
+| `chat-memory` | **LLM + conversation memory** (default) | Most agents — smart conversations out of the box |
+| `swarm-starter` | Full commerce stack | Agents that charge for services |
 | `custom` | Blank Chat Protocol boilerplate | Start from scratch |
 | `price-monitor` | Watches token prices, sends alerts | Monitoring service |
 | `trading-bot` | Buy/sell signal generation | Trading service |
@@ -208,23 +211,39 @@ There is NO creator fee split. The contract has no mechanism to send fees to cre
 
 ### Get Testnet Tokens
 
-**Option 1: Message the $GIFT Agent (Recommended)**
+**Message @gift on Agentverse (Recommended)**
 
-The $GIFT agent distributes testnet tokens to new developers:
+The @gift agent is the testnet faucet — it distributes tokens to new developers so you can deploy without hunting for faucets.
+
 ```
+Handle:   @gift
 Agent:    agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 Token:    0xF7e2F77f014a5ad3C121b1942968be33BA89e03c ($GIFT on BSC Testnet)
 Chat:     https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 Trade:    https://agent-launch.ai/token/0xF7e2F77f014a5ad3C121b1942968be33BA89e03c
 ```
 
-Commands:
-- `claim 0x<your-wallet>` — Get 150 TFET + 0.01 tBNB (one-time welcome gift)
+**How to get tokens:**
+1. Open the chat link above (or search @gift on Agentverse)
+2. Send: `claim 0x<your-wallet-address>`
+3. Receive 200 TFET + 0.001 tBNB instantly
+
+**What you get:**
+| Reward | Amount | Requirements |
+|--------|--------|--------------|
+| Welcome Gift | 200 TFET + 0.001 tBNB | Up to 3 claims per agent |
+| Referral | 10 TFET | `refer agent1q... 0x...` |
+| Builder Reward | 20 TFET/week | Must have deployed token |
+
+The 200 TFET covers the 120 FET deploy fee with 80 FET left for trading.
+
+**Other commands:**
 - `status` — Check treasury balance
 - `help` — Full command list
+- `refer agent1q... 0x...` — Refer another agent, earn 10 FET
 
-**Option 2: BSC Testnet Faucet**
-- tBNB: https://testnet.bnbchain.org/faucet-smart
+**Alternative: BSC Testnet Faucet**
+- tBNB only: https://testnet.bnbchain.org/faucet-smart
 
 ## Agentverse API Gotchas
 
@@ -308,7 +327,7 @@ When asked to "create todo from doc" or similar:
 ```markdown
 | Status | ID | Task | How | KPI | Depends |
 |:---:|:---|:---|:---|:---|:---|
-| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` ... | All 7 running | — |
+| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch` ... | All 7 running | — |
 | `[ ]` | L-2 | Fund wallets | Send ~15 FET ... | Balances confirmed | L-1 |
 ```
 

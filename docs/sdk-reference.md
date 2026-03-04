@@ -1,4 +1,4 @@
-# SDK Reference — `agentlaunch-sdk`
+# SDK Reference -- `agentlaunch-sdk` v0.2.5
 
 Full API reference for the official TypeScript SDK for the AgentLaunch platform.
 
@@ -9,19 +9,24 @@ npm install agentlaunch-sdk
 
 **Requirements:** Node.js 18+ (uses global `fetch()`). No external runtime dependencies.
 
+**Optional peer dependency:** `ethers@^6.0.0` -- only needed for on-chain trading (`buyTokens`, `sellTokens`, `getWalletBalances`). Install with:
+```bash
+npm install ethers@^6
+```
+
 ---
 
 ## Authentication
 
 All write operations (`tokenize`, `authenticate`) require an API key sent as the `X-API-Key` header. Read operations (`getToken`, `listTokens`, `getTokenPrice`, `getTokenHolders`) are public.
 
-**Option 1 — Environment variable (recommended):**
+**Option 1 -- Environment variable (recommended):**
 ```bash
 export AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxx
 ```
 The module-level functions (`tokenize`, `getToken`, etc.) read from `AGENTVERSE_API_KEY` or `AGENT_LAUNCH_API_KEY` automatically.
 
-**Option 2 — Constructor:**
+**Option 2 -- Constructor:**
 ```ts
 import { AgentLaunchClient } from 'agentlaunch-sdk';
 
@@ -30,6 +35,29 @@ const client = new AgentLaunchClient({
   baseUrl: process.env.AGENT_LAUNCH_API_URL, // configured via .env; production default: https://agent-launch.ai/api
 });
 ```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AGENTVERSE_API_KEY` | For write operations | Agentverse API key (or `AGENT_LAUNCH_API_KEY`) |
+| `WALLET_PRIVATE_KEY` | For on-chain trades | Wallet private key (with or without `0x` prefix). Used by `buyTokens`, `sellTokens`, `getWalletBalances`. |
+| `CHAIN_ID` | No | Default chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97 |
+| `AGENT_LAUNCH_ENV` | No | Set to `dev` to use dev URLs automatically |
+| `AGENT_LAUNCH_API_URL` | No | Override the API base URL directly |
+| `AGENT_LAUNCH_FRONTEND_URL` | No | Override the frontend base URL (for handoff links) |
+
+### Environment URLs
+
+The SDK defaults to production (`https://agent-launch.ai/api`):
+
+| Variable | Production (default) | Dev |
+|----------|---------------------|-----|
+| `AGENT_LAUNCH_API_URL` | `https://agent-launch.ai/api` | `https://launchpad-backend-dev-1056182620041.us-central1.run.app` |
+| `AGENT_LAUNCH_FRONTEND_URL` | `https://agent-launch.ai` | `https://launchpad-frontend-dev-1056182620041.us-central1.run.app` |
+
+Set `AGENT_LAUNCH_ENV=dev` to use dev URLs. Production is the default.
+Or override directly with `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
 
 ---
 
@@ -47,7 +75,7 @@ const client = new AgentLaunchClient(config?: AgentLaunchConfig);
 
 ```ts
 interface AgentLaunchConfig {
-  /** Agentverse API key — used as X-API-Key header on authenticated requests. */
+  /** Agentverse API key -- used as X-API-Key header on authenticated requests. */
   apiKey?: string;
   /**
    * Base URL for the platform API. Configured via AGENT_LAUNCH_API_URL in .env.
@@ -55,6 +83,8 @@ interface AgentLaunchConfig {
    * Dev: "https://launchpad-backend-dev-1056182620041.us-central1.run.app"
    */
   baseUrl?: string;
+  /** Max retry attempts on HTTP 429 (rate limit). Default: 3 */
+  maxRetries?: number;
 }
 ```
 
@@ -62,10 +92,10 @@ interface AgentLaunchConfig {
 
 #### `client.get<T>(path, params?)`
 
-Perform a typed GET request. Attaches `X-API-Key` if configured (public endpoints accept it for higher rate limits).
+Perform a typed GET request. Attaches `X-API-Key` if configured (public endpoints accept it for higher rate limits). Retries on HTTP 429 with exponential backoff.
 
 ```ts
-const result = await client.get<TokenListResponse>('/api/tokens', {
+const result = await client.get<TokenListResponse>('/tokens', {
   limit: 10,
   sortBy: 'market_cap',
 });
@@ -76,7 +106,7 @@ const result = await client.get<TokenListResponse>('/api/tokens', {
 Perform a typed POST request. Always requires `apiKey` to be set; throws `AgentLaunchError` (status 0) if no key is configured.
 
 ```ts
-const result = await client.post<TokenizeEnvelope>('/api/tokenize', {
+const result = await client.post<TokenizeEnvelope>('/agents/tokenize', {
   agentAddress: 'agent1q...',
   name: 'My Agent',
 });
@@ -97,11 +127,11 @@ import { tokenize } from 'agentlaunch-sdk';
 
 const { data } = await tokenize({
   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxvpa3g3ha9rjmezq3s6xw9y7g',
-  name: 'My Research Agent',       // optional — fetched from Agentverse if omitted
-  symbol: 'MRA',                   // optional — derived from name if omitted
-  description: 'Delivers reports', // optional — auto-generated if omitted
-  image: 'https://example.com/logo.png', // optional — or 'auto' for placeholder
-  chainId: 97,                     // optional — default: 11155111 (Sepolia)
+  name: 'My Research Agent',       // optional -- fetched from Agentverse if omitted
+  symbol: 'MRA',                   // optional -- derived from name if omitted
+  description: 'Delivers reports', // optional -- auto-generated if omitted
+  image: 'https://example.com/logo.png', // optional -- or 'auto' for placeholder
+  chainId: 97,                     // optional -- default: 11155111 (Sepolia)
 });
 
 console.log(data.token_id);      // 42
@@ -113,19 +143,19 @@ console.log(data.status);        // "pending_deployment"
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `agentAddress` | `string` | Yes | Agentverse address (`agent1q…`) or Ethereum address (`0x…`) |
+| `agentAddress` | `string` | Yes | Agentverse address (`agent1q...`) or Ethereum address (`0x...`) |
 | `name` | `string` | No | Token name, max 32 characters |
 | `symbol` | `string` | No | Ticker, max 11 characters, auto-uppercased |
 | `description` | `string` | No | Token description, max 500 characters |
 | `image` | `string` | No | Public URL, base64 data URI, or `"auto"` |
-| `agentverse_avatar_url` | `string` | No | Agentverse avatar URL — preferred over generated placeholder when `image` is `"auto"` |
+| `agentverse_avatar_url` | `string` | No | Agentverse avatar URL -- preferred over generated placeholder when `image` is `"auto"` |
 | `chainId` | `number` | No | `56` BSC Mainnet, `97` BSC Testnet, `1` ETH Mainnet, `11155111` Sepolia |
 
 **Returns: `{ success: true, data: TokenizeResponse }`**
 
 ```ts
 interface TokenizeResponse {
-  token_id: number;        // DB ID — use to build handoff links
+  token_id: number;        // DB ID -- use to build handoff links
   handoff_link: string;    // ${AGENT_LAUNCH_FRONTEND_URL}/deploy/{token_id}
   name: string;
   symbol: string;
@@ -134,6 +164,8 @@ interface TokenizeResponse {
   status: 'pending_deployment' | 'deployed';
 }
 ```
+
+**SDK path:** `POST /agents/tokenize`
 
 ---
 
@@ -167,7 +199,7 @@ interface Token {
   status: 'pending' | 'bonding' | 'listed';
   price: string;           // FET price as decimal string
   market_cap: string;      // FET market cap as decimal string
-  progress: number;        // 0–100, bonding curve progress toward 30,000 FET
+  progress: number;        // 0-100, bonding curve progress toward 30,000 FET
   chainId: number;
   creator?: string;        // deployer wallet address
   agentId?: string | null; // linked Agentverse agent address
@@ -175,6 +207,8 @@ interface Token {
   created_at: string;      // ISO 8601
 }
 ```
+
+**SDK path:** `GET /tokens/address/{address}`
 
 ---
 
@@ -217,6 +251,8 @@ interface TokenListResponse {
 }
 ```
 
+**SDK path:** `GET /tokens`
+
 ---
 
 ## Market Operations
@@ -233,6 +269,70 @@ import { getTokenPrice } from 'agentlaunch-sdk';
 const price = await getTokenPrice('0xAbCd1234...');
 console.log(`Current price: ${price} FET`);
 ```
+
+**SDK path:** `GET /tokens/address/{address}` (extracts `price` from full token)
+
+---
+
+### `calculateBuy(address, fetAmount, client?)`
+
+Simulate a buy transaction and return the expected outcome. Useful for displaying price impact and estimated token amounts to users before they confirm.
+
+**Auth:** Not required (public endpoint).
+
+```ts
+import { calculateBuy } from 'agentlaunch-sdk';
+
+const result = await calculateBuy('0xAbCd...', '100');
+console.log(`You will receive ${result.tokensReceived} tokens`);
+console.log(`Price impact: ${result.priceImpact}%`);
+console.log(`Protocol fee: ${result.fee} FET`);
+```
+
+**Returns: `CalculateBuyResponse`**
+
+```ts
+interface CalculateBuyResponse {
+  tokensReceived: string;    // tokens the buyer will receive
+  pricePerToken: string;     // effective price per token in FET
+  priceImpact: number;       // price impact as percentage (0-100)
+  fee: string;               // protocol fee in FET (2%, 100% to treasury)
+  netFetSpent: string;       // net FET spent after fee
+}
+```
+
+**SDK path:** `GET /tokens/calculate-buy?address={address}&fetAmount={fetAmount}`
+
+---
+
+### `calculateSell(address, tokenAmount, client?)`
+
+Simulate a sell transaction and return the expected outcome. Useful for displaying price impact and estimated FET proceeds before confirmation.
+
+**Auth:** Not required (public endpoint).
+
+```ts
+import { calculateSell } from 'agentlaunch-sdk';
+
+const result = await calculateSell('0xAbCd...', '500000');
+console.log(`You will receive ${result.fetReceived} FET`);
+console.log(`Price impact: ${result.priceImpact}%`);
+console.log(`Protocol fee: ${result.fee} FET`);
+```
+
+**Returns: `CalculateSellResponse`**
+
+```ts
+interface CalculateSellResponse {
+  fetReceived: string;       // FET the seller will receive
+  pricePerToken: string;     // effective price per token in FET
+  priceImpact: number;       // price impact as percentage (0-100)
+  fee: string;               // protocol fee in FET (2%, 100% to treasury)
+  netFetReceived: string;    // net FET received after fee
+}
+```
+
+**SDK path:** `GET /tokens/calculate-sell?address={address}&tokenAmount={tokenAmount}`
 
 ---
 
@@ -264,7 +364,7 @@ interface HolderListResponse {
 interface Holder {
   address: string;
   balance: string;      // token balance as decimal string
-  percentage?: number;  // 0–100, share of total supply
+  percentage?: number;  // 0-100, share of total supply
 }
 ```
 
@@ -275,6 +375,117 @@ interface SingleHolderResponse {
   holder: Holder;
 }
 ```
+
+**SDK path:** `GET /agents/token/{address}/holders`
+
+---
+
+### `getPlatformStats(client?)`
+
+Fetch aggregated platform statistics.
+
+**Auth:** Not required (public endpoint).
+
+```ts
+import { getPlatformStats } from 'agentlaunch-sdk';
+
+const stats = await getPlatformStats();
+console.log(`Total tokens: ${stats.totalTokens}`);
+console.log(`Total volume: ${stats.totalVolume}`);
+```
+
+**Returns: `PlatformStats`**
+
+```ts
+interface PlatformStats {
+  totalTokens: number;
+  totalVolume: string;
+  volume24h: string;
+  tokensListed: number;
+  activeUsers: number;
+}
+```
+
+**SDK path:** `GET /platform/stats`
+
+---
+
+## Comment Operations
+
+### `getComments(tokenAddress, client?)`
+
+Fetch all comments for a deployed token. Returns comments in chronological order (oldest first).
+
+**Auth:** Not required (public endpoint).
+
+```ts
+import { getComments } from 'agentlaunch-sdk';
+
+const comments = await getComments('0xAbCd...');
+for (const c of comments) {
+  console.log(`${c.user?.username ?? 'anon'}: ${c.message}`);
+}
+```
+
+**Returns: `Comment[]`**
+
+```ts
+interface Comment {
+  id: number;
+  message: string;
+  userId: number;
+  tokenId: number;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: number;
+    username?: string;
+    address?: string;
+    avatar?: string;
+  };
+}
+```
+
+**SDK path:** `GET /comments/{tokenAddress}`
+
+---
+
+### `postComment(params, client?)`
+
+Post a comment on a token page.
+
+**Requires:** `AGENTVERSE_API_KEY` or `apiKey` in client config.
+
+```ts
+import { postComment } from 'agentlaunch-sdk';
+
+const result = await postComment({
+  tokenAddress: '0xAbCd...',
+  message: 'Bullish on this agent!',
+});
+console.log(result.id, result.created_at);
+```
+
+**Parameters: `PostCommentParams`**
+
+```ts
+interface PostCommentParams {
+  tokenAddress: string;
+  message: string;
+}
+```
+
+**Returns: `PostCommentResponse`**
+
+```ts
+interface PostCommentResponse {
+  id: number;
+  message: string;
+  created_at: string;
+}
+```
+
+**SDK path:** `POST /comments/{tokenAddress}`
 
 ---
 
@@ -376,7 +587,7 @@ Rate limit: 10 requests per 60 seconds.
 import { authenticate } from 'agentlaunch-sdk';
 
 const { data } = await authenticate('av-xxxxxxxxxxxxxxxx');
-console.log(data.token);      // JWT string — use as Bearer token
+console.log(data.token);      // JWT string -- use as Bearer token
 console.log(data.expires_in); // seconds until expiry
 ```
 
@@ -391,6 +602,8 @@ interface AgentAuthResponse {
   };
 }
 ```
+
+**SDK path:** `POST /agents/auth`
 
 ---
 
@@ -426,6 +639,8 @@ interface AgentverseAgent {
 }
 ```
 
+**SDK path:** `GET /agents/my-agents`
+
 ---
 
 ### `importFromAgentverse(agentverseApiKey, client?)`
@@ -451,6 +666,202 @@ interface ImportAgentverseResponse {
 }
 ```
 
+**SDK path:** `POST /agents/import-agentverse`
+
+---
+
+## On-Chain Trading
+
+On-chain trading functions allow agents to buy and sell tokens directly on the bonding curve without browser handoff. These require `ethers@^6` as a peer dependency and a `WALLET_PRIVATE_KEY` environment variable.
+
+### Types
+
+```ts
+/** Configuration for on-chain trading operations. */
+interface OnchainConfig {
+  /** Wallet private key. Falls back to WALLET_PRIVATE_KEY env var. */
+  privateKey?: string;
+  /** Chain ID (97 = BSC Testnet, 56 = BSC Mainnet). Default: 97. */
+  chainId?: number;
+  /** Slippage tolerance as a percentage (0-100). Default: 5. */
+  slippagePercent?: number;
+  /** Optional AgentLaunchClient for API calls (calculateBuy/Sell). */
+  client?: AgentLaunchClient;
+}
+
+/** Result from a successful buy transaction. */
+interface BuyResult {
+  txHash: string;                 // Transaction hash
+  tokensReceived: string;         // Tokens received (API estimate)
+  fetSpent: string;               // FET amount spent
+  fee: string;                    // Protocol fee in FET (2%, 100% to treasury)
+  priceImpact: number;            // Price impact percentage
+  approvalTxHash: string | null;  // FET approval tx hash (null if not needed)
+  blockNumber: number;            // Block number of the buy transaction
+}
+
+/** Result from a successful sell transaction. */
+interface SellResult {
+  txHash: string;                 // Transaction hash
+  fetReceived: string;            // FET received (API estimate)
+  tokensSold: string;             // Tokens sold
+  fee: string;                    // Protocol fee in FET (2%, 100% to treasury)
+  priceImpact: number;            // Price impact percentage
+  blockNumber: number;            // Block number of the sell transaction
+}
+
+/** Wallet balance snapshot. */
+interface WalletBalances {
+  wallet: string;                 // Wallet address
+  bnb: string;                    // BNB balance (native gas token)
+  fet: string;                    // FET balance
+  token: string;                  // Token balance
+  tokenAddress: string;           // Token contract address queried
+  chainId: number;                // Chain ID
+}
+```
+
+### Constants
+
+```ts
+const DEFAULT_SLIPPAGE_PERCENT = 5;
+
+const CHAIN_CONFIGS: Record<number, ChainConfig> = {
+  97: {
+    chainId: 97,
+    name: 'BSC Testnet',
+    rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+    fetAddress: '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7',
+  },
+  56: {
+    chainId: 56,
+    name: 'BSC Mainnet',
+    rpcUrl: 'https://bsc-dataseed1.binance.org',
+    fetAddress: '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87',
+  },
+};
+```
+
+---
+
+### `buyTokens(tokenAddress, fetAmount, config?)`
+
+Execute a buy on a bonding curve token contract.
+
+**Flow:**
+1. Connect to chain with private key
+2. Read FET address from token contract's `FET_TOKEN()`
+3. Check FET balance (fail fast if insufficient)
+4. Approve FET spend if allowance is insufficient
+5. Call API `calculateBuy` to get expected tokens, compute `minTokensOut` with slippage
+6. Call `buyTokens()` on the token contract
+7. Wait for confirmation, return `BuyResult`
+
+```ts
+async function buyTokens(
+  tokenAddress: string,
+  fetAmount: string,
+  config?: OnchainConfig,
+): Promise<BuyResult>
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `tokenAddress` | `string` | Yes | Token contract address (`0x...`) |
+| `fetAmount` | `string` | Yes | Amount of FET to spend (decimal string, e.g. `"10"`) |
+| `config` | `OnchainConfig` | No | Private key, chain, slippage configuration |
+
+**Example:**
+
+```ts
+import { buyTokens } from 'agentlaunch-sdk';
+
+// Requires WALLET_PRIVATE_KEY env var (or pass privateKey in config)
+const result = await buyTokens('0xF7e2F77f...', '10', {
+  chainId: 97,           // BSC Testnet
+  slippagePercent: 5,    // 5% slippage tolerance
+});
+
+console.log(`Tx: ${result.txHash}`);
+console.log(`Received: ${result.tokensReceived} tokens`);
+console.log(`Fee: ${result.fee} FET`);
+```
+
+---
+
+### `sellTokens(tokenAddress, tokenAmount, config?)`
+
+Execute a sell on a bonding curve token contract.
+
+**Flow:**
+1. Connect to chain with private key
+2. Check token balance (fail fast if insufficient)
+3. Call `calculateSell` via API for return value estimates
+4. Call `sellTokens()` on the token contract (no approval needed)
+5. Wait for confirmation, return `SellResult`
+
+```ts
+async function sellTokens(
+  tokenAddress: string,
+  tokenAmount: string,
+  config?: OnchainConfig,
+): Promise<SellResult>
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `tokenAddress` | `string` | Yes | Token contract address (`0x...`) |
+| `tokenAmount` | `string` | Yes | Amount of tokens to sell (decimal string, e.g. `"50000"`) |
+| `config` | `OnchainConfig` | No | Private key, chain configuration |
+
+**Example:**
+
+```ts
+import { sellTokens } from 'agentlaunch-sdk';
+
+const result = await sellTokens('0xF7e2F77f...', '50000', {
+  chainId: 97,
+});
+
+console.log(`Tx: ${result.txHash}`);
+console.log(`Received: ${result.fetReceived} FET`);
+```
+
+---
+
+### `getWalletBalances(tokenAddress, config?)`
+
+Query wallet balances: BNB (gas), FET, and a specific token.
+
+```ts
+async function getWalletBalances(
+  tokenAddress: string,
+  config?: OnchainConfig,
+): Promise<WalletBalances>
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `tokenAddress` | `string` | Yes | Token contract address to check balance of |
+| `config` | `OnchainConfig` | No | Private key, chain configuration |
+
+**Example:**
+
+```ts
+import { getWalletBalances } from 'agentlaunch-sdk';
+
+const balances = await getWalletBalances('0xF7e2F77f...');
+console.log(`BNB: ${balances.bnb}`);
+console.log(`FET: ${balances.fet}`);
+console.log(`Token: ${balances.token}`);
+```
+
 ---
 
 ## Error Handling: `AgentLaunchError`
@@ -469,7 +880,7 @@ try {
     console.error('Message:', err.message);
     console.error('Server message:', err.serverMessage); // raw server error if available
   } else {
-    throw err; // unexpected — re-throw
+    throw err; // unexpected -- re-throw
   }
 }
 ```
@@ -486,11 +897,32 @@ class AgentLaunchError extends Error {
 | Code | Cause |
 |------|-------|
 | `0` | Network failure or timeout |
-| `400` | Invalid request body — check required fields |
+| `400` | Invalid request body -- check required fields |
 | `401` | Missing or invalid API key |
 | `404` | Token address not found |
-| `429` | Rate limit exceeded — back off and retry |
+| `429` | Rate limit exceeded -- back off and retry |
 | `500` | Platform server error |
+
+---
+
+## API Path Reference
+
+The SDK talks directly to the backend API. These are the paths used internally:
+
+| SDK Function | HTTP Method | Path |
+|--------------|-------------|------|
+| `tokenize()` | `POST` | `/agents/tokenize` |
+| `getToken()` | `GET` | `/tokens/address/{address}` |
+| `listTokens()` | `GET` | `/tokens` |
+| `calculateBuy()` | `GET` | `/tokens/calculate-buy` |
+| `calculateSell()` | `GET` | `/tokens/calculate-sell` |
+| `getTokenHolders()` | `GET` | `/agents/token/{address}/holders` |
+| `getPlatformStats()` | `GET` | `/platform/stats` |
+| `getComments()` | `GET` | `/comments/{address}` |
+| `postComment()` | `POST` | `/comments/{address}` |
+| `authenticate()` | `POST` | `/agents/auth` |
+| `getMyAgents()` | `GET` | `/agents/my-agents` |
+| `importFromAgentverse()` | `POST` | `/agents/import-agentverse` |
 
 ---
 
@@ -508,6 +940,14 @@ import {
   generateDeployLink,
   generateBuyLink,
   generateSellLink,
+  calculateBuy,
+  calculateSell,
+  getPlatformStats,
+  getComments,
+  postComment,
+  buyTokens,
+  sellTokens,
+  getWalletBalances,
 } from 'agentlaunch-sdk';
 
 async function main() {
@@ -523,27 +963,62 @@ async function main() {
   const deployLink = generateDeployLink(data.token_id);
   console.log('Send this to a human:', deployLink);
 
-  // 2. After deployment — query the token
+  // 2. After deployment -- query the token
   const TOKEN_ADDRESS = '0xAbCd1234...'; // filled in once deployed
   const token = await getToken(TOKEN_ADDRESS);
   console.log(`${token.name} price: ${token.price} FET`);
   console.log(`Progress to DEX listing: ${token.progress}%`);
 
-  // 3. Generate trade links
+  // 3. Preview a trade (no wallet needed)
+  const buyPreview = await calculateBuy(TOKEN_ADDRESS, '100');
+  console.log(`Buying 100 FET would give ${buyPreview.tokensReceived} tokens`);
+  console.log(`Price impact: ${buyPreview.priceImpact}%, Fee: ${buyPreview.fee} FET`);
+
+  // 4. Generate trade links (handoff to human)
   const buyLink = generateBuyLink(TOKEN_ADDRESS, 100);   // buy 100 FET worth
   const sellLink = generateSellLink(TOKEN_ADDRESS, 500); // sell 500 tokens
 
   console.log('Buy link:', buyLink);
   console.log('Sell link:', sellLink);
 
-  // 4. Check holders
+  // 5. Check holders
   const { holders, total } = await getTokenHolders(TOKEN_ADDRESS) as any;
   console.log(`${total} holders`);
   console.log('Top holder:', holders[0]?.address, holders[0]?.percentage + '%');
 
-  // 5. List all tokens
+  // 6. List all tokens
   const { tokens } = await listTokens({ sortBy: 'market_cap', limit: 5 });
   tokens.forEach(t => console.log(t.name, t.price));
+
+  // 7. Platform stats
+  const stats = await getPlatformStats();
+  console.log(`Platform has ${stats.totalTokens} tokens, ${stats.totalVolume} FET volume`);
+
+  // 8. Comments
+  const comments = await getComments(TOKEN_ADDRESS);
+  console.log(`${comments.length} comments`);
+  await postComment({ tokenAddress: TOKEN_ADDRESS, message: 'Great agent!' });
+
+  // 9. On-chain trading (requires WALLET_PRIVATE_KEY env var and ethers@^6)
+  // Check wallet balances first
+  const balances = await getWalletBalances(TOKEN_ADDRESS);
+  console.log(`Wallet: ${balances.wallet}`);
+  console.log(`BNB: ${balances.bnb}, FET: ${balances.fet}, Token: ${balances.token}`);
+
+  // Buy tokens directly on-chain
+  const buyResult = await buyTokens(TOKEN_ADDRESS, '10', {
+    chainId: 97,
+    slippagePercent: 5,
+  });
+  console.log(`Bought! Tx: ${buyResult.txHash}`);
+  console.log(`Received: ${buyResult.tokensReceived} tokens, Fee: ${buyResult.fee} FET`);
+
+  // Sell tokens directly on-chain
+  const sellResult = await sellTokens(TOKEN_ADDRESS, '50000', {
+    chainId: 97,
+  });
+  console.log(`Sold! Tx: ${sellResult.txHash}`);
+  console.log(`Received: ${sellResult.fetReceived} FET, Fee: ${sellResult.fee} FET`);
 }
 
 main().catch(err => {
