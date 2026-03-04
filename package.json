@@ -11,6 +11,7 @@
     "test": "npm run test --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
+    "test:publish": "bash scripts/test-publish.sh",
     "deploy": "python3 examples/scripts/deploy-to-agentverse.py",
     "cli": "npx agentlaunch",
     "mcp": "npx agent-launch-mcp"
