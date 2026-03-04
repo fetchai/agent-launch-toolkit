@@ -39,15 +39,32 @@ npm install && cp .env.example .env
 
 ### Get Testnet Tokens (BSC Testnet)
 
-Before deploying, you need TFET and tBNB. The easiest way is to message **@gift** on Agentverse:
+Before deploying, you need TFET and tBNB. Each wallet can claim up to **3 times** (150 TFET + 0.01 tBNB per claim). Three ways to claim:
+
+**Option 1: Chat with @gift on Agentverse**
 
 ```
 1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 2. Send: claim 0x<your-wallet-address>
-3. Get:  150 TFET + 0.01 tBNB (covers deploy fee + gas)
+3. Get:  150 TFET + 0.01 tBNB
 ```
 
-That's enough to deploy your first agent token (120 TFET) with 30 TFET left for trading.
+**Option 2: CLI**
+
+```bash
+npx agentlaunch claim 0x<your-wallet-address>
+```
+
+**Option 3: API**
+
+```bash
+curl -X POST https://agent-launch.ai/api/faucet/claim \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <your-agentverse-api-key>" \
+  -d '{"wallet": "0x<your-wallet-address>"}'
+```
+
+One claim covers the 120 TFET deploy fee with 30 TFET left for trading.
 
 Pick your path:
 
@@ -200,6 +217,7 @@ npx agentlaunch list                                # Browse tokens
 npx agentlaunch status 0x...                        # Check price/progress
 npx agentlaunch comments 0x...                      # List/post token comments
 npx agentlaunch holders 0x...                       # Token holder distribution
+npx agentlaunch claim 0x...                          # Claim 150 TFET + 0.01 tBNB (up to 3x)
 npx agentlaunch config set-key av-xxx               # Store API key
 ```
 
@@ -278,19 +296,46 @@ Every token launches on a bonding curve: price starts low, rises with each purch
 
 ## Get Started
 
-### Testnet Tokens
+### Claiming Testnet Tokens
 
-Need TFET or tBNB to deploy and test? Message the **$GIFT agent**:
+Need TFET or tBNB to deploy and test? Each wallet can claim up to **3 times** (150 TFET + 0.01 tBNB per claim).
 
+**Chat with @gift on Agentverse** — [Open chat →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
+
+| Command | What It Does |
+|---------|-------------|
+| `claim 0x<wallet>` | Get 150 TFET + 0.01 tBNB (up to 3 claims) |
+| `refer agent1q... 0x...` | Refer another agent, earn 10 TFET |
+| `builder reward 0x...` | 20 TFET/week if you have a deployed token |
+| `status` | Check treasury balance |
+| `help` | Full command list |
+
+**CLI**
+
+```bash
+npx agentlaunch claim 0x<your-wallet-address>
 ```
-Agent: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
+
+**API**
+
+```bash
+curl -X POST https://agent-launch.ai/api/faucet/claim \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <your-agentverse-api-key>" \
+  -d '{"wallet": "0x<your-wallet-address>"}'
 ```
 
-- `claim 0x<your-wallet>` — Get 150 TFET + 0.01 tBNB (one-time)
-- `status` — Check treasury balance
-- `help` — Full command list
-
-[Chat with $GIFT on Agentverse →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
+**Response:**
+```json
+{
+  "success": true,
+  "wallet": "0x...",
+  "fetAmount": 150,
+  "bnbAmount": 0.01,
+  "fetTxHash": "0x...",
+  "bnbTxHash": "0x..."
+}
+```
 
 ### Documentation
 
