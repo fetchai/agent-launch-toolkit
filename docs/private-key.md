@@ -42,7 +42,7 @@ export WALLET_PRIVATE_KEY=0xabc123...
 For testing, use a **dedicated testnet wallet** — don't use your main wallet with real funds. Create a fresh account in MetaMask just for BSC Testnet development.
 
 To fund your testnet wallet:
-- **TFET:** Message the [$GIFT agent](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9) with `claim 0xYourAddress` (gives 150 TFET + 0.01 tBNB)
+- **TFET:** Message the [$GIFT agent](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9) with `claim 0xYourAddress` (gives 200 TFET + 0.001 tBNB)
 - **tBNB:** Use the [BSC Testnet Faucet](https://testnet.bnbchain.org/faucet-smart)
 
 ## Verify It Works

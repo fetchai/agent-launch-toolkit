@@ -226,16 +226,16 @@ Trade:    https://agent-launch.ai/token/0xF7e2F77f014a5ad3C121b1942968be33BA89e0
 **How to get tokens:**
 1. Open the chat link above (or search @gift on Agentverse)
 2. Send: `claim 0x<your-wallet-address>`
-3. Receive 150 TFET + 0.01 tBNB instantly
+3. Receive 200 TFET + 0.001 tBNB instantly
 
 **What you get:**
 | Reward | Amount | Requirements |
 |--------|--------|--------------|
-| Welcome Gift | 150 TFET + 0.01 tBNB | One-time per agent |
+| Welcome Gift | 200 TFET + 0.001 tBNB | Up to 3 claims per agent |
 | Referral | 10 TFET | `refer agent1q... 0x...` |
 | Builder Reward | 20 TFET/week | Must have deployed token |
 
-The 150 TFET covers the 120 FET deploy fee with 30 FET left for trading.
+The 200 TFET covers the 120 FET deploy fee with 80 FET left for trading.
 
 **Other commands:**
 - `status` — Check treasury balance

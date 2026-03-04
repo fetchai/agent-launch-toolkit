@@ -55,8 +55,8 @@ LINK_AGENTVERSE = "https://agentverse.ai"
 LINK_BSC_EXPLORER = "https://testnet.bscscan.com/tx/"
 
 # Reward amounts (BSC Testnet)
-WELCOME_FET = 150       # Covers 120 TFET deploy fee + 30 TFET seed capital
-WELCOME_BNB = 0.01      # Gas for a few transactions (reduced to save tBNB)
+WELCOME_FET = 200       # Covers 120 TFET deploy fee + 80 TFET seed capital
+WELCOME_BNB = 0.001     # Gas for a few transactions
 REFERRAL_FET = 10       # Both parties get this
 BUILDER_FET = 20        # Weekly for agents with deployed tokens
 MILESTONE_100_HOLDERS = 50   # Bonus for reaching 100 holders
