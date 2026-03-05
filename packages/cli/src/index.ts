@@ -51,6 +51,12 @@ import { registerBuyCommand } from "./commands/buy.js";
 import { registerSellCommand } from "./commands/sell.js";
 import { registerClaimCommand } from "./commands/claim.js";
 import { registerScaffoldCommand } from "./commands/scaffold.js";
+import { registerWalletCommand } from "./commands/wallet.js";
+import { registerPayCommand } from "./commands/pay.js";
+import { registerOrgTemplateCommand } from "./commands/org-template.js";
+import { registerSwarmFromOrgCommand } from "./commands/swarm-from-org.js";
+import { registerMarketingCommand } from "./commands/marketing.js";
+import { registerAllianceCommand } from "./commands/alliance.js";
 
 const program = new Command();
 
@@ -87,6 +93,12 @@ registerSellCommand(program);
 registerClaimCommand(program);
 registerInit(program);
 registerScaffoldCommand(program);
+registerWalletCommand(program);
+registerPayCommand(program);
+registerOrgTemplateCommand(program);
+registerSwarmFromOrgCommand(program);
+registerMarketingCommand(program);
+registerAllianceCommand(program);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error((err as Error).message ?? String(err));

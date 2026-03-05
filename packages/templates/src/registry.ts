@@ -8,13 +8,14 @@
  */
 
 import { template as chatMemoryTemplate } from "./templates/chat-memory.js";
-import { template as genesisTemplate } from "./templates/genesis.js";
+import { template as swarmStarterTemplate } from "./templates/swarm-starter.js";
 import { template as customTemplate } from "./templates/custom.js";
 import { template as priceMonitorTemplate } from "./templates/price-monitor.js";
 import { template as tradingBotTemplate } from "./templates/trading-bot.js";
 import { template as dataAnalyzerTemplate } from "./templates/data-analyzer.js";
 import { template as researchTemplate } from "./templates/research.js";
 import { template as gifterTemplate } from "./templates/gifter.js";
+import { template as consumerCommerceTemplate } from "./templates/consumer-commerce.js";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -54,24 +55,15 @@ export interface AgentTemplate {
 
 const TEMPLATES: AgentTemplate[] = [
   chatMemoryTemplate,  // Base template - recommended starting point
-  genesisTemplate,
+  swarmStarterTemplate,
   customTemplate,
   priceMonitorTemplate,
   tradingBotTemplate,
   dataAnalyzerTemplate,
   researchTemplate,
   gifterTemplate,
+  consumerCommerceTemplate,
 ];
-
-/**
- * Template aliases for backward compatibility and renaming.
- * Maps user-facing names to internal template names.
- * "swarm-starter" is the primary user-facing name for the genesis template.
- * "genesis" is kept as a legacy alias.
- */
-const TEMPLATE_ALIASES: Record<string, string> = {
-  "swarm-starter": "genesis",
-};
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -86,38 +78,25 @@ export function listTemplates(): AgentTemplate[] {
 }
 
 /**
- * Looks up a template by its `name` slug or alias.
+ * Looks up a template by its `name` slug.
  * Returns `undefined` if no template with that name exists.
- *
- * Supports aliases: "swarm-starter" resolves to the genesis template.
- * Legacy name "genesis" continues to work.
  *
  * @example
  * const tpl = getTemplate("chat-memory");    // default
  * const tpl2 = getTemplate("swarm-starter"); // commerce agents
- * const tpl2 = getTemplate("genesis");       // legacy alias
  * if (!tpl) throw new Error("Template not found");
  */
 export function getTemplate(name: string): AgentTemplate | undefined {
-  // Resolve alias to internal template name, or use as-is
-  const internalName = TEMPLATE_ALIASES[name] ?? name;
-  return TEMPLATES.find((t) => t.name === internalName);
+  return TEMPLATES.find((t) => t.name === name);
 }
 
 /**
  * Returns the canonical user-facing name for a template.
- * Maps internal names to their preferred user-facing equivalents.
  *
  * @example
- * getCanonicalName("genesis") // => "swarm-starter"
- * getCanonicalName("custom")  // => "custom"
+ * getCanonicalName("swarm-starter") // => "swarm-starter"
+ * getCanonicalName("custom")        // => "custom"
  */
 export function getCanonicalName(internalName: string): string {
-  // Find if this internal name has a user-facing alias
-  for (const [alias, target] of Object.entries(TEMPLATE_ALIASES)) {
-    if (target === internalName) {
-      return alias;
-    }
-  }
   return internalName;
 }

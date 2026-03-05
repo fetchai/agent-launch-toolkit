@@ -6,7 +6,7 @@
  *   - check_agent_commerce tool is registered in the TOOLS array
  *   - network_status tool is registered in the TOOLS array
  *   - deploy_swarm tool is registered in the TOOLS array
- *   - scaffold_swarm handler calls generateFromTemplate with "genesis"
+ *   - scaffold_swarm handler calls generateFromTemplate with "swarm-starter"
  *   - check_agent_commerce handler passes address through to SDK
  *   - network_status handler passes addresses through to SDK
  *   - deploy_swarm handler calls deployAgent for each agent sequentially
@@ -295,7 +295,7 @@ describe('MCP commerce tools — handler behavior', () => {
     try {
       // deploy_swarm should accept preset names and deploy them sequentially
       const result = await commerceHandlers.deploy_swarm({
-        presets: ['oracle', 'analyst'],
+        presets: ['writer', 'analytics'],
         apiKey: 'av-test-key',
       });
 

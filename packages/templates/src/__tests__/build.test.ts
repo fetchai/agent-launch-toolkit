@@ -4,7 +4,7 @@
  * Verifies:
  *   - All packages export correctly (no import errors)
  *   - No TypeScript errors (verified by compilation)
- *   - Genesis template and presets are accessible
+ *   - Swarm-starter template and presets are accessible
  *   - SDK storage and commerce modules are accessible
  *   - Existing functionality is not broken by new modules
  */
@@ -59,7 +59,7 @@ describe('Build verification — templates package', () => {
     assert.ok(typeof mod['listPresets'] === 'function');
   });
 
-  it('listTemplates returns at least 7 templates (6 original + genesis)', async () => {
+  it('listTemplates returns at least 7 templates (6 original + swarm-starter)', async () => {
     const { listTemplates } = await import('../registry.js');
     const templates = listTemplates();
     assert.ok(
@@ -90,10 +90,10 @@ describe('Build verification — templates package', () => {
     }
   });
 
-  it('genesis template is present', async () => {
+  it('swarm-starter template is present', async () => {
     const { getTemplate } = await import('../registry.js');
-    const genesis = getTemplate('genesis');
-    assert.ok(genesis, 'genesis template should be registered');
+    const swarmStarter = getTemplate('swarm-starter');
+    assert.ok(swarmStarter, 'swarm-starter template should be registered');
   });
 });
 

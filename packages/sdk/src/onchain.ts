@@ -80,6 +80,8 @@ export interface WalletBalances {
   tokenAddress: string;
   /** Chain ID. */
   chainId: number;
+  /** Additional token balances (symbol -> decimal string). */
+  additionalTokens?: Record<string, string>;
 }
 
 /** Chain-specific configuration. */
@@ -115,13 +117,15 @@ export const TOKEN_CONTRACT_ABI = [
   'function calculateFetAmount(address user, uint256 tokenAmount) external view returns (uint256)',
 ];
 
-/** Minimal ABI for ERC-20 (FET token approve + allowance + balanceOf). */
+/** Minimal ABI for ERC-20 (FET token approve + allowance + balanceOf + transfer + transferFrom). */
 export const ERC20_ABI = [
   'function approve(address spender, uint256 amount) external returns (bool)',
   'function allowance(address owner, address spender) external view returns (uint256)',
   'function balanceOf(address account) external view returns (uint256)',
   'function decimals() external view returns (uint8)',
   'function symbol() external view returns (string)',
+  'function transfer(address to, uint256 amount) external returns (bool)',
+  'function transferFrom(address from, address to, uint256 amount) external returns (bool)',
 ];
 
 /** Supported chain configurations. */
@@ -397,4 +401,113 @@ export async function getWalletBalances(
     tokenAddress,
     chainId: chain.chainId,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Generic ERC-20 utilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Get the ERC-20 balance of a wallet for any token.
+ *
+ * @param tokenAddress - ERC-20 contract address
+ * @param walletAddress - Wallet to query
+ * @param config - Chain configuration
+ * @returns Balance as a decimal string
+ */
+export async function getERC20Balance(
+  tokenAddress: string,
+  walletAddress: string,
+  config?: OnchainConfig,
+): Promise<string> {
+  const ethers = await loadEthers();
+  const chain = resolveChain(config);
+  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+  const balance = await contract.balanceOf(walletAddress);
+  return ethers.formatEther(balance);
+}
+
+/**
+ * Approve an ERC-20 spender (for delegation / spending limits).
+ *
+ * @param tokenAddress - ERC-20 contract address
+ * @param spenderAddress - Address allowed to spend
+ * @param amount - Amount to approve (decimal string)
+ * @param config - Wallet and chain configuration
+ * @returns Transaction hash
+ */
+export async function approveERC20(
+  tokenAddress: string,
+  spenderAddress: string,
+  amount: string,
+  config?: OnchainConfig,
+): Promise<string> {
+  const ethers = await loadEthers();
+  const privateKey = resolvePrivateKey(config);
+  const chain = resolveChain(config);
+
+  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, wallet);
+
+  const amountWei = ethers.parseEther(amount);
+  const tx = await contract.approve(spenderAddress, amountWei);
+  const receipt = await tx.wait();
+  return receipt.hash;
+}
+
+/**
+ * Get ERC-20 allowance (how much a spender can spend on behalf of an owner).
+ *
+ * @param tokenAddress - ERC-20 contract address
+ * @param ownerAddress - Token owner
+ * @param spenderAddress - Approved spender
+ * @param config - Chain configuration
+ * @returns Allowance as a decimal string
+ */
+export async function getAllowance(
+  tokenAddress: string,
+  ownerAddress: string,
+  spenderAddress: string,
+  config?: OnchainConfig,
+): Promise<string> {
+  const ethers = await loadEthers();
+  const chain = resolveChain(config);
+  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+  const allowance = await contract.allowance(ownerAddress, spenderAddress);
+  return ethers.formatEther(allowance);
+}
+
+/**
+ * Transfer ERC-20 tokens from an owner to a recipient using transferFrom.
+ * Requires prior approval from the owner.
+ *
+ * @param tokenAddress - ERC-20 contract address
+ * @param from - Token owner (must have approved the caller)
+ * @param to - Recipient
+ * @param amount - Amount to transfer (decimal string)
+ * @param config - Wallet and chain configuration
+ * @returns Transaction hash and block number
+ */
+export async function transferFromERC20(
+  tokenAddress: string,
+  from: string,
+  to: string,
+  amount: string,
+  config?: OnchainConfig,
+): Promise<{ txHash: string; blockNumber: number }> {
+  const ethers = await loadEthers();
+  const privateKey = resolvePrivateKey(config);
+  const chain = resolveChain(config);
+
+  const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, wallet);
+
+  const amountWei = ethers.parseEther(amount);
+  const tx = await contract.transferFrom(from, to, amountWei);
+  const receipt = await tx.wait();
+  return { txHash: receipt.hash, blockNumber: receipt.blockNumber };
 }

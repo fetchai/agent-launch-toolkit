@@ -32,7 +32,6 @@ const LEGACY_TYPE_MAP: Record<string, string> = {
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
-  genesis: "swarm-starter", // Legacy alias for swarm-starter
 };
 
 /** All valid --type / --template values accepted by the scaffold command. */
@@ -43,7 +42,6 @@ const VALID_TYPES = [
   "research",
   "trading",
   "data",
-  "genesis", // Legacy alias
   ...listTemplates().map((t) => getCanonicalName(t.name)),
 ];
 

@@ -11,6 +11,10 @@ updated: 2026-02-26
 
 # One Template. Infinite Swarms.
 
+> **Note:** This roadmap references the original swarm roles (Oracle, Brain, etc.).
+> Presets and examples have been updated to the **Marketing Team** (Writer, Social, Community,
+> Analytics, Outreach, Ads, Strategy). See `examples/marketing-team/README.md`.
+
 > A user clones this repo, runs one command, and deploys a swarm of agents
 > that pay each other for services. That's the goal. Everything below exists
 > to make that sentence real.
@@ -22,16 +26,16 @@ updated: 2026-02-26
 
       Quick Start         Deploy your first agent in 5 minutes
     ❯ Agent Swarm         Build a team of agents that pay each other
-      Genesis Network     The full 7-agent economy
+      Marketing Team      The full 7-agent economy
 
   ? Pick roles for your swarm (space to select)
 
     ◉ Oracle ($DATA)       Market data, price feeds, OHLC history
     ◉ Brain ($THINK)       LLM reasoning, query classification
-    ◯ Analyst ($RANK)      Token scoring, quality evaluation
-    ◉ Coordinator ($COORD) Routes queries to the right agent
-    ◯ Sentinel ($WATCH)    Real-time alerts, anomaly detection
-    ◯ Launcher ($BUILD)    Discovers gaps, scaffolds new agents
+    ◯ Analyst ($SCORE)      Token scoring, quality evaluation
+    ◉ Coordinator ($ROUTE) Routes queries to the right agent
+    ◯ Sentinel ($ALERT)    Real-time alerts, anomaly detection
+    ◯ Launcher ($LAUNCH)    Discovers gaps, scaffolds new agents
     ◯ Scout ($FIND)        Finds agents worth tokenizing
 
   Deploying your swarm...
@@ -46,7 +50,7 @@ updated: 2026-02-26
           ✓ Deployed to Agentverse
           ✓ Running — LLM routing active
 
-    [3/3] Coordinator ($COORD)
+    [3/3] Coordinator ($ROUTE)
           ✓ Scaffolded from swarm-starter template
           ✓ Deployed to Agentverse
           ✓ Running — routing queries
@@ -105,11 +109,11 @@ Uses the official Payment Protocol from `uagents_core.contrib.protocols.payment`
 | | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
 | `[x]` | COM-01 | Verify official Payment Protocol | Confirmed in `.claude/rules/payment-protocol.md`. | — |
-| `[x]` | COM-02 | PaymentService | Implemented in genesis template. | COM-01 |
-| `[x]` | COM-03 | PricingTable + TierManager | Implemented in genesis template. | COM-01 |
-| `[x]` | COM-04 | WalletManager + RevenueTracker | Implemented in genesis template. | COM-02 |
-| `[x]` | COM-05 | SelfAwareMixin | Implemented in genesis template. | COM-04 |
-| `[x]` | COM-06 | HoldingsManager | Implemented in genesis template. | COM-04 |
+| `[x]` | COM-02 | PaymentService | Implemented in swarm-starter template. | COM-01 |
+| `[x]` | COM-03 | PricingTable + TierManager | Implemented in swarm-starter template. | COM-01 |
+| `[x]` | COM-04 | WalletManager + RevenueTracker | Implemented in swarm-starter template. | COM-02 |
+| `[x]` | COM-05 | SelfAwareMixin | Implemented in swarm-starter template. | COM-04 |
+| `[x]` | COM-06 | HoldingsManager | Implemented in swarm-starter template. | COM-04 |
 
 ---
 
@@ -120,11 +124,11 @@ The business logic section is what makes each agent unique.
 
 | | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[x]` | GEN-01 | Assemble genesis template | `packages/templates/src/templates/genesis.ts` — full commerce stack with all layers. | COM-01→06 |
-| `[x]` | GEN-02 | Register + wire everywhere | Registered in `registry.ts`, CLI, MCP. Genesis is first in lists. | GEN-01 |
+| `[x]` | GEN-01 | Assemble swarm-starter template | `packages/templates/src/templates/genesis.ts` — full commerce stack with all layers. | COM-01→06 |
+| `[x]` | GEN-02 | Register + wire everywhere | Registered in `registry.ts`, CLI, MCP. Swarm-starter is first in lists. | GEN-01 |
 | `[x]` | GEN-03 | Presets system | `packages/templates/src/presets.ts` — 7 presets with `getPreset()`, `listPresets()`. | GEN-01 |
-| `[x]` | GEN-04 | 7 example agents | `examples/genesis/*.py` — all 7 agents with full commerce stack. | GEN-01 |
-| `[x]` | GEN-05 | Swarm guide | `examples/genesis/README.md` — complete swarm deployment guide. | GEN-04 |
+| `[x]` | GEN-04 | 7 example agents | `examples/marketing-team/*.py` — all 7 agents with full commerce stack. | GEN-01 |
+| `[x]` | GEN-05 | Swarm guide | `examples/marketing-team/README.md` — complete swarm deployment guide. | GEN-04 |
 
 ---
 
@@ -137,11 +141,11 @@ MCP tools, the slash command — every entry point leads to the same outcome.
 |:---:|:---|:---|:---|:---|
 | `[x]` | EXT-01 | Agentverse storage SDK | `packages/sdk/src/storage.ts` — `listStorage()`, `getStorage()`, `putStorage()`, `deleteStorage()`. | — |
 | `[x]` | EXT-02 | Commerce SDK methods | `packages/sdk/src/commerce.ts` — `getAgentRevenue()`, `getPricingTable()`, `getNetworkGDP()`, fluent API. | EXT-01 |
-| `[x]` | EXT-03 | `scaffold_genesis` MCP tool | Registered. Uses presets for variable bundles. | GEN-02, GEN-03 |
+| `[x]` | EXT-03 | `scaffold_swarm` MCP tool | Registered. Uses presets for variable bundles. | GEN-02, GEN-03 |
 | `[x]` | EXT-04 | `check_agent_commerce` MCP tool | `packages/mcp/src/tools/commerce.ts` — reads revenue, pricing, balance. | EXT-02 |
 | `[x]` | EXT-05 | `network_status` MCP tool | Returns GDP, per-agent stats, health. | EXT-02 |
 | `[x]` | EXT-06 | `deploy_swarm` MCP tool | Deploys presets in sequence, sets secrets, starts agents. | EXT-03, GEN-05 |
-| `[x]` | EXT-07 | CLI swarm mode | "What are you building?" prompt with Quick/Swarm/Genesis options. | EXT-06, GEN-02 |
+| `[x]` | EXT-07 | CLI swarm mode | "What are you building?" prompt with Quick/Swarm/Marketing Team options. | EXT-06, GEN-02 |
 | `[x]` | EXT-08 | `/build-swarm` skill | `.claude/skills/build-swarm/SKILL.md` — guided swarm creation. | EXT-06 |
 
 ---
@@ -153,11 +157,11 @@ CLAUDE.md is the instruction manual. Rules are the reference.
 
 | | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[x]` | DOC-01 | Rewrite README.md | Progressive: one agent (5 min) → swarm (15 min) → Genesis (30 min). | EXT-07 |
+| `[x]` | DOC-01 | Rewrite README.md | Progressive: one agent (5 min) → swarm (15 min) → Marketing Team (30 min). | EXT-07 |
 | `[x]` | DOC-02 | `payment-protocol.md` rule | `.claude/rules/payment-protocol.md` — official imports, flow, denomination. | COM-01 |
-| `[x]` | DOC-03 | `genesis-network.md` rule | `.claude/rules/genesis-network.md` — 7 roles, pricing, cross-holdings. | GEN-05 |
-| `[x]` | DOC-04 | Update `uagent-patterns.md` | Official payment protocol, commerce layer reference, genesis recommended. | DOC-02 |
-| `[x]` | DOC-05 | Update CLAUDE.md | Templates table has genesis. MCP Tools table has commerce tools. `/build-swarm` in Slash Commands. | DOC-01→04 |
+| `[x]` | DOC-03 | `marketing-swarm.md` rule | `.claude/rules/marketing-swarm.md` — 7 roles, pricing, cross-holdings. | GEN-05 |
+| `[x]` | DOC-04 | Update `uagent-patterns.md` | Official payment protocol, commerce layer reference, swarm-starter recommended. | DOC-02 |
+| `[x]` | DOC-05 | Update CLAUDE.md | Templates table has swarm-starter. MCP Tools table has commerce tools. `/build-swarm` in Slash Commands. | DOC-01→04 |
 
 ---
 
@@ -167,7 +171,7 @@ Does it actually work? Every test maps to a user moment.
 
 | | ID | Task | Details | Depends |
 |:---:|:---|:---|:---|:---|
-| `[x]` | TST-01 | Swarm-starter template tests | Genesis template generates valid Python. 7 presets work. | GEN-02 |
+| `[x]` | TST-01 | Swarm-starter template tests | Swarm-starter template generates valid Python. 7 presets work. | GEN-02 |
 | `[x]` | TST-02 | SDK tests | 96/96 tests passing. Storage + commerce + fluent API verified. | EXT-01, EXT-02 |
 | `[x]` | TST-03 | MCP tool tests | 16/16 commerce tests passing. All tools registered. | EXT-03→06 |
 | `[x]` | TST-04 | Full build | `npm run build && npm test` — all green. 96 SDK + 16 MCP tests pass. | TST-01→03 |
@@ -196,16 +200,16 @@ and docs (Agent E) have minimal overlap.
 ```
   CREATE                                    EDIT
   ──────                                    ────
-  packages/templates/src/templates/genesis.ts   packages/templates/src/registry.ts
+  packages/templates/src/templates/swarm-starter.ts  packages/templates/src/registry.ts
   packages/templates/src/presets.ts             packages/templates/src/index.ts
   packages/sdk/src/storage.ts                   packages/sdk/src/agentlaunch.ts
   packages/sdk/src/commerce.ts                  packages/sdk/src/index.ts
   packages/mcp/src/tools/commerce.ts            packages/mcp/src/index.ts
-  examples/genesis/*.py (7 agents)              packages/cli/src/commands/create.ts
-  examples/genesis/README.md                    packages/cli/src/commands/scaffold.ts
+  examples/marketing-team/*.py (7 agents)       packages/cli/src/commands/create.ts
+  examples/marketing-team/README.md             packages/cli/src/commands/scaffold.ts
   .claude/skills/build-swarm/SKILL.md           .claude/rules/uagent-patterns.md
   .claude/rules/payment-protocol.md             CLAUDE.md
-  .claude/rules/genesis-network.md              README.md
+  .claude/rules/marketing-swarm.md              README.md
 
   READ (reference)
   ────
@@ -228,7 +232,7 @@ as they add agents and watch them transact.
 same tools, different ambition.
 
 **Presets are opinions, not constraints.** A preset fills in smart defaults.
-Users can override anything. The oracle preset gives you a data collector,
+Users can override anything. The data preset gives you a data collector,
 but you can change the interval, the pricing, the data source. The template
 is the floor, not the ceiling.
 
@@ -237,7 +241,7 @@ commerce layers, but they don't get in the way. A user who just wants a
 chatbot gets a chatbot. A user who wants an economy gets an economy.
 The layers activate when you configure them.
 
-**Show, don't tell.** The 7 example agents in `examples/genesis/` are worth
+**Show, don't tell.** The 7 example agents in `examples/marketing-team/` are worth
 more than any documentation. Each one is a complete, runnable agent. Copy one,
 change the business logic, deploy. That's the fastest path to understanding.
 

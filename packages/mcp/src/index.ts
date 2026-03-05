@@ -15,6 +15,7 @@ import { tokenizeHandlers } from "./tools/tokenize.js";
 import { commentHandlers } from "./tools/comments.js";
 import { commerceHandlers } from "./tools/commerce.js";
 import { tradingHandlers } from "./tools/trading.js";
+import { paymentHandlers } from "./tools/payments.js";
 
 // Create the server
 const server = new Server(
@@ -218,7 +219,7 @@ export const TOOLS = [
         },
         type: {
           type: "string",
-          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data", "genesis"],
+          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data"],
           description:
             "Agent template type — controls business logic scaffold. 'chat-memory' (default) includes LLM + conversation memory. 'swarm-starter' includes full commerce stack. Defaults to 'chat-memory'.",
         },
@@ -322,7 +323,7 @@ export const TOOLS = [
         },
         template: {
           type: "string",
-          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data", "genesis"],
+          enum: ["chat-memory", "swarm-starter", "faucet", "research", "trading", "data"],
           description:
             "Agent template type — controls the scaffolded business logic. 'chat-memory' (default) includes LLM + conversation memory. 'swarm-starter' includes full commerce stack. Defaults to 'chat-memory'.",
         },
@@ -404,13 +405,13 @@ export const TOOLS = [
         preset: {
           type: "string",
           enum: [
-            "oracle",
-            "brain",
-            "analyst",
-            "coordinator",
-            "sentinel",
-            "launcher",
-            "scout",
+            "writer",
+            "social",
+            "community",
+            "analytics",
+            "outreach",
+            "ads",
+            "strategy",
             "custom",
           ],
           description:
@@ -553,13 +554,13 @@ export const TOOLS = [
           items: {
             type: "string",
             enum: [
-              "oracle",
-              "brain",
-              "analyst",
-              "coordinator",
-              "sentinel",
-              "launcher",
-              "scout",
+              "writer",
+              "social",
+              "community",
+              "analytics",
+              "outreach",
+              "ads",
+              "strategy",
             ],
           },
           description: "List of preset names to deploy",
@@ -574,6 +575,300 @@ export const TOOLS = [
         },
       },
       required: ["presets", "apiKey"],
+    },
+  },
+  // Multi-token payments -------------------------------------------------------
+  {
+    name: "multi_token_payment",
+    description:
+      "Send a payment in FET, USDC, or any ERC-20 token. Requires WALLET_PRIVATE_KEY env var.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenSymbol: {
+          type: "string",
+          description: "Token symbol to send (e.g. 'FET', 'USDC')",
+        },
+        to: {
+          type: "string",
+          description: "Recipient wallet address (0x...)",
+        },
+        amount: {
+          type: "string",
+          description: "Amount to send (decimal string, e.g. '10.5')",
+        },
+        chainId: {
+          type: "number",
+          description: "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+      },
+      required: ["tokenSymbol", "to", "amount"],
+    },
+  },
+  {
+    name: "check_spending_limit",
+    description:
+      "Check the ERC-20 allowance (spending limit) that an owner has granted to a spender. No wallet needed — read-only.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenSymbol: {
+          type: "string",
+          description: "Token symbol (e.g. 'FET', 'USDC')",
+        },
+        owner: {
+          type: "string",
+          description: "Address of the token owner who granted the allowance",
+        },
+        spender: {
+          type: "string",
+          description: "Address of the approved spender (agent wallet)",
+        },
+        chainId: {
+          type: "number",
+          description: "Chain ID. Default: 97",
+        },
+      },
+      required: ["tokenSymbol", "owner", "spender"],
+    },
+  },
+  {
+    name: "create_delegation",
+    description:
+      "Generate a handoff link for a human to approve an ERC-20 spending limit (delegation). The human opens the link, connects wallet, and signs an approve() transaction.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenSymbol: {
+          type: "string",
+          description: "Token symbol to delegate (e.g. 'FET', 'USDC')",
+        },
+        amount: {
+          type: "string",
+          description: "Maximum amount to approve (decimal string)",
+        },
+        agentAddress: {
+          type: "string",
+          description: "Agent wallet address that will be authorized to spend (0x...)",
+        },
+        chainId: {
+          type: "number",
+          description: "Chain ID. Default: 97",
+        },
+      },
+      required: ["tokenSymbol", "amount", "agentAddress"],
+    },
+  },
+  {
+    name: "get_fiat_link",
+    description:
+      "Generate a MoonPay or Transak URL for purchasing crypto with fiat (credit card). Handoff-only — never processes fiat directly.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        fiatAmount: {
+          type: "string",
+          description: "Fiat amount to convert (e.g. '50')",
+        },
+        walletAddress: {
+          type: "string",
+          description: "Wallet address to receive the purchased crypto (0x...)",
+        },
+        fiatCurrency: {
+          type: "string",
+          description: "Fiat currency code (e.g. 'USD', 'EUR'). Default: 'USD'",
+        },
+        cryptoToken: {
+          type: "string",
+          description: "Crypto token to purchase (e.g. 'FET', 'USDC'). Default: 'FET'",
+        },
+        provider: {
+          type: "string",
+          enum: ["moonpay", "transak"],
+          description: "Onramp provider. Default: 'moonpay'",
+        },
+      },
+      required: ["fiatAmount", "walletAddress"],
+    },
+  },
+  {
+    name: "create_invoice",
+    description:
+      "Create a payment invoice in agent storage. Invoices track service payments with status lifecycle (pending → paid → expired).",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        agentAddress: {
+          type: "string",
+          description: "Agent address that issues the invoice (agent1q...)",
+        },
+        invoiceId: {
+          type: "string",
+          description: "Unique invoice ID",
+        },
+        payer: {
+          type: "string",
+          description: "Wallet or agent address of the payer",
+        },
+        service: {
+          type: "string",
+          description: "Service being invoiced",
+        },
+        amount: {
+          type: "string",
+          description: "Amount to invoice (decimal string)",
+        },
+        tokenSymbol: {
+          type: "string",
+          description: "Token symbol for the invoice (default: 'FET')",
+        },
+        chainId: {
+          type: "number",
+          description: "Chain ID. Default: 97",
+        },
+      },
+      required: ["agentAddress", "invoiceId", "payer", "service", "amount"],
+    },
+  },
+  {
+    name: "list_invoices",
+    description:
+      "List invoices for an agent, optionally filtered by status (pending, paid, expired, refunded, disputed).",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        agentAddress: {
+          type: "string",
+          description: "Agent address (agent1q...)",
+        },
+        status: {
+          type: "string",
+          enum: ["pending", "paid", "expired", "refunded", "disputed"],
+          description: "Filter by invoice status",
+        },
+      },
+      required: ["agentAddress"],
+    },
+  },
+  // Org chart to swarm tools -------------------------------------------------
+  {
+    name: "generate_org_template",
+    description:
+      "Generate a YAML org chart template for users to fill in. Returns a ready-to-edit template with C-Suite, departments, and teams for the chosen organization size.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        size: {
+          type: "string",
+          enum: ["startup", "smb", "enterprise"],
+          description:
+            "Organization size: startup (2 C-levels + 1 dept), smb (3 C-levels + 3 depts), enterprise (5 C-levels + 6 depts + 3 teams). Default: smb",
+        },
+      },
+    },
+  },
+  {
+    name: "scaffold_org_swarm",
+    description:
+      "Generate a complete agent swarm configuration from an org chart. Takes a JSON org chart (with name, cSuite, departments, teams) and returns deployment waves, agent configs, pricing, cross-holdings, and total cost. Optionally scaffolds agent files to disk.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        orgChart: {
+          type: "object",
+          description:
+            "Org chart definition with name (string), symbol (optional string), cSuite (array of {role, name, title}), departments (optional array of {name, head, services, pricePerCall}), teams (optional array of {name, department, lead, services, pricePerCall})",
+          properties: {
+            name: { type: "string", description: "Organization name" },
+            symbol: {
+              type: "string",
+              description: "Token prefix (e.g. 'ACME' → $ACME-CEO)",
+            },
+            cSuite: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  role: {
+                    type: "string",
+                    enum: ["ceo", "cto", "cfo", "coo", "cro"],
+                  },
+                  name: { type: "string" },
+                  title: { type: "string" },
+                },
+                required: ["role", "name"],
+              },
+              description: "C-Suite executives",
+            },
+            departments: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  head: { type: "string" },
+                  services: {
+                    type: "array",
+                    items: { type: "string" },
+                  },
+                  pricePerCall: { type: "number" },
+                },
+                required: ["name", "services"],
+              },
+              description: "Department definitions",
+            },
+            teams: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  department: { type: "string" },
+                  lead: { type: "string" },
+                  services: {
+                    type: "array",
+                    items: { type: "string" },
+                  },
+                  pricePerCall: { type: "number" },
+                },
+                required: ["name", "department", "services"],
+              },
+              description: "Team definitions within departments",
+            },
+          },
+          required: ["name", "cSuite"],
+        },
+        outputDir: {
+          type: "string",
+          description:
+            "Optional directory to scaffold agent files. If omitted, only returns the config (dry-run).",
+        },
+      },
+      required: ["orgChart"],
+    },
+  },
+  {
+    name: "get_multi_token_balances",
+    description:
+      "Query wallet balances for BNB + FET + USDC + custom tokens. No wallet key needed — read-only.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        walletAddress: {
+          type: "string",
+          description: "Wallet address to query (0x...)",
+        },
+        tokenSymbols: {
+          type: "array",
+          items: { type: "string" },
+          description: "Token symbols to check (default: all known tokens for the chain)",
+        },
+        chainId: {
+          type: "number",
+          description: "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+      },
+      required: ["walletAddress"],
     },
   },
 ];
@@ -602,6 +897,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(commentHandlers as Record<string, AnyHandler>),
       ...(commerceHandlers as Record<string, AnyHandler>),
       ...(tradingHandlers as Record<string, AnyHandler>),
+      ...(paymentHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {

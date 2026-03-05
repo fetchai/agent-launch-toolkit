@@ -1,6 +1,7 @@
 # /deploy -- Deploy Agent to Agentverse
 
 Deploy a Python agent file to the Agentverse hosting platform.
+**Follows the full lifecycle workflow from `docs/workflow.md`.**
 
 ## Usage
 
@@ -23,7 +24,13 @@ If no path is given, look for `agent.py` in the current directory.
 5. **Set secrets** from `.env` (AGENTVERSE_API_KEY at minimum)
 6. **Start agent** via POST /v1/hosting/agents/{addr}/start
 7. **Poll compilation** status (up to 60s)
-8. **Show results**: agent address, compilation status, initial logs
+8. **Optimize** (MANDATORY -- see `.claude/rules/workflow.md`):
+   - Write a README based on the agent's capabilities (from code analysis)
+   - Write a short_description (1-2 sentences)
+   - Push both via `PUT /v1/hosting/agents/{addr}` with `{"readme": "...", "short_description": "..."}`
+   - Suggest @handle options to the user
+   - Tell user to test with 3+ interactions
+9. **Show results**: agent address, compilation status, optimization score, initial logs
 
 ## Auth
 

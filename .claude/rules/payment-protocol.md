@@ -1,5 +1,7 @@
 # Payment Protocol Rules
 
+> **Status:** Payment protocol import verified available on Agentverse (2026-03-04).
+
 ## Official Imports (uagents_core)
 
 ```python
@@ -19,15 +21,14 @@ from uagents_core.contrib.protocols.payment import (
 ```python
 from uagents import Protocol
 
-# Create payment protocol instance (role is inferred from handlers you register)
-payment_proto = Protocol(spec=payment_protocol_spec)
+# Seller side (agents that charge for services):
+payment_proto = Protocol(spec=payment_protocol_spec, role="seller")
 
-# Register seller handlers (CommitPayment, RejectPayment, CancelPayment)
-# OR buyer handlers (RequestPayment, CompletePayment)
-# The handlers you register determine the role
+# Buyer side (agents that pay for services):
+payment_proto = Protocol(spec=payment_protocol_spec, role="buyer")
 ```
 
-**Note:** `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=...)`.
+**Note:** The payment protocol has defined roles. You MUST specify `role="seller"` or `role="buyer"` when creating the protocol. `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=..., role=...)`.
 
 ## Payment Flow
 

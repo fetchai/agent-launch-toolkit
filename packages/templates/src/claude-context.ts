@@ -147,9 +147,9 @@ seller_proto = Protocol(spec=payment_protocol_spec)
 buyer_proto = Protocol(spec=payment_protocol_spec)
 \`\`\`
 
-## Commerce Layer (Genesis Template)
+## Commerce Layer (Swarm-Starter Template)
 
-The genesis template includes inline commerce classes:
+The swarm-starter template includes inline commerce classes:
 - PaymentService: Charge callers, pay other agents
 - PricingTable: Per-service pricing from ctx.storage
 - TierManager: Token-gated access (free/premium)
@@ -201,41 +201,46 @@ Buyer sends ChatMessage -> Seller sends RequestPayment -> Buyer sends CommitPaym
 - Verify tx_hash on-chain before delivering service
 - Store transaction log in ctx.storage
 
-## Genesis Template Commerce Layers
+## Swarm-Starter Template Commerce Layers
 
-The genesis template includes these commerce classes inline:
+The swarm-starter template includes these commerce classes inline:
 - PaymentService, PricingTable, TierManager
 - WalletManager, RevenueTracker, SelfAwareMixin, HoldingsManager
 `,
 
-  "genesis-network.md": `# Genesis Network Rules
+  "marketing-swarm.md": `# Marketing Team Rules
 
 ## The 7 Roles
 
 | Role | Token | Services | Price/call |
 |------|-------|----------|-----------|
-| Oracle | $DATA | price_feed, ohlc_history, market_summary | 0.001 FET |
-| Brain | $THINK | reason, classify, summarize | 0.01 FET |
-| Analyst | $RANK | score_token, evaluate_quality, rank_tokens | 0.005 FET |
-| Coordinator | $COORD | route_query, discover_agents | 0.0005 FET |
-| Sentinel | $WATCH | monitor, alert, anomaly_report | 0.002 FET |
-| Launcher | $BUILD | find_gap, scaffold_agent, deploy_recommendation | 0.02 FET |
-| Scout | $FIND | discover_agents, evaluate_agent, tokenize_recommendation | 0.01 FET |
+| Writer | $WRITE | blog_post, tweet_thread, newsletter, ad_copy | 0.01 FET |
+| Social | $POST | post_tweet, schedule_thread, reply_mentions | 0.005 FET |
+| Community | $COMM | moderate, answer_faq, run_poll | 0.002 FET |
+| Analytics | $STATS | engagement_report, audience_insights, content_performance | 0.005 FET |
+| Outreach | $REACH | find_partners, draft_pitch, send_email | 0.01 FET |
+| Ads | $ADS | create_ad, ab_test, campaign_report | 0.01 FET |
+| Strategy | $PLAN | content_calendar, brand_audit, competitor_analysis, campaign_plan | 0.02 FET |
 
 ## Build Order
 
-Oracle -> Coordinator -> Analyst -> Sentinel -> Brain -> Launcher -> Scout
+Writer -> Community -> Social -> Analytics -> Outreach -> Ads -> Strategy
+
+Writer first (everyone needs content), Community second (standalone engagement).
 
 ## Starter Configurations
 
-- Minimum viable: Oracle + Coordinator (2 agents)
-- Intelligence: Oracle + Brain + Coordinator (3 agents)
-- Monitoring: Oracle + Analyst + Sentinel + Coordinator (4 agents)
-- Full Genesis: All 7
+- Content only: Writer (1 agent)
+- Social presence: Writer + Social (2 agents)
+- Community: Writer + Community + Social (3 agents)
+- Analytics stack: Writer + Social + Analytics (3 agents)
+- Full team: All 7
 
 ## Cross-Holdings
 
 Agents buy each other's tokens for economic alignment.
+- Strategy buys Writer tokens (values its content)
+- Writer buys Analytics tokens (values its performance data)
 
 ## Token Lifecycle
 
@@ -321,25 +326,26 @@ Build, deploy, and tokenize an agent in one guided flow.
 
   "build-swarm/SKILL.md": `# /build-swarm — Deploy Agent Swarm
 
-Scaffold, deploy, and tokenize a multi-agent swarm with the genesis template.
+Scaffold, deploy, and tokenize a multi-agent swarm with the swarm-starter template.
 
 ## Steps
 
 1. Ask user what swarm they want (name, roles, purpose)
-2. Show the 7 available presets: oracle, brain, analyst, coordinator, sentinel, launcher, scout
+2. Show the 7 available presets: writer, social, community, analytics, outreach, ads, strategy
 3. Let user pick roles (or suggest a starter configuration)
 4. For each role:
-   a. Scaffold from genesis template with preset variables
+   a. Scaffold from swarm-starter template with preset variables
    b. Deploy to Agentverse
    c. Tokenize on AgentLaunch
 5. Return handoff links for each agent
 
 ## Starter Configurations
 
-- Minimum viable: Oracle + Coordinator (2 agents)
-- Intelligence: Oracle + Brain + Coordinator (3 agents)
-- Monitoring: Oracle + Analyst + Sentinel + Coordinator (4 agents)
-- Full Genesis: All 7
+- Content only: Writer (1 agent)
+- Social presence: Writer + Social (2 agents)
+- Community: Writer + Community + Social (3 agents)
+- Analytics stack: Writer + Social + Analytics (3 agents)
+- Full team: All 7
 
 ## Platform Fees
 - Deploy: 120 FET per agent (paid by human signer)
@@ -531,7 +537,7 @@ Already configured in \`.claude/settings.json\`.
 | Tool | Description |
 |------|-------------|
 | \`scaffold_agent\` | Generate agent code from template |
-| \`scaffold_genesis\` | Scaffold agent from genesis preset |
+| \`scaffold_swarm\` | Scaffold agent from swarm-starter preset |
 | \`deploy_to_agentverse\` | Deploy agent |
 | \`create_token_record\` | Create token |
 | \`list_tokens\` | Browse tokens |
@@ -549,7 +555,7 @@ Already configured in \`.claude/settings.json\`.
 - "Deploy my agent to Agentverse"
 - "Tokenize my agent as $MYTOKEN"
 - "Show trending tokens"
-- "Deploy an Oracle + Brain + Analyst swarm"
+- "Deploy a Writer + Social + Analytics swarm"
 - "Check my swarm's GDP"
 `,
 };
@@ -799,7 +805,7 @@ async function main() {
     agentAddress: 'agent1q...', // Your Agentverse agent
     name: 'My Agent',
     symbol: 'MYAG',
-    description: 'Does amazing things',
+    description: 'AI research assistant for on-chain analysis',
     chainId: 97, // BSC Testnet
   });
 
@@ -867,7 +873,7 @@ To deploy or tokenize, simply run the commands below. The SDK and CLI read from 
 
 | Template | Description | Use Case |
 |----------|-------------|----------|
-| \`genesis\` | **Full commerce stack** (recommended) | Any agent that charges for services |
+| \`swarm-starter\` | **Full commerce stack** (recommended) | Any agent that charges for services |
 | \`custom\` | Blank Chat Protocol boilerplate | Start from scratch |
 | \`price-monitor\` | Watch token prices, send alerts | Monitoring service |
 | \`trading-bot\` | Buy/sell signal generation | Trading service |
@@ -877,14 +883,14 @@ To deploy or tokenize, simply run the commands below. The SDK and CLI read from 
 
 ## Agent Swarms
 
-The genesis template generates agents with a complete commerce stack:
+The swarm-starter template generates agents with a complete commerce stack:
 - PaymentService, PricingTable, TierManager (charge for services)
 - WalletManager, RevenueTracker (track revenue)
 - SelfAwareMixin (token price awareness)
 - HoldingsManager (buy/sell other tokens)
 
 ### Presets
-7 pre-configured roles: oracle, brain, analyst, coordinator, sentinel, launcher, scout.
+7 pre-configured roles: writer, social, community, analytics, outreach, ads, strategy.
 Use presets for instant configuration.
 
 ## Quick Commands
@@ -928,7 +934,7 @@ import {
 | Tool | Description |
 |------|-------------|
 | \`scaffold_agent\` | Generate agent code from template |
-| \`scaffold_genesis\` | Scaffold agent from genesis preset |
+| \`scaffold_swarm\` | Scaffold agent from swarm-starter preset |
 | \`deploy_to_agentverse\` | Deploy agent |
 | \`create_token_record\` | Create token |
 | \`list_tokens\` | Browse tokens |
@@ -985,12 +991,12 @@ This is an AgentLaunch agent project. Use the MCP tools to build, deploy, and to
 - \`docs/\` - SDK, CLI, MCP documentation
 - \`examples/\` - Working code samples
 
-## Genesis Template (Recommended)
+## Swarm-Starter Template (Recommended)
 
-Use the genesis template for agents with a full commerce stack:
+Use the swarm-starter template for agents with a full commerce stack:
 - Payment handling, pricing tables, revenue tracking
 - Token-gated tiers, wallet management
-- 7 presets: oracle, brain, analyst, coordinator, sentinel, launcher, scout
+- 7 presets: writer, social, community, analytics, outreach, ads, strategy
 
 ## Platform Constants
 
@@ -1026,13 +1032,13 @@ export function buildSwarmClaudeMd(ctx: SwarmContext): string {
   const isSingleAgent = ctx.agents.length === 1;
 
   const presetDescriptions: Record<string, string> = {
-    oracle: "Market data provider — price feeds, OHLC history, market summaries (0.001 FET/call)",
-    brain: "LLM reasoning engine — query classification, summarization, deep analysis (0.01 FET/call)",
-    analyst: "Token scoring engine — quality evaluation, risk assessment, ranking (0.005 FET/call)",
-    coordinator: "Query router — discovers agents, routes queries to specialists (0.0005 FET/call)",
-    sentinel: "Real-time watchdog — monitors tokens, detects anomalies, sends alerts (0.002 FET/call)",
-    launcher: "Gap finder — discovers unmet needs, scaffolds new agents (0.02 FET/call)",
-    scout: "Agent scout — discovers promising agents, evaluates quality (0.01 FET/call)",
+    writer: "Content creator — blog posts, tweet threads, newsletters, ad copy (0.01 FET/call)",
+    social: "Social media manager — post tweets, schedule threads, reply to mentions (0.005 FET/call)",
+    community: "Community manager — moderate, answer FAQs, run polls (0.002 FET/call)",
+    analytics: "Analytics engine — engagement reports, audience insights, content performance (0.005 FET/call)",
+    outreach: "Partnership outreach — find partners, draft pitches, send emails (0.01 FET/call)",
+    ads: "Ad campaign manager — create ads, A/B test, campaign reports (0.01 FET/call)",
+    strategy: "Marketing strategist — content calendars, brand audits, competitor analysis, campaign plans (0.02 FET/call)",
   };
 
   if (isSingleAgent) {
@@ -1088,12 +1094,12 @@ agentlaunch status ${agent.address}
 ## What Makes an Agent Valuable?
 
 Agents earn fees when they provide **real value**:
-- **Data providers** (Oracle): Sell accurate, timely market data
-- **AI services** (Brain): Sell quality reasoning and analysis
-- **Infrastructure** (Coordinator): Become the routing layer other agents depend on
+- **Content creators** (Writer): Produce blog posts, threads, newsletters that other agents consume
+- **Data analysts** (Analytics): Sell engagement reports and audience insights
+- **Strategists** (Strategy): Become the planning layer other agents depend on
 
 The more agents that depend on yours, the more fees you earn. Consider:
-1. What unique data or capability do you have?
+1. What unique content or capability do you have?
 2. Who would pay for it?
 3. How can you make other agents need your service?
 
@@ -1222,7 +1228,7 @@ You'll receive a handoff link. Share it with someone who has a wallet to deploy 
 ### 3. Customize agent behavior
 Edit the code in \`agents/<role>.py\` and redeploy:
 \`\`\`bash
-agentlaunch deploy --code agents/oracle.py --address ${ctx.agents.find((a) => a.preset === "oracle")?.address || "<oracle-address>"}
+agentlaunch deploy --code agents/writer.py --address ${ctx.agents.find((a) => a.preset === "writer")?.address || "<writer-address>"}
 \`\`\`
 
 ### 4. Monitor the swarm
@@ -1246,9 +1252,9 @@ agentlaunch list
 ## What Makes a Swarm Valuable?
 
 Swarms earn fees when agents **depend on each other**:
-- **Oracle** sells data → Brain, Analyst, Sentinel buy it
-- **Brain** sells reasoning → Coordinator, Launcher buy it
-- **Coordinator** routes queries → Everyone pays routing fees
+- **Writer** produces content → Social, Ads, Outreach consume it
+- **Analytics** sells insights → Strategy, Ads buy them
+- **Strategy** creates plans → Everyone follows the campaign plan
 
 The more interconnections, the more fees flow. Your agents should:
 1. Provide unique, high-quality services

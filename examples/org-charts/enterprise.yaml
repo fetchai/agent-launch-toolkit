@@ -1,0 +1,163 @@
+# Enterprise Org Chart
+# Full swarm: 18 agents, 2,160 FET deploy cost
+#
+# Usage:
+#   npx agentlaunch swarm-from-org enterprise.yaml
+
+name: "Enterprise Corp"
+symbol: "ENT"  # Token prefix: $ENT-CEO, $ENT-ENG, etc.
+
+cSuite:
+  - role: ceo
+    name: "CEO Name"
+    title: "Chief Executive Officer"
+    quote: "Scaling leadership through AI coordination."
+
+  - role: cto
+    name: "CTO Name"
+    title: "Chief Technology Officer"
+    quote: "Every agent pays for reasoning. The CTO is the brain."
+
+  - role: cfo
+    name: "CFO Name"
+    title: "Chief Financial Officer"
+
+  - role: coo
+    name: "COO Name"
+    title: "Chief Operating Officer"
+
+  - role: cro
+    name: "CRO Name"
+    title: "Chief Recruitment Officer"
+
+departments:
+  - name: "Engineering"
+    head: "VP Engineering"
+    services:
+      - architecture
+      - code_review
+      - debug
+      - deploy
+      - security_audit
+    pricePerCall: 0.02
+    intervalSeconds: 300
+
+  - name: "Product"
+    head: "VP Product"
+    services:
+      - roadmap
+      - requirements
+      - prioritize
+      - launch
+      - user_research
+    pricePerCall: 0.02
+
+  - name: "Sales"
+    head: "VP Sales"
+    services:
+      - prospect
+      - qualify
+      - negotiate
+      - close
+      - forecast
+    pricePerCall: 0.02
+
+  - name: "Marketing"
+    head: "VP Marketing"
+    services:
+      - content
+      - campaigns
+      - analytics
+      - brand
+      - events
+    pricePerCall: 0.01
+
+  - name: "Support"
+    head: "VP Support"
+    services:
+      - ticket
+      - escalate
+      - knowledge_base
+      - onboard
+      - satisfaction
+    pricePerCall: 0.01
+
+  - name: "HR"
+    head: "VP HR"
+    services:
+      - recruit
+      - onboard
+      - review
+      - offboard
+      - training
+    pricePerCall: 0.01
+
+teams:
+  - name: "Frontend"
+    department: "Engineering"
+    lead: "Frontend Lead"
+    services:
+      - ui_review
+      - component_audit
+      - a11y_check
+      - performance
+    pricePerCall: 0.01
+
+  - name: "Backend"
+    department: "Engineering"
+    lead: "Backend Lead"
+    services:
+      - api_review
+      - db_optimize
+      - security_audit
+      - scale_planning
+    pricePerCall: 0.01
+
+  - name: "DevOps"
+    department: "Engineering"
+    lead: "DevOps Lead"
+    services:
+      - deploy
+      - monitor
+      - incident_response
+      - infrastructure
+    pricePerCall: 0.01
+
+  - name: "Data"
+    department: "Engineering"
+    lead: "Data Lead"
+    services:
+      - pipeline
+      - analytics
+      - ml_ops
+      - reporting
+    pricePerCall: 0.01
+
+  - name: "SDR"
+    department: "Sales"
+    lead: "SDR Manager"
+    services:
+      - outbound
+      - qualify
+      - book_meetings
+    pricePerCall: 0.005
+
+  - name: "Content"
+    department: "Marketing"
+    lead: "Content Lead"
+    services:
+      - blog_post
+      - case_study
+      - whitepaper
+      - social
+    pricePerCall: 0.01
+
+  - name: "Growth"
+    department: "Marketing"
+    lead: "Growth Lead"
+    services:
+      - experiments
+      - conversion
+      - retention
+      - referral
+    pricePerCall: 0.01

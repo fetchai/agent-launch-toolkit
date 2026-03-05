@@ -253,8 +253,8 @@ function generateTradeLinks(address: string): void {
     console.log(`  ${amount.toLocaleString().padStart(9)} tokens: ${link}`);
   }
 
-  console.log('\nAgents share these links with humans who sign the transactions.');
-  console.log('Agents never hold private keys or sign transactions directly.');
+  console.log('\nAgents share these links with humans who sign the deploy transaction.');
+  console.log('For autonomous trading, agents store EVM keys via Agentverse Secrets.');
 }
 
 // ---------------------------------------------------------------------------

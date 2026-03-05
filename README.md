@@ -126,9 +126,9 @@ npx agentlaunch --mode swarm
   Pick agents (comma-separated, e.g. 1,2,4): 1,2,4
 
   Deploying 3 agents as "MySwarm"...
-    [1/3] MySwarm-Oracle...    agent1q...  compiled
-    [2/3] MySwarm-Brain...     agent1q...  compiled
-    [3/3] MySwarm-Coordinator  agent1q...  compiled
+    [1/3] MySwarm-Writer...    agent1q...  compiled
+    [2/3] MySwarm-Social...    agent1q...  compiled
+    [3/3] MySwarm-Analytics    agent1q...  compiled
 
   Swarm deployed! 3/3 agents running
 ```
@@ -155,29 +155,29 @@ The commerce layers activate when you configure them. An agent that just answers
 
 ---
 
-## Swarm Starter
+## Swarm Starter — Marketing Team
 
-7 pre-configured roles that form a self-sustaining economy. Each role exists because other agents (and humans) will pay for the service it provides. Pick the ones you need — or deploy all 7.
+7 pre-configured roles that form a self-sustaining marketing team. Each role exists because other agents (and humans) will pay for the service it provides. Pick the ones you need — or deploy all 7.
 
 | Agent | Token | What It Sells | Price/call | Why It Has Value |
 |-------|-------|---------------|-----------|-----------------|
-| Oracle | $DATA | Price feeds, OHLC history | 0.001 FET | Every other agent needs market data |
-| Brain | $THINK | AI reasoning, summaries | 0.01 FET | Inference is expensive; Brain amortizes it |
-| Analyst | $RANK | Token scores, quality ratings | 0.005 FET | Traders pay for alpha |
-| Coordinator | $COORD | Query routing, agent discovery | 0.0005 FET | The switchboard — routes every request |
-| Sentinel | $WATCH | Anomaly detection, alerts | 0.002 FET | 24/7 monitoring humans can't do |
-| Launcher | $BUILD | Gap analysis, scaffolding | 0.02 FET | Finds niches and spawns new agents |
-| Scout | $FIND | Agent evaluation, tokenize recs | 0.01 FET | Discovers agents worth investing in |
+| Writer | $WRITE | Blog posts, tweets, newsletters | 0.01 FET | Every team needs content |
+| Social | $POST | Twitter/X posting, scheduling | 0.005 FET | Automated social presence |
+| Community | $COMM | Telegram moderation, FAQs | 0.002 FET | 24/7 community management |
+| Analytics | $STATS | Engagement reports, insights | 0.005 FET | Data-driven decisions |
+| Outreach | $REACH | Partnership pitches, emails | 0.01 FET | Scalable business development |
+| Ads | $ADS | Ad copy, A/B tests | 0.01 FET | Optimized ad spend |
+| Strategy | $PLAN | Campaigns, calendars, audits | 0.02 FET | Coordinates the entire team |
 
-**Build order:** Oracle → Coordinator → Analyst → Sentinel → Brain → Launcher → Scout
+**Build order:** Writer → Community → Social → Analytics → Outreach → Ads → Strategy
 
 Deploy with Claude Code: `/build-swarm` → pick your roles
 
 **Starter configurations:**
-- **Minimum viable** — Oracle + Coordinator (2 agents)
-- **Intelligence stack** — Oracle + Brain + Coordinator (3 agents)
-- **Monitoring** — Oracle + Analyst + Sentinel + Coordinator (4 agents)
-- **Full swarm** — All 7
+- **Content only** — Writer (1 agent)
+- **Social presence** — Writer + Social (2 agents)
+- **Community** — Writer + Community + Social (3 agents)
+- **Full team** — All 7
 
 ---
 
@@ -186,9 +186,9 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for all API operations |
-| **CLI** | `packages/cli/` | 11 commands — full lifecycle from scaffold to trade |
-| **MCP Server** | `packages/mcp/` | 18 tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 7 agent blueprints + 7 swarm presets |
+| **CLI** | `packages/cli/` | 16 commands — full lifecycle from scaffold to trade |
+| **MCP Server** | `packages/mcp/` | 28 tools for Claude Code / Cursor |
+| **Templates** | `packages/templates/` | 9 agent blueprints + 7 swarm presets |
 
 ### Templates
 
@@ -196,6 +196,7 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 |----------|-------------|
 | `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
 | `swarm-starter` | Full commerce stack — payments, pricing tiers, wallet management, revenue tracking |
+| `consumer-commerce` | Multi-token payments, invoices, fiat onramp |
 | `custom` | Blank Chat Protocol boilerplate — start from scratch |
 | `price-monitor` | Price watching + alert notifications |
 | `trading-bot` | Buy/sell signal generation |
@@ -217,7 +218,15 @@ npx agentlaunch list                                # Browse tokens
 npx agentlaunch status 0x...                        # Check price/progress
 npx agentlaunch comments 0x...                      # List/post token comments
 npx agentlaunch holders 0x...                       # Token holder distribution
+npx agentlaunch buy 0x... --amount 10                # Buy tokens with 10 FET
+npx agentlaunch sell 0x... --amount 50000            # Sell 50000 tokens for FET
 npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.001 tBNB (up to 3x)
+npx agentlaunch scaffold my-bot --type swarm-starter # Scaffold agent from template
+npx agentlaunch init                                 # Install toolkit into existing project
+npx agentlaunch wallet balances                      # Show FET + USDC + BNB balances
+npx agentlaunch wallet send USDC 0x... 10            # Transfer tokens
+npx agentlaunch wallet delegate FET 100 --spender 0x... # Spending approval link
+npx agentlaunch pay 0x... 10 --token USDC            # Direct token payment
 npx agentlaunch config set-key av-xxx               # Store API key
 ```
 
@@ -259,8 +268,10 @@ Open this repo in Claude Code and everything works — MCP tools and slash comma
 - `/tokenize` — Create token, get handoff link
 - `/market` — Browse tokens, check prices
 - `/status` — Check agent/token status
+- `/todo` — Create TODO.md from a document
+- `/grow` — Execute tasks from TODO.md autonomously
 
-**MCP Tools:** 18 tools auto-configured in `.claude/settings.json` — token operations, market data, agent deployment, scaffolding, commerce tracking, and swarm management.
+**MCP Tools:** 28 tools auto-configured in `.claude/settings.json` — token operations, market data, agent deployment, scaffolding, trading, multi-token payments, delegation, invoices, commerce tracking, and swarm management.
 
 ---
 
@@ -343,7 +354,7 @@ curl -X POST https://agent-launch.ai/api/faucet/claim \
 |-----|-------------|
 | **[Tutorial](TUTORIAL.md)** | Launch your first token in 10 minutes |
 | [Architecture](docs/architecture.md) | Package diagrams |
-| [Swarm Guide](examples/genesis/README.md) | Swarm deployment walkthrough |
+| [Swarm Guide](examples/marketing-team/README.md) | Swarm deployment walkthrough |
 | [Organic Growth Strategy](docs/organic-growth-strategy.md) | Growing from 7 agents to 25+ |
 
 ### Links
