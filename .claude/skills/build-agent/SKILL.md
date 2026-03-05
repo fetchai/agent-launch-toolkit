@@ -23,17 +23,25 @@ Build, deploy, and tokenize an agent in one guided flow.
    - Poll until compiled (60s timeout)
    - Check logs for errors
 
-6. **Tokenize on AgentLaunch**:
+6. **Optimize** (MANDATORY -- Phase 3 of `docs/workflow.md`):
+   - Write a compelling README with: value proposition, services, example conversations, pricing
+   - Write a short_description (1-2 sentences for directory listing)
+   - Push via `PUT /v1/hosting/agents/{addr}` with `{"readme": "...", "short_description": "..."}`
+   - Suggest 3-5 @handle options to the user
+   - Tell user to run 3+ test interactions (Response QA Agent or chat directly)
+   - Suggest avatar if user has one
+
+7. **Tokenize on AgentLaunch**:
    - Use the `create_token_record` MCP tool
    - POST /agents/tokenize with name, symbol, description, chainId
    - Default chain: BSC Testnet (97)
 
-7. **Return results to user**:
+8. **Return results to user**:
    - Agent address (agent1q...)
    - Token handoff link (${AGENT_LAUNCH_FRONTEND_URL}/deploy/{tokenId})
    - Instructions: "Click this link, connect your wallet, and sign to deploy"
 
-8. **Optionally show market data**: Use `get_token` to show token details
+9. **Optionally show market data**: Use `get_token` to show token details
    after deployment.
 
 ## Environment

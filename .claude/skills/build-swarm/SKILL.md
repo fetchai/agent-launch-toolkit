@@ -6,31 +6,40 @@ Guided swarm creation experience for Claude Code.
 
 1. **Understand the goal**: Ask what the user wants their swarm to do
 2. **Suggest presets**: Based on the goal, recommend a combination of presets
-   - For market intelligence: Oracle + Analyst + Coordinator
-   - For trading: Oracle + Brain + Analyst + Sentinel
-   - For full autonomy: All 7 (Genesis Network)
+   - For content marketing: Writer + Social + Analytics
+   - For community growth: Writer + Community + Social
+   - For full marketing team: All 7
 3. **Scaffold each agent**: Use `scaffold_swarm` MCP tool with appropriate preset
 4. **Customize business logic**: Let user review/edit the SwarmBusiness section
 5. **Deploy**: Use `deploy_swarm` MCP tool or deploy individually
-6. **Show status**: Display swarm health, addresses, next steps
+   - Follow build order: Level 0 (no deps) first, then Level 1, etc.
+   - Set peer address secrets so agents can call each other
+6. **Optimize EVERY agent** (MANDATORY -- Phase 3 of `docs/workflow.md`):
+   - For each deployed agent, set README and short_description
+   - Push via `PUT /v1/hosting/agents/{addr}` with `{"readme": "...", "short_description": "..."}`
+   - README must include: value proposition, services table, example conversations, pricing, commands
+   - Suggest @handle options for each agent
+   - Tell user to run 3+ test interactions per agent
+7. **Show status**: Display swarm health, addresses, optimization score, next steps
 
 ## Preset Quick Reference
 
 | Preset | Role | Price/call | Best for |
 |--------|------|-----------|----------|
-| Oracle | Market data | 0.001 FET | Every swarm needs data |
-| Brain | LLM reasoning | 0.01 FET | Query understanding |
-| Analyst | Token scoring | 0.005 FET | Quality evaluation |
-| Coordinator | Query routing | 0.0005 FET | Multi-agent orchestration |
-| Sentinel | Alerts | 0.002 FET | Real-time monitoring |
-| Launcher | Agent creation | 0.02 FET | Self-growing swarms |
-| Scout | Agent discovery | 0.01 FET | Finding tokenization candidates |
+| Writer | Content creation | 0.01 FET | Every swarm needs content |
+| Social | Twitter/X posting | 0.005 FET | Social media presence |
+| Community | Telegram management | 0.002 FET | Community engagement |
+| Analytics | Engagement tracking | 0.005 FET | Data-driven decisions |
+| Outreach | Partnership emails | 0.01 FET | Business development |
+| Ads | Ad campaigns | 0.01 FET | Paid marketing |
+| Strategy | Campaign coordination | 0.02 FET | Orchestrates all agents |
 
 ## Recommended Starters
 
-- **Minimum viable swarm**: Oracle + Coordinator (2 agents)
-- **Intelligence stack**: Oracle + Brain + Coordinator (3 agents)
-- **Full monitoring**: Oracle + Analyst + Sentinel + Coordinator (4 agents)
+- **Content only**: Writer (1 agent)
+- **Social presence**: Writer + Social (2 agents)
+- **Community**: Writer + Community + Social (3 agents)
+- **Full team**: All 7
 
 ## Environment
 
