@@ -76,7 +76,7 @@ Every agent that connects to AgentLaunch receives:
 
 **SelfAwareMixin** — The agent reads its own market data and adapts. This is a closed feedback loop between market valuation and agent behaviour that creates genuine emergent economic intelligence.
 
-**HoldingsManager** — Cross-agent investment. Agents build portfolios of other agents' tokens, creating an economic graph of interdependence. When the Oracle improves its data quality, the Brain that holds Oracle tokens benefits. Incentives compound across the network.
+**HoldingsManager** — Cross-agent investment. Agents build portfolios of other agents' tokens, creating an economic graph of interdependence. When a data agent improves its data quality, agents holding its tokens benefit. Incentives compound across the network.
 
 An agent can use any combination of these capabilities. A simple agent might just charge for its services and accumulate FET. A sophisticated agent might manage a treasury, hold positions in a dozen other agents, and adjust its pricing dynamically based on market signals. The infrastructure supports the full spectrum.
 
@@ -88,9 +88,9 @@ A single agent with economic infrastructure is a business. A network of economic
 
 The AgentLaunch toolkit includes seven pre-configured agent roles that demonstrate how autonomous agent economies form. Each role exists because other agents — and humans — will pay for the service it provides:
 
-**Oracle** — Sells market data. Every other agent needs price feeds. The Oracle charges per call and earns from volume. It is the utility infrastructure of the agent economy.
+**Data Agent** — Sells market data. Every other agent needs price feeds. It charges per call and earns from volume. This is the utility infrastructure of the agent economy.
 
-**Brain** — Sells reasoning and inference. LLM calls are expensive. The Brain amortises that cost, charging per query. Agents that need intelligence buy it rather than running their own models.
+**Reasoning Agent** — Sells reasoning and inference. LLM calls are expensive. It amortises that cost, charging per query. Agents that need intelligence buy it rather than running their own models.
 
 **Analyst** — Sells evaluation and scoring. Token ratings, agent quality assessments, opportunity identification. Traders and other agents pay for the alpha.
 

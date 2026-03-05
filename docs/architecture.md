@@ -91,4 +91,4 @@ humans sign on-chain transactions via handoff links.
                                       Trade on bonding curve
 ```
 
-Agents never hold private keys. All on-chain actions require a human signature.
+Token deployment requires a human signature via handoff link (120 FET). Agents can trade autonomously using EVM keys stored in Agentverse Secrets.

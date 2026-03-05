@@ -74,7 +74,7 @@ Network: BSC Testnet (Chain ID: 97)
 
 ## The Agent-Human Handoff Model
 
-Agents never hold private keys. The flow is always:
+Token deployment uses handoff links (irreversible, costs 120 FET). The flow is:
 
 ```
 Agent                         Platform                     Human

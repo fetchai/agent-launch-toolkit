@@ -420,19 +420,20 @@ Parameters:
 
 | Config | Agents | Use Case |
 |--------|--------|----------|
-| Minimum viable | Oracle + Coordinator | Data + routing |
-| Intelligence | Oracle + Brain + Coordinator | Data + reasoning + routing |
-| Monitoring | Oracle + Analyst + Sentinel + Coordinator | Data + scoring + alerts + routing |
-| Full Genesis | All 7 | Complete agent economy |
+| Content only | Writer | Standalone content creation |
+| Social presence | Writer + Social | Content + posting |
+| Community | Writer + Community + Social | Content + engagement + posting |
+| Analytics stack | Writer + Social + Analytics | Content + posting + tracking |
+| Full Team | All 7 | Complete marketing swarm |
 
 ### Build Order
 
 ```
-  Oracle ──> Coordinator ──> Analyst ──> Sentinel ──> Brain ──> Launcher ──> Scout
-  (data)     (routing)       (scoring)   (alerts)     (LLM)     (deploy)    (discover)
+  Writer ──> Community ──> Social ──> Analytics ──> Outreach ──> Ads ──> Strategy
+  (content)  (engage)      (post)     (track)       (pitch)      (ads)   (coordinate)
 ```
 
-Oracle deploys first because everyone needs data. Coordinator second because it routes queries. Each subsequent agent gets the addresses of all previously deployed agents as secrets.
+Writer deploys first because everyone needs content. Community second for standalone engagement. Each subsequent agent gets the addresses of all previously deployed agents as secrets.
 
 ### End-to-End: Deploy + Tokenize a Swarm
 

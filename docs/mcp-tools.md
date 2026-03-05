@@ -593,7 +593,7 @@ Generate a ready-to-run Agentverse agent project from a template. Creates `agent
 ```json
 {
   "name": "AlphaBot",            // required — agent/project name
-  "type": "chat-memory",        // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data"|"genesis" (default: "chat-memory")
+  "type": "chat-memory",        // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data" (default: "chat-memory")
   "outputDir": "./my-agents/AlphaBot"  // optional — where to create the project
 }
 ```
@@ -710,8 +710,7 @@ End-to-end shortcut: scaffold agent code from template, optionally deploy to Age
 {
   "name": "My Research Bot",             // required — agent and token name (max 32 chars)
   "description": "Delivers reports...",  // required — max 500 chars
-  "template": "chat-memory",            // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data"|"genesis"
-  "ticker": "MRB",                       // optional — 2-11 chars, uppercase (derived from name if omitted)
+  "template": "chat-memory",            // optional — "chat-memory"|"swarm-starter"|"faucet"|"research"|"trading"|"data"  "ticker": "MRB",                       // optional — 2-11 chars, uppercase (derived from name if omitted)
   "chainId": 97,                         // optional — default: 97
   "maxWalletAmount": 0,                  // optional — 0=unlimited, 1=0.5%, 2=1%
   "initialBuyAmount": "0",               // optional — FET to buy immediately after deploy
