@@ -48,18 +48,17 @@ const LEGACY_ALIAS: Record<string, string> = {
   research: "research",
   trading: "trading-bot",
   data: "data-analyzer",
-  genesis: "swarm-starter", // Legacy alias for swarm-starter
 };
 
-// Genesis preset names for swarm mode
-const GENESIS_PRESETS = [
-  { name: "oracle", label: "Oracle", description: "Market data provider (0.001 FET/call)" },
-  { name: "brain", label: "Brain", description: "LLM reasoning engine (0.01 FET/call)" },
-  { name: "analyst", label: "Analyst", description: "Token scoring & evaluation (0.005 FET/call)" },
-  { name: "coordinator", label: "Coordinator", description: "Query routing (0.0005 FET/call)" },
-  { name: "sentinel", label: "Sentinel", description: "Real-time alerts (0.002 FET/call)" },
-  { name: "launcher", label: "Launcher", description: "Autonomous agent creation (0.02 FET/call)" },
-  { name: "scout", label: "Scout", description: "Agent & opportunity discovery (0.01 FET/call)" },
+// Marketing team preset names for swarm mode
+const SWARM_PRESETS = [
+  { name: "writer", label: "Writer", description: "Content creation — blog, tweets, newsletters (0.01 FET/call)" },
+  { name: "social", label: "Social", description: "Twitter/X posting & scheduling (0.005 FET/call)" },
+  { name: "community", label: "Community", description: "Telegram group management (0.002 FET/call)" },
+  { name: "analytics", label: "Analytics", description: "Engagement reports & insights (0.005 FET/call)" },
+  { name: "outreach", label: "Outreach", description: "Partnership pitches & emails (0.01 FET/call)" },
+  { name: "ads", label: "Ads", description: "Ad copy & A/B tests (0.01 FET/call)" },
+  { name: "strategy", label: "Strategy", description: "Campaign coordination (0.02 FET/call)" },
 ];
 
 const TEMPLATE_LIST = listTemplates().map((t) => ({
@@ -205,7 +204,7 @@ Help the developer tokenize their agent:
    - Agent stops delivering → people sell → price drops
    - Every holder has skin in the game. The market doesn't lie.
 3. **Create the token** — Use the create_token_record MCP tool or 'npx agentlaunch tokenize'
-4. **Explain the handoff** — The link goes to a human who connects a wallet and pays the 120 FET deploy fee. Agents never hold private keys.
+4. **Explain the handoff** — The link goes to a human who connects a wallet and pays the 120 FET deploy fee. Token deployment requires human signing.
 5. **Graduation** — At 30,000 FET liquidity, the token auto-lists on DEX. The 2% trading fee goes 100% to protocol treasury.
 
 ### Step 6: Share & Next Steps
@@ -317,7 +316,7 @@ export function registerCreateCommand(program: Command): void {
     )
     .option("--deploy", "Deploy agent to Agentverse after scaffolding")
     .option("--tokenize", "Create token record on AgentLaunch after deploy")
-    .option("--mode <mode>", "Build mode: quick (single agent), swarm (multi-agent), genesis (full 7-agent economy)")
+    .option("--mode <mode>", "Build mode: quick (single agent), swarm (multi-agent)")
     .option("--preset <preset>", "Agent preset: oracle, brain, analyst, coordinator, sentinel, launcher, scout")
     .option("--no-deploy", "Scaffold only, don't deploy to Agentverse")
     .option("--no-editor", "Skip launching an editor after scaffolding")
@@ -424,13 +423,13 @@ export function registerCreateCommand(program: Command): void {
             const picks = pickInput
               .split(",")
               .map((s) => parseInt(s.trim(), 10))
-              .filter((n) => n >= 1 && n <= GENESIS_PRESETS.length);
+              .filter((n) => n >= 1 && n <= SWARM_PRESETS.length);
             if (picks.length === 0) {
               // Default to oracle + brain if no valid input
               selectedPresets = ["oracle", "brain"];
               console.log("  Defaulting to Oracle + Brain.");
             } else {
-              selectedPresets = picks.map((n) => GENESIS_PRESETS[n - 1].name);
+              selectedPresets = picks.map((n) => SWARM_PRESETS[n - 1].name);
             }
           } else {
             // Single agent mode - use "chat-memory" (the base template with LLM + memory)
@@ -466,7 +465,7 @@ export function registerCreateCommand(program: Command): void {
             const agentName = isSingleAgent
               ? baseName
               : `${baseName}-${presetName.charAt(0).toUpperCase() + presetName.slice(1)}`;
-              const presetInfo = GENESIS_PRESETS.find((p) => p.name === presetName);
+              const presetInfo = SWARM_PRESETS.find((p) => p.name === presetName);
 
               const action = skipDeploy ? "Scaffolding" : "Deploying";
               console.log(`  [${deployResults.length + 1}/${selectedPresets.length}] ${action} ${agentName}...`);
@@ -947,7 +946,7 @@ AGENT_ADDRESS=${successful[0].address}
         }
 
         // Truncate description if too long
-        const presetInfo = options.preset ? GENESIS_PRESETS.find((p) => p.name === options.preset) : undefined;
+        const presetInfo = options.preset ? SWARM_PRESETS.find((p) => p.name === options.preset) : undefined;
         const finalDescription = (description || presetInfo?.description || TEMPLATES[template]?.description || "").slice(0, 500);
 
         // Generate files from templates package
