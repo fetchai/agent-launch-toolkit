@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { generateFromTemplate } from 'agentlaunch-templates';
+import { generateFromTemplate, generateOrgTemplate, generateSwarmFromOrg, summarizeSwarm } from 'agentlaunch-templates';
+import type { OrgChart, SwarmConfig } from 'agentlaunch-templates';
 
 /**
  * Validates that a directory path is within the current working directory.
@@ -24,7 +25,6 @@ const TYPE_TO_TEMPLATE: Record<string, string> = {
   research: 'research',
   trading: 'trading-bot',
   data: 'data-analyzer',
-  genesis: 'swarm-starter', // Legacy alias
   'swarm-starter': 'swarm-starter',
 };
 
@@ -110,7 +110,7 @@ export async function scaffoldAgent(args: {
 }
 
 // ---------------------------------------------------------------------------
-// Genesis preset definitions (expected interface from agentlaunch-templates)
+// Marketing Team preset definitions (expected interface from agentlaunch-templates)
 // ---------------------------------------------------------------------------
 
 interface Preset {
@@ -189,11 +189,12 @@ export async function scaffoldSwarm(args: {
   }
 
   // Generate files from swarm-starter template (or custom fallback)
+  // Note: args.name comes AFTER presetVars so explicit name always wins
   let generated;
   try {
     generated = generateFromTemplate('swarm-starter', {
-      agent_name: args.name,
       ...presetVars,
+      agent_name: args.name,
     });
   } catch {
     // swarm-starter template not available yet — fall back to custom
@@ -245,10 +246,125 @@ export async function scaffoldSwarm(args: {
 }
 
 // ---------------------------------------------------------------------------
+// generate_org_template
+// ---------------------------------------------------------------------------
+
+export interface GenerateOrgTemplateResult {
+  success: true;
+  size: string;
+  template: string;
+}
+
+/**
+ * generate_org_template
+ *
+ * Returns a YAML org chart template for users to fill in.
+ * Supports three sizes: startup, smb, enterprise.
+ */
+export async function generateOrgTemplateHandler(args: {
+  size?: string;
+}): Promise<GenerateOrgTemplateResult> {
+  const validSizes = ['startup', 'smb', 'enterprise'] as const;
+  const size = (args.size?.toLowerCase() ?? 'smb') as typeof validSizes[number];
+
+  if (!validSizes.includes(size)) {
+    throw new Error(`Invalid size: ${size}. Use one of: ${validSizes.join(', ')}`);
+  }
+
+  const template = generateOrgTemplate(size);
+
+  return {
+    success: true,
+    size,
+    template,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// scaffold_org_swarm
+// ---------------------------------------------------------------------------
+
+export interface ScaffoldOrgSwarmResult {
+  success: true;
+  orgName: string;
+  totalAgents: number;
+  totalDeployCost: number;
+  summary: string;
+  config: SwarmConfig;
+  scaffoldedTo?: string;
+}
+
+/**
+ * scaffold_org_swarm
+ *
+ * Takes an org chart (JSON object matching OrgChart interface) and generates
+ * a complete swarm configuration. Optionally scaffolds agent files to disk.
+ */
+export async function scaffoldOrgSwarm(args: {
+  orgChart: OrgChart;
+  outputDir?: string;
+}): Promise<ScaffoldOrgSwarmResult> {
+  if (!args.orgChart || !args.orgChart.name || !args.orgChart.cSuite) {
+    throw new Error("Invalid org chart: 'name' and 'cSuite' are required fields");
+  }
+
+  const config = generateSwarmFromOrg(args.orgChart);
+  const summary = summarizeSwarm(config);
+
+  const result: ScaffoldOrgSwarmResult = {
+    success: true,
+    orgName: config.orgName,
+    totalAgents: config.totalAgents,
+    totalDeployCost: config.totalDeployCost,
+    summary,
+    config,
+  };
+
+  // Optionally scaffold files to disk
+  if (args.outputDir) {
+    const rawOutputDir = args.outputDir;
+    const outputDir = validatePathWithinCwd(rawOutputDir, 'outputDir');
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    for (const agent of config.agents) {
+      const agentDir = path.join(outputDir, agent.name);
+      fs.mkdirSync(agentDir, { recursive: true });
+      fs.mkdirSync(path.join(agentDir, '.claude'), { recursive: true });
+
+      let generated;
+      try {
+        const templates = await import('agentlaunch-templates') as unknown as Record<string, unknown>;
+        const preset = typeof templates.getPreset === 'function'
+          ? (templates.getPreset as (name: string) => Preset | null)(agent.role)
+          : null;
+        const variables = preset
+          ? { ...preset.variables, agent_name: agent.displayName }
+          : { agent_name: agent.displayName, ...agent.variables };
+        generated = generateFromTemplate('swarm-starter', variables);
+      } catch {
+        generated = generateFromTemplate('custom', { agent_name: agent.displayName });
+      }
+
+      fs.writeFileSync(path.join(agentDir, 'agent.py'), generated.code, 'utf8');
+      fs.writeFileSync(path.join(agentDir, 'README.md'), generated.readme, 'utf8');
+      fs.writeFileSync(path.join(agentDir, '.env.example'), generated.envExample, 'utf8');
+      fs.writeFileSync(path.join(agentDir, 'CLAUDE.md'), generated.claudeMd, 'utf8');
+      fs.writeFileSync(path.join(agentDir, '.claude', 'settings.json'), generated.claudeSettings, 'utf8');
+    }
+
+    result.scaffoldedTo = outputDir;
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Handler map
 // ---------------------------------------------------------------------------
 
 export const scaffoldHandlers = {
   scaffold_agent: scaffoldAgent,
   scaffold_swarm: scaffoldSwarm,
+  generate_org_template: generateOrgTemplateHandler,
+  scaffold_org_swarm: scaffoldOrgSwarm,
 };

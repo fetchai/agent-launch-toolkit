@@ -2,7 +2,7 @@ import { deployAgent, resolveApiKey, setSecret } from 'agentlaunch-sdk';
 import { generateFromTemplate } from 'agentlaunch-templates';
 
 // ---------------------------------------------------------------------------
-// Genesis preset definitions (expected interface from agentlaunch-templates)
+// Marketing Team preset definitions (expected interface from agentlaunch-templates)
 // ---------------------------------------------------------------------------
 
 interface Preset {
@@ -20,89 +20,89 @@ interface Preset {
 
 // Fallback presets used when agentlaunch-templates doesn't export getPreset yet
 const FALLBACK_PRESETS: Record<string, Preset> = {
-  oracle: {
-    name: 'oracle',
-    displayName: 'Oracle',
-    symbol: 'ORACLE',
-    description: 'Market data provider — prices, volumes, trends',
-    role: 'data-provider',
-    pricing: { 'market-data': 1_000_000_000_000_000 }, // 0.001 FET
+  writer: {
+    name: 'writer',
+    displayName: 'Writer',
+    symbol: 'WRITE',
+    description: 'Content creator — blog posts, tweet threads, newsletters, ad copy',
+    role: 'writer',
+    pricing: { 'blog-post': 10_000_000_000_000_000 }, // 0.01 FET
     intervalSeconds: 300,
     dependencies: [],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'oracle', data_source: 'coingecko' },
+    secrets: ['AGENTVERSE_API_KEY', 'ASI1_API_KEY'],
+    variables: { service_type: 'writer' },
   },
-  brain: {
-    name: 'brain',
-    displayName: 'Brain',
-    symbol: 'BRAIN',
-    description: 'LLM reasoning engine — query understanding, analysis',
-    role: 'reasoning',
-    pricing: { 'llm-query': 10_000_000_000_000_000 }, // 0.01 FET
+  social: {
+    name: 'social',
+    displayName: 'Social',
+    symbol: 'POST',
+    description: 'Social media manager — Twitter/X posting, scheduling, replies',
+    role: 'social',
+    pricing: { 'post-tweet': 5_000_000_000_000_000 }, // 0.005 FET
+    intervalSeconds: 300,
+    dependencies: ['writer'],
+    secrets: ['AGENTVERSE_API_KEY', 'TWITTER_API_KEY', 'TWITTER_API_SECRET', 'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_SECRET', 'WRITER_ADDRESS'],
+    variables: { service_type: 'social' },
+  },
+  community: {
+    name: 'community',
+    displayName: 'Community',
+    symbol: 'COMM',
+    description: 'Community manager — Telegram moderation, FAQs, welcome messages',
+    role: 'community',
+    pricing: { 'moderate': 2_000_000_000_000_000 }, // 0.002 FET
     intervalSeconds: 60,
-    dependencies: ['oracle'],
-    secrets: ['AGENTVERSE_API_KEY', 'OPENAI_API_KEY'],
-    variables: { service_type: 'brain', model: 'gpt-4o-mini' },
-  },
-  analyst: {
-    name: 'analyst',
-    displayName: 'Analyst',
-    symbol: 'ANALYST',
-    description: 'Token scoring and evaluation — quality metrics',
-    role: 'analysis',
-    pricing: { 'token-score': 5_000_000_000_000_000 }, // 0.005 FET
-    intervalSeconds: 600,
-    dependencies: ['oracle'],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'analyst', scoring_model: 'weighted' },
-  },
-  coordinator: {
-    name: 'coordinator',
-    displayName: 'Coordinator',
-    symbol: 'COORD',
-    description: 'Query routing and multi-agent orchestration',
-    role: 'orchestration',
-    pricing: { 'route-query': 500_000_000_000_000 }, // 0.0005 FET
-    intervalSeconds: 30,
     dependencies: [],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'coordinator' },
+    secrets: ['AGENTVERSE_API_KEY', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'],
+    variables: { service_type: 'community' },
   },
-  sentinel: {
-    name: 'sentinel',
-    displayName: 'Sentinel',
-    symbol: 'SNTL',
-    description: 'Real-time monitoring and alerts',
-    role: 'monitoring',
-    pricing: { 'alert-subscribe': 2_000_000_000_000_000 }, // 0.002 FET
-    intervalSeconds: 120,
-    dependencies: ['oracle'],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'sentinel', alert_threshold: '10' },
+  analytics: {
+    name: 'analytics',
+    displayName: 'Analytics',
+    symbol: 'STATS',
+    description: 'Analytics engine — engagement reports, audience insights, trends',
+    role: 'analytics',
+    pricing: { 'engagement-report': 5_000_000_000_000_000 }, // 0.005 FET
+    intervalSeconds: 300,
+    dependencies: [],
+    secrets: ['AGENTVERSE_API_KEY', 'TWITTER_BEARER_TOKEN'],
+    variables: { service_type: 'analytics' },
   },
-  launcher: {
-    name: 'launcher',
-    displayName: 'Launcher',
-    symbol: 'LAUNCH',
-    description: 'Autonomous agent creation and deployment',
-    role: 'reproduction',
-    pricing: { 'launch-agent': 20_000_000_000_000_000 }, // 0.02 FET
-    intervalSeconds: 3600,
-    dependencies: ['analyst', 'coordinator'],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'launcher' },
+  outreach: {
+    name: 'outreach',
+    displayName: 'Outreach',
+    symbol: 'REACH',
+    description: 'Partnership outreach — find partners, draft pitches, send emails',
+    role: 'outreach',
+    pricing: { 'draft-pitch': 10_000_000_000_000_000 }, // 0.01 FET
+    intervalSeconds: 300,
+    dependencies: ['writer', 'analytics'],
+    secrets: ['AGENTVERSE_API_KEY', 'RESEND_API_KEY', 'ASI1_API_KEY', 'WRITER_ADDRESS'],
+    variables: { service_type: 'outreach' },
   },
-  scout: {
-    name: 'scout',
-    displayName: 'Scout',
-    symbol: 'SCOUT',
-    description: 'Agent and opportunity discovery',
-    role: 'discovery',
-    pricing: { 'discover-agents': 10_000_000_000_000_000 }, // 0.01 FET
-    intervalSeconds: 1800,
-    dependencies: ['coordinator'],
-    secrets: ['AGENTVERSE_API_KEY'],
-    variables: { service_type: 'scout' },
+  ads: {
+    name: 'ads',
+    displayName: 'Ads',
+    symbol: 'ADS',
+    description: 'Ad manager — ad copy, A/B tests, budget optimization',
+    role: 'ads',
+    pricing: { 'create-ad': 10_000_000_000_000_000 }, // 0.01 FET
+    intervalSeconds: 300,
+    dependencies: ['writer', 'analytics'],
+    secrets: ['AGENTVERSE_API_KEY', 'ASI1_API_KEY', 'WRITER_ADDRESS', 'ANALYTICS_ADDRESS'],
+    variables: { service_type: 'ads' },
+  },
+  strategy: {
+    name: 'strategy',
+    displayName: 'Strategy',
+    symbol: 'PLAN',
+    description: 'Campaign strategist — content calendar, brand audit, coordinates all agents',
+    role: 'strategy',
+    pricing: { 'campaign-plan': 20_000_000_000_000_000 }, // 0.02 FET
+    intervalSeconds: 300,
+    dependencies: ['writer', 'social', 'community', 'analytics', 'outreach', 'ads'],
+    secrets: ['AGENTVERSE_API_KEY', 'ASI1_API_KEY', 'WRITER_ADDRESS', 'SOCIAL_ADDRESS', 'COMMUNITY_ADDRESS', 'ANALYTICS_ADDRESS', 'OUTREACH_ADDRESS', 'ADS_ADDRESS'],
+    variables: { service_type: 'strategy' },
   },
 };
 
@@ -291,7 +291,7 @@ interface DeployedAgent {
 }
 
 /**
- * Deploy a complete agent swarm. Scaffolds each agent from its Genesis preset,
+ * Deploy a complete agent swarm. Scaffolds each agent from its preset,
  * deploys to Agentverse in sequence, sets secrets (including peer addresses
  * for discovery), and starts each one.
  */
@@ -318,17 +318,17 @@ export async function deploySwarm(args: {
       // Resolve preset
       const preset = await resolvePreset(presetName);
 
-      // Scaffold agent code from genesis template (or custom fallback)
+      // Scaffold agent code from swarm-starter template (or custom fallback)
       let agentCode: string;
       try {
-        const generated = generateFromTemplate('genesis', {
+        const generated = generateFromTemplate('swarm-starter', {
           agent_name: agentName,
           description: preset.description,
           ...preset.variables,
         });
         agentCode = generated.code;
       } catch {
-        // genesis template not available yet — use custom template
+        // swarm-starter template not available yet — use custom template
         const generated = generateFromTemplate('custom', {
           agent_name: agentName,
           description: preset.description,
