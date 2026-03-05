@@ -36,6 +36,24 @@ import {
   getNetworkGDP,
 } from './commerce.js';
 import { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
+import {
+  KNOWN_TOKENS,
+  getToken as getPaymentToken,
+  getMultiTokenBalances,
+  createInvoice,
+  getInvoice,
+  listInvoices,
+  transferToken,
+} from './payments.js';
+import {
+  checkAllowance,
+  spendFromDelegation,
+  createSpendingLimitHandoff,
+} from './delegation.js';
+import {
+  generateDelegationLink,
+  generateFiatOnrampLink,
+} from './handoff.js';
 import type { StorageEntry } from './storage.js';
 import type {
   AgentRevenue,
@@ -49,6 +67,15 @@ import type {
   SellResult,
   WalletBalances,
 } from './onchain.js';
+import type {
+  PaymentToken,
+  Invoice,
+  InvoiceStatus,
+  SpendingLimit,
+  FiatOnrampParams,
+  FiatOnrampLink,
+  CreateSpendingLimitParams,
+} from './types.js';
 import type {
   AgentLaunchConfig,
   TokenizeParams,
@@ -225,6 +252,65 @@ export interface CommerceNamespace {
   getNetworkGDP(addresses: string[]): Promise<NetworkGDP>;
 }
 
+/** Multi-token payment operations. */
+export interface PaymentsNamespace {
+  /** Look up a known token by symbol and chain. */
+  getToken(symbol: string, chainId?: number): PaymentToken | undefined;
+
+  /** Get balances for multiple tokens. */
+  getMultiTokenBalances(
+    walletAddress: string,
+    tokenSymbols?: string[],
+    chainId?: number,
+  ): Promise<Record<string, string>>;
+
+  /** Transfer any ERC-20 token. */
+  transfer(
+    tokenAddress: string,
+    to: string,
+    amount: string,
+    chainId?: number,
+  ): Promise<{ txHash: string; blockNumber: number }>;
+
+  /** Create an invoice in agent storage. */
+  createInvoice(
+    agentAddress: string,
+    invoice: Omit<Invoice, 'createdAt' | 'updatedAt' | 'status'>,
+  ): Promise<Invoice>;
+
+  /** Get an invoice by ID. */
+  getInvoice(agentAddress: string, invoiceId: string): Promise<Invoice | null>;
+
+  /** List invoices, optionally filtered by status. */
+  listInvoices(agentAddress: string, status?: InvoiceStatus): Promise<Invoice[]>;
+
+  /** Check ERC-20 spending limit (allowance). */
+  checkAllowance(
+    tokenAddress: string,
+    owner: string,
+    spender: string,
+    chainId?: number,
+  ): Promise<SpendingLimit>;
+
+  /** Spend from a delegation (transferFrom). */
+  spendFromDelegation(
+    tokenAddress: string,
+    owner: string,
+    recipient: string,
+    amount: string,
+  ): Promise<{ txHash: string; blockNumber: number }>;
+
+  /** Generate a delegation handoff link. */
+  delegationLink(
+    tokenAddress: string,
+    spenderAddress: string,
+    amount: string,
+  ): string;
+
+  /** Generate a fiat onramp link. */
+  fiatLink(params: FiatOnrampParams): FiatOnrampLink;
+}
+
 /** On-chain trading operations (requires ethers). */
 export interface OnchainNamespace {
   /**
@@ -314,6 +400,9 @@ export class AgentLaunch {
   /** On-chain trading operations (requires ethers as peer dependency). */
   readonly onchain: OnchainNamespace;
 
+  /** Multi-token payment operations. */
+  readonly payments: PaymentsNamespace;
+
   constructor(config: AgentLaunchConfig = {}) {
     this.client = new AgentLaunchClient(config);
 
@@ -393,6 +482,32 @@ export class AgentLaunch {
         sellTokens(tokenAddress, tokenAmount, { ...cfg, client }),
       getBalances: (tokenAddress: string, cfg?: Omit<OnchainConfig, 'client'>) =>
         getWalletBalances(tokenAddress, cfg),
+    };
+
+    this.payments = {
+      getToken: (symbol: string, chainId?: number) =>
+        getPaymentToken(symbol, chainId),
+      getMultiTokenBalances: (walletAddress: string, tokenSymbols?: string[], chainId?: number) =>
+        getMultiTokenBalances(walletAddress, tokenSymbols, chainId),
+      transfer: (tokenAddress: string, to: string, amount: string, chainId?: number) => {
+        const pk = process.env['WALLET_PRIVATE_KEY'];
+        if (!pk) throw new Error('WALLET_PRIVATE_KEY required for token transfers');
+        return transferToken(tokenAddress, to, amount, pk, chainId);
+      },
+      createInvoice: (agentAddress: string, invoice: Omit<Invoice, 'createdAt' | 'updatedAt' | 'status'>) =>
+        createInvoice(agentAddress, invoice, apiKey),
+      getInvoice: (agentAddress: string, invoiceId: string) =>
+        getInvoice(agentAddress, invoiceId, apiKey),
+      listInvoices: (agentAddress: string, status?: InvoiceStatus) =>
+        listInvoices(agentAddress, status, apiKey),
+      checkAllowance: (tokenAddress: string, owner: string, spender: string, chainId?: number) =>
+        checkAllowance(tokenAddress, owner, spender, chainId),
+      spendFromDelegation: (tokenAddress: string, owner: string, recipient: string, amount: string) =>
+        spendFromDelegation(tokenAddress, owner, recipient, amount),
+      delegationLink: (tokenAddress: string, spenderAddress: string, amount: string) =>
+        generateDelegationLink(tokenAddress, spenderAddress, amount),
+      fiatLink: (params: FiatOnrampParams) =>
+        generateFiatOnrampLink(params),
     };
   }
 }

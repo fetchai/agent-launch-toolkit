@@ -44,6 +44,7 @@ export type {
   StorageNamespace,
   CommerceNamespace,
   OnchainNamespace,
+  PaymentsNamespace,
 } from './agentlaunch.js';
 
 // Core HTTP client
@@ -86,6 +87,17 @@ export type {
   OptimizationCheckItem,
   // SDK-002: Error code type
   AgentLaunchErrorCode,
+  // Multi-token payment types
+  PaymentToken,
+  TokenAmount,
+  PaymentRequest,
+  PaymentResult,
+  Invoice,
+  InvoiceStatus,
+  SpendingLimit,
+  CreateSpendingLimitParams,
+  FiatOnrampParams,
+  FiatOnrampLink,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -113,6 +125,9 @@ export {
   generateTradeLink,
   generateBuyLink,
   generateSellLink,
+  generateDelegationLink,
+  generateFiatOnrampLink,
+  FIAT_PROVIDER_CONFIGS,
 } from './handoff.js';
 
 // SDK-005: Agent operations
@@ -139,7 +154,7 @@ export { getAgentRevenue, getPricingTable, getAgentCommerceStatus, getNetworkGDP
 export type { AgentRevenue, PricingEntry, AgentCommerceStatus, NetworkGDP } from './commerce.js';
 
 // On-chain trading operations (requires ethers as optional peer dependency)
-export { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
+export { buyTokens, sellTokens, getWalletBalances, getERC20Balance, approveERC20, getAllowance, transferFromERC20 } from './onchain.js';
 export type {
   OnchainConfig,
   BuyResult,
@@ -153,6 +168,29 @@ export {
   ERC20_ABI,
   CHAIN_CONFIGS,
 } from './onchain.js';
+
+// Multi-token payments
+export {
+  KNOWN_TOKENS,
+  getToken as getPaymentToken,
+  getTokensForChain,
+  getTokenBalance,
+  getMultiTokenBalances,
+  transferToken,
+  createInvoice,
+  getInvoice,
+  listInvoices,
+  updateInvoiceStatus,
+} from './payments.js';
+
+// Delegation
+export {
+  checkAllowance,
+  spendFromDelegation,
+  createSpendingLimitHandoff,
+  listDelegations,
+  recordDelegation,
+} from './delegation.js';
 
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';
