@@ -1,0 +1,69 @@
+# SMB Org Chart
+# Small business swarm: 8 agents, 960 FET deploy cost
+#
+# Usage:
+#   npx agentlaunch swarm-from-org smb.yaml
+
+name: "My Company"
+symbol: "CORP"  # Token prefix: $CORP-CEO, $CORP-ENG, etc.
+
+cSuite:
+  - role: ceo
+    name: "CEO Name"
+    title: "Chief Executive Officer"
+
+  - role: cto
+    name: "CTO Name"
+    title: "Chief Technology Officer"
+
+  - role: cfo
+    name: "CFO Name"
+    title: "Chief Financial Officer"
+
+departments:
+  - name: "Engineering"
+    head: "Engineering Lead"
+    headTitle: "Head of Engineering"
+    services:
+      - code_review
+      - debug
+      - deploy
+      - architecture
+    pricePerCall: 0.01
+
+  - name: "Sales"
+    head: "Sales Lead"
+    headTitle: "Head of Sales"
+    services:
+      - prospect
+      - qualify
+      - negotiate
+      - close
+    pricePerCall: 0.01
+
+  - name: "Support"
+    head: "Support Lead"
+    headTitle: "Head of Support"
+    services:
+      - ticket
+      - escalate
+      - knowledge_base
+      - onboard
+    pricePerCall: 0.005
+
+  - name: "Marketing"
+    head: "Marketing Lead"
+    services:
+      - content
+      - campaigns
+      - analytics
+      - social
+    pricePerCall: 0.01
+
+  - name: "HR"
+    head: "HR Lead"
+    services:
+      - recruit
+      - onboard
+      - review
+    pricePerCall: 0.01

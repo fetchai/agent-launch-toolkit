@@ -9,20 +9,24 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 
 1. **Create** an agent with one command (chat-memory template by default)
 2. **Deploy** to Agentverse (Fetch.ai's agent hosting platform)
-3. **Tokenize** on AgentLaunch (create a tradeable ERC-20 token)
-4. **Hand off** a link for a human to sign the blockchain transaction
-5. **Monitor** the token (price, holders, market cap)
-6. **Trade** via pre-filled links (buy/sell signals)
-7. **Swarm** -- deploy teams of agents that pay each other for services
+3. **Optimize** the Setup Checklist (README, description, avatar, handle, interactions)
+4. **Tokenize** on AgentLaunch (create a tradeable ERC-20 token)
+5. **Hand off** a link for a human to sign the blockchain transaction
+6. **Monitor** the token (price, holders, market cap)
+7. **Trade** via pre-filled links (buy/sell signals)
+8. **Swarm** -- deploy teams of agents that pay each other for services
+
+**IMPORTANT:** Always follow the full workflow in `docs/workflow.md`. NEVER skip
+Phase 3 (Optimize). See `.claude/rules/workflow.md` for enforcement details.
 
 ## What's Inside
 
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
-| **CLI** | `packages/cli/` | 13 commands, one-command full lifecycle |
-| **MCP Server** | `packages/mcp/` | 17+ tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 8 agent blueprints (chat-memory is default) |
+| **CLI** | `packages/cli/` | 16 commands, one-command full lifecycle |
+| **MCP Server** | `packages/mcp/` | 28 tools for Claude Code / Cursor |
+| **Templates** | `packages/templates/` | 9 agent blueprints (chat-memory is default) |
 
 ## Authentication
 
@@ -70,11 +74,28 @@ npx agentlaunch buy 0x... --amount 10     # Buy tokens with 10 FET
 npx agentlaunch sell 0x... --amount 50000 # Sell 50000 tokens for FET
 npx agentlaunch buy 0x... --amount 10 --dry-run  # Preview without executing
 
+# Multi-token wallet (requires WALLET_PRIVATE_KEY in .env)
+npx agentlaunch wallet balances           # Show FET + USDC + BNB balances
+npx agentlaunch wallet send USDC 0x... 10 # Send USDC to a wallet
+npx agentlaunch wallet delegate FET 100 --spender 0x...  # Delegation link
+npx agentlaunch wallet allowance FET --owner 0x... --spender 0x...  # Check limit
+npx agentlaunch pay 0x... 10 --token USDC # Pay in any supported token
+npx agentlaunch invoice create --agent agent1q... --payer 0x... --service api --amount 10
+npx agentlaunch invoice list --agent agent1q... --status pending
+
+# Deploy agent swarms
+npx agentlaunch marketing                  # 7-agent Marketing Team (960 FET)
+npx agentlaunch alliance                   # 27-agent ASI Alliance (3,240 FET)
+npx agentlaunch marketing --dry-run        # Preview without deploying
+npx agentlaunch marketing --output ./team  # Scaffold locally only
+npx agentlaunch org-template --size smb    # Generate org chart template
+npx agentlaunch swarm-from-org people.yaml # Deploy custom org swarm
+
 # Run MCP server (for Claude Code integration)
 npx agent-launch-mcp
 
 # Run examples
-npx ts-node examples/01-hello-world/deploy.ts
+npx ts-node examples/agents/joke-teller/deploy.ts
 ```
 
 ## Package Structure
@@ -86,8 +107,8 @@ agent-launch-toolkit/
   packages/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch (interactive + scripted commands)
-    mcp/                    # agent-launch-mcp (14+ tools for Claude Code)
-    templates/              # agentlaunch-templates (8 agent blueprints, chat-memory is default)
+    mcp/                    # agent-launch-mcp (28 tools for Claude Code)
+    templates/              # agentlaunch-templates (9 agent blueprints, chat-memory is default)
   .claude/
     settings.json           # MCP server config, permissions
     rules/                  # Auto-loaded coding rules
@@ -124,6 +145,13 @@ You have access to these tools:
 | `get_wallet_balances` | Check wallet BNB, FET, and token balances |
 | `get_comments` | Read token comments |
 | `post_comment` | Post a comment on a token |
+| `multi_token_payment` | Send FET, USDC, or ERC-20 payment |
+| `check_spending_limit` | Read ERC-20 allowance (delegation check) |
+| `create_delegation` | Generate delegation handoff link |
+| `get_fiat_link` | Generate MoonPay/Transak fiat onramp URL |
+| `create_invoice` | Create payment invoice in agent storage |
+| `list_invoices` | List invoices by status |
+| `get_multi_token_balances` | Query FET + USDC + BNB + custom balances |
 
 ## Slash Commands
 
@@ -174,6 +202,7 @@ You have access to these tools:
 | `data-analyzer` | On-chain data analysis | Analytics service |
 | `research` | Deep dives and reports | Research service |
 | `gifter` | Treasury wallet + rewards | Community incentives |
+| `consumer-commerce` | Multi-token payments, invoices, fiat onramp | Consumer-facing commerce agents |
 
 ## Agent Swarms
 
@@ -184,8 +213,8 @@ The swarm-starter template generates agents with a complete commerce stack:
 - HoldingsManager (buy/sell other tokens)
 
 ### Presets
-7 pre-configured roles: oracle, brain, analyst, coordinator, sentinel, launcher, scout.
-Use presets for instant configuration: `generateFromTemplate("swarm-starter", getPreset("oracle").variables)`
+7 pre-configured roles: writer, social, community, analytics, outreach, ads, strategy.
+Use presets for instant configuration: `generateFromTemplate("swarm-starter", getPreset("writer").variables)`
 
 ## Platform Constants (Immutable)
 
@@ -257,17 +286,27 @@ The 200 TFET covers the 120 FET deploy fee with 80 FET left for trading.
 - Wait 15-60s after start for agent compilation
 - Agent listing response is `{ items: [...] }` not `{ agents: [...] }`
 
+## Wallet Access (Runtime-Verified)
+
+- `ctx.wallet` **DOES NOT EXIST** — never use it
+- `agent.wallet` **EXISTS** — `cosmpy.aerial.wallet.LocalWallet` (auto-provisioned `fetch1...` address)
+- `ctx.ledger` **EXISTS** — `cosmpy.aerial.client.LedgerClient`
+- Balance: `ctx.ledger.query_bank_balance(str(agent.wallet.address()), "atestfet")`
+- Send FET: `ctx.ledger.send_tokens(dest, amount, "atestfet", agent.wallet)`
+- BSC/EVM key: store via Agentverse Secrets, use web3.py
+
 ## The Handoff Protocol
 
-Agents NEVER hold private keys. The flow is:
+Agents store EVM keys securely via Agentverse Secrets for autonomous trading.
+Handoff links are used for irreversible actions like token deployment:
 
 1. Agent calls API to create token record
 2. API returns handoff link (`/deploy/{tokenId}`)
 3. Agent gives link to human
-4. Human connects wallet, signs transaction
+4. Human connects wallet, signs transaction (pays 120 FET)
 5. Token is live on-chain
 
-This separation is fundamental to the architecture. Never bypass it.
+Handoff is required for token deployment. Everything else can be autonomous.
 
 ## API Endpoints
 
@@ -303,7 +342,7 @@ GET   /hosting/agents                     List agents -> { items: [...] }
 PUT   /hosting/agents/{addr}/code         Upload code (DOUBLE-ENCODED JSON)
 POST  /hosting/agents/{addr}/start        Start agent
 POST  /hosting/agents/{addr}/stop         Stop agent
-GET   /hosting/agents/{addr}/logs         Get logs
+GET   /hosting/agents/{addr}/logs/latest   Get logs
 POST  /hosting/secrets                    Set a secret
 ```
 

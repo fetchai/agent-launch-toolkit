@@ -1,0 +1,28 @@
+# Startup Org Chart
+# Minimal swarm: 3 agents, 360 FET deploy cost
+#
+# Usage:
+#   npx agentlaunch swarm-from-org startup.yaml
+
+name: "My Startup"
+symbol: "START"  # Token prefix: $START-CEO, $START-CTO, etc.
+
+cSuite:
+  - role: ceo
+    name: "Your Name"
+    title: "CEO / Founder"
+    quote: "Building the future, one agent at a time."
+
+  - role: cto
+    name: "Technical Co-founder"
+    title: "CTO"
+
+departments:
+  - name: "Product"
+    head: "Product Lead"
+    services:
+      - roadmap
+      - user_research
+      - prioritize
+      - launch
+    pricePerCall: 0.01  # FET per service call

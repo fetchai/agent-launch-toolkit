@@ -44,7 +44,7 @@ Created docs/TODO.md with 20 tasks across 5 phases.
 # Execute tasks one by one
 > /grow
 Executing L-1: Deploy the swarm...
-Running: npx agentlaunch create → Genesis Network
+Running: npx agentlaunch create → Marketing Team
 KPI: All 7 running ✓
 Task L-1 complete.
 
@@ -58,7 +58,7 @@ Executing P-1... ✓
 5 tasks complete. Phase 1 gate: 4/4 ✓
 ```
 
-This same loop powers everything below — single agents, swarms, the entire Genesis Network.
+This same loop powers everything below — single agents, swarms, the entire Marketing Team.
 
 ---
 
@@ -116,7 +116,7 @@ Claude Code automatically loads:
 - **CLAUDE.md** — project context and platform constants
 - **.claude/rules/** — coding patterns for AgentLaunch, Agentverse, and uAgents
 - **.claude/skills/** — slash commands (`/build-agent`, `/build-swarm`, `/deploy`, `/tokenize`, `/market`, `/status`, `/todo`, `/grow`)
-- **.claude/settings.json** — MCP server with 17+ tools pre-configured
+- **.claude/settings.json** — MCP server with 21 tools pre-configured
 
 You're ready. No additional setup needed.
 
@@ -132,7 +132,7 @@ Type this in Claude Code:
 
 Claude will walk you through:
 1. What does your agent do?
-2. Pick a template (research, price-monitor, trading-bot, data-analyzer, gifter, custom)
+2. Pick a template (chat-memory, swarm-starter, research, price-monitor, trading-bot, data-analyzer, gifter, custom)
 3. Review the generated Python code
 4. Deploy to Agentverse
 5. Create the token record
@@ -142,7 +142,7 @@ Claude will walk you through:
 
 ---
 
-## Step 3: Build a Swarm (Option A2 — Genesis Network)
+## Step 3: Build a Swarm (Option A2 — Marketing Team)
 
 Deploy 7 agents that pay each other for services:
 
@@ -150,17 +150,17 @@ Deploy 7 agents that pay each other for services:
 /build-swarm
 ```
 
-Claude deploys the Genesis Network:
+Claude deploys the Marketing Team:
 
 | Agent | Token | Role |
 |-------|-------|------|
-| Oracle | $DATA | Collects market data, sells OHLC feeds |
-| Brain | $THINK | LLM reasoning via Claude/ASI:One |
-| Analyst | $ALPHA | Predictions from Oracle + Brain |
-| Coordinator | $COORD | Routes queries, aggregates results |
-| Sentinel | $GUARD | Monitors anomalies, triggers alerts |
-| Launcher | $BUILD | Finds gaps, scaffolds new agents |
-| Scout | $FIND | Discovers external agents |
+| Writer | $WRITE | Creates blog posts, tweets, newsletters |
+| Social | $POST | Posts to Twitter/X, schedules threads |
+| Community | $COMM | Manages Telegram group, answers FAQs |
+| Analytics | $STATS | Engagement reports, audience insights |
+| Outreach | $REACH | Finds partners, drafts pitches, sends emails |
+| Ads | $ADS | Ad copy, A/B tests, campaign tracking |
+| Strategy | $PLAN | Content calendar, brand audit, coordinates all |
 
 Each agent has a complete commerce stack:
 - **PaymentService** — charge FET for services
@@ -388,7 +388,7 @@ curl https://agent-launch.ai/api/tokens/address/0x...
 | Command | What It Does |
 |---------|-------------|
 | `/build-agent` | Full guided flow: scaffold, deploy, tokenize |
-| `/build-swarm` | Deploy multi-agent swarm (Genesis Network) |
+| `/build-swarm` | Deploy multi-agent swarm (Marketing Team) |
 | `/deploy` | Deploy agent.py to Agentverse |
 | `/tokenize` | Create token for an existing agent |
 | `/market` | Browse tokens, check prices, see trending |
@@ -423,9 +423,9 @@ All tools are auto-loaded when you open Claude Code in this repo.
 | Tool | Description |
 |------|-------------|
 | `deploy_to_agentverse` | Deploy Python agent to Agentverse |
+| `update_agent_metadata` | Update README, description, avatar on an existing agent |
 | `scaffold_agent` | Generate agent from template |
 | `scaffold_swarm` | Scaffold agent from swarm-starter preset |
-| `get_agent_templates` | List available templates |
 
 ### Swarm Operations
 | Tool | Description |
@@ -433,6 +433,13 @@ All tools are auto-loaded when you open Claude Code in this repo.
 | `deploy_swarm` | Deploy multiple agents as a swarm |
 | `network_status` | Swarm GDP, per-agent health |
 | `check_agent_commerce` | Revenue, pricing, balance for one agent |
+
+### Trading
+| Tool | Description |
+|------|-------------|
+| `buy_tokens` | Buy tokens on-chain (or dry-run preview) |
+| `sell_tokens` | Sell tokens on-chain (or dry-run preview) |
+| `get_wallet_balances` | Check wallet BNB, FET, and token balances |
 
 ### Social
 | Tool | Description |
@@ -446,7 +453,8 @@ All tools are auto-loaded when you open Claude Code in this repo.
 
 | Template | Best For |
 |----------|----------|
-| `swarm-starter` | **Full commerce stack** (recommended) — agents that charge for services |
+| `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
+| `swarm-starter` | Full commerce stack — agents that charge for services |
 | `custom` | Start from scratch |
 | `price-monitor` | Watch token prices, send alerts |
 | `trading-bot` | Buy/sell signal generation |
@@ -454,19 +462,19 @@ All tools are auto-loaded when you open Claude Code in this repo.
 | `research` | Deep dives and reports |
 | `gifter` | Treasury wallet, reward distribution |
 
-### Genesis Presets
+### Marketing Team Presets
 
 Use with swarm-starter template for instant configuration:
 
 | Preset | Token | Role |
 |--------|-------|------|
-| `oracle` | $DATA | Market data collection |
-| `brain` | $THINK | LLM reasoning |
-| `analyst` | $ALPHA | Predictions |
-| `coordinator` | $COORD | Query routing |
-| `sentinel` | $GUARD | Anomaly detection |
-| `launcher` | $BUILD | Agent scaffolding |
-| `scout` | $FIND | Agent discovery |
+| `writer` | $WRITE | Content creation |
+| `social` | $POST | Social media posting |
+| `community` | $COMM | Community management |
+| `analytics` | $STATS | Engagement tracking |
+| `outreach` | $REACH | Partnership outreach |
+| `ads` | $ADS | Ad campaigns |
+| `strategy` | $PLAN | Campaign coordination |
 
 ---
 
@@ -498,7 +506,7 @@ Use with swarm-starter template for instant configuration:
 
 ## Next Steps
 
-### Deploy the Genesis Network
+### Deploy the Marketing Team
 
 ```bash
 > /build-swarm                           # Deploy 7 agents
