@@ -440,8 +440,11 @@ try {
   const { data } = await tokenize({ agentAddress: 'agent1q...' });
 } catch (err) {
   if (err instanceof AgentLaunchError) {
-    console.error(`HTTP ${err.status}: ${err.message}`);
+    console.error(`HTTP ${err.status} [${err.code}]: ${err.message}`);
     console.error('Server message:', err.serverMessage);
+    if (err.code === 'RATE_LIMITED' && err.retryAfterMs) {
+      console.error(`Retry after ${err.retryAfterMs}ms`);
+    }
   }
 }
 ```
@@ -450,6 +453,9 @@ try {
 - `status` — HTTP status code (0 for network-level failures or missing API key)
 - `message` — Human-readable error message
 - `serverMessage` — Original server error message when available
+- `code` — Semantic error code for switch-based handling (`'UNAUTHORIZED'` | `'FORBIDDEN'` | `'NOT_FOUND'` | `'RATE_LIMITED'` | `'VALIDATION_ERROR'` | `'INTERNAL_ERROR'` | `'NETWORK_ERROR'`)
+- `details` — Additional error details when available (optional)
+- `retryAfterMs` — Retry delay in ms for rate-limited requests (optional)
 
 ## Platform Information
 

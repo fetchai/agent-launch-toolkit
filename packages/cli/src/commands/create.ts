@@ -849,6 +849,23 @@ AGENT_ADDRESS=${successful[0].address}
           }
 
           // Default: Claude Code
+          // Check if Claude Code is available before launching
+          let claudeAvailable = false;
+          try {
+            execSync("claude --version", { stdio: "ignore", timeout: 5000 });
+            claudeAvailable = true;
+          } catch {
+            // Claude Code not installed or not in PATH
+          }
+
+          if (!claudeAvailable) {
+            console.log(`\n  Claude Code is not installed or not in PATH.`);
+            console.log(`  Install it from: https://docs.anthropic.com/en/docs/claude-code`);
+            console.log(`\n  To open your project later:`);
+            console.log(`    cd ${dirName} && claude`);
+            return;
+          }
+
           console.log(`\n  Launching Claude Code...`);
 
           let welcomePrompt: string;

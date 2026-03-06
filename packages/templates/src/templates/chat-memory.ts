@@ -51,8 +51,15 @@ from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     EndSessionContent,
     TextContent,
-    chat_protocol_spec,
 )
+try:
+    from uagents_core.contrib.protocols.chat import create_protocol as _create_chat
+except ImportError:
+    _create_chat = None
+try:
+    from uagents_core.contrib.protocols.chat import chat_protocol_spec as _chat_spec
+except ImportError:
+    _chat_spec = None
 
 import json
 import os
@@ -129,7 +136,7 @@ async def reply(ctx: Context, sender: str, text: str, end: bool = False) -> None
 
 memory = ConversationMemory(max_messages=MEMORY_SIZE)
 agent = Agent()
-chat_proto = Protocol(spec=chat_protocol_spec)
+chat_proto = _create_chat() if _create_chat else Protocol(spec=_chat_spec)
 
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage) -> None:

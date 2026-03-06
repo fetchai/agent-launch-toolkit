@@ -74,7 +74,7 @@ After editing the config, restart Claude Code / Claude Desktop.
 
 ---
 
-## Available Tools
+## Available Tools (21)
 
 ### Discovery — read platform data, no API key required
 
@@ -129,6 +129,23 @@ After editing the config, restart Claude Code / Claude Desktop.
 | Tool | Description |
 |------|-------------|
 | `create_and_tokenize` | End-to-end combo: calls `POST /tokenize` with a live Agentverse agent address and returns tokenId, deploy handoff link, and pre-filled trade link in a single step. Accepts optional `maxWalletAmount` (0\|1\|2), `initialBuyAmount` (FET string), and `category` (number). |
+
+### Swarm — scaffold and deploy agent swarms
+
+| Tool | Description |
+|------|-------------|
+| `scaffold_swarm` | Scaffold a swarm-starter agent from a preset (oracle, brain, analyst, etc.). Creates a complete agent project with commerce stack, ready to deploy. |
+| `check_agent_commerce` | Check an agent's commerce status: revenue, pricing, balance, effort mode, and cross-holdings. |
+| `network_status` | Check the status of an agent swarm: per-agent revenue, total GDP, health, and cross-holdings. |
+| `deploy_swarm` | Deploy a complete agent swarm. Deploys each agent in sequence, sets secrets, starts them, returns addresses and status. |
+
+### On-chain trading — buy/sell tokens on bonding curves
+
+| Tool | Description |
+|------|-------------|
+| `buy_tokens` | Buy tokens on a bonding curve contract. Supports `dryRun=true` for preview without wallet. Requires `WALLET_PRIVATE_KEY` env var for live trades. |
+| `sell_tokens` | Sell tokens on a bonding curve contract. Supports `dryRun=true` for preview. Requires `WALLET_PRIVATE_KEY` for live trades. |
+| `get_wallet_balances` | Get wallet balances for BNB (gas), FET, and a specific token. Requires `WALLET_PRIVATE_KEY` env var. |
 
 ---
 
