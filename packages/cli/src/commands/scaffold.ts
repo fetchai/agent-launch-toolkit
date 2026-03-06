@@ -58,10 +58,14 @@ export function registerScaffoldCommand(program: Command): void {
       "Agent type: chat-memory (default), swarm-starter, custom, price-monitor, trading-bot, data-analyzer, research, gifter",
       "chat-memory",
     )
+    .option(
+      "--template <template>",
+      "Alias for --type: select agent template by name",
+    )
     .option("--json", "Output only JSON (machine-readable)")
-    .action((name: string, options: { type: string; json?: boolean }) => {
+    .action((name: string, options: { type: string; template?: string; json?: boolean }) => {
       const isJson = options.json === true;
-      const rawType = options.type;
+      const rawType = options.template ?? options.type;
 
       // Resolve the template name: legacy map first, then direct name
       const templateName = LEGACY_TYPE_MAP[rawType] ?? rawType;

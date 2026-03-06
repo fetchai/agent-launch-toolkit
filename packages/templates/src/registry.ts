@@ -8,7 +8,6 @@
  */
 
 import { template as chatMemoryTemplate } from "./templates/chat-memory.js";
-import { template as genesisTemplate } from "./templates/genesis.js";
 import { template as customTemplate } from "./templates/custom.js";
 import { template as priceMonitorTemplate } from "./templates/price-monitor.js";
 import { template as tradingBotTemplate } from "./templates/trading-bot.js";
@@ -54,7 +53,6 @@ export interface AgentTemplate {
 
 const TEMPLATES: AgentTemplate[] = [
   chatMemoryTemplate,  // Base template - recommended starting point
-  genesisTemplate,
   customTemplate,
   priceMonitorTemplate,
   tradingBotTemplate,
@@ -66,11 +64,12 @@ const TEMPLATES: AgentTemplate[] = [
 /**
  * Template aliases for backward compatibility and renaming.
  * Maps user-facing names to internal template names.
- * "swarm-starter" is the primary user-facing name for the genesis template.
+ * "swarm-starter" maps to "custom" (genesis template was removed).
  * "genesis" is kept as a legacy alias.
  */
 const TEMPLATE_ALIASES: Record<string, string> = {
-  "swarm-starter": "genesis",
+  "swarm-starter": "custom",
+  "genesis": "custom",
 };
 
 // ---------------------------------------------------------------------------
