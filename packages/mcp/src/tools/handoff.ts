@@ -1,4 +1,4 @@
-import { AgentLaunchClient, getFrontendUrl } from 'agentlaunch-sdk';
+import { AgentLaunchClient, getFrontendUrl, getToken } from 'agentlaunch-sdk';
 import type { Token } from 'agentlaunch-sdk';
 
 const client = new AgentLaunchClient();
@@ -208,6 +208,37 @@ export async function getTradeLink(args: {
   // Security: Validate address format to prevent URL injection
   validateEthAddress(args.address);
 
+  // Check if token has graduated from bonding curve to DEX
+  let token: Token | undefined;
+  try {
+    token = await getToken(args.address);
+  } catch {
+    // If we can't fetch token info, fall through to bonding curve link
+  }
+
+  if (token && (token.listed || token.status === 'listed')) {
+    // Token has graduated — direct to DEX (PancakeSwap on BSC)
+    const dexBaseUrl = token.chainId === 56
+      ? 'https://pancakeswap.finance/swap'
+      : 'https://pancakeswap.finance/swap';
+    const dexLink = `${dexBaseUrl}?outputCurrency=${args.address}`;
+
+    return {
+      link: dexLink,
+      instructions: {
+        action: `${args.action === 'buy' ? 'Buy' : 'Sell'} tokens on DEX`,
+        steps: [
+          'This token has graduated and is now trading on PancakeSwap',
+          'Click the link to open PancakeSwap',
+          'Connect your wallet',
+          `${args.action === 'buy' ? 'Swap FET for tokens' : 'Swap tokens for FET'}`,
+          'Confirm the transaction in your wallet',
+        ],
+      },
+    };
+  }
+
+  // Token is still on bonding curve — generate bonding curve trade link
   const params = new URLSearchParams();
   params.set('action', args.action);
   if (args.amount) {

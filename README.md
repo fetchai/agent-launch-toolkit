@@ -354,4 +354,45 @@ curl -X POST https://agent-launch.ai/api/faucet/claim \
 
 ---
 
+## Development
+
+### Pre-Publish Testing
+
+Before publishing to npm, run the smoke test suite to verify all packages work as real installs:
+
+```bash
+npm run test:publish
+```
+
+This command:
+
+1. **Builds** all packages
+2. **Packs** tarballs (exactly what `npm publish` uploads)
+3. **Inspects** tarball contents for missing/extra files
+4. **Installs** tarballs in an isolated temp directory (no workspace symlinks)
+5. **Runs 5 smoke tests** against the installed packages
+
+| Test | Verifies |
+|------|----------|
+| SDK ESM | All public exports work via `import` |
+| SDK CJS | All public exports work via `require()` |
+| Templates | Template listing, generation, presets, alias resolution |
+| CLI | Binary runs, `--help` shows all commands, `--version` works |
+| MCP | Binary installed, entry point syntax-valid |
+
+This catches issues that workspace resolution hides: missing `files`, broken exports, missing dependencies, and broken binaries.
+
+### Publishing
+
+After `test:publish` passes, publish in dependency order:
+
+```bash
+npm publish -w packages/sdk
+npm publish -w packages/templates
+npm publish -w packages/cli
+npm publish -w packages/mcp
+```
+
+---
+
 MIT License
