@@ -165,6 +165,7 @@ You have access to these tools:
 | `/status` | Check agent/token status |
 | `/todo` | Create TODO.md from a document |
 | `/grow` | Execute tasks from TODO.md autonomously |
+| `/improve` | Capture session learnings, test, and create PR |
 
 ## Architecture
 
