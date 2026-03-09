@@ -967,4 +967,15 @@ async function main(): Promise<void> {
   console.error("Agent-Launch MCP server running on stdio");
 }
 
-main().catch(console.error);
+// Only start server when run directly (not when imported for testing)
+// In ESM, we check if this file is the entry point by comparing import.meta.url
+// to the resolved path of the first CLI argument
+import { fileURLToPath } from "url";
+import { resolve } from "path";
+
+const currentFile = fileURLToPath(import.meta.url);
+const entryPoint = process.argv[1] ? resolve(process.argv[1]) : "";
+
+if (currentFile === entryPoint || entryPoint.endsWith("agent-launch-mcp")) {
+  main().catch(console.error);
+}
