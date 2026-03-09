@@ -35,7 +35,7 @@ This scans all priority files for discrepancies:
 - Version numbers (SDK, CLI, MCP)
 - Counts (tools, templates)
 - Constants (@gift amounts)
-- Presets (Genesis vs Marketing)
+- Presets (Marketing, C-Suite, Consumer Commerce)
 
 Output: `docs/sync-validation-report.md`, `docs/sync-issues.json`
 
@@ -55,21 +55,20 @@ Review the validation report and fix each issue.
 | Templates Version | **0.4.3** |
 | MCP Tools | **30** |
 | CLI Commands | **25** |
-| Templates | **10** |
+| Templates | **9** |
 | @gift TFET | **200** |
 | @gift tBNB | **0.001** |
 
-### Templates (10)
+### Templates (9)
 1. chat-memory
 2. consumer-commerce
 3. custom
 4. data-analyzer
-5. genesis
-6. gifter
-7. price-monitor
-8. research
-9. swarm-starter
-10. trading-bot
+5. gifter
+6. price-monitor
+7. research
+8. swarm-starter
+9. trading-bot
 
 ### MCP Tools (30)
 1. list_tokens

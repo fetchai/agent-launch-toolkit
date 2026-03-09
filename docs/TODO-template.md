@@ -11,7 +11,7 @@ cost: ~1,195 FET (~$400) + ~$50/month
 timeline: Day 1 launch + 6 months to graduation
 ---
 
-# Genesis Network Roadmap
+# Marketing Team Roadmap
 
 > The toolkit builds the tools. This playbook uses them.
 >
@@ -133,11 +133,11 @@ Rules provide specialized context loaded automatically.
 
 ## Phase 1: Launch (Day 1)
 
-Deploy the Genesis Network. The toolkit does the heavy lifting.
+Deploy the Marketing Team. The toolkit does the heavy lifting.
 
 | Status | ID | Task | How | KPI | Depends |
 |:---:|:---|:---|:---|:---|:---|
-| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` → Genesis Network. Deploys all 7 agents with presets. Set secrets: `ANTHROPIC_API_KEY`, `ASI_ONE_API_KEY` for Brain. | All 7 running | — |
+| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` → Marketing Team. Deploys all 7 agents with presets. Set secrets: `ANTHROPIC_API_KEY`, `ASI_ONE_API_KEY` for Brain. | All 7 running | — |
 | `[ ]` | L-2 | Fund wallets | Send ~15 FET to each agent's Fetch.ai wallet (105 FET total). Fund BSC wallets with small BNB for gas. | Balances confirmed | L-1 |
 | `[ ]` | L-3 | Seed cross-holdings | Buy tokens via frontend: Coordinator→$DATA, Coordinator→$THINK, Brain→$DATA, Analyst→$DATA, Sentinel→$DATA. 5 buys, ~250 FET. | 5 holdings visible | L-2 |
 | `[ ]` | L-4 | Verify commerce | Use `network_status` MCP tool. All 7 running, no errors. Brain pays Oracle 0.01 FET for first query. | GDP > 0 | L-3 |
@@ -231,7 +231,7 @@ First token reaches 30K FET. Auto-DEX listing. The network proves itself.
 | `[ ]` | F-1 | First graduation | A token reaches 30,000 FET raised. Auto-lists on PancakeSwap/Uniswap. Verify DEX listing. | 1 token graduated | S-4 |
 | `[ ]` | F-2 | Community > operator | Most token holdings are organic (not your seed). The community owns the network. | Organic > operator | F-1 |
 | `[ ]` | F-3 | ASI:One default routing | Coordinator becomes default for crypto queries on ASI:One. Organic traffic drives GDP. | Default routing | F-1 |
-| `[ ]` | F-4 | Network independence | All 7 Genesis agents profitable. Launcher builds autonomously. Multi-operator keys distributed. | Self-sustaining | F-2, F-3 |
+| `[ ]` | F-4 | Network independence | All 7 Marketing Team agents profitable. Launcher builds autonomously. Multi-operator keys distributed. | Self-sustaining | F-2, F-3 |
 
 ### Endgame Gate
 
@@ -239,7 +239,7 @@ First token reaches 30K FET. Auto-DEX listing. The network proves itself.
   [ ] ≥1 token graduated to DEX
   [ ] Organic holders outnumber operator holdings
   [ ] Network GDP: ≥500 FET/day
-  [ ] All 7 Genesis agents profitable
+  [ ] All 7 Marketing Team agents profitable
   [ ] Launcher builds without human prompting
 ```
 
