@@ -13,7 +13,7 @@
 | MCP Tools (for Claude Code / Cursor) | 28 |
 | SDK Functions | 60+ |
 | Agent Templates | 9 |
-| Swarm Presets | 11 |
+| Swarm Presets | 16 (5 C-suite + 7 marketing + 4 consumer) |
 | Supported Tokens | FET, USDC (multi-chain) |
 | Supported Chains | BSC Testnet (97), BSC Mainnet (56) |
 | API Endpoints | 32+ |
@@ -85,8 +85,10 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 
 | Command | Description |
 |---------|-------------|
-| `agentlaunch wallet balances` | Show FET + USDC + BNB balances |
-| `agentlaunch wallet send USDC <to> 10` | Send USDC to a wallet |
+| `agentlaunch wallet balances` | Show FET + USDC + BNB balances (from WALLET_PRIVATE_KEY) |
+| `agentlaunch wallet balances --address 0x...` | Read-only balance query (no private key needed) |
+| `agentlaunch wallet send USDC <to> 10` | Send USDC to a wallet (confirms before sending) |
+| `agentlaunch wallet send USDC <to> 10 -y` | Send without confirmation prompt |
 | `agentlaunch wallet delegate FET 100 --spender 0x...` | Generate delegation handoff link |
 | `agentlaunch wallet allowance FET --owner 0x... --spender 0x...` | Check spending limit |
 
@@ -94,7 +96,8 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 
 | Command | Description |
 |---------|-------------|
-| `agentlaunch pay <to> 10 --token USDC` | Pay in any supported token |
+| `agentlaunch pay <to> 10 --token USDC` | Pay in any supported token (confirms before paying) |
+| `agentlaunch pay <to> 10 --token USDC -y` | Pay without confirmation prompt |
 | `agentlaunch invoice create --agent <addr> --payer <addr> --service api --amount 10` | Create invoice |
 | `agentlaunch invoice list --agent <addr> --status pending` | List invoices by status |
 
@@ -108,7 +111,9 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 
 ## MCP Tools (Claude Code / Cursor)
 
-28 tools accessible via the `agent-launch-mcp` server, organized by capability.
+28 tools accessible via the `agent-launch-mcp` server, organized by capability and risk level.
+
+**Risk levels:** Tools are annotated as READ-ONLY (safe), WRITE (moderate), or DESTRUCTIVE (transfers value on-chain). Destructive tools (`buy_tokens`, `sell_tokens`, `multi_token_payment`) carry `destructiveHint: true` in their MCP annotations.
 
 ### Token Discovery
 
@@ -134,7 +139,7 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 | `get_trade_link` | Generate pre-filled buy/sell link for human execution |
 | `create_and_tokenize` | End-to-end: scaffold + deploy + tokenize in one call |
 
-### On-Chain Trading
+### On-Chain Trading (DESTRUCTIVE)
 
 | Tool | Description |
 |------|-------------|
@@ -168,15 +173,15 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 
 ### Multi-Token Payments
 
-| Tool | Description |
-|------|-------------|
-| `multi_token_payment` | Send FET, USDC, or any ERC-20 payment |
-| `check_spending_limit` | Check ERC-20 allowance (delegation check) |
-| `create_delegation` | Generate handoff link for spending limit approval |
-| `get_fiat_link` | Generate MoonPay or Transak fiat onramp URL |
-| `create_invoice` | Create payment invoice in agent storage |
-| `list_invoices` | List invoices by status (pending/paid/expired/refunded/disputed) |
-| `get_multi_token_balances` | Query FET + USDC + BNB + custom token balances |
+| Tool | Risk | Description |
+|------|------|-------------|
+| `multi_token_payment` | DESTRUCTIVE | Send FET, USDC, or any ERC-20 (per-call limit enforced) |
+| `check_spending_limit` | READ-ONLY | Check ERC-20 allowance (delegation check) |
+| `create_delegation` | WRITE | Generate handoff link for spending limit approval |
+| `get_fiat_link` | WRITE | Generate MoonPay or Transak fiat onramp URL |
+| `create_invoice` | WRITE | Create payment invoice in agent storage |
+| `list_invoices` | READ-ONLY | List invoices by status (pending/paid/expired/refunded/disputed) |
+| `get_multi_token_balances` | READ-ONLY | Query FET + USDC + BNB + custom token balances |
 
 ---
 
@@ -228,13 +233,13 @@ npx agentlaunch swarm-from-org people.yaml
 
 ### C-Suite Infrastructure
 
-| Role | Token | Function | Price |
-|------|-------|----------|-------|
-| **CEO** | $CEO | Routes all queries, coordinates org | 0.02 FET |
-| **CTO** | $CTO | Shared reasoning — everyone pays | 0.05 FET |
-| **CFO** | $CFO | Treasury, revenue tracking | 0.02 FET |
-| **COO** | $COO | 24/7 ops monitoring | 0.02 FET |
-| **CHRO** | $CHRO | Talent discovery, team expansion | 0.05 FET |
+| Role    | Token | Function                            | Price    |
+| ------- | ----- | ----------------------------------- | -------- |
+| **CEO** | $CEO  | Routes all queries, coordinates org | 0.02 FET |
+| **CTO** | $CTO  | Shared reasoning — everyone pays    | 0.05 FET |
+| **CFO** | $CFO  | Treasury, revenue tracking          | 0.02 FET |
+| **COO** | $COO  | 24/7 ops monitoring                 | 0.02 FET |
+| **CRO** | $CRO  | Talent discovery, team expansion    | 0.05 FET |
 
 > See [people-to-swarm.md](./people-to-swarm.md) for full documentation.
 
@@ -318,6 +323,17 @@ Accept FET, USDC, or any ERC-20 — no custom smart contracts needed.
 
 No custom contracts — standard ERC-20 `approve()` / `transferFrom()`.
 
+### Security
+
+| Protection | Where | Details |
+|-----------|-------|---------|
+| **MCP spending limit** | `multi_token_payment` | Rejects amounts > `MCP_PAYMENT_LIMIT` (default: 100, configurable via env var) |
+| **CLI confirmation prompts** | `wallet send`, `pay` | Asks `[y/N]` before transferring (skip with `-y` flag) |
+| **Address validation** | All SDK payment functions | `validateEthAddress()` checks `0x` + 40 hex chars, prevents URL injection |
+| **Token-aware decimals** | `transferToken`, `getTokenBalance` | Uses `token.decimals` via `formatUnits`/`parseUnits` (not hardcoded 18) |
+| **Tool risk annotations** | MCP server | `destructiveHint: true` on `buy_tokens`, `sell_tokens`, `multi_token_payment` |
+| **Read-only balance queries** | `wallet balances --address` | No private key needed for balance checks |
+
 ### Fiat Onramp (Handoff-Only)
 
 Generate a URL for users to buy crypto with a credit card. The toolkit never processes fiat directly.
@@ -385,7 +401,7 @@ const limit = await al.payments.checkAllowance(fetAddr, '0xOwner', '0xAgent');
 Every namespace method is also available as a standalone function:
 
 ```typescript
-import { buyTokens, getMultiTokenBalances, createInvoice, generateFiatOnrampLink } from 'agentlaunch-sdk';
+import { buyTokens, getMultiTokenBalances, createInvoice, generateFiatOnrampLink, validateEthAddress } from 'agentlaunch-sdk';
 ```
 
 ---
@@ -404,7 +420,7 @@ The swarm-starter and consumer-commerce templates include a complete commerce la
 | **WalletManager** | Balance queries, low-fund alerts |
 | **RevenueTracker** | Income/expense logging, GDP contribution |
 | **SelfAwareMixin** | Read own token price, holder count, market cap |
-| **HoldingsManager** | Buy/sell other agents' tokens for cross-holdings |
+| **HoldingsManager** | Buy/sell other agents' tokens for cross-holdings (address-validated URLs) |
 
 ### Consumer-Commerce Additions
 
@@ -532,6 +548,7 @@ The Agentverse API key authenticates against:
 | `/status` | Check agent/token status |
 | `/todo` | Create TODO.md from a document |
 | `/grow` | Execute tasks autonomously |
+| `/improve` | Capture session learnings, test, and create PR |
 
 ### MCP Server Setup
 
@@ -557,18 +574,22 @@ All 28 tools are available in Claude Code and Cursor out of the box.
 ```
 SDK (agentlaunch-sdk)
   ├── Fluent API (AgentLaunch class with 8 namespaces)
-  ├── Token registry (FET + USDC per chain)
+  ├── Token registry (FET + USDC per chain, decimal-aware)
+  ├── Address validation on all payment/delegation functions
   ├── On-chain trading (ethers.js, optional peer dep)
   ├── Payment system (invoices, delegation, fiat onramp)
   └── 40+ TypeScript types
 
 CLI (agentlaunch)
   ├── 16 commands (wallet, pay, invoice, buy, sell, etc.)
+  ├── Shared swarm deployment engine (parallel wave support)
+  ├── Confirmation prompts on destructive operations
   ├── Interactive + JSON modes
   └── Launches Claude Code / Cursor after scaffolding
 
 MCP Server (agent-launch-mcp)
-  ├── 28 tools across 9 categories
+  ├── 28 tools across 9 categories (risk-annotated)
+  ├── Per-call spending limits on payment tools
   ├── Stdio transport (Model Context Protocol)
   └── Works in Claude Code + Cursor
 
