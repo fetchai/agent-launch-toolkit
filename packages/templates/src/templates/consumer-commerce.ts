@@ -325,7 +325,7 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 @chat_proto.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     ctx.logger.info(f"Message from {sender}")
-    text = msg.content[0].text.strip() if msg.content else ""
+    text = " ".join(item.text for item in msg.content if hasattr(item, "text")).strip()
     lower = text.lower()
 
     pricing = MultiTokenPricingTable(ctx)

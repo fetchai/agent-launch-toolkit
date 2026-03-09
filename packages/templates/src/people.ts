@@ -107,7 +107,8 @@ export interface SwarmConfig {
 
 // 1 FET = 10^18 atestfet
 const FET = 1_000_000_000_000_000_000n;
-const toAtestfet = (fet: number): number => Number(BigInt(Math.floor(fet * 100)) * (FET / 100n));
+// Multiply by 1e18 first to preserve precision for small values like 0.005
+const toAtestfet = (fet: number): number => Number(BigInt(Math.round(fet * 1e18)));
 
 /** Default pricing by tier */
 const DEFAULT_PRICING = {

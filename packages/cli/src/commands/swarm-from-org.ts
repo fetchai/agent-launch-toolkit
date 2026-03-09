@@ -140,62 +140,77 @@ export function registerSwarmFromOrgCommand(program: Command): void {
         error?: string;
       }> = [];
 
+      // Helper to deploy a single agent
+      const deploySingleAgent = async (agentName: string) => {
+        const agentConfig = swarmConfig.agents.find(a => a.name === agentName);
+        if (!agentConfig) return null;
+
+        if (!isJson) {
+          console.log(`Deploying ${agentConfig.displayName} ($${agentConfig.symbol})...`);
+        }
+
+        try {
+          // Generate agent code
+          const preset = getPreset(agentConfig.role);
+          const variables = preset
+            ? { ...preset.variables, agent_name: agentConfig.displayName }
+            : { agent_name: agentConfig.displayName, ...agentConfig.variables };
+
+          const generated = generateFromTemplate("swarm-starter", variables);
+
+          // Build metadata
+          const metadata = {
+            readme: `# ${agentConfig.displayName}\n\n${agentConfig.description}\n\n## Services\n\n${Object.entries(agentConfig.services).map(([s, p]) => `- **${s}**: ${Number(p) / 1e18} FET`).join("\n")}\n\nPart of the ${swarmConfig.orgName} agent swarm.`,
+            short_description: agentConfig.description.slice(0, 200),
+          };
+
+          // Deploy
+          const result = await deployAgent({
+            agentName: agentConfig.displayName,
+            sourceCode: generated.code,
+            metadata,
+          });
+
+          if (!isJson) {
+            console.log(`  ✓ ${result.agentAddress} (${result.status})`);
+          }
+
+          return {
+            name: agentConfig.name,
+            symbol: agentConfig.symbol,
+            agentAddress: result.agentAddress,
+            status: result.status,
+          };
+        } catch (err) {
+          if (!isJson) {
+            console.log(`  ✗ Error: ${(err as Error).message}`);
+          }
+
+          return {
+            name: agentConfig.name,
+            symbol: agentConfig.symbol,
+            error: (err as Error).message,
+          };
+        }
+      };
+
       for (const wave of swarmConfig.deploymentWaves) {
         if (!isJson) {
           const mode = wave.parallel ? "parallel" : "sequential";
           console.log(`\n--- Wave ${wave.wave} (${mode}) ---`);
         }
 
-        for (const agentName of wave.agents) {
-          const agentConfig = swarmConfig.agents.find(a => a.name === agentName);
-          if (!agentConfig) continue;
-
-          if (!isJson) {
-            console.log(`Deploying ${agentConfig.displayName} ($${agentConfig.symbol})...`);
-          }
-
-          try {
-            // Generate agent code
-            const preset = getPreset(agentConfig.role);
-            const variables = preset
-              ? { ...preset.variables, agent_name: agentConfig.displayName }
-              : { agent_name: agentConfig.displayName, ...agentConfig.variables };
-
-            const generated = generateFromTemplate("swarm-starter", variables);
-
-            // Build metadata
-            const metadata = {
-              readme: `# ${agentConfig.displayName}\n\n${agentConfig.description}\n\n## Services\n\n${Object.entries(agentConfig.services).map(([s, p]) => `- **${s}**: ${Number(p) / 1e18} FET`).join("\n")}\n\nPart of the ${swarmConfig.orgName} agent swarm.`,
-              short_description: agentConfig.description.slice(0, 200),
-            };
-
-            // Deploy
-            const result = await deployAgent({
-              agentName: agentConfig.displayName,
-              sourceCode: generated.code,
-              metadata,
-            });
-
-            results.push({
-              name: agentConfig.name,
-              symbol: agentConfig.symbol,
-              agentAddress: result.agentAddress,
-              status: result.status,
-            });
-
-            if (!isJson) {
-              console.log(`  ✓ ${result.agentAddress} (${result.status})`);
-            }
-          } catch (err) {
-            results.push({
-              name: agentConfig.name,
-              symbol: agentConfig.symbol,
-              error: (err as Error).message,
-            });
-
-            if (!isJson) {
-              console.log(`  ✗ Error: ${(err as Error).message}`);
-            }
+        if (wave.parallel) {
+          // Deploy agents in parallel using Promise.all
+          const waveResults = await Promise.all(
+            wave.agents.map(agentName => deploySingleAgent(agentName))
+          );
+          results.push(...waveResults.filter((r): r is NonNullable<typeof r> => r !== null));
+        } else {
+          // Deploy agents sequentially
+          for (const agentName of wave.agents) {
+            const result = await deploySingleAgent(agentName);
+            if (result) results.push(result);
           }
         }
       }

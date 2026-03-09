@@ -196,11 +196,8 @@ export async function transferToken(
   const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
   const wallet = new ethers.Wallet(key, provider);
 
-  const abi = [
-    ...ERC20_ABI,
-    'function transfer(address to, uint256 amount) external returns (bool)',
-  ];
-  const contract = new ethers.Contract(tokenAddress, abi, wallet);
+  // ERC20_ABI already includes transfer function - no need to duplicate
+  const contract = new ethers.Contract(tokenAddress, ERC20_ABI, wallet);
 
   // Use token decimals if known, otherwise default to 18
   const knownToken = KNOWN_TOKENS.find(

@@ -502,8 +502,8 @@ export class AgentLaunch {
         listInvoices(agentAddress, status, apiKey),
       checkAllowance: (tokenAddress: string, owner: string, spender: string, chainId?: number) =>
         checkAllowance(tokenAddress, owner, spender, chainId),
-      spendFromDelegation: (tokenAddress: string, owner: string, recipient: string, amount: string) =>
-        spendFromDelegation(tokenAddress, owner, recipient, amount),
+      spendFromDelegation: (tokenAddress: string, owner: string, recipient: string, amount: string, chainId?: number) =>
+        spendFromDelegation(tokenAddress, owner, recipient, amount, chainId ? { chainId } : undefined),
       delegationLink: (tokenAddress: string, spenderAddress: string, amount: string) =>
         generateDelegationLink(tokenAddress, spenderAddress, amount),
       fiatLink: (params: FiatOnrampParams) =>
