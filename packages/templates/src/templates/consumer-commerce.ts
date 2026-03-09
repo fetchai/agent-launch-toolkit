@@ -418,13 +418,13 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     await ctx.send(sender, ChatMessage(
         timestamp=datetime.now(),
-        msg_id=msg.msg_id,
+        msg_id=str(uuid4()),
         content=[TextContent(text=response)],
     ))
 
     await ctx.send(sender, ChatMessage(
         timestamp=datetime.now(),
-        msg_id=msg.msg_id,
+        msg_id=str(uuid4()),
         content=[EndSessionContent()],
     ))
 
