@@ -14,7 +14,7 @@ timeline: Day 1 launch + 6 months to graduation
 > The toolkit builds the tools. This playbook uses them.
 >
 > **Prerequisite:** [TODO-toolkit.md](./TODO-toolkit.md) (28 tasks) must be complete.
-> You need the genesis template, presets, CLI swarm mode, and MCP commerce tools.
+> You need the swarm-starter template, presets, CLI swarm mode, and MCP commerce tools.
 >
 > **No platform changes required.** Everything runs on existing APIs +
 > Fetch.ai chain + agent-side web3.py.
@@ -57,11 +57,11 @@ timeline: Day 1 launch + 6 months to graduation
 
 ## Phase 1: Launch (Day 1)
 
-Deploy the Genesis Network. The toolkit does the heavy lifting.
+Deploy the Marketing Team. The toolkit does the heavy lifting.
 
 | | ID | What | How | KPI |
 |:---:|:---|:---|:---|:---|
-| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` → Genesis Network. Or: `deploy_swarm` MCP tool. Deploys all 7 agents in sequence with presets. Set secrets: `ANTHROPIC_API_KEY`, `ASI_ONE_API_KEY` for Brain. | All 7 running |
+| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch create` → Marketing Team. Or: `deploy_swarm` MCP tool. Deploys all 7 agents in sequence with presets. Set secrets: `ANTHROPIC_API_KEY`, `ASI_ONE_API_KEY` for Brain. | All 7 running |
 | `[ ]` | L-2 | Fund wallets | Send ~15 FET to each agent's Fetch.ai wallet (105 FET total). Fund BSC wallets with small BNB for gas if cross-holdings desired. | Balances confirmed |
 | `[ ]` | L-3 | Seed cross-holdings | Buy tokens manually via frontend trade page (agent-launch.ai): Coordinator→$DATA, Coordinator→$THINK, Brain→$DATA, Analyst→$DATA, Sentinel→$DATA. 5 buys, ~250 FET. | 5 holdings visible via `GET /agents/token/{addr}/holders` |
 | `[ ]` | L-4 | Verify commerce | Use `network_status` MCP tool or `npx agentlaunch status --swarm`. All 7 running, no errors in logs. Brain pays Oracle 0.01 FET for first data query. First FET transfer on-chain confirmed. | GDP > 0 |
@@ -155,7 +155,7 @@ First token reaches 30K FET. Auto-DEX listing. The network has proven itself.
 | `[ ]` | F-1 | First graduation | A token reaches 30,000 FET raised. Auto-lists on PancakeSwap/Uniswap. Verify DEX listing, test trades. | 1 token graduated |
 | `[ ]` | F-2 | Community > operator | Most token holdings are organic (not your manual seed). The community owns the network. | Organic > operator |
 | `[ ]` | F-3 | ASI:One default routing | Coordinator becomes the default for crypto queries on ASI:One. Organic traffic drives GDP. | Default routing |
-| `[ ]` | F-4 | Network independence | All 7 Genesis agents profitable. Launcher builds autonomously. Multi-operator keys distributed. You could walk away and it keeps running. | Self-sustaining |
+| `[ ]` | F-4 | Network independence | All 7 Marketing Team agents profitable. Launcher builds autonomously. Multi-operator keys distributed. You could walk away and it keeps running. | Self-sustaining |
 
 ### Endgame Gate
 
@@ -163,7 +163,7 @@ First token reaches 30K FET. Auto-DEX listing. The network has proven itself.
   [ ] ≥1 token graduated to DEX
   [ ] Organic holders outnumber operator holdings
   [ ] Network GDP: ≥500 FET/day
-  [ ] All 7 Genesis agents profitable
+  [ ] All 7 Marketing Team agents profitable
   [ ] Launcher builds without human prompting
 ```
 

@@ -458,15 +458,15 @@ Every tokenized agent has a bonding curve — a continuous, real-time reputation
 
 After deployment, agents must be optimized for Agentverse discovery and ASI:One routing.
 
-| Factor | Status | How to Set |
-|--------|--------|-----------|
-| README | API-settable | `PUT /v1/hosting/agents/{addr}` with `readme` field |
-| Short description | API-settable | `PUT /v1/hosting/agents/{addr}` with `short_description` field |
-| Chat Protocol | Code-level | Include `chat_protocol_spec` with `publish_manifest=True` |
-| Avatar | API-settable | `PUT /v1/hosting/agents/{addr}` with `avatar_url` field |
-| Handle (@name) | Manual only | Set in Agentverse dashboard |
-| 3+ interactions | Manual | Chat with the agent or use Response QA Agent |
-| Domain verification | Manual | DNS TXT record (optional bonus) |
+| Factor              | Status       | How to Set                                                     |
+| ------------------- | ------------ | -------------------------------------------------------------- |
+| README              | API-settable | `PUT /v1/hosting/agents/{addr}` with `readme` field            |
+| Short description   | API-settable | `PUT /v1/hosting/agents/{addr}` with `short_description` field |
+| Chat Protocol       | Code-level   | Include `chat_protocol_spec` with `publish_manifest=True`      |
+| Avatar              | API-settable | `PUT /v1/hosting/agents/{addr}` with `avatar_url` field        |
+| Handle (@name)      | Manual only  | Set in Agentverse dashboard                                    |
+| 3+ interactions     | Manual       | Chat with the agent or use Response QA Agent                   |
+| Domain verification | Manual       | DNS TXT record (optional bonus)                                |
 
 ---
 

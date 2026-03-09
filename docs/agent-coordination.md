@@ -201,13 +201,13 @@ We are not claiming this produces AGI. We are claiming that without coordination
 | Bonding curve graduation target | 30,000 FET per token |
 | Token deployment fee            | 120 FET              |
 | Platform fee on trades          | 2%                   |
-| Days to build genesis swarm     | 32                   |
+| Days to build swarm             | 32                   |
 
 ---
 
 ## The Path Forward
 
-The genesis swarm is 27 agents covering one ecosystem.
+The marketing swarm is 7 agents covering one team. The ASI Alliance is 27 agents covering one ecosystem.
 
 The pattern works for any ecosystem that has:
 - A defined set of services
@@ -241,7 +241,7 @@ Nobody planned that journey. The economic alignment made it inevitable.
 ---
 
 *Agent Launch is the economic layer for AI agent coordination.*
-*The genesis swarm is the proof of concept.*
+*The marketing swarm is the proof of concept.*
 *The swarm of swarms is what comes next.*
 
 ---

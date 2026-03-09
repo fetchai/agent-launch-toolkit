@@ -344,7 +344,7 @@ Update .claude/rules/workflow.md to enforce order? [y/n]
 | Agentverse issues | `.claude/rules/agentverse.md` |
 | Workflow problems | `.claude/rules/workflow.md` |
 | New agent pattern | `packages/templates/src/templates/[name]/` |
-| Swarm patterns | `.claude/rules/marketing-swarm.md` or `genesis-network.md` |
+| Swarm patterns | `.claude/rules/marketing-swarm.md` |
 | Consumer payments | `.claude/rules/consumer-payments.md` |
 
 ## See Also
