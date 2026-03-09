@@ -946,7 +946,15 @@ class HoldingsManager:
         return results
 
     @staticmethod
+    def _validate_eth_address(address: str) -> bool:
+        """Validate Ethereum address format to prevent URL injection."""
+        import re
+        return bool(re.match(r'^0x[a-fA-F0-9]{40}$', address))
+
+    @staticmethod
     def generate_buy_link(token_address: str, amount: int = 0) -> str:
+        if not HoldingsManager._validate_eth_address(token_address):
+            return f"Error: Invalid token address format: {token_address}"
         base = os.environ.get("AGENTLAUNCH_FRONTEND", "https://agent-launch.ai")
         url = f"{base}/trade/{token_address}?action=buy"
         if amount:
@@ -955,6 +963,8 @@ class HoldingsManager:
 
     @staticmethod
     def generate_sell_link(token_address: str, amount: int = 0) -> str:
+        if not HoldingsManager._validate_eth_address(token_address):
+            return f"Error: Invalid token address format: {token_address}"
         base = os.environ.get("AGENTLAUNCH_FRONTEND", "https://agent-launch.ai")
         url = f"{base}/trade/{token_address}?action=sell"
         if amount:

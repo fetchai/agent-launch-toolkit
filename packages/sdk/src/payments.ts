@@ -16,6 +16,7 @@ import type {
 } from './types.js';
 import { getStorage, putStorage } from './storage.js';
 import { CHAIN_CONFIGS, ERC20_ABI } from './onchain.js';
+import { validateEthAddress } from './handoff.js';
 
 // ---------------------------------------------------------------------------
 // Token Registry
@@ -105,6 +106,8 @@ export async function getTokenBalance(
   walletAddress: string,
   chainId = 97,
 ): Promise<string> {
+  validateEthAddress(tokenAddress);
+  validateEthAddress(walletAddress);
   const ethers = await loadEthers();
   const chain = CHAIN_CONFIGS[chainId];
   if (!chain) throw new Error(`Unsupported chain ID: ${chainId}`);
@@ -112,7 +115,13 @@ export async function getTokenBalance(
   const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
   const contract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
   const balance = await contract.balanceOf(walletAddress);
-  return ethers.formatEther(balance);
+
+  // Use token decimals if available, otherwise query on-chain
+  const knownToken = KNOWN_TOKENS.find(
+    (t) => t.contractAddress.toLowerCase() === tokenAddress.toLowerCase() && t.chainId === chainId,
+  );
+  const decimals = knownToken?.decimals ?? 18;
+  return ethers.formatUnits(balance, decimals);
 }
 
 /**
@@ -128,6 +137,7 @@ export async function getMultiTokenBalances(
   tokenSymbols?: string[],
   chainId = 97,
 ): Promise<Record<string, string>> {
+  validateEthAddress(walletAddress);
   const ethers = await loadEthers();
   const chain = CHAIN_CONFIGS[chainId];
   if (!chain) throw new Error(`Unsupported chain ID: ${chainId}`);
@@ -149,11 +159,11 @@ export async function getMultiTokenBalances(
   ]);
 
   const result: Record<string, string> = {
-    BNB: ethers.formatEther(bnbBalance),
+    BNB: ethers.formatEther(bnbBalance), // BNB is always 18 decimals
   };
 
   tokens.forEach((t, i) => {
-    result[t.symbol] = ethers.formatEther(tokenBalances[i]);
+    result[t.symbol] = ethers.formatUnits(tokenBalances[i], t.decimals);
   });
 
   return result;
@@ -176,6 +186,8 @@ export async function transferToken(
   privateKey: string,
   chainId = 97,
 ): Promise<{ txHash: string; blockNumber: number }> {
+  validateEthAddress(tokenAddress);
+  validateEthAddress(to);
   const ethers = await loadEthers();
   const chain = CHAIN_CONFIGS[chainId];
   if (!chain) throw new Error(`Unsupported chain ID: ${chainId}`);
@@ -189,7 +201,13 @@ export async function transferToken(
     'function transfer(address to, uint256 amount) external returns (bool)',
   ];
   const contract = new ethers.Contract(tokenAddress, abi, wallet);
-  const amountWei = ethers.parseEther(amount);
+
+  // Use token decimals if known, otherwise default to 18
+  const knownToken = KNOWN_TOKENS.find(
+    (t) => t.contractAddress.toLowerCase() === tokenAddress.toLowerCase() && t.chainId === chainId,
+  );
+  const decimals = knownToken?.decimals ?? 18;
+  const amountWei = ethers.parseUnits(amount, decimals);
 
   const tx = await contract.transfer(to, amountWei);
   const receipt = await tx.wait();

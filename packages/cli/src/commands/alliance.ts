@@ -9,17 +9,13 @@
  *   npx agentlaunch alliance --output ./alliance
  */
 
-import fs from "node:fs";
-import path from "node:path";
 import { Command } from "commander";
 import {
   generateSwarmFromOrg,
   summarizeSwarm,
-  generateFromTemplate,
-  getPreset,
   type OrgChart,
 } from "agentlaunch-templates";
-import { deployAgent } from "agentlaunch-sdk";
+import { scaffoldSwarm, deploySwarmAgents } from "../lib/deploy-swarm.js";
 
 // The full 27-agent ASI Alliance org chart
 const ASI_ALLIANCE: OrgChart = {
@@ -125,7 +121,7 @@ export function registerAllianceCommand(program: Command): void {
           output: process.stdout,
         });
 
-        console.log("\n⚠️  This will deploy 27 agents at 120 FET each = 3,240 FET total");
+        console.log(`\n⚠️  This will deploy ${swarmConfig.totalAgents} agents at 120 FET each = ${swarmConfig.totalDeployCost} FET total`);
         const answer = await new Promise<string>((resolve) => {
           rl.question(`Deploy ${swarmConfig.totalAgents} agents for ${swarmConfig.totalDeployCost} FET? [y/N] `, resolve);
         });
@@ -137,71 +133,8 @@ export function registerAllianceCommand(program: Command): void {
         }
       }
 
-      // Deploy agents
-      const results: Array<{
-        name: string;
-        symbol: string;
-        agentAddress?: string;
-        status?: string;
-        error?: string;
-      }> = [];
-
-      for (const wave of swarmConfig.deploymentWaves) {
-        if (!isJson) {
-          const mode = wave.parallel ? "parallel" : "sequential";
-          console.log(`\n--- Wave ${wave.wave} (${mode}) ---`);
-        }
-
-        for (const agentName of wave.agents) {
-          const agentConfig = swarmConfig.agents.find(a => a.name === agentName);
-          if (!agentConfig) continue;
-
-          if (!isJson) {
-            console.log(`Deploying ${agentConfig.displayName} ($${agentConfig.symbol})...`);
-          }
-
-          try {
-            const preset = getPreset(agentConfig.role);
-            const variables = preset
-              ? { ...preset.variables, agent_name: agentConfig.displayName }
-              : { agent_name: agentConfig.displayName, ...agentConfig.variables };
-
-            const generated = generateFromTemplate("swarm-starter", variables);
-
-            const metadata = {
-              readme: `# ${agentConfig.displayName}\n\n${agentConfig.description}\n\n## Services\n\n${Object.entries(agentConfig.services).map(([s, p]) => `- **${s}**: ${Number(p) / 1e18} FET`).join("\n")}\n\nPart of the ASI Alliance agent swarm.`,
-              short_description: agentConfig.description.slice(0, 200),
-            };
-
-            const result = await deployAgent({
-              agentName: agentConfig.displayName,
-              sourceCode: generated.code,
-              metadata,
-            });
-
-            results.push({
-              name: agentConfig.name,
-              symbol: agentConfig.symbol,
-              agentAddress: result.agentAddress,
-              status: result.status,
-            });
-
-            if (!isJson) {
-              console.log(`  ✓ ${result.agentAddress} (${result.status})`);
-            }
-          } catch (err) {
-            results.push({
-              name: agentConfig.name,
-              symbol: agentConfig.symbol,
-              error: (err as Error).message,
-            });
-
-            if (!isJson) {
-              console.log(`  ✗ Error: ${(err as Error).message}`);
-            }
-          }
-        }
-      }
+      // Deploy agents (parallel waves use Promise.all)
+      const results = await deploySwarmAgents(swarmConfig, isJson);
 
       // Output results
       if (isJson) {
@@ -259,51 +192,4 @@ export function registerAllianceCommand(program: Command): void {
         }
       }
     });
-}
-
-async function scaffoldSwarm(
-  config: ReturnType<typeof generateSwarmFromOrg>,
-  outputDir: string,
-  isJson: boolean,
-): Promise<void> {
-  const targetDir = path.resolve(process.cwd(), outputDir);
-  fs.mkdirSync(targetDir, { recursive: true });
-
-  for (const agent of config.agents) {
-    const preset = getPreset(agent.role);
-    const variables = preset
-      ? { ...preset.variables, agent_name: agent.displayName }
-      : { agent_name: agent.displayName, ...agent.variables };
-
-    const generated = generateFromTemplate("swarm-starter", variables);
-    const agentDir = path.join(targetDir, agent.name);
-    fs.mkdirSync(agentDir, { recursive: true });
-    fs.mkdirSync(path.join(agentDir, ".claude"), { recursive: true });
-
-    const files: Record<string, string> = {
-      "agent.py": generated.code,
-      "README.md": generated.readme,
-      ".env.example": generated.envExample,
-      "CLAUDE.md": generated.claudeMd,
-      ".claude/settings.json": generated.claudeSettings,
-    };
-
-    for (const [filename, content] of Object.entries(files)) {
-      fs.writeFileSync(path.join(agentDir, filename), content, "utf8");
-    }
-
-    if (!isJson) {
-      console.log(`Scaffolded: ${agent.name}/`);
-    }
-  }
-
-  if (isJson) {
-    console.log(JSON.stringify({
-      scaffolded: true,
-      directory: targetDir,
-      agents: config.agents.map(a => a.name),
-    }));
-  } else {
-    console.log(`\nScaffolded ${config.agents.length} agents to ${targetDir}`);
-  }
 }

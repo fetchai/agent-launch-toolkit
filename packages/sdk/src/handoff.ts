@@ -23,7 +23,7 @@ const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
  * Validates that an address is a valid Ethereum address format.
  * Prevents URL injection via addresses containing special characters like ? or #.
  */
-function validateEthAddress(address: string): void {
+export function validateEthAddress(address: string): void {
   if (!ETH_ADDRESS_REGEX.test(address)) {
     throw new Error(`Invalid token address format: ${address}. Expected 0x followed by 40 hex characters.`);
   }

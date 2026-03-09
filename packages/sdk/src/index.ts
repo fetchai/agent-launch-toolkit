@@ -127,6 +127,7 @@ export {
   generateSellLink,
   generateDelegationLink,
   generateFiatOnrampLink,
+  validateEthAddress,
   FIAT_PROVIDER_CONFIGS,
 } from './handoff.js';
 

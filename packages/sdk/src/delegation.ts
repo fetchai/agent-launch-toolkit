@@ -14,7 +14,7 @@ import type { SpendingLimit, PaymentToken } from './types.js';
 import { getAllowance, transferFromERC20 } from './onchain.js';
 import type { OnchainConfig } from './onchain.js';
 import { getToken, KNOWN_TOKENS } from './payments.js';
-import { generateDelegationLink } from './handoff.js';
+import { generateDelegationLink, validateEthAddress } from './handoff.js';
 import { getStorage, putStorage } from './storage.js';
 
 // ---------------------------------------------------------------------------
@@ -36,6 +36,9 @@ export async function checkAllowance(
   spender: string,
   chainId = 97,
 ): Promise<SpendingLimit> {
+  validateEthAddress(tokenAddress);
+  validateEthAddress(owner);
+  validateEthAddress(spender);
   const remaining = await getAllowance(tokenAddress, owner, spender, { chainId });
 
   // Look up token info
@@ -76,6 +79,9 @@ export async function spendFromDelegation(
   amount: string,
   config?: OnchainConfig,
 ): Promise<{ txHash: string; blockNumber: number }> {
+  validateEthAddress(tokenAddress);
+  validateEthAddress(owner);
+  validateEthAddress(recipient);
   return transferFromERC20(tokenAddress, owner, recipient, amount, config);
 }
 
@@ -115,8 +121,8 @@ export function createSpendingLimitHandoff(
 
 const DELEGATIONS_INDEX_KEY = 'delegations';
 
-function delegationKey(owner: string, symbol: string): string {
-  return `delegation_${owner}_${symbol}`;
+function delegationKey(owner: string, symbol: string, spender: string): string {
+  return `delegation_${owner}_${symbol}_${spender}`;
 }
 
 /**
@@ -127,7 +133,7 @@ export async function recordDelegation(
   delegation: SpendingLimit,
   apiKey?: string,
 ): Promise<void> {
-  const key = delegationKey(delegation.owner, delegation.token.symbol);
+  const key = delegationKey(delegation.owner, delegation.token.symbol, delegation.spender);
   await putStorage(agentAddress, key, JSON.stringify(delegation), apiKey);
 
   // Update index

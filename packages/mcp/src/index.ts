@@ -30,6 +30,27 @@ const server = new Server(
   }
 );
 
+// ---------------------------------------------------------------------------
+// Tool risk levels
+//
+// READ-ONLY (safe):  list_tokens, get_token, get_platform_stats, calculate_buy,
+//   calculate_sell, get_deploy_instructions, check_spending_limit,
+//   check_agent_commerce, network_status, get_wallet_balances, get_comments,
+//   list_invoices, get_multi_token_balances, generate_org_template
+//
+// WRITE (moderate):  create_token_record, scaffold_agent, deploy_to_agentverse,
+//   update_agent_metadata, create_and_tokenize, post_comment, scaffold_swarm,
+//   deploy_swarm, create_delegation, get_fiat_link, create_invoice,
+//   scaffold_org_swarm, get_trade_link
+//
+// DESTRUCTIVE (high risk — transfers value):  buy_tokens, sell_tokens,
+//   multi_token_payment
+//
+// Tools in the DESTRUCTIVE category transfer real tokens on-chain.
+// MCP clients should gate these behind user confirmation or spending limits.
+// The multi_token_payment tool enforces MCP_PAYMENT_LIMIT (default: 100).
+// ---------------------------------------------------------------------------
+
 // Define all tools — exported so individual tool files can reference definitions
 export const TOOLS = [
   {
@@ -461,6 +482,7 @@ export const TOOLS = [
   // On-chain trading --------------------------------------------------------
   {
     name: "buy_tokens",
+    annotations: { destructiveHint: true, readOnlyHint: false },
     description:
       "Buy tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Approves FET, calls buyTokens on-chain, returns tx hash and tokens received.",
     inputSchema: {
@@ -494,6 +516,7 @@ export const TOOLS = [
   },
   {
     name: "sell_tokens",
+    annotations: { destructiveHint: true, readOnlyHint: false },
     description:
       "Sell tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Calls sell() on-chain, returns tx hash and FET received.",
     inputSchema: {
@@ -580,8 +603,9 @@ export const TOOLS = [
   // Multi-token payments -------------------------------------------------------
   {
     name: "multi_token_payment",
+    annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Send a payment in FET, USDC, or any ERC-20 token. Requires WALLET_PRIVATE_KEY env var.",
+      "Send a payment in FET, USDC, or any ERC-20 token. Requires WALLET_PRIVATE_KEY env var. Enforces per-call spending limit (MCP_PAYMENT_LIMIT, default: 100).",
     inputSchema: {
       type: "object" as const,
       properties: {

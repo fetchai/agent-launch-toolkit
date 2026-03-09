@@ -25,27 +25,36 @@ export function registerWalletCommand(program: Command): void {
   wallet
     .command("balances")
     .description("Show wallet balances for BNB, FET, USDC, and custom tokens")
+    .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
     .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
     .option("--json", "Output raw JSON")
-    .action(async (options: { token?: string; chain: string; json?: boolean }) => {
+    .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
-      const privateKey = process.env["WALLET_PRIVATE_KEY"];
-      if (!privateKey) {
-        const msg = "WALLET_PRIVATE_KEY env var required. Set it in .env.";
-        if (options.json) {
-          console.log(JSON.stringify({ error: msg }));
-        } else {
-          console.error(`Error: ${msg}`);
-        }
-        process.exit(1);
-      }
 
-      // Derive wallet address from private key
-      const ethers = await import("ethers");
-      const walletAddr = new ethers.Wallet(
-        privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`,
-      ).address;
+      let walletAddr: string;
+
+      if (options.address) {
+        // Read-only mode — no private key needed
+        walletAddr = options.address;
+      } else {
+        const privateKey = process.env["WALLET_PRIVATE_KEY"];
+        if (!privateKey) {
+          const msg = "Provide --address for read-only queries, or set WALLET_PRIVATE_KEY in .env.";
+          if (options.json) {
+            console.log(JSON.stringify({ error: msg }));
+          } else {
+            console.error(`Error: ${msg}`);
+          }
+          process.exit(1);
+        }
+
+        // Derive wallet address from private key
+        const ethers = await import("ethers");
+        walletAddr = new ethers.Wallet(
+          privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`,
+        ).address;
+      }
 
       const tokenSymbols = options.token?.split(",").map((s) => s.trim().toUpperCase());
 
@@ -165,8 +174,9 @@ export function registerWalletCommand(program: Command): void {
     .command("send <token> <to> <amount>")
     .description("Send ERC-20 tokens to a recipient")
     .option("--chain <chainId>", "Chain ID", "97")
+    .option("-y, --yes", "Skip confirmation prompt")
     .option("--json", "Output raw JSON")
-    .action(async (token: string, to: string, amount: string, options: { chain: string; json?: boolean }) => {
+    .action(async (token: string, to: string, amount: string, options: { chain: string; yes?: boolean; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
       const tokenInfo = getPaymentToken(token.toUpperCase(), chainId);
       if (!tokenInfo) {
@@ -188,6 +198,20 @@ export function registerWalletCommand(program: Command): void {
           console.error(`Error: ${msg}`);
         }
         process.exit(1);
+      }
+
+      // Confirm before sending
+      if (!options.yes && !options.json) {
+        const readline = await import("node:readline");
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const answer = await new Promise<string>((resolve) => {
+          rl.question(`Send ${amount} ${token.toUpperCase()} to ${to}? [y/N] `, resolve);
+        });
+        rl.close();
+        if (answer.toLowerCase() !== "y") {
+          console.log("Aborted.");
+          return;
+        }
       }
 
       if (!options.json) {

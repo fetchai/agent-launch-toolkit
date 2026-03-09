@@ -25,6 +25,16 @@ import type {
 } from 'agentlaunch-sdk';
 
 // ---------------------------------------------------------------------------
+// Spending safety
+// ---------------------------------------------------------------------------
+
+/**
+ * Maximum amount (in token units) that a single MCP tool call can transfer.
+ * Override with MCP_PAYMENT_LIMIT env var. Default: 100.
+ */
+const MCP_PAYMENT_LIMIT = parseFloat(process.env['MCP_PAYMENT_LIMIT'] ?? '100');
+
+// ---------------------------------------------------------------------------
 // multi_token_payment
 // ---------------------------------------------------------------------------
 
@@ -39,6 +49,18 @@ export async function multiTokenPaymentTool(args: {
   const token = getPaymentToken(args.tokenSymbol, chainId);
   if (!token) {
     throw new Error(`Unknown token: ${args.tokenSymbol} on chain ${chainId}. Known: FET, USDC.`);
+  }
+
+  // Spending cap — reject amounts above MCP_PAYMENT_LIMIT
+  const numericAmount = parseFloat(args.amount);
+  if (isNaN(numericAmount) || numericAmount <= 0) {
+    throw new Error(`Invalid amount: ${args.amount}. Must be a positive number.`);
+  }
+  if (numericAmount > MCP_PAYMENT_LIMIT) {
+    throw new Error(
+      `Amount ${args.amount} ${args.tokenSymbol} exceeds MCP per-call spending limit of ${MCP_PAYMENT_LIMIT}. ` +
+      `Set MCP_PAYMENT_LIMIT env var to increase, or use the CLI for large transfers.`,
+    );
   }
 
   const privateKey = process.env['WALLET_PRIVATE_KEY'];

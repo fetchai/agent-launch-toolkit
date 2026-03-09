@@ -22,8 +22,9 @@ export function registerPayCommand(program: Command): void {
     .description("Pay an agent or wallet in any supported token")
     .option("--token <symbol>", "Token symbol (default: FET)", "FET")
     .option("--chain <chainId>", "Chain ID", "97")
+    .option("-y, --yes", "Skip confirmation prompt")
     .option("--json", "Output raw JSON")
-    .action(async (to: string, amount: string, options: { token: string; chain: string; json?: boolean }) => {
+    .action(async (to: string, amount: string, options: { token: string; chain: string; yes?: boolean; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
       const tokenSymbol = options.token.toUpperCase();
       const tokenInfo = getPaymentToken(tokenSymbol, chainId);
@@ -47,6 +48,20 @@ export function registerPayCommand(program: Command): void {
           console.error(`Error: ${msg}`);
         }
         process.exit(1);
+      }
+
+      // Confirm before paying
+      if (!options.yes && !options.json) {
+        const readline = await import("node:readline");
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const answer = await new Promise<string>((resolve) => {
+          rl.question(`Pay ${amount} ${tokenSymbol} to ${to}? [y/N] `, resolve);
+        });
+        rl.close();
+        if (answer.toLowerCase() !== "y") {
+          console.log("Aborted.");
+          return;
+        }
       }
 
       if (!options.json) {
