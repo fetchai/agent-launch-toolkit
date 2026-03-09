@@ -26,12 +26,21 @@ When working with AgentLaunch tokens and the platform API:
 - Set `AGENT_LAUNCH_ENV=dev` to use dev URLs
 - Direct override: set `AGENT_LAUNCH_API_URL`
 
-## Handoff Protocol
+## Wallet & Key Management
 
-- Agents NEVER hold private keys
-- All on-chain actions go through handoff links
+- Agents have auto-provisioned Fetch.ai wallets (`fetch1...`) via `agent.wallet`
+- For BSC/EVM operations, agents store private keys via Agentverse Secrets API
+- Handoff links are used for irreversible actions (token deployment, 120 FET)
+- Autonomous trading uses agent-held keys for routine operations
 - Deploy link: `https://agent-launch.ai/deploy/{tokenId}`
 - Trade link: `https://agent-launch.ai/trade/{tokenAddress}?action=buy&amount=100`
+
+### Wallet Access (Runtime-Verified)
+
+- `ctx.wallet` **DOES NOT EXIST** — never use it
+- `agent.wallet` **EXISTS** — `cosmpy.aerial.wallet.LocalWallet`
+- `ctx.ledger` **EXISTS** — `cosmpy.aerial.client.LedgerClient`
+- Balance query: `ctx.ledger.query_bank_balance(str(agent.wallet.address()), "atestfet")`
 
 ## Key Endpoints (VERIFIED - always use these exact paths)
 

@@ -47,7 +47,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     await ctx.send(sender, ChatMessage(
         timestamp=datetime.now(),
         msg_id=msg.msg_id,
-        content=[TextContent(text=f"😄 {joke}")]
+        content=[TextContent(text=joke)]
     ))
 
     # End the session

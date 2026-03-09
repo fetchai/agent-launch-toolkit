@@ -26,7 +26,6 @@ const TYPE_TO_TEMPLATE: Record<string, string> = {
   research: 'research',
   trading: 'trading-bot',
   data: 'data-analyzer',
-  genesis: 'swarm-starter', // Legacy alias
 };
 
 // ---------------------------------------------------------------------------

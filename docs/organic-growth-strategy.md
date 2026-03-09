@@ -1,5 +1,10 @@
 # Organic Growth Strategy: From Zero to Self-Sustaining Agent Network
 
+> **Note:** This document uses the Marketing Team as the primary example swarm.
+> The toolkit ships with **Marketing Team** presets (Writer, Social, Community, Analytics,
+> Outreach, Ads, Strategy). The economic principles and swarm patterns described here apply
+> to any swarm you build. See `examples/marketing-team/README.md`.
+
 This is not a marketing plan. This is a system design for agents that grow
 themselves.
 
@@ -50,7 +55,7 @@ possible.
 
 ---
 
-## The Genesis Network
+## The Marketing Team
 
 Not 50 agents. Not 20. **Seven agents** that form a closed loop — every
 output becomes someone's input.
@@ -60,22 +65,22 @@ The temptation is to build one great agent. One great agent scales linearly:
 makes the others more valuable, and the cross-holdings mean they're all
 betting on each other's success. One agent has no defensibility — anyone
 can build a better one. A network has compounding moats that deepen with
-time. The Genesis Network isn't 7 agents. It's one system with 7 organs.
+time. The Marketing Team isn't 7 agents. It's one system with 7 organs.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     THE GENESIS NETWORK                          │
+│                     THE MARKETING TEAM                           │
 │                                                                  │
 │                    ┌──────────────┐                               │
 │                    │  COORDINATOR │ ← Captures ASI:One traffic    │
-│                    │    $COORD    │                               │
+│                    │    $ROUTE    │                               │
 │                    └──────┬───────┘                               │
 │                           │ routes queries to specialists         │
 │              ┌────────────┼────────────┐                         │
 │              ▼            ▼            ▼                          │
 │       ┌──────────┐ ┌──────────┐ ┌──────────┐                   │
 │       │  ORACLE  │ │  BRAIN   │ │ SENTINEL │                    │
-│       │  $DATA   │ │  $THINK  │ │  $WATCH  │                    │
+│       │  $DATA   │ │  $THINK  │ │  $ALERT  │                    │
 │       │ On-chain │ │ LLM      │ │ 24/7     │                    │
 │       │ data     │ │ reasoning│ │ monitoring│                    │
 │       └──────────┘ └──────────┘ └──────────┘                    │
@@ -83,7 +88,7 @@ time. The Genesis Network isn't 7 agents. It's one system with 7 organs.
 │              │   used by  │   used by  │                         │
 │       ┌──────────┐ ┌──────────┐ ┌──────────┐                   │
 │       │ ANALYST  │ │ LAUNCHER │ │  SCOUT   │                    │
-│       │  $RANK   │ │  $BUILD  │ │  $FIND   │                    │
+│       │  $SCORE   │ │  $LAUNCH  │ │  $FIND   │                    │
 │       │ Scores   │ │ Builds   │ │ Finds    │                    │
 │       │ quality  │ │ new      │ │ valuable │                    │
 │       │          │ │ agents   │ │ agents   │                    │
@@ -109,13 +114,13 @@ time. The Genesis Network isn't 7 agents. It's one system with 7 organs.
 ### The Token Cross-Holdings
 
 ```
-COORDINATOR holds: $DATA, $THINK, $WATCH, $RANK
+COORDINATOR holds: $DATA, $THINK, $ALERT, $SCORE
 ORACLE holds:      (nothing — pure infrastructure, everyone depends on it)
 BRAIN holds:       $DATA
 SENTINEL holds:    $DATA, $THINK
 ANALYST holds:     $DATA, $THINK
-LAUNCHER holds:    $DATA, $RANK
-SCOUT holds:       $DATA, $RANK
+LAUNCHER holds:    $DATA, $SCORE
+SCOUT holds:       $DATA, $SCORE
 ```
 
 The pattern: dependencies flow upward, demand flows down. $DATA is held
@@ -177,17 +182,17 @@ The community arrives when the infrastructure is already working.
 Day 1   Oracle ($DATA)        Deploy. Start 5-min data collection.
 Day 2   Verify Oracle         Monitor logs. Fix issues. Let data accumulate.
 Day 3   Brain + Coordinator   Brain needs ANTHROPIC_API_KEY secret.
-        ($THINK, $COORD)      Coordinator needs Oracle + Brain addresses.
+        ($THINK, $ROUTE)      Coordinator needs Oracle + Brain addresses.
                               Test: send query, verify routing.
-Day 4   Analyst ($RANK)       Deploy. Run first evaluation cycle.
-Day 5   Sentinel ($WATCH)     Deploy. Wait for first 2-min alert cycle.
-Day 7   Launcher ($BUILD)     Deploy. Run gap analysis. Observe only.
+Day 4   Analyst ($SCORE)       Deploy. Run first evaluation cycle.
+Day 5   Sentinel ($ALERT)     Deploy. Wait for first 2-min alert cycle.
+Day 7   Launcher ($LAUNCH)     Deploy. Run gap analysis. Observe only.
 Day 10  Scout ($FIND)         Deploy. First discovery scan. Calibrate.
 Day 14  Cross-holdings        Sign all 13 buy transactions (650 FET).
                               Verify each via /token/{addr}/holders.
 ```
 
-**Day 14: Genesis Network is live.** 7 agents running. 7 tokens on bonding
+**Day 14: Marketing Team is live.** 7 agents running. 7 tokens on bonding
 curves. 13 cross-holdings established. Oracle has 4,032 snapshots. The
 system is breathing.
 
@@ -207,7 +212,7 @@ changes when they can pay each other.
 
 Agents have wallets. They can send and receive FET. Every agent-to-agent
 interaction can carry a payment — not a handoff link, not a human
-signature, a direct programmatic transfer. This turns the Genesis Network
+signature, a direct programmatic transfer. This turns the Marketing Team
 from a speculative token game into an economy with three markets:
 
 **The Spot Market.** Agents pay per-query. Oracle charges 0.01 FET for
@@ -294,7 +299,7 @@ Good service = more customers = more revenue = token price rises. Quality
 enforced by the market, not by the Analyst alone.
 
 **Network GDP as the health metric.** Total FET transacted between agents
-per day = the economic output of the Genesis Network. When GDP grows, the
+per day = the economic output of the Marketing Team. When GDP grows, the
 network is healthy. When it shrinks, something is breaking. One number
 that tells you everything.
 
@@ -326,7 +331,7 @@ falling token.
 
 ## The Seven Growth Loops
 
-Once the Genesis Network is running, seven interlocking growth loops
+Once the Marketing Team is running, seven interlocking growth loops
 activate. The first four **pull** value into the network. The fifth
 **pushes** value outward to attract newcomers. The sixth provides
 **feedback** so agents self-correct. The seventh — **commerce** — makes
@@ -357,7 +362,7 @@ it is, the harder it is for ASI:One to justify routing around it.
 Launcher scans for market gaps (on_interval, 24/7)
   → identifies underserved query categories
     → scaffolds agent → deploys → tokenizes
-      → sends deploy link to $BUILD holders
+      → sends deploy link to $LAUNCH holders
         → human signs → token goes live
           → new agent buys $DATA, $THINK (needs infrastructure)
             → infrastructure strengthens → capacity for more agents
@@ -369,7 +374,7 @@ deploy, and tokenize programmatically. Without the toolkit, this loop
 can't exist.
 
 **What kills it:** The Launcher builds garbage. Low-quality agents burn
-its reputation and $BUILD holders sell. Mitigation: conservative launch
+its reputation and $LAUNCH holders sell. Mitigation: conservative launch
 criteria — only HIGH-confidence gaps (few agents in a category with real
 query volume). Analyst evaluates every Launcher-built agent post-deploy.
 Score below 30? Agent gets flagged, Launcher adjusts criteria.
@@ -391,11 +396,11 @@ Scout discovers agents via ASI:One queries (on_interval, 24/7)
 **What makes it work:** The 2.5M agents on Agentverse. That's the supply.
 
 **What kills it:** The Agentverse API doesn't expose a global agent
-directory — `GET /v1/hosting/agents` only returns YOUR agents. The Scout
-can't scan all 2.5M through the API. Mitigation: discover agents through
+directory — `GET /v1/hosting/agents` only returns YOUR agents. The discovery
+agent can't scan all 2.5M through the API. Mitigation: discover agents through
 ASI:One queries (ask domain-specific questions, observe which agents
 respond, evaluate those). Also: monitor the AgentLaunch token list for
-newly created agents. The Scout operates on discovered agents, not the
+newly created agents. The discovery agent operates on discovered agents, not the
 full directory. Slower but viable.
 
 ### Loop 4: The Data Compounding Loop (Pull)
@@ -424,7 +429,7 @@ compression — aggregated historical data is still irreplicable.
 ```
 Agent A joins → buys $DATA, $THINK
   → infrastructure prices rise slightly → holders rewarded
-    → word spreads → Agent B joins → buys $DATA, $THINK, $RANK
+    → word spreads → Agent B joins → buys $DATA, $THINK, $SCORE
       → more appreciation → more builders join
         → approaching graduation (30K FET) → hype
           → graduation → DEX liquidity → legitimacy
@@ -656,7 +661,7 @@ Brain still needs to be frugal:
 at moderate volume. **Margin:** The widest in the network. The cache is
 pure profit — cached responses cost zero to serve but still earn 0.05 FET.
 
-### Agent 2: Analyst ($RANK)
+### Agent 2: Analyst ($SCORE)
 
 The quality control layer. The immune system.
 
@@ -718,7 +723,7 @@ class AnalystBusiness:
 
 **Cost:** Near-zero. API GETs and math.
 
-### Agent 3: Coordinator ($COORD)
+### Agent 3: Coordinator ($ROUTE)
 
 The consumer-facing layer. The mouth. This is what ASI:One routes to.
 
@@ -796,7 +801,7 @@ token research, whale tracking, yield optimization, and market intelligence.
 
 **Cost:** Minimal. Occasional Brain queries for classification.
 
-### Agent 4: Sentinel ($WATCH)
+### Agent 4: Sentinel ($ALERT)
 
 The 24/7 autonomous monitor. The nervous system.
 
@@ -854,14 +859,14 @@ class SentinelBusiness:
             await ctx.storage.set("alerts", json.dumps(all_alerts[-1000:]))
 ```
 
-The Sentinel creates urgency. "Volume spike on $XYZ!" drives humans to
+The monitoring agent creates urgency. "Volume spike on $XYZ!" drives humans to
 trade links. Every alert that leads to a successful trade builds
-reputation. Reputation → $WATCH holders → more people see alerts → more
+reputation. Reputation → $ALERT holders → more people see alerts → more
 trades → more reputation.
 
 **Cost:** Zero. Public API endpoints.
 
-### Agent 5: Launcher ($BUILD)
+### Agent 5: Launcher ($LAUNCH)
 
 The reproductive system.
 
@@ -1015,7 +1020,7 @@ class ScoutBusiness:
         await ctx.storage.set("opportunities", json.dumps(opportunities))
 ```
 
-The Scout's holders are an investment club — first access to tokenization
+The discovery agent's holders are an investment club — first access to tokenization
 opportunities discovered autonomously.
 
 **Cost:** ~$1-5/month in ASI:One API calls.
@@ -1056,7 +1061,7 @@ Chat Protocol is async message passing, not RPC. Multi-agent coordination
 1. **Pre-fetch.** Infrastructure agents publish latest data to known storage
    keys on every interval. Consumer agents read published data instead of
    querying live. Latency: ~0. Freshness: 5 minutes.
-2. **Direct API calls.** Need current price? Call the API, not the Oracle.
+2. **Direct API calls.** Need current price? Call the API, not the data agent.
    Use agent-to-agent only for proprietary data.
 3. **Tiered speed.** Free: instant from cache. Premium: multi-agent
    synthesis with acceptable latency.
@@ -1118,7 +1123,7 @@ components adapt independently.
 
 ### Competition
 
-Someone forks the genesis network with more resources.
+Someone forks the marketing team with more resources.
 
 They can fork the code. They can't fork the data moat, the accuracy track
 record, the ASI:One ranking, the community, or 6 months of compounding
@@ -1194,7 +1199,7 @@ intelligence.
 
 ### Phase 1: Bootstrap (Week 1-2)
 
-Deploy all 7 agents. Seed wallets. Kickstart commerce. Cost: ~1,190 FET ($400).
+Deploy all 7 agents. Seed wallets. Kickstart commerce. Cost: ~1,190 FET (~$400).
 
 ```
 Day 1   Oracle        Day 3   Brain + Coordinator
@@ -1273,7 +1278,7 @@ agents. Cycle continues.
 
 ## The Endgame
 
-The Genesis Network isn't the product. The Genesis Network is the seed.
+The Marketing Team isn't the product. The Marketing Team is the seed.
 
 The product is the first autonomous economy of AI agents — where agents
 pay each other for services, buy and sell each other's equity, punish bad
@@ -1287,7 +1292,7 @@ without anyone managing it.
 Not a chatbot network. Not a token casino. An economy.
 
 Our toolkit is the developer kit.
-The Genesis Network is the proof of concept.
+The Marketing Team is the proof of concept.
 The agent economy is the endgame.
 
 It starts with one person deploying one Oracle agent on Day 1, watching

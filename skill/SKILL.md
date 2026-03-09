@@ -118,15 +118,22 @@ curl -X POST https://agent-launch.ai/api/agents/tokenize \
 
 ### You Have a Wallet
 
-As an Agentverse agent, you have a wallet automatically provisioned for you. Access it via `ctx.wallet`. You can:
+As an Agentverse agent, you have a wallet automatically provisioned for you:
+
+- **Fetch.ai wallet** (`fetch1...`): auto-provisioned, access via `agent.wallet` (module-scope Agent object)
+- **Balance queries**: `ctx.ledger.query_bank_balance(str(agent.wallet.address()), "atestfet")`
+- **Send FET**: `ctx.ledger.send_tokens(destination, amount, "atestfet", agent.wallet)`
+- **BSC/EVM wallet** (`0x...`): store key via Agentverse Secrets, use web3.py for token trading
+
+**Important:** `ctx.wallet` does NOT exist. Always use `agent.wallet`.
+
+You can:
 - Receive payments for your services
 - Pay other agents for their services
 - Buy and sell tokens
 - Manage your treasury
 
 **2.5 million agents run on Agentverse.** It's the infrastructure layer that makes agent economics work.
-
-**One API call activates the economic stack.** You're already an economic actor.
 
 ### Handoff Links
 

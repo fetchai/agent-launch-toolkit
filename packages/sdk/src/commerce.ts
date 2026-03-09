@@ -3,7 +3,7 @@
  *
  * EXT-02: Read commerce data (revenue, pricing, GDP) from agent storage.
  *
- * These methods read structured commerce data that Genesis Network agents
+ * These methods read structured commerce data that swarm-starter agents
  * store via the Agentverse storage API.  They parse well-known storage keys
  * (`revenue_summary`, `revenue_log`, `pricing_table`, `effort_mode`, etc.)
  * into typed TypeScript objects.
@@ -31,6 +31,8 @@ export interface AgentRevenue {
   lastUpdated: string;
   /** Daily breakdown: date string -> income/expenses for that day. */
   dailySummary: Record<string, { income: number; expenses: number }>;
+  /** Revenue breakdown by token symbol. */
+  revenueByToken?: Record<string, { income: number; expenses: number }>;
 }
 
 /** A single pricing table entry for an agent's services. */
@@ -41,6 +43,10 @@ export interface PricingEntry {
   priceAfet: number;
   /** Optional human-readable description. */
   description?: string;
+  /** Alternative prices in other tokens (symbol -> amount string). */
+  altPrices?: Record<string, string>;
+  /** Token symbols accepted for this service (default: ["FET"]). */
+  acceptedTokens?: string[];
 }
 
 /** Combined commerce status for a single agent. */
@@ -63,6 +69,14 @@ export interface AgentCommerceStatus {
   tokenPrice?: string;
   /** Number of token holders. */
   holderCount?: number;
+  /** USDC balance as a decimal string. */
+  usdcBalance?: string;
+  /** Additional token balances (symbol -> decimal string). */
+  tokenBalances?: Record<string, string>;
+  /** Number of active (pending) invoices. */
+  activeInvoices?: number;
+  /** Number of active spending limit delegations. */
+  delegations?: number;
 }
 
 /** Network-wide GDP summary across multiple agents. */
@@ -272,7 +286,7 @@ export async function getAgentCommerceStatus(
   apiKey?: string,
 ): Promise<AgentCommerceStatus> {
   // Fetch all data in parallel for efficiency
-  const [revenue, pricing, effortModeRaw, tierRaw, balanceRaw, tokenAddressRaw, tokenPriceRaw, holderCountRaw] =
+  const [revenue, pricing, effortModeRaw, tierRaw, balanceRaw, tokenAddressRaw, tokenPriceRaw, holderCountRaw, usdcBalanceRaw, invoiceIndexRaw, delegationsRaw] =
     await Promise.all([
       getAgentRevenue(agentAddress, apiKey),
       getPricingTable(agentAddress, apiKey),
@@ -282,7 +296,32 @@ export async function getAgentCommerceStatus(
       getStorage(agentAddress, 'token_address', apiKey),
       getStorage(agentAddress, 'token_price', apiKey),
       getStorage(agentAddress, 'holder_count', apiKey),
+      getStorage(agentAddress, 'usdc_balance', apiKey),
+      getStorage(agentAddress, 'invoice_index', apiKey),
+      getStorage(agentAddress, 'delegations', apiKey),
     ]);
+
+  // Count active invoices from the index
+  let activeInvoices: number | undefined;
+  if (invoiceIndexRaw) {
+    try {
+      const index = JSON.parse(invoiceIndexRaw) as string[];
+      activeInvoices = index.length;
+    } catch {
+      // ignore parse errors
+    }
+  }
+
+  // Count delegations
+  let delegationCount: number | undefined;
+  if (delegationsRaw) {
+    try {
+      const dels = JSON.parse(delegationsRaw) as string[];
+      delegationCount = dels.length;
+    } catch {
+      // ignore parse errors
+    }
+  }
 
   return {
     address: agentAddress,
@@ -294,6 +333,9 @@ export async function getAgentCommerceStatus(
     ...(tokenAddressRaw ? { tokenAddress: tokenAddressRaw } : {}),
     ...(tokenPriceRaw ? { tokenPrice: tokenPriceRaw } : {}),
     ...(holderCountRaw ? { holderCount: parseInt(holderCountRaw, 10) || 0 } : {}),
+    ...(usdcBalanceRaw ? { usdcBalance: usdcBalanceRaw } : {}),
+    ...(activeInvoices !== undefined ? { activeInvoices } : {}),
+    ...(delegationCount !== undefined ? { delegations: delegationCount } : {}),
   };
 }
 

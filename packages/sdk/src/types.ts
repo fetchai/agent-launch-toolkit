@@ -456,3 +456,140 @@ export interface AgentverseStatusResponse {
   code_digest?: string;
   revision?: number;
 }
+
+// ---------------------------------------------------------------------------
+// Multi-token payment types
+// ---------------------------------------------------------------------------
+
+/** A known ERC-20 token on a specific chain. */
+export interface PaymentToken {
+  /** Human-readable symbol (e.g. "FET", "USDC"). */
+  symbol: string;
+  /** ERC-20 contract address. */
+  contractAddress: string;
+  /** Token decimals (usually 18 for FET, 18 for USDC on BSC). */
+  decimals: number;
+  /** Chain ID (97 = BSC Testnet, 56 = BSC Mainnet). */
+  chainId: number;
+  /** Whether this is a stablecoin (e.g. USDC, USDT). */
+  isStablecoin: boolean;
+}
+
+/** An amount denominated in a specific token. */
+export interface TokenAmount {
+  /** Amount as a decimal string (e.g. "10.5"). */
+  amount: string;
+  /** The token this amount is denominated in. */
+  token: PaymentToken;
+}
+
+/** A payment request issued by a service-providing agent. */
+export interface PaymentRequest {
+  /** Unique identifier for this payment request. */
+  paymentId: string;
+  /** Address of the agent requesting payment. */
+  payee: string;
+  /** Service being paid for. */
+  service: string;
+  /** Requested amount. */
+  requested: TokenAmount;
+  /** List of token symbols accepted as payment (e.g. ["FET", "USDC"]). */
+  acceptedTokens: string[];
+  /** ISO 8601 expiry timestamp. */
+  expiresAt: string;
+}
+
+/** Result of a completed payment transaction. */
+export interface PaymentResult {
+  /** The payment request this fulfills. */
+  paymentId: string;
+  /** On-chain transaction hash. */
+  txHash: string;
+  /** Amount actually paid. */
+  paid: TokenAmount;
+  /** Block number the payment was confirmed in. */
+  blockNumber: number;
+  /** ISO 8601 confirmation timestamp. */
+  confirmedAt: string;
+}
+
+/** Invoice status lifecycle. */
+export type InvoiceStatus = 'pending' | 'paid' | 'expired' | 'refunded' | 'disputed';
+
+/** An invoice stored in agent storage. */
+export interface Invoice {
+  /** Unique invoice ID. */
+  id: string;
+  /** Agent address of the issuer (seller). */
+  issuer: string;
+  /** Wallet or agent address of the payer (buyer). */
+  payer: string;
+  /** Service being invoiced. */
+  service: string;
+  /** Invoiced amount. */
+  amount: TokenAmount;
+  /** Current invoice status. */
+  status: InvoiceStatus;
+  /** ISO 8601 creation timestamp. */
+  createdAt: string;
+  /** ISO 8601 timestamp when status last changed. */
+  updatedAt: string;
+  /** Transaction hash when paid. */
+  txHash?: string;
+}
+
+/** ERC-20 spending limit (delegation via approve/transferFrom). */
+export interface SpendingLimit {
+  /** Address of the token owner who granted the allowance. */
+  owner: string;
+  /** Address of the spender (agent) who can spend. */
+  spender: string;
+  /** Token being delegated. */
+  token: PaymentToken;
+  /** Maximum approved amount (decimal string). */
+  maxAmount: string;
+  /** Amount already spent (decimal string). */
+  spent: string;
+  /** Remaining allowance (decimal string). */
+  remaining: string;
+  /** ISO 8601 expiry (if tracked off-chain; on-chain allowance has no expiry). */
+  expiresAt?: string;
+}
+
+/** Parameters for creating a spending limit (delegation). */
+export interface CreateSpendingLimitParams {
+  /** Token symbol (e.g. "FET", "USDC"). */
+  tokenSymbol: string;
+  /** Amount to approve (decimal string). */
+  amount: string;
+  /** Chain ID. */
+  chainId?: number;
+}
+
+/** Parameters for generating a fiat onramp link. */
+export interface FiatOnrampParams {
+  /** Fiat amount to convert. */
+  fiatAmount: string;
+  /** Fiat currency code (e.g. "USD", "EUR"). */
+  fiatCurrency: string;
+  /** Target crypto token symbol (e.g. "FET", "USDC"). */
+  cryptoToken: string;
+  /** Wallet address to receive tokens. */
+  walletAddress: string;
+  /** URL to redirect after purchase. */
+  returnUrl?: string;
+  /** Onramp provider. */
+  provider?: 'moonpay' | 'transak';
+}
+
+/** Generated fiat onramp link. */
+export interface FiatOnrampLink {
+  /** Provider used. */
+  provider: 'moonpay' | 'transak';
+  /** Full URL the user should open. */
+  url: string;
+  /** Estimated crypto amount the user will receive. */
+  estimatedCrypto?: string;
+  /** Estimated provider fee. */
+  estimatedFee?: string;
+}

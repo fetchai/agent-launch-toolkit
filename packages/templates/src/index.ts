@@ -53,3 +53,7 @@ export { RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CUR
 // Re-export swarm-specific generators
 export type { SwarmAgent, SwarmContext, AgentSkillContext } from "./claude-context.js";
 export { buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills } from "./claude-context.js";
+
+// Re-export people/org-chart to swarm generator
+export type { OrgChart, Executive, Department, Team, SwarmConfig, SwarmAgent as OrgSwarmAgent, CSuiteRole } from "./people.js";
+export { generateSwarmFromOrg, generateOrgTemplate, summarizeSwarm, EXAMPLE_ORGS } from "./people.js";

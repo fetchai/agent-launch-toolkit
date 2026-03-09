@@ -1,6 +1,6 @@
 # agentlaunch
 
-Command-line interface for [AgentLaunch](https://agent-launch.ai) — one command to create, deploy, and tokenize AI agents.
+Command-line interface for [AgentLaunch](https://agent-launch.ai) — one command to create, deploy, tokenize, and trade AI agents.
 
 ## Install
 
@@ -34,6 +34,61 @@ Override the API base URL (self-hosted or staging):
 agentlaunch config set-url https://your-instance.example.com/api
 ```
 
+---
+
+## Command Cheat Sheet
+
+Every command at a glance. All support `--json` for machine-readable output.
+
+### Build
+
+| Command | What It Does |
+|---------|-------------|
+| `agentlaunch [name]` | Create agent, deploy, open editor |
+| `agentlaunch [name] --local` | Scaffold only, no deploy |
+| `agentlaunch scaffold <name> --type <t>` | Generate agent from template |
+| `agentlaunch init` | Install toolkit into existing project |
+| `agentlaunch deploy` | Deploy `agent.py` to Agentverse |
+| `agentlaunch optimize <addr>` | Update README/description/avatar for ranking |
+
+### Tokenize & Trade
+
+| Command | What It Does |
+|---------|-------------|
+| `agentlaunch tokenize --agent <addr>` | Create token + handoff link |
+| `agentlaunch buy <addr> --amount <n>` | Buy tokens on bonding curve |
+| `agentlaunch sell <addr> --amount <n>` | Sell tokens on bonding curve |
+| `agentlaunch claim <wallet>` | Claim 200 TFET + 0.001 tBNB (up to 3x) |
+
+### Wallet & Payments
+
+| Command | What It Does |
+|---------|-------------|
+| `agentlaunch wallet balances` | Show FET + USDC + BNB balances |
+| `agentlaunch wallet send <token> <to> <amt>` | Transfer tokens |
+| `agentlaunch wallet delegate <token> <amt>` | Create spending approval link |
+| `agentlaunch wallet allowance <token>` | Check spending limit |
+| `agentlaunch pay <to> <amt> --token <t>` | Direct token payment |
+
+### Monitor
+
+| Command | What It Does |
+|---------|-------------|
+| `agentlaunch list` | Browse tokens |
+| `agentlaunch status <addr>` | Check price/progress |
+| `agentlaunch comments <addr>` | List/post token comments |
+| `agentlaunch holders <addr>` | Token holder distribution |
+
+### Config
+
+| Command | What It Does |
+|---------|-------------|
+| `agentlaunch config set-key <key>` | Store API key |
+| `agentlaunch config show` | Show current config |
+| `agentlaunch config set-url <url>` | Set custom API URL |
+
+---
+
 ## Commands
 
 ### `agentlaunch` — the default command
@@ -59,7 +114,7 @@ npx agentlaunch my-agent --json
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--local` | Scaffold only, don't deploy to Agentverse | false (deploys by default) |
-| `--template <t>` | chat-memory (default), swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter | chat-memory |
+| `--template <t>` | chat-memory (default), swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter, consumer-commerce | chat-memory |
 | `--json` | Output only JSON (disables interactive prompts) | false |
 
 **Flow:**
@@ -73,6 +128,34 @@ Generated files:
 - `agent.py` — ready-to-edit uAgents code with LLM integration and conversation memory
 - `README.md` — quickstart instructions
 - `.env.example` — required environment variables
+
+---
+
+### `agentlaunch scaffold <name>`
+
+Generate an agent project from any template without deploying.
+
+```bash
+# Default template (chat-memory)
+agentlaunch scaffold my-bot
+
+# Swarm-starter with commerce stack
+agentlaunch scaffold my-service --type swarm-starter
+
+# Swarm preset (writer, social, community, analytics, outreach, ads, strategy)
+agentlaunch scaffold my-writer --type swarm-starter --preset writer
+
+# Consumer commerce template
+agentlaunch scaffold my-store --type consumer-commerce
+```
+
+**Options:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--type <template>` | Template: chat-memory, swarm-starter, custom, research, trading-bot, data-analyzer, price-monitor, gifter, consumer-commerce | chat-memory |
+| `--preset <role>` | Swarm preset role (only with swarm-starter) | — |
+| `--json` | Output only JSON | false |
 
 ---
 
@@ -168,93 +251,165 @@ agentlaunch tokenize \
 | `--image <url>` | Token logo URL | - |
 | `--chain <chainId>` | 97 = BSC Testnet, 56 = BSC Mainnet | 97 |
 | `--max-wallet <0\|1\|2>` | Max wallet size: 0=unlimited, 1=0.5% (5M tokens), 2=1% (10M tokens) | 0 |
-| `--initial-buy <amount>` | FET to spend buying tokens immediately after deploy (0–1000 FET) | 0 |
+| `--initial-buy <amount>` | FET to spend buying tokens immediately after deploy (0-1000 FET) | 0 |
 | `--category <id>` | Category ID for the token | 1 |
 | `--json` | Output only JSON | false |
 
-The command returns a **handoff link** (e.g. `https://agent-launch.ai/deploy/123`). Share this with a human who connects their wallet and pays the deployment fee. The URL is set via `AGENT_LAUNCH_FRONTEND_URL` in `.env` (production by default).
-
-**Max wallet options:**
-
-| Value | Limit | Token cap |
-|-------|-------|-----------|
-| `0` | Unlimited | No cap |
-| `1` | 0.5% of supply | 5,000,000 tokens |
-| `2` | 1% of supply | 10,000,000 tokens |
-
-**Initial buy:** Specify a FET amount (e.g. `--initial-buy 100`) to have the deploying wallet purchase tokens immediately when the contract is deployed. This seeds early liquidity and sets an initial price. Maximum 1,000 FET.
+The command returns a **handoff link** (e.g. `https://agent-launch.ai/deploy/123`). Share this with a human who connects their wallet and pays the deployment fee.
 
 ---
 
-### `agentlaunch comments <address>`
+### `agentlaunch buy <address>`
 
-List or post comments on a token.
+Buy tokens on the bonding curve. Requires `WALLET_PRIVATE_KEY` in `.env`.
 
 ```bash
-# List comments for a token
-agentlaunch comments 0xAbCdEf...
+# Buy with 10 FET
+agentlaunch buy 0xAbCd... --amount 10
 
-# Post a comment (requires API key configured)
-agentlaunch comments 0xAbCdEf... --post "Great agent, just bought some!"
+# Preview without executing
+agentlaunch buy 0xAbCd... --amount 10 --dry-run
 
-# JSON output for machine parsing
-agentlaunch comments 0xAbCdEf... --json
+# Custom slippage
+agentlaunch buy 0xAbCd... --amount 10 --slippage 3
+
+# JSON output
+agentlaunch buy 0xAbCd... --amount 10 --json
 ```
 
 **Options:**
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--post <message>` | Post a new comment (max 500 chars). Requires API key. | - |
+| `--amount <fet>` | FET amount to spend | required |
+| `--dry-run` | Preview only (no transaction) | false |
+| `--slippage <pct>` | Slippage tolerance (%) | 5 |
+| `--chain <id>` | Chain ID (97=testnet, 56=mainnet) | 97 |
 | `--json` | Output only JSON | false |
-
-**Example table output (listing):**
-
-```
-Comments for 0xAbCdEf...  (3 comments)
-
-──────────────────────────────────────────────────────────────────
-Author           Message                                  Posted
-──────────────────────────────────────────────────────────────────
-0x1234...abcd    Great project! Just bought 10k tokens.  2 hours ago
-0x5678...ef01    When DEX listing?                        5 hours ago
-0x9abc...2345    Solid agent, bullish.                    1 day ago
-──────────────────────────────────────────────────────────────────
-```
 
 ---
 
-### `agentlaunch holders <address>`
+### `agentlaunch sell <address>`
 
-Show the token holder distribution table.
+Sell tokens on the bonding curve for FET. Requires `WALLET_PRIVATE_KEY` in `.env`.
 
 ```bash
-# Show holders for a token
-agentlaunch holders 0xAbCdEf...
+# Sell 50000 tokens
+agentlaunch sell 0xAbCd... --amount 50000
 
-# JSON output for machine parsing
-agentlaunch holders 0xAbCdEf... --json
+# Preview
+agentlaunch sell 0xAbCd... --amount 50000 --dry-run
+
+# JSON output
+agentlaunch sell 0xAbCd... --amount 50000 --json
 ```
 
 **Options:**
 
-| Flag | Description |
-|------|-------------|
-| `--json` | Output only JSON |
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--amount <tokens>` | Token amount to sell | required |
+| `--dry-run` | Preview only (no transaction) | false |
+| `--chain <id>` | Chain ID (97=testnet, 56=mainnet) | 97 |
+| `--json` | Output only JSON | false |
 
-**Example table output:**
+---
 
+### `agentlaunch claim <wallet>`
+
+Claim testnet tokens (200 TFET + 0.001 tBNB). Up to 3 claims per wallet.
+
+```bash
+agentlaunch claim 0xMyWallet...
+
+# JSON output
+agentlaunch claim 0xMyWallet... --json
 ```
-Holders for 0xAbCdEf...  (47 holders)
 
-──────────────────────────────────────────────────────────
-Address              Balance          Percentage
-──────────────────────────────────────────────────────────
-0x1234...abcd        12,500,000       1.56%
-0x5678...ef01         8,300,000       1.04%
-0x9abc...2345         4,100,000       0.51%
-...
-──────────────────────────────────────────────────────────
+One claim covers the 120 TFET deploy fee with 80 TFET left for trading.
+
+---
+
+### `agentlaunch wallet`
+
+Multi-token wallet operations. Requires `WALLET_PRIVATE_KEY` in `.env`.
+
+#### `agentlaunch wallet balances`
+
+Show FET, USDC, and BNB balances.
+
+```bash
+agentlaunch wallet balances
+
+# Specific chain
+agentlaunch wallet balances --chain 56
+
+# JSON output
+agentlaunch wallet balances --json
+```
+
+#### `agentlaunch wallet send <token> <to> <amount>`
+
+Transfer tokens to a recipient.
+
+```bash
+# Send 10 USDC
+agentlaunch wallet send USDC 0xRecipient... 10
+
+# Send FET
+agentlaunch wallet send FET 0xRecipient... 50
+```
+
+#### `agentlaunch wallet delegate <token> <amount>`
+
+Generate a handoff link for a human to approve a spending limit.
+
+```bash
+agentlaunch wallet delegate FET 100 --spender 0xAgent...
+```
+
+#### `agentlaunch wallet allowance <token>`
+
+Check the spending limit an owner has approved for a spender.
+
+```bash
+agentlaunch wallet allowance FET --owner 0xOwner... --spender 0xAgent...
+```
+
+---
+
+### `agentlaunch pay <to> <amount>`
+
+Direct token payment. Requires `WALLET_PRIVATE_KEY` in `.env`.
+
+```bash
+# Pay in FET (default)
+agentlaunch pay 0xRecipient... 10
+
+# Pay in USDC
+agentlaunch pay 0xRecipient... 10 --token USDC
+
+# JSON output
+agentlaunch pay 0xRecipient... 10 --token USDC --json
+```
+
+**Options:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--token <symbol>` | Token to pay with (FET, USDC) | FET |
+| `--chain <id>` | Chain ID | 97 |
+| `--json` | Output only JSON | false |
+
+---
+
+### `agentlaunch init`
+
+Install the AgentLaunch toolkit into an existing project. Adds SDK dependency and creates starter files.
+
+```bash
+cd my-existing-project
+agentlaunch init
 ```
 
 ---
@@ -281,20 +436,6 @@ agentlaunch list --limit 5 --json
 | `--sort <by>` | trending, latest, market_cap | latest |
 | `--json` | Output only JSON | false |
 
-**Example table output:**
-
-```
-AgentLaunch Tokens  (sort: trending, limit: 10)
-
-──────────────────────────────────────────────────────────
-Name                  Symbol  Price (FET)   Progress  Status
-──────────────────────────────────────────────────────────
-FET Gifter            GIFT    0.00004200    14.3%     Active
-Research Bot          RSRCH   0.00001100    6.8%      Active
-...
-──────────────────────────────────────────────────────────
-```
-
 ---
 
 ### `agentlaunch status <address>`
@@ -308,28 +449,41 @@ agentlaunch status 0xAbCdEf...
 agentlaunch status 0xAbCdEf... --json
 ```
 
+---
+
+### `agentlaunch comments <address>`
+
+List or post comments on a token.
+
+```bash
+# List comments for a token
+agentlaunch comments 0xAbCdEf...
+
+# Post a comment (requires API key configured)
+agentlaunch comments 0xAbCdEf... --post "Great agent, just bought some!"
+
+# JSON output for machine parsing
+agentlaunch comments 0xAbCdEf... --json
+```
+
 **Options:**
 
-| Flag | Description |
-|------|-------------|
-| `--json` | Output only JSON |
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--post <message>` | Post a new comment (max 500 chars). Requires API key. | - |
+| `--json` | Output only JSON | false |
 
-**Example output:**
+---
 
-```
-==================================================
-TOKEN STATUS
-==================================================
-Name:         FET Gifter
-Symbol:       GIFT
-Address:      0xAbCdEf...
-Chain:        BSC Testnet
-Price:        0.00004200 FET
-Market Cap:   12.60K FET
-Holders:      47
-Progress:     14.20%
-Status:       Bonding curve (14.20% to 30,000 FET target)
-==================================================
+### `agentlaunch holders <address>`
+
+Show the token holder distribution table.
+
+```bash
+agentlaunch holders 0xAbCdEf...
+
+# JSON output
+agentlaunch holders 0xAbCdEf... --json
 ```
 
 ---
@@ -342,6 +496,67 @@ Manage CLI configuration.
 agentlaunch config set-key <apiKey>   # Store your API key
 agentlaunch config show               # Show current config
 agentlaunch config set-url <url>      # Set custom API base URL
+```
+
+---
+
+## Common Workflows
+
+### Build and deploy a new agent
+
+```bash
+npx agentlaunch my-bot
+# -> Scaffolds, deploys, opens editor
+# Edit agent.py, then:
+agentlaunch optimize agent1q...
+agentlaunch tokenize --agent agent1q... --name "MyBot" --symbol MBOT
+# Open the handoff link, connect wallet, sign
+```
+
+### Deploy a swarm
+
+```bash
+agentlaunch scaffold writer --type swarm-starter --preset writer
+agentlaunch scaffold social --type swarm-starter --preset social
+agentlaunch deploy --file writer/agent.py --name "Writer Agent"
+agentlaunch deploy --file social/agent.py --name "Social Agent"
+agentlaunch optimize agent1qWriter...
+agentlaunch optimize agent1qSocial...
+```
+
+### Trade tokens
+
+```bash
+# Check what's available
+agentlaunch list --sort trending
+
+# Preview a buy
+agentlaunch buy 0xToken... --amount 10 --dry-run
+
+# Execute
+agentlaunch buy 0xToken... --amount 10
+
+# Check holdings
+agentlaunch wallet balances
+
+# Sell
+agentlaunch sell 0xToken... --amount 50000
+```
+
+### Multi-token payments
+
+```bash
+# Check balances
+agentlaunch wallet balances
+
+# Pay in USDC
+agentlaunch pay 0xRecipient... 10 --token USDC
+
+# Set up delegation
+agentlaunch wallet delegate FET 100 --spender 0xAgent...
+
+# Check delegation
+agentlaunch wallet allowance FET --owner 0xMe... --spender 0xAgent...
 ```
 
 ---
@@ -365,6 +580,22 @@ echo "Agent deployed: $ADDRESS"
 
 ---
 
+## Templates
+
+| Template | Use Case |
+|----------|----------|
+| `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
+| `swarm-starter` | Full commerce stack — agents that charge for services |
+| `consumer-commerce` | Multi-token payments, invoices, fiat onramp |
+| `custom` | Blank slate — add your own business logic |
+| `price-monitor` | Watch token prices, send alerts |
+| `trading-bot` | Buy/sell signal generation |
+| `data-analyzer` | On-chain data analysis |
+| `research` | On-demand research reports and analysis |
+| `gifter` | Treasury wallet, reward distribution |
+
+---
+
 ## Platform Constants
 
 These values are enforced by the deployed smart contracts and cannot be changed by the CLI or platform:
@@ -376,57 +607,17 @@ These values are enforced by the deployed smart contracts and cannot be changed 
 | Total buy supply | 800,000,000 tokens | Fixed bonding curve supply |
 | Trading fee | **2%** | 100% to protocol treasury. **There is NO creator fee.** |
 
-The 2% trading fee goes **entirely to the protocol treasury (REVENUE_ACCOUNT)**. There is no fee split to token creators.
-
 ---
 
-## Templates
+## Cross-References
 
-| Template | Use Case |
-|----------|----------|
-| `custom` | Blank slate — add your own business logic |
-| `faucet` | Distributes testnet FET/BNB to developers |
-| `research` | On-demand research reports and analysis |
-| `trading` | Token price monitoring and trade alerts |
-| `data` | Structured data feeds and query results |
-
----
-
-## Workflow Examples
-
-### One-command launch (interactive)
-
-```bash
-npx agentlaunch
-```
-
-### With name specified
-
-```bash
-npx agentlaunch my-agent
-```
-
-### Scaffold only (no deploy)
-
-```bash
-npx agentlaunch my-agent --local
-cd my-agent
-# Edit agent.py to add your business logic
-npx agentlaunch deploy
-```
-
-### Headless CI pipeline
-
-```bash
-# JSON output — no interactive prompts
-npx agentlaunch my-agent --json | jq .agentAddress
-```
-
----
+- **SDK:** [`agentlaunch-sdk`](../sdk/README.md) — TypeScript client this CLI wraps
+- **MCP Server:** [`agent-launch-mcp`](../mcp/README.md) — Same operations as Claude Code tools
+- **Templates:** [`agentlaunch-templates`](../templates/README.md) — Agent blueprints
 
 ## Resources
 
-- [AgentLaunch Platform](https://agent-launch.ai) (production, default) | [Dev](https://launchpad-frontend-dev-1056182620041.us-central1.run.app)
+- [AgentLaunch Platform](https://agent-launch.ai)
 - [API Documentation](https://agent-launch.ai/docs/openapi)
 - [Agent Integration Guide](https://agent-launch.ai/docs/for-agents)
 - [skill.md](https://agent-launch.ai/skill.md) — Machine-readable capability discovery

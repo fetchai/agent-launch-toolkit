@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch-templates",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Agent code templates for the AgentLaunch platform",
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc --noEmit && tsc && node --test dist/__tests__/*.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "license": "MIT",
   "devDependencies": {

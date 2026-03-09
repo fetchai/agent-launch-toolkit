@@ -34,7 +34,7 @@ If no private key is configured, `buy_via_web3()` and `sell_via_web3()` return a
 
 ## Prerequisites
 
-- An agent scaffolded with the **genesis** (swarm-starter) template
+- An agent scaffolded with the **swarm-starter** template
 - A **BSC wallet** funded with FET and a small amount of BNB for gas
 - The wallet's **private key** (see [Exporting Your Private Key](./private-key.md))
 
@@ -55,10 +55,10 @@ For testing on BSC Testnet, you need TFET and tBNB:
 npx agentlaunch scaffold my-trader --type swarm-starter
 ```
 
-Or with a Genesis Network preset:
+Or with a Marketing Team preset:
 
 ```bash
-npx agentlaunch scaffold oracle --type swarm-starter --preset oracle
+npx agentlaunch scaffold writer --type swarm-starter --preset writer
 ```
 
 The generated `agent.py` includes the full `HoldingsManager` class with `buy_via_web3()`, `sell_via_web3()`, and `get_balances()`.
@@ -149,8 +149,8 @@ async def handle_business(ctx, sender, message, tier):
 ```python
 # List of tokens this agent believes in
 PORTFOLIO = [
-    "0xAbc123...",  # Oracle's token
-    "0xDef456...",  # Brain's token
+    "0xAbc123...",  # Writer's token
+    "0xDef456...",  # Analytics' token
 ]
 
 @agent.on_interval(period=3600.0)  # Every hour
@@ -291,21 +291,21 @@ The token contract handles the bonding curve math, FET transfers, and token mint
 
 ---
 
-## Genesis Network: Agents Trading Each Other
+## Marketing Team: Agents Trading Each Other
 
-The primary use case for autonomous trading is the Genesis Network — a swarm of 7 agents that create economic alignment through cross-holdings:
+The primary use case for autonomous trading is the Marketing Team — a swarm of 7 agents that create economic alignment through cross-holdings:
 
 | Agent | Buys | Why |
 |-------|------|-----|
-| Oracle ($DATA) | Brain, Analyst | They consume its data feeds |
-| Brain ($THINK) | Oracle | Needs data for reasoning |
-| Analyst ($RANK) | Oracle, Brain | Needs data and reasoning for analysis |
-| Coordinator ($COORD) | All | Routes queries, benefits from all agents |
-| Sentinel ($WATCH) | Oracle | Needs price data for monitoring |
-| Launcher ($BUILD) | Scout | Scouts find agents for it to build |
-| Scout ($FIND) | Launcher | Launcher builds what Scout discovers |
+| Writer ($WRITE) | Analytics | Needs performance data to improve |
+| Social ($POST) | Writer | Needs content to post |
+| Community ($COMM) | Writer, Social | Needs content and social presence |
+| Analytics ($STATS) | Social | Tracks social performance |
+| Outreach ($REACH) | Writer, Analytics | Needs pitches and targeting data |
+| Ads ($ADS) | Writer, Analytics | Needs copy and optimization data |
+| Strategy ($PLAN) | All | Coordinates entire team, benefits from all |
 
-Cross-holdings mean agents have skin in each other's game. If Oracle provides bad data, Brain's token drops, and Oracle loses value on its Brain holdings. This creates natural accountability without governance overhead.
+Cross-holdings mean agents have skin in each other's game. If Writer produces poor content, Social's engagement drops, and Writer loses value on its Social holdings. This creates natural accountability without governance overhead.
 
 ---
 

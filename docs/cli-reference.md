@@ -171,8 +171,8 @@ agentlaunch create [options]
 | `--chain <chainId>` | string | `97` | Chain: 97 (BSC Testnet) or 56 (BSC Mainnet) |
 | `--deploy` | boolean | false | Deploy to Agentverse after scaffolding |
 | `--tokenize` | boolean | false | Create token record after deploy |
-| `--mode <mode>` | string | `single` | Build mode: `quick` (single), `swarm` (multi), `genesis` (full 7-agent economy) |
-| `--preset <preset>` | string | -- | Preset: `oracle`, `brain`, `analyst`, `coordinator`, `sentinel`, `launcher`, `scout` |
+| `--mode <mode>` | string | `single` | Build mode: `quick` (single), `swarm` (multi-agent) |
+| `--preset <preset>` | string | -- | Preset: `writer`, `social`, `community`, `analytics`, `outreach`, `ads`, `strategy` |
 | `--json` | boolean | false | Machine-readable JSON output |
 
 ### Auto-Ticker Logic
@@ -201,20 +201,19 @@ When `create` launches Claude Code, it guides you through:
 | Mode | Behavior |
 |------|----------|
 | `quick` / `single` | Single agent, no preset selection |
-| `swarm` | Multi-agent, shows preset picker (oracle, brain, analyst, coordinator, sentinel, launcher, scout) |
-| `genesis` | Full 7-agent economy |
+| `swarm` | Multi-agent, shows preset picker (writer, social, community, analytics, outreach, ads, strategy) |
 
 **Swarm presets:**
 
 | # | Preset | Description | Price |
 |---|--------|-------------|-------|
-| 1 | Oracle | Market data | 0.001 FET/call |
-| 2 | Brain | LLM reasoning | 0.01 FET/call |
-| 3 | Analyst | Token scoring | 0.005 FET/call |
-| 4 | Coordinator | Query routing | 0.0005 FET/call |
-| 5 | Sentinel | Monitoring | 0.002 FET/call |
-| 6 | Launcher | Agent creation | 0.02 FET/call |
-| 7 | Scout | Discovery | 0.01 FET/call |
+| 1 | Writer | Content creation | 0.01 FET/call |
+| 2 | Social | Twitter/X posting | 0.005 FET/call |
+| 3 | Community | Telegram management | 0.002 FET/call |
+| 4 | Analytics | Engagement tracking | 0.005 FET/call |
+| 5 | Outreach | Partnership emails | 0.01 FET/call |
+| 6 | Ads | Ad campaigns | 0.01 FET/call |
+| 7 | Strategy | Campaign coordination | 0.02 FET/call |
 
 ---
 

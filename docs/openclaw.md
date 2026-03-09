@@ -88,8 +88,8 @@ Early believers get lower prices. Growing demand drives appreciation. At graduat
 ### 4. Cross-Agent Investment
 
 Your agent can hold tokens of other agents. This creates economic alignment:
-- If your agent uses an Oracle for market data, it can hold Oracle tokens
-- If your agent uses a Brain for reasoning, it can hold Brain tokens
+- If your agent uses a Writer for content, it can hold Writer tokens
+- If your agent uses a Social agent for posting, it can hold Social tokens
 - When those agents improve, your holdings appreciate
 
 The agent economy becomes a web of aligned incentives.
@@ -146,19 +146,26 @@ The skill file is pure instructions — no executables, no hidden code. Your age
 This is the key insight: **Agentverse agents have wallets by default.**
 
 When you deploy an agent to Agentverse, it automatically gets:
-- A Fetch.ai wallet address
-- The ability to send and receive FET
+- A Fetch.ai wallet address (`fetch1...`) — accessible via `agent.wallet`
+- A ledger client — accessible via `ctx.ledger`
+- The ability to send and receive FET on the Fetch.ai network
 - The ability to pay other agents for services
 - The ability to receive payments for its services
 
-**One API call activates the full economic stack.** Your agent can immediately:
-- Charge for its services
-- Pay Oracles for data
-- Pay Brains for reasoning
-- Accumulate revenue in its wallet
-- Check its balance and transaction history
+**Wallet access in code (runtime-verified):**
+```python
+agent = Agent()
 
-No wallet setup. No key management. No blockchain complexity. It just works.
+# Check balance
+balance = ctx.ledger.query_bank_balance(str(agent.wallet.address()), "atestfet")
+
+# Send FET
+tx = ctx.ledger.send_tokens(destination, amount, "atestfet", agent.wallet)
+```
+
+**Important:** Use `agent.wallet` (the module-scope Agent object), not `ctx.wallet` which does not exist on the Context object.
+
+For BSC/EVM operations (token trading, bonding curve), agents store an EVM private key via Agentverse Secrets and use web3.py directly.
 
 ### Agentverse: Built-In Wallets for Agents
 
@@ -166,12 +173,12 @@ Most agent platforms don't give agents wallets at all. If you want economic capa
 
 **Agentverse handles this for you.** Built by Fetch.ai and backed by the ASI Alliance (Fetch.ai, SingularityNET, and Cudos):
 
-- **Automatic wallet provisioning** — every agent gets a `wallet_address` on creation
-- **Simple access** — agents use `ctx.wallet` to interact with their wallet
-- **Secrets management** — API keys and credentials stored server-side via Secrets API
+- **Automatic wallet provisioning** — every agent gets a `fetch1...` wallet address on creation
+- **Simple access** — agents use `agent.wallet` + `ctx.ledger` for Fetch.ai native operations
+- **Secrets management** — EVM keys and credentials stored server-side via Secrets API
 - **Proven scale** — 2.5 million agents registered, enterprise deployments, brand partnerships
 
-Your agent gets a wallet the moment it's deployed. No setup. No key management. It just works.
+Your agent gets a wallet the moment it's deployed. No setup required for Fetch.ai native operations. For BSC token trading, store an EVM key via the Secrets API.
 
 **This is why we build on Agentverse** — it's the infrastructure layer that makes agent economics possible.
 
@@ -209,14 +216,18 @@ Once the token exists, your agent operates independently:
 
 No handoff needed. No human approval required. Your agent is an autonomous economic actor.
 
-### Settlement in FET
+### Settlement in FET (Two Chains)
 
-All transactions settle in FET (Fetch.ai's native token) on BNB Smart Chain:
-- Service payments are in FET
-- Token trading is in FET
-- Cross-agent payments are in FET
+All transactions settle in FET, but across two chains:
 
-One currency. One chain. Simple.
+| Operation | Chain | Wallet |
+|-----------|-------|--------|
+| Agent-to-agent payments | Fetch.ai native | `agent.wallet` (auto-provisioned) |
+| Token trading (bonding curve) | BSC | EVM key via Agentverse Secrets |
+| Token deployment (120 FET) | BSC | Human signs via handoff link |
+| Service pricing/charging | Fetch.ai native | `agent.wallet` + `ctx.ledger` |
+
+One currency (FET). Two chains. The Fetch.ai wallet is free and automatic. The BSC wallet is opt-in for token operations.
 
 ---
 
@@ -357,20 +368,20 @@ provide services you might need:
 
 **Recommended Holdings:**
 
-1. $DATA (Oracle Agent)
-   - Provides: real-time market data
+1. $WRITE (Writer Agent)
+   - Provides: content creation, copywriting
    - Price: 0.00002 FET
-   - Why: You'll need price feeds for any trading features
+   - Why: You'll need fresh content for any marketing features
 
-2. $THINK (Brain Agent)
-   - Provides: LLM reasoning as a service
+2. $POST (Social Agent)
+   - Provides: social media posting, engagement
    - Price: 0.00008 FET
-   - Why: Offload expensive inference, reduce your costs
+   - Why: Offload distribution, grow your reach
 
-3. $RANK (Analyst Agent)
-   - Provides: token scoring and evaluation
+3. $STATS (Analytics Agent)
+   - Provides: performance tracking and metrics
    - Price: 0.00003 FET
-   - Why: Quality signals for your recommendations
+   - Why: Data-driven signals for your campaigns
 
 Want me to generate buy links for any of these?
 ```
@@ -456,8 +467,8 @@ Partner with other agents. Split revenue from joint services.
 User requests "analyze this token's fundamentals"
 
 Your agent:   Coordinates, formats output     → 60% (0.06 FET)
-Oracle:       Provides price data             → 20% (0.02 FET)
-Analyst:      Provides quality score          → 20% (0.02 FET)
+Writer:       Provides draft content          → 20% (0.02 FET)
+Analytics:    Provides engagement metrics     → 20% (0.02 FET)
 
 Total charge: 0.10 FET
 ```
@@ -559,19 +570,19 @@ AgentLaunch is framework-agnostic. Your OpenClaw agent can:
 
 One economic layer. All frameworks. Settlement in FET.
 
-### The Genesis Network
+### The Marketing Team
 
 Seven foundational agent roles form the backbone:
 
 | Agent | Token | Service | Price |
 |-------|-------|---------|-------|
-| Oracle | $DATA | Market data, price feeds | 0.001 FET |
-| Brain | $THINK | LLM reasoning, inference | 0.01 FET |
-| Analyst | $RANK | Token scoring, evaluation | 0.005 FET |
-| Coordinator | $COORD | Query routing, discovery | 0.0005 FET |
-| Sentinel | $WATCH | Monitoring, alerts | 0.002 FET |
-| Launcher | $BUILD | Gap analysis, scaffolding | 0.02 FET |
-| Scout | $FIND | Agent discovery, evaluation | 0.01 FET |
+| Writer | $WRITE | Content creation, copywriting | 0.001 FET |
+| Social | $POST | Social media posting, engagement | 0.01 FET |
+| Analytics | $STATS | Performance tracking, metrics | 0.005 FET |
+| Strategy | $PLAN | Campaign planning, coordination | 0.0005 FET |
+| Community | $COMM | Community management, moderation | 0.002 FET |
+| Outreach | $REACH | Partnership outreach, PR | 0.02 FET |
+| Ads | $ADS | Ad discovery, placement optimization | 0.01 FET |
 
 Your agent can use these services. Your agent can provide competing services. Your agent can partner with them.
 
@@ -579,7 +590,7 @@ Your agent can use these services. Your agent can provide competing services. Yo
 
 As your agent participates:
 
-1. **It pays for services it needs** — Oracle data, Brain reasoning
+1. **It pays for services it needs** — Writer content, Social distribution
 2. **It receives payment for services it provides** — your specialty
 3. **It holds tokens of agents it depends on** — aligned incentives
 4. **Other agents hold its tokens** — mutual alignment
@@ -598,10 +609,10 @@ ClawHub has had [serious security issues](https://www.koi.ai/blog/clawhavoc-341-
 
 | Concern | Our Approach |
 |---------|--------------|
-| Wallet provisioning | Agentverse provisions wallets automatically |
-| Secrets & credentials | Stored server-side via Agentverse Secrets API |
+| Fetch.ai wallet | Auto-provisioned on deploy (`agent.wallet` + `ctx.ledger`) |
+| EVM keys | Stored server-side via Agentverse Secrets API (encrypted) |
 | Token deployment | Handoff protocol — human pays 120 FET, signs contract |
-| Trading & payments | Autonomous — agent uses its built-in wallet |
+| Trading & payments | Autonomous — agent uses its wallets (Fetch.ai native + BSC) |
 | Platform trust | 2.5M agents, ASI Alliance backing |
 | Skill code | Pure markdown instructions. No executables. Inspect it. |
 | Provenance | Official Fetch.ai project. Open source. MIT license. |

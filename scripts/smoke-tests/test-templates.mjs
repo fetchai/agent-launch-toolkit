@@ -22,8 +22,8 @@ if (!Array.isArray(templates) || templates.length === 0) {
   errors.push(`listTemplates() returned empty or non-array: ${JSON.stringify(templates)}`);
 }
 
-// Verify expected templates exist (swarm-starter is an alias for genesis)
-const expectedTemplates = ['chat-memory', 'custom', 'genesis'];
+// Verify expected templates exist
+const expectedTemplates = ['chat-memory', 'custom', 'swarm-starter'];
 for (const name of expectedTemplates) {
   const found = templates.some(t => t.name === name);
   if (!found) {
@@ -70,12 +70,12 @@ if (!Array.isArray(presets) || presets.length === 0) {
   errors.push('listPresets() returned empty');
 }
 
-const oracle = getPreset('oracle');
-if (!oracle) {
-  errors.push('getPreset("oracle") returned null/undefined');
+const writer = getPreset('writer');
+if (!writer) {
+  errors.push('getPreset("writer") returned null/undefined');
 } else {
-  if (!oracle.variables || typeof oracle.variables !== 'object') {
-    errors.push('Oracle preset missing variables');
+  if (!writer.variables || typeof writer.variables !== 'object') {
+    errors.push('Writer preset missing variables');
   }
 }
 

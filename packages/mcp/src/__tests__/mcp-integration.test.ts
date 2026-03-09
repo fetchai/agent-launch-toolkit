@@ -13,6 +13,10 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+// Test output directory within cwd (security validation requires this)
+const TEST_OUTPUT_BASE = path.join(process.cwd(), '.test-output');
 
 // ---------------------------------------------------------------------------
 // Test configuration
@@ -41,14 +45,14 @@ function skipIf(condition: boolean, reason: string) {
 // ---------------------------------------------------------------------------
 
 describe('Integration: MCP scaffold_swarm tool', () => {
-  it('generates a genesis agent project', async () => {
+  it('generates a swarm agent project', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
-    const tmpDir = '/tmp/agentlaunch-test-' + Date.now();
+    const tmpDir = path.join(TEST_OUTPUT_BASE, 'test-' + Date.now());
 
     try {
       const result = await scaffoldHandlers.scaffold_swarm({
         name: 'IntegrationTestAgent',
-        preset: 'oracle',
+        preset: 'writer',
         outputDir: tmpDir,
       });
 
@@ -83,18 +87,18 @@ describe('Integration: MCP scaffold_swarm tool', () => {
 
   it('generates with custom preset', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
-    const tmpDir = '/tmp/agentlaunch-test-brain-' + Date.now();
+    const tmpDir = path.join(TEST_OUTPUT_BASE, 'test-social-' + Date.now());
 
     try {
       const result = await scaffoldHandlers.scaffold_swarm({
-        name: 'BrainTestAgent',
-        preset: 'brain',
+        name: 'SocialTestAgent',
+        preset: 'social',
         outputDir: tmpDir,
       });
 
       assert.ok(result, 'should return result');
       assert.equal(result.success, true, 'should report success');
-      assert.equal(result.preset, 'brain', 'should use brain preset');
+      assert.equal(result.preset, 'social', 'should use social preset');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -102,12 +106,12 @@ describe('Integration: MCP scaffold_swarm tool', () => {
 
   it('generates expected file set', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
-    const tmpDir = '/tmp/agentlaunch-test-files-' + Date.now();
+    const tmpDir = path.join(TEST_OUTPUT_BASE, 'test-files-' + Date.now());
 
     try {
       const result = await scaffoldHandlers.scaffold_swarm({
         name: 'FileSetTest',
-        preset: 'analyst',
+        preset: 'analytics',
         outputDir: tmpDir,
       });
 
@@ -154,7 +158,7 @@ describe('Integration: MCP scaffold_swarm tool', () => {
 describe('Integration: MCP scaffold_agent tool', () => {
   it('scaffolds a research agent project', async () => {
     const { scaffoldHandlers } = await import('../tools/scaffold.js');
-    const tmpDir = '/tmp/agentlaunch-test-scaffold-' + Date.now();
+    const tmpDir = path.join(TEST_OUTPUT_BASE, 'test-scaffold-' + Date.now());
 
     try {
       const result = await scaffoldHandlers.scaffold_agent({

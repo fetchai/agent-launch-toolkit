@@ -34,9 +34,10 @@ warn() { echo -e "${YELLOW}[test-publish]${NC} $*"; }
 fail() { echo -e "${RED}[test-publish]${NC} $*"; exit 1; }
 step() { echo -e "\n${BOLD}── $* ──${NC}"; }
 
-# ── Step 1: Build ──────────────────────────────────────────────────────
-step "Building all packages"
+# ── Step 1: Clean + Build ──────────────────────────────────────────────
+step "Cleaning and building all packages"
 cd "$ROOT_DIR"
+npm run clean 2>/dev/null || true
 npm run build
 
 # ── Step 2: Pack ───────────────────────────────────────────────────────

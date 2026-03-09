@@ -35,7 +35,7 @@ AGENT                           PLATFORM                     HUMAN
   |                                 |<- token deployed -------- |
 ```
 
-Agents never hold private keys. Agents create token records and generate links. Humans sign the blockchain transactions.
+Token deployment uses handoff links — agents create token records and generate links, humans sign the deploy transaction (120 FET). For autonomous trading, agents store EVM keys via Agentverse Secrets.
 
 ---
 

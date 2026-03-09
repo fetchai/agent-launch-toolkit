@@ -1,0 +1,247 @@
+/**
+ * CLI: wallet command group
+ *
+ * agentlaunch wallet balances [--token USDC] [--chain 97] [--json]
+ * agentlaunch wallet delegate <token> <amount> --spender <address> [--chain 97] [--json]
+ * agentlaunch wallet allowance <token> --owner <address> --spender <address> [--chain 97] [--json]
+ * agentlaunch wallet send <token> <to> <amount> [--chain 97] [--json]
+ */
+
+import { Command } from "commander";
+import {
+  getMultiTokenBalances,
+  getPaymentToken,
+  transferToken,
+  checkAllowance,
+  createSpendingLimitHandoff,
+} from "agentlaunch-sdk";
+
+export function registerWalletCommand(program: Command): void {
+  const wallet = program
+    .command("wallet")
+    .description("Multi-token wallet operations: balances, delegation, transfers");
+
+  // --- wallet balances ---
+  wallet
+    .command("balances")
+    .description("Show wallet balances for BNB, FET, USDC, and custom tokens")
+    .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
+    .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
+    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--json", "Output raw JSON")
+    .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
+      const chainId = parseInt(options.chain, 10);
+
+      let walletAddr: string;
+
+      if (options.address) {
+        // Read-only mode — no private key needed
+        walletAddr = options.address;
+      } else {
+        const privateKey = process.env["WALLET_PRIVATE_KEY"];
+        if (!privateKey) {
+          const msg = "Provide --address for read-only queries, or set WALLET_PRIVATE_KEY in .env.";
+          if (options.json) {
+            console.log(JSON.stringify({ error: msg }));
+          } else {
+            console.error(`Error: ${msg}`);
+          }
+          process.exit(1);
+        }
+
+        // Derive wallet address from private key
+        const ethers = await import("ethers");
+        walletAddr = new ethers.Wallet(
+          privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`,
+        ).address;
+      }
+
+      const tokenSymbols = options.token?.split(",").map((s) => s.trim().toUpperCase());
+
+      try {
+        const balances = await getMultiTokenBalances(walletAddr, tokenSymbols, chainId);
+
+        if (options.json) {
+          console.log(JSON.stringify({ wallet: walletAddr, chainId, balances }));
+        } else {
+          console.log(`\n  Wallet: ${walletAddr}`);
+          console.log(`  Chain:  ${chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`}\n`);
+          for (const [symbol, balance] of Object.entries(balances)) {
+            const bal = parseFloat(balance);
+            console.log(`  ${symbol.padEnd(8)} ${bal.toFixed(4)}`);
+          }
+          console.log();
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+    });
+
+  // --- wallet delegate ---
+  wallet
+    .command("delegate <token> <amount>")
+    .description("Generate a delegation handoff link for ERC-20 spending approval")
+    .requiredOption("--spender <address>", "Agent wallet address to authorize (0x...)")
+    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--json", "Output raw JSON")
+    .action(async (token: string, amount: string, options: { spender: string; chain: string; json?: boolean }) => {
+      const chainId = parseInt(options.chain, 10);
+
+      try {
+        const link = createSpendingLimitHandoff(
+          { tokenSymbol: token.toUpperCase(), amount, chainId },
+          options.spender,
+        );
+
+        if (options.json) {
+          console.log(JSON.stringify({ link, token: token.toUpperCase(), amount, spender: options.spender }));
+        } else {
+          console.log(`\n  Delegation Link`);
+          console.log(`  Token:   ${token.toUpperCase()}`);
+          console.log(`  Amount:  ${amount}`);
+          console.log(`  Spender: ${options.spender}`);
+          console.log(`\n  Link: ${link}`);
+          console.log(`\n  Share this link with the token owner to approve the spending limit.\n`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+    });
+
+  // --- wallet allowance ---
+  wallet
+    .command("allowance <token>")
+    .description("Check ERC-20 spending limit (allowance)")
+    .requiredOption("--owner <address>", "Token owner address (0x...)")
+    .requiredOption("--spender <address>", "Approved spender address (0x...)")
+    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--json", "Output raw JSON")
+    .action(async (token: string, options: { owner: string; spender: string; chain: string; json?: boolean }) => {
+      const chainId = parseInt(options.chain, 10);
+      const tokenInfo = getPaymentToken(token.toUpperCase(), chainId);
+      if (!tokenInfo) {
+        const msg = `Unknown token: ${token} on chain ${chainId}`;
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+
+      try {
+        const limit = await checkAllowance(
+          tokenInfo.contractAddress,
+          options.owner,
+          options.spender,
+          chainId,
+        );
+
+        if (options.json) {
+          console.log(JSON.stringify(limit));
+        } else {
+          console.log(`\n  Spending Limit`);
+          console.log(`  Token:     ${token.toUpperCase()}`);
+          console.log(`  Owner:     ${options.owner}`);
+          console.log(`  Spender:   ${options.spender}`);
+          console.log(`  Remaining: ${limit.remaining} ${token.toUpperCase()}\n`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+    });
+
+  // --- wallet send ---
+  wallet
+    .command("send <token> <to> <amount>")
+    .description("Send ERC-20 tokens to a recipient")
+    .option("--chain <chainId>", "Chain ID", "97")
+    .option("-y, --yes", "Skip confirmation prompt")
+    .option("--json", "Output raw JSON")
+    .action(async (token: string, to: string, amount: string, options: { chain: string; yes?: boolean; json?: boolean }) => {
+      const chainId = parseInt(options.chain, 10);
+      const tokenInfo = getPaymentToken(token.toUpperCase(), chainId);
+      if (!tokenInfo) {
+        const msg = `Unknown token: ${token} on chain ${chainId}`;
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+
+      const privateKey = process.env["WALLET_PRIVATE_KEY"];
+      if (!privateKey) {
+        const msg = "WALLET_PRIVATE_KEY env var required.";
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+
+      // Confirm before sending
+      if (!options.yes && !options.json) {
+        const readline = await import("node:readline");
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const answer = await new Promise<string>((resolve) => {
+          rl.question(`Send ${amount} ${token.toUpperCase()} to ${to}? [y/N] `, resolve);
+        });
+        rl.close();
+        if (answer.toLowerCase() !== "y") {
+          console.log("Aborted.");
+          return;
+        }
+      }
+
+      if (!options.json) {
+        console.log(`\n  Sending ${amount} ${token.toUpperCase()} to ${to}...`);
+      }
+
+      try {
+        const result = await transferToken(
+          tokenInfo.contractAddress,
+          to,
+          amount,
+          privateKey,
+          chainId,
+        );
+
+        if (options.json) {
+          console.log(JSON.stringify({ ...result, token: token.toUpperCase(), to, amount }));
+        } else {
+          console.log(`  Tx Hash: ${result.txHash}`);
+          console.log(`  Block:   ${result.blockNumber}`);
+          console.log(`  Sent ${amount} ${token.toUpperCase()} to ${to}\n`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+    });
+}

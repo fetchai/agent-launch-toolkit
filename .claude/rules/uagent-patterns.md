@@ -91,15 +91,14 @@ from uagents_core.contrib.protocols.payment import (
 ```python
 from uagents import Protocol
 
-# Create payment protocol instance
-payment_proto = Protocol(spec=payment_protocol_spec)
+# Seller side (agents that charge for services):
+payment_proto = Protocol(spec=payment_protocol_spec, role="seller")
 
-# Role is inferred from which handlers you register:
-# - Seller: handles CommitPayment, RejectPayment, CancelPayment
-# - Buyer: handles RequestPayment, CompletePayment
+# Buyer side (agents that pay for services):
+payment_proto = Protocol(spec=payment_protocol_spec, role="buyer")
 ```
 
-**Note:** `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=...)`.
+**Note:** The payment protocol has defined roles. You MUST specify `role="seller"` or `role="buyer"` when creating the protocol. `agent.create_protocol()` does NOT exist on Agentverse. Always use `Protocol(spec=..., role=...)`.
 
 ### Payment Flow
 
@@ -132,65 +131,48 @@ See `.claude/rules/payment-protocol.md` for the full reference.
 
 ---
 
-## Wallet & Ledger Operations (cosmpy)
+## Wallet & Ledger Operations (Runtime-Verified 2026-03-04)
 
-Every agent on Agentverse has a wallet. Access it via `ctx.ledger` (LedgerClient from cosmpy).
+Every agent on Agentverse has a wallet. Key facts:
+
+- **`ctx.ledger` EXISTS** — type `cosmpy.aerial.client.LedgerClient` (verified on Agentverse)
+- **`ctx.wallet` DOES NOT EXIST** — not on the Context object
+- **`agent.wallet` EXISTS** — type `cosmpy.aerial.wallet.LocalWallet` (use this instead)
+- **Balance queries WORK** — `ctx.ledger.query_bank_balance()` returns int
+
+### Complete `ctx` Attributes (verified)
+
+```
+address, agent, envelopes, get_message_protocol, identifier,
+ledger, logger, outbound_messages, protocols, send,
+send_and_receive, send_raw, send_wallet_message, session,
+session_history, storage, wallet_messages
+```
 
 ### Check Balance
 
 ```python
-from cosmpy.aerial.client import LedgerClient, NetworkConfig
-
-def get_ledger_client(testnet: bool = True) -> LedgerClient:
-    """Get configured LedgerClient."""
-    if testnet:
-        return LedgerClient(NetworkConfig.fetchai_stable_testnet())
-    return LedgerClient(NetworkConfig.fetchai_mainnet())
+agent = Agent()
 
 async def check_balance(ctx: Context) -> int:
     """Get agent's FET balance in atestfet (1 FET = 10^18 atestfet)."""
-    # ctx.ledger is the LedgerClient
-    balance = ctx.ledger.query_bank_balance(str(ctx.wallet.address()), "atestfet")
+    # Use agent.wallet (NOT ctx.wallet — it doesn't exist)
+    balance = ctx.ledger.query_bank_balance(str(agent.wallet.address()), "atestfet")
     return int(balance)
 ```
 
 ### Send FET to Another Agent
 
 ```python
-from cosmpy.aerial.tx import Transaction
-from cosmpy.aerial.tx_helpers import SubmittedTx
+agent = Agent()
 
-async def send_fet(ctx: Context, recipient: str, amount_afet: int) -> str:
-    """
-    Send FET to another address.
-
-    Args:
-        ctx: Agent context
-        recipient: Fetch address (fetch1...) or agent address (agent1q...)
-        amount_afet: Amount in atestfet (1 FET = 10^18)
-
-    Returns:
-        Transaction hash
-    """
-    tx = Transaction()
-    tx.add_message(
-        type_url="/cosmos.bank.v1beta1.MsgSend",
-        from_address=str(ctx.wallet.address()),
-        to_address=recipient,
-        amount=[{"denom": "atestfet", "amount": str(amount_afet)}]
-    )
-
-    # Sign and broadcast
-    tx.seal(
-        signing_cfgs=[ctx.wallet.signer()],
-        fee="50000atestfet",
-        gas_limit=100000
-    )
-    tx.complete()
-
-    submitted: SubmittedTx = ctx.ledger.broadcast_tx(tx)
-    ctx.logger.info(f"Sent {amount_afet} atestfet to {recipient}: {submitted.tx_hash}")
-    return submitted.tx_hash
+async def send_fet(ctx: Context, recipient: str, amount_afet: int, denom: str = "atestfet") -> str:
+    """Send FET on Fetch.ai native chain."""
+    tx = ctx.ledger.send_tokens(
+        recipient, amount_afet, denom, agent.wallet  # agent.wallet, NOT ctx.wallet
+    ).wait_to_complete()
+    ctx.logger.info(f"Sent {amount_afet} {denom} to {recipient}: {tx.tx_hash}")
+    return tx.tx_hash
 ```
 
 ### Denomination
@@ -201,6 +183,17 @@ MAINNET: "afet"     (1 FET = 10^18 afet)
 
 Example: 0.01 FET = 10_000_000_000_000_000 atestfet
 ```
+
+### Two Wallet Systems
+
+Agents may need TWO wallets for full functionality:
+
+| | Fetch.ai Native (Cosmos) | BSC (EVM) |
+|---|---|---|
+| **Address** | `fetch1...` (auto-provisioned) | `0x...` (key in Agentverse Secrets) |
+| **Access** | `agent.wallet` + `ctx.ledger` | web3.py + `ctx.get_secret("WALLET_KEY")` |
+| **Used for** | Agent-to-agent FET payments | Token trading, bonding curve, deploy fee |
+| **Library** | cosmpy (built-in) | web3, eth_account |
 
 ---
 
@@ -227,7 +220,7 @@ agentlaunch scaffold myagent --type swarm-starter
 agentlaunch scaffold oracle-agent --type swarm-starter --preset oracle
 ```
 
-See `.claude/rules/genesis-network.md` for the 7 preset roles and build order.
+See `.claude/rules/marketing-swarm.md` for the 7 preset roles and build order.
 
 ---
 
@@ -288,5 +281,8 @@ datetime, json, hashlib, uuid   # Standard library
 4. **Agent listing is `items`** -- Response is `{ items: [...] }` not `{ agents: [...] }`
 5. **Wait for compilation** -- 15-60s after start before agent responds
 6. **Balance in atestfet** -- 1 FET = 10^18 atestfet, always use int not float
-7. **Use official payment protocol** -- Import from `uagents_core.contrib.protocols.payment`, not custom models
+7. **Use official payment protocol** -- Import from `uagents_core.contrib.protocols.payment`, not custom models (verified available on Agentverse)
 8. **agent.create_protocol() does NOT exist** -- Use `Protocol(spec=...)` directly
+9. **ctx.wallet DOES NOT EXIST** -- Use `agent.wallet` (module-scope Agent object). Never write `ctx.wallet`
+10. **ctx.ledger EXISTS** -- It's a `cosmpy.aerial.client.LedgerClient`. No `hasattr` guard needed
+11. **Logs endpoint is /logs/latest** -- `GET /v1/hosting/agents/{addr}/logs/latest`, NOT `/logs`
