@@ -8,11 +8,11 @@
 
 | Package | Functions | CLI Commands | MCP Tools | Templates | Existing Tests |
 |:--------|:---------:|:------------:|:---------:|:---------:|:--------------:|
-| SDK | 43 | — | — | — | 9 files |
-| CLI | — | 17 | — | — | 1 file |
-| MCP | — | — | 21 | — | 2 files |
-| Templates | — | — | — | 8 | 3 files |
-| **Total** | **43** | **17** | **21** | **8** | **15 files** |
+| SDK | 64 | — | — | — | 11 files |
+| CLI | — | 26 | — | — | 1 file |
+| MCP | — | — | 30 | — | 2 files |
+| Templates | — | — | — | 9 | 6 files |
+| **Total** | **64** | **26** | **30** | **9** | **20 files** |
 
 **Test runner:** `node:test` (built-in) — no external framework.
 **Build:** Turborepo — `npm run build` then `npm run test`.
@@ -85,6 +85,7 @@ npx tsc --noEmit -p packages/templates
 | SDK-M05 | `calculateSell(address, tokenAmount)` → GET /tokens/calculate-sell | `[x]` | Covered |
 | SDK-M06 | `getPlatformStats()` → GET /platform/stats | `[x]` | Covered |
 | SDK-M07 | `generateTradeLink()` → correct URL with action + amount params | `[x]` | Covered |
+| SDK-M08 | `generateTradeLinkFromOptions()` → correct URL from TradeOptions | `[ ]` | **Gap** |
 
 ### 1.4 Handoff Links (`handoff.ts`)
 
@@ -97,6 +98,9 @@ npx tsc --noEmit -p packages/templates
 | SDK-H05 | `generateSellLink()` convenience wrapper | `[x]` | Covered |
 | SDK-H06 | Custom baseUrl override works | `[x]` | Covered |
 | SDK-H07 | Default baseUrl resolves from environment | `[x]` | Covered |
+| SDK-H08 | `validateEthAddress()` → rejects invalid addresses | `[ ]` | **Gap** |
+| SDK-H09 | `generateDelegationLink()` → correct delegation URL | `[ ]` | **Gap** |
+| SDK-H10 | `generateFiatOnrampLink()` → correct MoonPay/Transak URL | `[ ]` | **Gap** |
 
 ### 1.5 Agent Operations (`agents.ts`)
 
@@ -156,6 +160,10 @@ npx tsc --noEmit -p packages/templates
 | SDK-ON08 | Chain ID 56 (mainnet) config correct (RPC, FET address) | `[ ]` | **Gap** |
 | SDK-ON09 | Slippage calculation: minTokensOut = expected * (100 - slippage) / 100 | `[ ]` | **Gap** |
 | SDK-ON10 | DEFAULT_SLIPPAGE_PERCENT = 5 exported correctly | `[ ]` | **Gap** |
+| SDK-ON11 | `getERC20Balance()` → reads ERC-20 balance on-chain | `[ ]` | **Gap — needs testnet** |
+| SDK-ON12 | `approveERC20()` → approves ERC-20 spending | `[ ]` | **Gap — needs testnet** |
+| SDK-ON13 | `getAllowance()` → reads ERC-20 allowance | `[ ]` | **Gap — needs testnet** |
+| SDK-ON14 | `transferFromERC20()` → transfers via transferFrom | `[ ]` | **Gap — needs testnet** |
 
 ### 1.10 URL Resolution (`urls.ts`)
 
@@ -175,6 +183,47 @@ npx tsc --noEmit -p packages/templates
 | SDK-F02 | `.tokens.tokenize()` delegates to SDK function | `[ ]` | **Gap** |
 | SDK-F03 | `.market.getTokenPrice()` delegates correctly | `[ ]` | **Gap** |
 | SDK-F04 | `.onchain.buy()` delegates correctly | `[ ]` | **Gap** |
+| SDK-F05 | `.comments.getComments()` delegates correctly | `[ ]` | **Gap** |
+| SDK-F06 | `.payments.transferToken()` delegates correctly | `[ ]` | **Gap** |
+| SDK-F07 | `.delegation.checkAllowance()` delegates correctly | `[ ]` | **Gap** |
+
+### 1.12 Comment Operations (`comments.ts`)
+
+| ID | Check | Auto | Status |
+|:---|:------|:----:|:------:|
+| SDK-CO01 | `getComments(address)` → GET /comments/{address} | `[ ]` | **Gap — no test** |
+| SDK-CO02 | `getComments()` → returns comment array | `[ ]` | **Gap** |
+| SDK-CO03 | `postComment(params)` → POST /comments/{address} with auth | `[ ]` | **Gap** |
+| SDK-CO04 | `postComment()` → requires apiKey | `[ ]` | **Gap** |
+
+### 1.13 Payment Operations (`payments.ts`)
+
+| ID | Check | Auto | Status |
+|:---|:------|:----:|:------:|
+| SDK-PAY01 | `getToken(symbol, chainId)` → returns PaymentToken | `[x]` | Covered in `payments.test.ts` |
+| SDK-PAY02 | `getToken()` → returns undefined for unknown token | `[x]` | Covered |
+| SDK-PAY03 | `getToken()` → case-insensitive symbol lookup | `[x]` | Covered |
+| SDK-PAY04 | `getTokensForChain(chainId)` → returns all tokens for chain | `[x]` | Covered |
+| SDK-PAY05 | `getTokenBalance()` → reads ERC-20 balance | `[ ]` | **Gap — needs testnet** |
+| SDK-PAY06 | `getMultiTokenBalances()` → returns FET + USDC + BNB | `[ ]` | **Gap** |
+| SDK-PAY07 | `transferToken()` → sends ERC-20 transfer | `[ ]` | **Gap — needs testnet** |
+| SDK-PAY08 | `createInvoice()` → stores invoice in agent storage | `[ ]` | **Gap** |
+| SDK-PAY09 | `getInvoice()` → retrieves invoice from storage | `[ ]` | **Gap** |
+| SDK-PAY10 | `listInvoices()` → filters by status | `[ ]` | **Gap** |
+| SDK-PAY11 | `updateInvoiceStatus()` → updates status in storage | `[ ]` | **Gap** |
+| SDK-PAY12 | KNOWN_TOKENS registry has BSC Testnet + Mainnet entries | `[x]` | Covered |
+
+### 1.14 Delegation Operations (`delegation.ts`)
+
+| ID | Check | Auto | Status |
+|:---|:------|:----:|:------:|
+| SDK-DL01 | `checkAllowance()` → reads ERC-20 allowance on-chain | `[ ]` | **Gap — needs testnet** |
+| SDK-DL02 | `spendFromDelegation()` → calls transferFrom | `[ ]` | **Gap — needs testnet** |
+| SDK-DL03 | `createSpendingLimitHandoff()` → generates valid URL | `[x]` | Covered in `delegation.test.ts` |
+| SDK-DL04 | `createSpendingLimitHandoff()` → throws for unknown token | `[x]` | Covered |
+| SDK-DL05 | `createSpendingLimitHandoff()` → defaults to chain 97 | `[x]` | Covered |
+| SDK-DL06 | `recordDelegation()` → stores in agent storage | `[ ]` | **Gap** |
+| SDK-DL07 | `listDelegations()` → reads from agent storage | `[ ]` | **Gap** |
 
 ---
 
@@ -223,6 +272,21 @@ npx tsc --noEmit -p packages/templates
 | CLI-22 | `init` | Installs 11 embedded files | `[ ]` | **Gap** |
 | CLI-23 | `init --dry-run` | Lists files without writing | `[ ]` | **Gap** |
 | CLI-24 | `claim 0xWALLET` | Calls POST /faucet/claim | `[ ]` | **Gap** |
+| CLI-25 | `create [options]` | Full lifecycle: scaffold → deploy → tokenize | `[ ]` | **Gap** |
+| CLI-26 | `create --json` | Returns JSON output | `[ ]` | **Gap** |
+| CLI-27 | `marketing` | Deploys 7-agent Marketing Team | `[ ]` | **Gap** |
+| CLI-28 | `marketing --dry-run` | Preview without deploying | `[ ]` | **Gap** |
+| CLI-29 | `alliance` | Deploys 27-agent ASI Alliance | `[ ]` | **Gap** |
+| CLI-30 | `alliance --dry-run` | Preview without deploying | `[ ]` | **Gap** |
+| CLI-31 | `wallet balances` | Shows multi-token balances | `[ ]` | **Gap** |
+| CLI-32 | `wallet delegate <token> <amount>` | Generates delegation link | `[ ]` | **Gap** |
+| CLI-33 | `wallet allowance <token>` | Checks ERC-20 allowance | `[ ]` | **Gap** |
+| CLI-34 | `wallet send <token> <to> <amount>` | Sends ERC-20 tokens | `[ ]` | **Gap** |
+| CLI-35 | `pay <to> <amount>` | Multi-token payment | `[ ]` | **Gap** |
+| CLI-36 | `invoice create` | Creates payment invoice | `[ ]` | **Gap** |
+| CLI-37 | `invoice list` | Lists invoices by status | `[ ]` | **Gap** |
+| CLI-38 | `org-template` | Generates YAML org chart | `[ ]` | **Gap** |
+| CLI-39 | `swarm-from-org <file>` | Deploys custom org swarm | `[ ]` | **Gap** |
 
 ### 2.3 Commands — Human Verification Required
 
@@ -237,6 +301,9 @@ npx tsc --noEmit -p packages/templates
 | CLI-H07 | `optimize agent1q...` | Agentverse directory ranking improved | Agentverse UI |
 | CLI-H08 | `init --update` | Merges settings.json without losing user changes | File merge behavior |
 | CLI-H09 | `claim 0xWALLET` | TFET + tBNB arrive in wallet | On-chain state |
+| CLI-H10 | `marketing` (real) | All 7 agents deployed + compiled on Agentverse | Multi-agent deploy |
+| CLI-H11 | `alliance` (real) | All agents deployed + compiled on Agentverse | Multi-agent deploy |
+| CLI-H12 | `wallet send` (real) | Tokens arrive in recipient wallet | On-chain state |
 
 ---
 
@@ -247,7 +314,7 @@ npx tsc --noEmit -p packages/templates
 | ID | Check | Auto | Status |
 |:---|:------|:----:|:------:|
 | MCP-S01 | Server starts via `npx agent-launch-mcp` | `[ ]` | **Gap** |
-| MCP-S02 | All 21 tools registered with correct names | `[x]` | Covered in `commerce.test.ts` |
+| MCP-S02 | All 30 tools registered with correct names | `[x]` | Covered in `commerce.test.ts` |
 | MCP-S03 | Tool schemas have correct required/optional fields | `[~]` | Partial |
 | MCP-S04 | Unknown tool name → error response | `[ ]` | **Gap** |
 | MCP-S05 | All errors return `{ isError: true, content: [...] }` | `[ ]` | **Gap** |
@@ -288,7 +355,7 @@ npx tsc --noEmit -p packages/templates
 | MCP-SC02 | `scaffold_agent` | Type mapping: "research" → correct template | `[x]` | Covered |
 | MCP-SC03 | `scaffold_agent` | Unknown type → falls back to "custom" | `[ ]` | **Gap** |
 | MCP-SC04 | `scaffold_swarm` | Creates 6 files with preset variables | `[x]` | Covered |
-| MCP-SC05 | `scaffold_swarm` | All 7 presets (oracle→scout) work | `[~]` | Partial (3 tested) |
+| MCP-SC05 | `scaffold_swarm` | All 7 presets (writer→strategy) work | `[~]` | Partial (3 tested) |
 
 ### 3.6 Agentverse Tools
 
@@ -339,6 +406,41 @@ npx tsc --noEmit -p packages/templates
 | MCP-TR04 | `sell_tokens` (real) | Executes on-chain trade | `[ ]` | **Gap — human verify** |
 | MCP-TR05 | `get_wallet_balances` | Returns BNB + FET + token balances | `[ ]` | **Gap** |
 
+### 3.11 Payment Tools
+
+| ID | Tool | Check | Auto | Status |
+|:---|:-----|:------|:----:|:------:|
+| MCP-PAY01 | `multi_token_payment` | Sends FET/USDC/ERC-20 payment | `[ ]` | **Gap** |
+| MCP-PAY02 | `multi_token_payment` | Error on invalid token symbol | `[ ]` | **Gap** |
+| MCP-PAY03 | `check_spending_limit` | Returns ERC-20 allowance | `[ ]` | **Gap** |
+| MCP-PAY04 | `create_delegation` | Returns handoff URL | `[ ]` | **Gap** |
+| MCP-PAY05 | `get_fiat_link` | Returns MoonPay/Transak URL | `[ ]` | **Gap** |
+| MCP-PAY06 | `get_fiat_link` | Error on unknown provider | `[ ]` | **Gap** |
+
+### 3.12 Invoice Tools
+
+| ID | Tool | Check | Auto | Status |
+|:---|:-----|:------|:----:|:------:|
+| MCP-INV01 | `create_invoice` | Creates invoice in agent storage | `[ ]` | **Gap** |
+| MCP-INV02 | `create_invoice` | Returns invoice ID | `[ ]` | **Gap** |
+| MCP-INV03 | `list_invoices` | Lists invoices by status | `[ ]` | **Gap** |
+| MCP-INV04 | `list_invoices` | Error on empty agent address | `[ ]` | **Gap** |
+
+### 3.13 Org Chart Tools
+
+| ID | Tool | Check | Auto | Status |
+|:---|:-----|:------|:----:|:------:|
+| MCP-ORG01 | `generate_org_template` | Returns YAML template for size | `[ ]` | **Gap** |
+| MCP-ORG02 | `generate_org_template` | Supports startup/smb/enterprise | `[ ]` | **Gap** |
+| MCP-ORG03 | `scaffold_org_swarm` | Converts OrgChart JSON to SwarmConfig | `[ ]` | **Gap** |
+
+### 3.14 Multi-Token Balance
+
+| ID | Tool | Check | Auto | Status |
+|:---|:-----|:------|:----:|:------:|
+| MCP-MB01 | `get_multi_token_balances` | Returns FET + USDC + BNB + custom balances | `[ ]` | **Gap** |
+| MCP-MB02 | `get_multi_token_balances` | Error on missing wallet address | `[ ]` | **Gap** |
+
 ---
 
 ## 4. Templates (`packages/templates/`)
@@ -347,11 +449,11 @@ npx tsc --noEmit -p packages/templates
 
 | ID | Check | Auto | Status |
 |:---|:------|:----:|:------:|
-| TPL-R01 | `listTemplates()` returns 8 templates | `[x]` | Covered in `build.test.ts` |
-| TPL-R02 | All 8 templates present by name | `[x]` | Covered |
+| TPL-R01 | `listTemplates()` returns 9 templates | `[x]` | Covered in `build.test.ts` |
+| TPL-R02 | All 9 templates present by name | `[x]` | Covered |
 | TPL-R03 | `getTemplate("chat-memory")` returns valid template | `[x]` | Covered |
-| TPL-R04 | `getTemplate("swarm-starter")` → alias resolves to swarm-starter | `[ ]` | **Gap** |
-| TPL-R05 | `getCanonicalName("swarm-starter")` → "swarm-starter" | `[ ]` | **Gap** |
+| TPL-R04 | `getTemplate("swarm-starter")` returns valid template | `[x]` | Covered in `swarm-starter.test.ts` |
+| TPL-R05 | `getTemplate("consumer-commerce")` returns valid template | `[x]` | Covered in `consumer-commerce.test.ts` |
 | TPL-R06 | `getTemplate("nonexistent")` → undefined | `[ ]` | **Gap** |
 
 ### 4.2 Generator
@@ -361,7 +463,7 @@ npx tsc --noEmit -p packages/templates
 | TPL-G01 | `generateFromTemplate()` returns all 7 output fields | `[x]` | Covered |
 | TPL-G02 | Variable substitution replaces `{{var}}` placeholders | `[x]` | Covered |
 | TPL-G03 | Strict mode throws on missing required variable | `[x]` | Covered |
-| TPL-G04 | Non-strict mode leaves `{{var}}` for missing values | `[ ]` | **Gap** |
+| TPL-G04 | Non-strict mode leaves `{{var}}` for missing values | `[x]` | Covered in `swarm-starter.test.ts` |
 | TPL-G05 | Extra variables passed through without error | `[ ]` | **Gap** |
 | TPL-G06 | `generateSystemPrompt()` → matches domain patterns | `[ ]` | **Gap** |
 | TPL-G07 | `generateWelcomeMessage()` → correct for deployed vs scaffold | `[ ]` | **Gap** |
@@ -370,11 +472,13 @@ npx tsc --noEmit -p packages/templates
 
 | ID | Check | Auto | Status |
 |:---|:------|:----:|:------:|
-| TPL-P01 | `listPresets()` returns 7 presets | `[x]` | Covered |
-| TPL-P02 | All 7 preset names: oracle, brain, analyst, coordinator, sentinel, launcher, scout | `[x]` | Covered |
-| TPL-P03 | Each preset generates valid code via swarm-starter template | `[x]` | Covered |
-| TPL-P04 | Preset variables override template defaults correctly | `[ ]` | **Gap** |
-| TPL-P05 | `getPreset("nonexistent")` → undefined | `[ ]` | **Gap** |
+| TPL-P01 | `listPresets()` returns 16 presets | `[x]` | Covered |
+| TPL-P02 | Marketing presets (7): writer, social, community, analytics, outreach, ads, strategy | `[x]` | Covered in `swarm-starter.test.ts` |
+| TPL-P03 | C-Suite presets (5): ceo, cto, cfo, coo, cro | `[ ]` | **Gap — no test** |
+| TPL-P04 | Consumer commerce presets (4): payment-processor, booking-agent, subscription-manager, escrow-service | `[x]` | Covered in `consumer-commerce.test.ts` |
+| TPL-P05 | Each marketing preset generates valid code via swarm-starter | `[x]` | Covered |
+| TPL-P06 | Each consumer preset generates valid code via consumer-commerce | `[ ]` | **Gap** |
+| TPL-P07 | `getPreset("nonexistent")` → undefined | `[x]` | Covered |
 
 ### 4.4 Per-Template Code Validation
 
@@ -392,6 +496,8 @@ npx tsc --noEmit -p packages/templates
 | TPL-T10 | data-analyzer | Has token listing + caching | `[ ]` | **Gap** |
 | TPL-T11 | research | Has Hugging Face API integration | `[ ]` | **Gap** |
 | TPL-T12 | gifter | Has treasury wallet + daily limits | `[ ]` | **Gap** |
+| TPL-T13 | consumer-commerce | Has MultiTokenPricingTable + InvoiceManager | `[x]` | Covered in `consumer-commerce.test.ts` |
+| TPL-T14 | consumer-commerce | Has FiatOnrampHelper + DelegationChecker | `[ ]` | **Gap** |
 
 ### 4.5 Generated Code Quality (All Templates)
 
@@ -535,9 +641,23 @@ Scaffold Swarm → Deploy All → Set Peer Secrets → Verify Commerce
 | Step | Check | Auto | Notes |
 |:-----|:------|:----:|:------|
 | E2E-22 | `npx agent-launch-mcp` starts without error | `[ ]` | **Human** — run in terminal |
-| E2E-23 | Claude Code discovers all 21 tools | `[ ]` | **Human** — check tool list |
+| E2E-23 | Claude Code discovers all 30 tools | `[ ]` | **Human** — check tool list |
 | E2E-24 | Claude Code can call `list_tokens` | `[ ]` | **Human** — invoke in Claude Code |
 | E2E-25 | Claude Code can scaffold + deploy via MCP | `[ ]` | **Human** — full workflow |
+
+### 7.5 Multi-Token Payment
+
+```
+Check Balances → Send Payment → Verify Receipt → Create Invoice → Check Invoice
+```
+
+| Step | Check | Auto | Notes |
+|:-----|:------|:----:|:------|
+| E2E-26 | `wallet balances` shows FET + USDC + BNB | `[ ]` | **Needs WALLET_PRIVATE_KEY** |
+| E2E-27 | `pay` sends USDC to recipient | `[ ]` | **Needs WALLET_PRIVATE_KEY** |
+| E2E-28 | `invoice create` stores invoice | `[ ]` | **Needs API key** |
+| E2E-29 | `invoice list` shows created invoice | `[ ]` | **Needs API key** |
+| E2E-30 | Delegation handoff link works in browser | `[ ]` | **Human** — wallet interaction |
 
 ---
 
@@ -571,26 +691,32 @@ Things that must always be true. Check once, re-check after any code change.
 | SDK-AV02 (double-encoded upload) | Deploy fails silently | Unit test with mock: verify JSON.stringify wrapping |
 | SDK-AV06 (deployAgent flow) | Core lifecycle broken | Mock test for create→upload→secrets→start→poll |
 | SDK-A01-A03 (agent ops) | Auth, agent listing untested | Unit tests with mock fetch |
-| CLI commands (CLI-01 to CLI-24) | No CLI command tests at all | Spawn process, capture stdout, check JSON output |
-| MCP tools (most gaps) | Only 6 of 21 tools tested | Add handler unit tests per tool |
+| SDK-CO01-CO04 (comment ops) | No test coverage at all | Unit tests with mock fetch |
+| CLI commands (CLI-01 to CLI-39) | No CLI command tests | Spawn process, capture stdout, check JSON output |
+| MCP tools (most gaps) | Only 8 of 30 tools tested | Add handler unit tests per tool |
 
 ### High (affects reliability)
 
 | Gap | Impact | Fix |
 |:----|:-------|:----|
-| SDK-ON01-ON10 (on-chain) | Trading may fail silently | Testnet integration tests with real wallet |
+| SDK-ON01-ON14 (on-chain) | Trading may fail silently | Testnet integration tests with real wallet |
 | SDK-U01-U05 (URL resolution) | Wrong API targeted | Unit test env var combinations |
+| SDK-PAY05-PAY11 (payment ops) | Payment/invoice operations untested | Mock storage + ERC-20 tests |
+| SDK-DL01-DL02,DL06-DL07 (delegation) | Delegation ops untested | Mock ERC-20 + storage tests |
 | TPL-T01-T12 (per-template) | Generated code may be invalid | Syntax check + regex patterns for each template |
-| MCP-CM03,06 (fallbacks) | Fallback paths untested | Mock primary failure, verify fallback |
+| MCP-PAY01-PAY06 (payment tools) | Payment MCP tools untested | Mock SDK tests |
+| MCP-INV01-INV04 (invoice tools) | Invoice MCP tools untested | Mock SDK tests |
 
 ### Medium (improves confidence)
 
 | Gap | Impact | Fix |
 |:----|:-------|:----|
-| TPL-R04-R06 (registry edge cases) | Alias resolution, missing templates | Unit tests |
-| TPL-G04-G07 (generator edge cases) | Non-strict mode, system prompts | Unit tests |
-| SDK-F02-F04 (fluent wrapper delegation) | Wrapper may not delegate correctly | Unit tests |
+| TPL-R06 (registry edge case) | Missing template → undefined | Unit test |
+| TPL-G05-G07 (generator edge cases) | Non-strict mode, system prompts | Unit tests |
+| TPL-P03 (C-Suite presets) | C-Suite presets untested | Add preset validation tests |
+| SDK-F02-F07 (fluent wrapper delegation) | Wrapper may not delegate correctly | Unit tests |
 | BLD-04-BLD-09 (build artifacts) | Dist may be incomplete | Post-build glob checks |
+| MCP-ORG01-ORG03 (org chart tools) | Org chart tools untested | Mock tests |
 
 ---
 
@@ -606,20 +732,26 @@ tests/
     url-resolution.test.ts      # SDK-U01 to SDK-U05
     agents.test.ts              # SDK-A01 to SDK-A03 (mock)
     agentverse.test.ts          # SDK-AV01 to SDK-AV10 (mock)
+    comments.test.ts            # SDK-CO01 to SDK-CO04 (mock)
     onchain-config.test.ts      # SDK-ON07, ON08, ON10 (config only)
   cli/
-    commands.test.ts            # CLI-01 to CLI-24 (spawn + --json)
+    commands.test.ts            # CLI-01 to CLI-39 (spawn + --json)
   mcp/
     discovery.test.ts           # MCP-D01 to MCP-D07 (mock)
     calculate.test.ts           # MCP-CA01, CA02 (mock)
     handoff.test.ts             # MCP-HO01 to HO04 (mock)
     comments.test.ts            # MCP-CO01 to CO04 (mock)
     trading.test.ts             # MCP-TR01, TR03 (dry-run mock)
+    payments.test.ts            # MCP-PAY01 to PAY06 (mock)
+    invoices.test.ts            # MCP-INV01 to INV04 (mock)
+    org-chart.test.ts           # MCP-ORG01 to ORG03 (mock)
+    balance.test.ts             # MCP-MB01, MB02 (mock)
   templates/
-    registry.test.ts            # TPL-R04 to R06
-    generator.test.ts           # TPL-G04 to G07
+    registry.test.ts            # TPL-R06
+    generator.test.ts           # TPL-G05 to G07
+    presets.test.ts             # TPL-P03, P06
     code-quality.test.ts        # TPL-Q01 to Q08 (regex on all templates)
-    per-template.test.ts        # TPL-T01 to T12 (content checks)
+    per-template.test.ts        # TPL-T01 to T14 (content checks)
   invariants/
     constants.test.ts           # INV-01 to INV-12 (grep/regex)
   build/
@@ -649,13 +781,14 @@ tests/
   testnet/
     buy-sell.test.ts            # E2E-11 to E2E-16
     swarm-deploy.test.ts        # E2E-17 to E2E-21
+    multi-token.test.ts         # E2E-26 to E2E-30
 ```
 
 ### Phase 4: Human Verification (Manual Checklist)
 
 **Target: UI, wallet interaction, Agentverse ranking.**
 
-Run through the human verification checklist in section 2.3 and 7.4 after each release.
+Run through the human verification checklist in section 2.3 and 7.4–7.5 after each release.
 
 ---
 
@@ -734,39 +867,42 @@ echo "=== All automated checks passed ==="
 |:-----|:------------:|:-------:|:----:|:--------:|
 | SDK Client | 11 | 10 | 1 | 91% |
 | SDK Tokens | 7 | 7 | 0 | 100% |
-| SDK Market | 7 | 7 | 0 | 100% |
-| SDK Handoff | 7 | 7 | 0 | 100% |
+| SDK Market | 8 | 7 | 1 | 88% |
+| SDK Handoff | 10 | 7 | 3 | 70% |
 | SDK Agents | 3 | 0 | 3 | 0% |
 | SDK Agentverse | 10 | 1 | 9 | 10% |
 | SDK Storage | 6 | 6 | 0 | 100% |
 | SDK Commerce | 5 | 5 | 0 | 100% |
-| SDK On-Chain | 10 | 0 | 10 | 0% |
+| SDK On-Chain | 14 | 0 | 14 | 0% |
 | SDK URLs | 5 | 0 | 5 | 0% |
-| SDK Fluent | 4 | 1 | 3 | 25% |
+| SDK Fluent | 7 | 1 | 6 | 14% |
+| SDK Comments | 4 | 0 | 4 | 0% |
+| SDK Payments | 12 | 5 | 7 | 42% |
+| SDK Delegation | 7 | 3 | 4 | 43% |
 | CLI Config | 10 | 10 | 0 | 100% |
-| CLI Commands | 24 | 0 | 24 | 0% |
+| CLI Commands | 39 | 0 | 39 | 0% |
 | MCP Server | 5 | 1 | 4 | 20% |
-| MCP Tools (21) | 38 | 8 | 30 | 21% |
-| Templates Registry | 6 | 3 | 3 | 50% |
-| Templates Generator | 7 | 3 | 4 | 43% |
-| Templates Presets | 5 | 3 | 2 | 60% |
-| Templates Per-Code | 12 | 1 | 11 | 8% |
+| MCP Tools (30) | 55 | 8 | 47 | 15% |
+| Templates Registry | 6 | 5 | 1 | 83% |
+| Templates Generator | 7 | 4 | 3 | 57% |
+| Templates Presets | 7 | 5 | 2 | 71% |
+| Templates Per-Code | 14 | 2 | 12 | 14% |
 | Templates Quality | 8 | 8 | 0 | 100% |
-| Build System | 10 | 3 | 7 | 30% |
+| Build System | 10 | 5 | 5 | 50% |
 | API Endpoints | 27 | 27 | 0 | 100% |
 | Invariants | 12 | 12 | 0 | 100% |
-| E2E Workflows | 25 | 0 | 25 | 0% |
-| **Total** | **266** | **122** | **144** | **46%** |
+| E2E Workflows | 30 | 0 | 30 | 0% |
+| **Total** | **339** | **138** | **201** | **41%** |
 
 **Priority path to 80% coverage:**
-1. Mock-based SDK tests (agents, agentverse, on-chain config, URLs) → +30 checks
-2. CLI command tests (spawn + --json) → +24 checks
-3. MCP tool handler tests (mock SDK) → +30 checks
-4. Per-template content checks (regex) → +11 checks
+1. Mock-based SDK tests (agents, agentverse, comments, on-chain config, URLs, payment ops) → +43 checks
+2. CLI command tests (spawn + --json) → +39 checks
+3. MCP tool handler tests (mock SDK) → +47 checks
+4. Per-template content checks (regex) → +12 checks
 5. Live API smoke tests (public endpoints) → +10 checks
-6. Build artifact verification → +7 checks
+6. Build artifact verification → +5 checks
 
-That brings coverage to ~234/266 = **88%** with zero external dependencies.
+That brings coverage to ~294/339 = **87%** with zero external dependencies.
 
 ---
 

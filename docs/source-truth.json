@@ -1,0 +1,307 @@
+{
+  "extractedAt": "2026-03-09T04:06:39.724Z",
+  "versions": {
+    "sdk": "0.2.8",
+    "cli": "1.1.3",
+    "mcp": "2.1.8",
+    "templates": "0.4.3"
+  },
+  "cliCommands": [
+    {
+      "file": "alliance.ts",
+      "name": "alliance",
+      "description": "Deploy the 27-agent ASI Alliance swarm"
+    },
+    {
+      "file": "buy.ts",
+      "name": "buy <address>",
+      "description": "Buy tokens on a bonding curve (on-chain or dry-run preview)"
+    },
+    {
+      "file": "claim.ts",
+      "name": "claim <wallet>",
+      "description": "Claim testnet tokens (200 TFET + 0.001 tBNB) for a wallet"
+    },
+    {
+      "file": "comments.ts",
+      "name": "comments <address>",
+      "description": ""
+    },
+    {
+      "file": "config.ts",
+      "name": "config",
+      "description": "Manage CLI configuration (API key, base URL)"
+    },
+    {
+      "file": "create.ts",
+      "name": "create",
+      "description": ""
+    },
+    {
+      "file": "deploy.ts",
+      "name": "deploy",
+      "description": "Deploy agent.py to Agentverse"
+    },
+    {
+      "file": "holders.ts",
+      "name": "holders <address>",
+      "description": "Show token holder list by contract address"
+    },
+    {
+      "file": "init.ts",
+      "name": "init",
+      "description": "Install AgentLaunch toolkit into current project"
+    },
+    {
+      "file": "list.ts",
+      "name": "list",
+      "description": "List tokens on AgentLaunch with pagination"
+    },
+    {
+      "file": "marketing.ts",
+      "name": "marketing",
+      "description": "Deploy the 7-agent Marketing Team swarm"
+    },
+    {
+      "file": "optimize.ts",
+      "name": "optimize <address>",
+      "description": "Update agent metadata (README, description, avatar) to improve Agentverse ranking"
+    },
+    {
+      "file": "org-template.ts",
+      "name": "org-template",
+      "description": "Generate an org chart template for swarm deployment"
+    },
+    {
+      "file": "pay.ts",
+      "name": "pay <to> <amount>",
+      "description": "Pay an agent or wallet in any supported token"
+    },
+    {
+      "file": "scaffold.ts",
+      "name": "scaffold <name>",
+      "description": ""
+    },
+    {
+      "file": "sell.ts",
+      "name": "sell <address>",
+      "description": "Sell tokens on a bonding curve (on-chain or dry-run preview)"
+    },
+    {
+      "file": "status.ts",
+      "name": "status <address>",
+      "description": "Show detailed status of a token by its contract address"
+    },
+    {
+      "file": "swarm-from-org.ts",
+      "name": "swarm-from-org <file>",
+      "description": "Deploy an agent swarm from a YAML org chart file"
+    },
+    {
+      "file": "tokenize.ts",
+      "name": "tokenize",
+      "description": ""
+    },
+    {
+      "file": "wallet.ts",
+      "name": "wallet",
+      "description": "Multi-token wallet operations: balances, delegation, transfers"
+    }
+  ],
+  "mcpTools": [
+    {
+      "name": "list_tokens"
+    },
+    {
+      "name": "get_token"
+    },
+    {
+      "name": "get_platform_stats"
+    },
+    {
+      "name": "calculate_buy"
+    },
+    {
+      "name": "calculate_sell"
+    },
+    {
+      "name": "create_token_record"
+    },
+    {
+      "name": "get_deploy_instructions"
+    },
+    {
+      "name": "get_trade_link"
+    },
+    {
+      "name": "scaffold_agent"
+    },
+    {
+      "name": "deploy_to_agentverse"
+    },
+    {
+      "name": "update_agent_metadata"
+    },
+    {
+      "name": "create_and_tokenize"
+    },
+    {
+      "name": "get_comments"
+    },
+    {
+      "name": "post_comment"
+    },
+    {
+      "name": "scaffold_swarm"
+    },
+    {
+      "name": "check_agent_commerce"
+    },
+    {
+      "name": "network_status"
+    },
+    {
+      "name": "buy_tokens"
+    },
+    {
+      "name": "sell_tokens"
+    },
+    {
+      "name": "get_wallet_balances"
+    },
+    {
+      "name": "deploy_swarm"
+    },
+    {
+      "name": "multi_token_payment"
+    },
+    {
+      "name": "check_spending_limit"
+    },
+    {
+      "name": "create_delegation"
+    },
+    {
+      "name": "get_fiat_link"
+    },
+    {
+      "name": "create_invoice"
+    },
+    {
+      "name": "list_invoices"
+    },
+    {
+      "name": "generate_org_template"
+    },
+    {
+      "name": "scaffold_org_swarm"
+    },
+    {
+      "name": "get_multi_token_balances"
+    }
+  ],
+  "sdkExports": [
+    "AgentLaunch",
+    "AgentLaunchClient",
+    "AgentLaunchError",
+    "tokenize",
+    "getToken",
+    "listTokens",
+    "getTokenPrice",
+    "getTokenHolders",
+    "generateTradeLink",
+    "generateTradeLinkFromOptions",
+    "generateTradeLinkWithAction",
+    "calculateBuy",
+    "calculateSell",
+    "getPlatformStats",
+    "getComments",
+    "postComment",
+    "generateDeployLink",
+    "generateBuyLink",
+    "generateSellLink",
+    "generateDelegationLink",
+    "generateFiatOnrampLink",
+    "validateEthAddress",
+    "FIAT_PROVIDER_CONFIGS",
+    "authenticate",
+    "getMyAgents",
+    "importFromAgentverse",
+    "createAgent",
+    "uploadCode",
+    "setSecret",
+    "startAgent",
+    "getAgentStatus",
+    "deployAgent",
+    "updateAgent",
+    "buildOptimizationChecklist",
+    "listStorage",
+    "getStorage",
+    "putStorage",
+    "deleteStorage",
+    "getAgentRevenue",
+    "getPricingTable",
+    "getAgentCommerceStatus",
+    "getNetworkGDP",
+    "buyTokens",
+    "sellTokens",
+    "getWalletBalances",
+    "getERC20Balance",
+    "approveERC20",
+    "getAllowance",
+    "transferFromERC20",
+    "DEFAULT_SLIPPAGE_PERCENT",
+    "TOKEN_CONTRACT_ABI",
+    "ERC20_ABI",
+    "CHAIN_CONFIGS",
+    "KNOWN_TOKENS",
+    "getPaymentToken",
+    "getTokensForChain",
+    "getTokenBalance",
+    "getMultiTokenBalances",
+    "transferToken",
+    "createInvoice",
+    "getInvoice",
+    "listInvoices",
+    "updateInvoiceStatus",
+    "checkAllowance",
+    "spendFromDelegation",
+    "createSpendingLimitHandoff",
+    "listDelegations",
+    "recordDelegation",
+    "getApiUrl",
+    "getFrontendUrl",
+    "getEnvironment",
+    "resolveApiKey",
+    "resolveBaseUrl",
+    "DEV_API_URL",
+    "DEV_FRONTEND_URL",
+    "PROD_API_URL",
+    "PROD_FRONTEND_URL"
+  ],
+  "templates": [
+    "chat-memory",
+    "consumer-commerce",
+    "custom",
+    "data-analyzer",
+    "genesis",
+    "gifter",
+    "price-monitor",
+    "research",
+    "swarm-starter",
+    "trading-bot"
+  ],
+  "presets": [],
+  "constants": {
+    "giftTfet": "200",
+    "giftTbnb": "0.001",
+    "deployFee": "120"
+  },
+  "counts": {
+    "cliCommands": 20,
+    "mcpTools": 30,
+    "sdkExports": 77,
+    "templates": 10,
+    "presets": 0
+  }
+}

@@ -18,6 +18,9 @@ __pycache__/
 # Media (large binaries)
 media/
 
+# Private strategy docs
+docs/secret/
+
 # Prevent stale compiled TypeScript from being committed in src/
 packages/*/src/**/*.js
 packages/*/src/**/*.js.map
