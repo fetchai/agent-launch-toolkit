@@ -39,7 +39,7 @@ try {
 
 import { registerCommentsCommand } from "./commands/comments.js";
 import { registerConfigCommand } from "./commands/config.js";
-import { runCreate } from "./commands/create.js";
+import { runCreate, registerCreateCommand } from "./commands/create.js";
 import { registerDeployCommand } from "./commands/deploy.js";
 import { registerHoldersCommand } from "./commands/holders.js";
 import { registerListCommand } from "./commands/list.js";
@@ -80,6 +80,7 @@ program
   });
 
 // Register subcommands for power users
+registerCreateCommand(program);
 registerConfigCommand(program);
 registerDeployCommand(program);
 registerTokenizeCommand(program);
