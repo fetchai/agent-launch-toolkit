@@ -24,7 +24,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
-import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName, RULES, SKILLS, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
 
 /** Map legacy --type values to current template names. */
 const LEGACY_TYPE_MAP: Record<string, string> = {
@@ -114,7 +114,9 @@ export function registerScaffoldCommand(program: Command): void {
 
       // Create directory structure
       fs.mkdirSync(targetDir, { recursive: true });
-      fs.mkdirSync(path.join(targetDir, ".claude"), { recursive: true });
+      fs.mkdirSync(path.join(targetDir, ".claude", "rules"), { recursive: true });
+      fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
+      fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
 
       const files: Record<string, string> = {
         "agent.py": generated.code,
@@ -122,6 +124,7 @@ export function registerScaffoldCommand(program: Command): void {
         ".env.example": generated.envExample,
         "CLAUDE.md": generated.claudeMd,
         ".claude/settings.json": generated.claudeSettings,
+        ".mcp.json": generated.claudeSettings,
         "agentlaunch.config.json": generated.agentlaunchConfig,
       };
 
@@ -130,6 +133,22 @@ export function registerScaffoldCommand(program: Command): void {
         fs.writeFileSync(filePath, content, "utf8");
         if (!isJson) console.log(`  Created: ${filename}`);
       }
+
+      // Write rules
+      for (const [filename, content] of Object.entries(RULES)) {
+        fs.writeFileSync(path.join(targetDir, ".claude", "rules", filename), content, "utf8");
+      }
+
+      // Write skills
+      for (const [filepath, content] of Object.entries(SKILLS)) {
+        const skillDir = path.dirname(filepath);
+        fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
+        fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
+      }
+
+      // Write Cursor config
+      fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
+      fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
 
       if (isJson) {
         console.log(

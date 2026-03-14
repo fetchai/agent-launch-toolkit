@@ -1394,6 +1394,9 @@ export async function runCreate(options: RunCreateOptions): Promise<void> {
     fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
   }
 
+  // Write .mcp.json (Claude Code reads MCP config from project root)
+  fs.writeFileSync(path.join(targetDir, ".mcp.json"), generated.claudeSettings, "utf8");
+
   // Write Cursor config
   fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
   fs.writeFileSync(path.join(targetDir, ".cursorrules"), CURSOR_RULES, "utf8");
