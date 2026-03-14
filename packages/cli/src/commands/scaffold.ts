@@ -25,6 +25,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
 import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName, RULES, SKILLS, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
+import { tryGetApiKey, buildMcpConfig } from "../config.js";
 
 /** Map legacy --type values to current template names. */
 const LEGACY_TYPE_MAP: Record<string, string> = {
@@ -118,15 +119,25 @@ export function registerScaffoldCommand(program: Command): void {
       fs.mkdirSync(path.join(targetDir, ".claude", "skills"), { recursive: true });
       fs.mkdirSync(path.join(targetDir, ".cursor"), { recursive: true });
 
+      // Write MCP config with real API key if available
+      const apiKey = tryGetApiKey();
+      const mcpConfig = apiKey ? buildMcpConfig(apiKey) : generated.claudeSettings;
+
       const files: Record<string, string> = {
         "agent.py": generated.code,
         "README.md": generated.readme,
         ".env.example": generated.envExample,
         "CLAUDE.md": generated.claudeMd,
-        ".claude/settings.json": generated.claudeSettings,
-        ".mcp.json": generated.claudeSettings,
+        ".claude/settings.json": mcpConfig,
+        ".mcp.json": mcpConfig,
         "agentlaunch.config.json": generated.agentlaunchConfig,
       };
+
+      // Write .env with API key if available
+      if (apiKey) {
+        fs.mkdirSync(targetDir, { recursive: true });
+        fs.writeFileSync(path.join(targetDir, ".env"), `AGENTVERSE_API_KEY=${apiKey}\nAGENT_LAUNCH_API_URL=https://agent-launch.ai/api\n`, "utf8");
+      }
 
       for (const [filename, content] of Object.entries(files)) {
         const filePath = path.join(targetDir, filename);

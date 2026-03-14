@@ -152,3 +152,37 @@ export function maskKey(key: string): string {
   if (key.length <= 8) return "****";
   return `${key.slice(0, 8)}...${" (masked)"}`;
 }
+
+/**
+ * Build MCP config JSON with the actual API key baked in.
+ * Claude Code reads this from .mcp.json and .claude/settings.json.
+ */
+export function buildMcpConfig(apiKey: string): string {
+  return JSON.stringify(
+    {
+      mcpServers: {
+        "agent-launch": {
+          command: "npx",
+          args: ["-y", "agent-launch-mcp"],
+          env: {
+            AGENTVERSE_API_KEY: apiKey,
+          },
+        },
+      },
+    },
+    null,
+    2,
+  ) + "\n";
+}
+
+/**
+ * Try to resolve an API key without throwing.
+ * Returns the key or undefined if not available.
+ */
+export function tryGetApiKey(): string | undefined {
+  try {
+    return requireApiKey();
+  } catch {
+    return undefined;
+  }
+}

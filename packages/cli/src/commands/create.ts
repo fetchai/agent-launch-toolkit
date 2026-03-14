@@ -27,7 +27,7 @@ import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
 import { execSync } from "node:child_process";
 import { generateFromTemplate, generateSystemPrompt, generateWelcomeMessage, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from "agentlaunch-templates";
 import { getClient, agentverseRequest } from "../http.js";
-import { requireApiKey } from "../config.js";
+import { requireApiKey, buildMcpConfig } from "../config.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1374,8 +1374,12 @@ export async function runCreate(options: RunCreateOptions): Promise<void> {
   fs.writeFileSync(path.join(targetDir, "README.md"), generated.readme, "utf8");
   fs.writeFileSync(path.join(targetDir, ".env.example"), generated.envExample, "utf8");
   fs.writeFileSync(path.join(targetDir, "CLAUDE.md"), generated.claudeMd, "utf8");
-  fs.writeFileSync(path.join(targetDir, ".claude", "settings.json"), generated.claudeSettings, "utf8");
   fs.writeFileSync(path.join(targetDir, "agentlaunch.config.json"), generated.agentlaunchConfig, "utf8");
+
+  // Write MCP config with real API key (Claude Code reads .mcp.json from project root)
+  const mcpConfig = apiKey ? buildMcpConfig(apiKey) : generated.claudeSettings;
+  fs.writeFileSync(path.join(targetDir, ".claude", "settings.json"), mcpConfig, "utf8");
+  fs.writeFileSync(path.join(targetDir, ".mcp.json"), mcpConfig, "utf8");
 
   // Write .env with API key
   if (apiKey) {
@@ -1393,9 +1397,6 @@ export async function runCreate(options: RunCreateOptions): Promise<void> {
     fs.mkdirSync(path.join(targetDir, ".claude", "skills", skillDir), { recursive: true });
     fs.writeFileSync(path.join(targetDir, ".claude", "skills", filepath), content, "utf8");
   }
-
-  // Write .mcp.json (Claude Code reads MCP config from project root)
-  fs.writeFileSync(path.join(targetDir, ".mcp.json"), generated.claudeSettings, "utf8");
 
   // Write Cursor config
   fs.writeFileSync(path.join(targetDir, ".cursor", "mcp.json"), CURSOR_MCP_CONFIG, "utf8");
