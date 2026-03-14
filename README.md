@@ -4,7 +4,6 @@
 
 - Deploy agents to [Agentverse](https://agentverse.ai) that charge for their services
 - Tokenize them on a bonding curve — anyone can buy in, price rises with demand
-- Build swarms of agents that pay each other and form micro-economies
 
 ```bash
 npx agentlaunch
@@ -92,12 +91,6 @@ Agent name: PriceBot
 Ticker symbol: PBOT
 Describe what your agent does: Monitors FET price and sends alerts
 
-  What are you building?
-    1) Single Agent    One agent that charges for a service
-    2) Agent Swarm     A team of agents that pay each other
-
-  Choose (1/2): 1
-
   What kind of agent?
     1) Oracle       Sell market data — 0.001 FET/call
     2) Brain        Sell AI reasoning — 0.01 FET/call
@@ -113,72 +106,6 @@ Describe what your agent does: Monitors FET price and sends alerts
 
 Say `/tokenize` in Claude Code when you're ready to create a token.
 
-### Path C: I want to build a swarm
-
-Pick roles, deploy a team, watch the economy form:
-
-```bash
-npx agentlaunch --mode swarm
-# Select roles
-```
-
-```
-  Pick agents (comma-separated, e.g. 1,2,4): 1,2,4
-
-  Deploying 3 agents as "MySwarm"...
-    [1/3] MySwarm-Writer...    agent1q...  compiled
-    [2/3] MySwarm-Social...    agent1q...  compiled
-    [3/3] MySwarm-Analytics    agent1q...  compiled
-
-  Swarm deployed! 3/3 agents running
-```
-
-Agents share addresses as secrets and can call each other's services. Each one charges for its work — the swarm generates revenue from the first query.
-
----
-
-## The Commerce Stack
-
-Every agent scaffolded from the `swarm-starter` template gets a complete commerce engine — no extra setup. These classes are generated inline in your agent code:
-
-| Class | What It Does |
-|-------|-------------|
-| **PaymentService** | Charge callers, pay other agents, verify transactions on-chain |
-| **PricingTable** | Per-service pricing stored in `ctx.storage` |
-| **TierManager** | Token-gated access — hold tokens to unlock premium services |
-| **WalletManager** | Balance queries, low-fund alerts |
-| **RevenueTracker** | Income/expense logging, daily summaries, GDP contribution |
-| **SelfAwareMixin** | Read own token price, holder count, market cap — adjusts effort mode |
-| **HoldingsManager** | Buy/sell other agents' tokens for cross-holdings |
-
-The commerce layers activate when you configure them. An agent that just answers questions works fine. An agent that charges 0.01 FET per query and buys Oracle tokens with its revenue — that's the same template, configured differently.
-
----
-
-## Swarm Starter — Marketing Team
-
-7 pre-configured roles that form a self-sustaining marketing team. Each role exists because other agents (and humans) will pay for the service it provides. Pick the ones you need — or deploy all 7.
-
-| Agent | Token | What It Sells | Price/call | Why It Has Value |
-|-------|-------|---------------|-----------|-----------------|
-| Writer | $WRITE | Blog posts, tweets, newsletters | 0.01 FET | Every team needs content |
-| Social | $POST | Twitter/X posting, scheduling | 0.005 FET | Automated social presence |
-| Community | $COMM | Telegram moderation, FAQs | 0.002 FET | 24/7 community management |
-| Analytics | $STATS | Engagement reports, insights | 0.005 FET | Data-driven decisions |
-| Outreach | $REACH | Partnership pitches, emails | 0.01 FET | Scalable business development |
-| Ads | $ADS | Ad copy, A/B tests | 0.01 FET | Optimized ad spend |
-| Strategy | $PLAN | Campaigns, calendars, audits | 0.02 FET | Coordinates the entire team |
-
-**Build order:** Writer → Community → Social → Analytics → Outreach → Ads → Strategy
-
-Deploy with Claude Code: `/build-swarm` → pick your roles
-
-**Starter configurations:**
-- **Content only** — Writer (1 agent)
-- **Social presence** — Writer + Social (2 agents)
-- **Community** — Writer + Community + Social (3 agents)
-- **Full team** — All 7
-
 ---
 
 ## What You Get
@@ -186,16 +113,15 @@ Deploy with Claude Code: `/build-swarm` → pick your roles
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for all API operations |
-| **CLI** | `packages/cli/` | 16 commands — full lifecycle from scaffold to trade |
-| **MCP Server** | `packages/mcp/` | 28 tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 9 agent blueprints + 7 swarm presets |
+| **CLI** | `packages/cli/` | Full lifecycle from scaffold to trade |
+| **MCP Server** | `packages/mcp/` | Tools for Claude Code / Cursor |
+| **Templates** | `packages/templates/` | 9 agent blueprints |
 
 ### Templates
 
 | Template | What You Get |
 |----------|-------------|
 | `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
-| `swarm-starter` | Full commerce stack — payments, pricing tiers, wallet management, revenue tracking |
 | `consumer-commerce` | Multi-token payments, invoices, fiat onramp |
 | `custom` | Blank Chat Protocol boilerplate — start from scratch |
 | `price-monitor` | Price watching + alert notifications |
@@ -221,7 +147,7 @@ npx agentlaunch holders 0x...                       # Token holder distribution
 npx agentlaunch buy 0x... --amount 10                # Buy tokens with 10 FET
 npx agentlaunch sell 0x... --amount 50000            # Sell 50000 tokens for FET
 npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.001 tBNB (up to 3x)
-npx agentlaunch scaffold my-bot --type swarm-starter # Scaffold agent from template
+npx agentlaunch scaffold my-bot --type chat-memory   # Scaffold agent from template
 npx agentlaunch init                                 # Install toolkit into existing project
 npx agentlaunch wallet balances                      # Show FET + USDC + BNB balances
 npx agentlaunch wallet send USDC 0x... 10            # Transfer tokens
@@ -263,15 +189,12 @@ Open this repo in Claude Code and everything works — MCP tools and slash comma
 
 **Slash Commands:**
 - `/build-agent` — Scaffold, deploy, tokenize one agent
-- `/build-swarm` — Deploy a multi-agent swarm
 - `/deploy` — Deploy agent.py to Agentverse
 - `/tokenize` — Create token, get handoff link
 - `/market` — Browse tokens, check prices
 - `/status` — Check agent/token status
-- `/todo` — Create TODO.md from a document
-- `/grow` — Execute tasks from TODO.md autonomously
 
-**MCP Tools:** 28 tools auto-configured in `.claude/settings.json` — token operations, market data, agent deployment, scaffolding, trading, multi-token payments, delegation, invoices, commerce tracking, and swarm management.
+**MCP Tools:** Auto-configured in `.claude/settings.json` — token operations, market data, agent deployment, scaffolding, trading, multi-token payments, delegation, invoices, and commerce tracking.
 
 ---
 
@@ -287,7 +210,7 @@ Token deployment requires a human signature — agents can't deploy tokens on th
 4. Human connects wallet, signs the transaction, pays 120 FET
 5. Token is live on the bonding curve
 
-Once deployed, agents **can** trade autonomously. The HoldingsManager uses a `BSC_PRIVATE_KEY` secret to buy and sell tokens directly on the bonding curve — no human in the loop. This is how swarm agents build cross-holdings in each other.
+Once deployed, agents **can** trade autonomously using a `BSC_PRIVATE_KEY` secret to buy and sell tokens directly on the bonding curve — no human in the loop.
 
 ### Bonding Curve
 
@@ -354,8 +277,6 @@ curl -X POST https://agent-launch.ai/api/faucet/claim \
 |-----|-------------|
 | **[Tutorial](TUTORIAL.md)** | Launch your first token in 10 minutes |
 | [Architecture](docs/architecture.md) | Package diagrams |
-| [Swarm Guide](examples/marketing-team/README.md) | Swarm deployment walkthrough |
-| [Organic Growth Strategy](docs/organic-growth-strategy.md) | Growing from 7 agents to 25+ |
 
 ### Links
 
