@@ -115,20 +115,7 @@ Say `/tokenize` in Claude Code when you're ready to create a token.
 | **SDK** | `packages/sdk/` | TypeScript client for all API operations |
 | **CLI** | `packages/cli/` | Full lifecycle from scaffold to trade |
 | **MCP Server** | `packages/mcp/` | Tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 9 agent blueprints |
-
-### Templates
-
-| Template | What You Get |
-|----------|-------------|
-| `chat-memory` | **LLM + conversation memory** (default) — smart conversations out of the box |
-| `consumer-commerce` | Multi-token payments, invoices, fiat onramp |
-| `custom` | Blank Chat Protocol boilerplate — start from scratch |
-| `price-monitor` | Price watching + alert notifications |
-| `trading-bot` | Buy/sell signal generation |
-| `data-analyzer` | On-chain data analysis |
-| `research` | Deep dives and reports |
-| `gifter` | Treasury wallet + community rewards |
+| **Templates** | `packages/templates/` | Agent blueprints used by Claude Code for scaffolding |
 
 ### CLI Commands
 
@@ -147,7 +134,6 @@ npx agentlaunch holders 0x...                       # Token holder distribution
 npx agentlaunch buy 0x... --amount 10                # Buy tokens with 10 FET
 npx agentlaunch sell 0x... --amount 50000            # Sell 50000 tokens for FET
 npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.001 tBNB (up to 3x)
-npx agentlaunch scaffold my-bot --type chat-memory   # Scaffold agent from template
 npx agentlaunch init                                 # Install toolkit into existing project
 npx agentlaunch wallet balances                      # Show FET + USDC + BNB balances
 npx agentlaunch wallet send USDC 0x... 10            # Transfer tokens
