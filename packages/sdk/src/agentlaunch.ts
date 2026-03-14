@@ -403,6 +403,42 @@ export class AgentLaunch {
   /** Multi-token payment operations. */
   readonly payments: PaymentsNamespace;
 
+  /**
+   * Create a client by reading a skill.md file.
+   * Auto-extracts the API base URL from the skill content.
+   *
+   * @example
+   * ```ts
+   * const client = await AgentLaunch.fromSkill("https://agent-launch.ai/skill.md");
+   * ```
+   *
+   * @see https://agent-launch.ai/skill.md
+   * @remarks CLI: `npx agentlaunch docs`
+   */
+  static async fromSkill(
+    skillUrl: string,
+    options?: { apiKey?: string },
+  ): Promise<AgentLaunch> {
+    try {
+      const response = await fetch(skillUrl);
+      if (!response.ok) {
+        return new AgentLaunch({ apiKey: options?.apiKey });
+      }
+      const text = await response.text();
+      const urlMatch =
+        text.match(/API Base:\s*(https?:\/\/[^\s]+)/i) ||
+        text.match(/(https?:\/\/[^\s]+)\/api\/agents/);
+      const baseUrl =
+        urlMatch?.[1]?.replace(/\/api$/, "") || "https://agent-launch.ai";
+      return new AgentLaunch({
+        baseUrl: baseUrl + "/api",
+        apiKey: options?.apiKey,
+      });
+    } catch {
+      return new AgentLaunch({ apiKey: options?.apiKey });
+    }
+  }
+
   constructor(config: AgentLaunchConfig = {}) {
     this.client = new AgentLaunchClient(config);
 

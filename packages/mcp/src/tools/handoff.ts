@@ -33,6 +33,7 @@ export interface CreateTokenResult {
     step4: string;
     step5: string;
   };
+  _markdown?: string;
 }
 
 export interface DeployInstructions {
@@ -53,6 +54,7 @@ export interface DeployInstructions {
     whatHappensNext: string[];
   };
   markdown: string;
+  _markdown?: string;
 }
 
 export interface TradeLink {
@@ -61,6 +63,7 @@ export interface TradeLink {
     action: string;
     steps: string[];
   };
+  _markdown?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -91,6 +94,32 @@ export async function createTokenRecord(args: {
     chainId: args.chainId ?? 97,
   });
 
+  const tokenId = response.tokenId ?? response.token_id;
+  const handoffLink = response.handoffLink ?? response.handoff_link ?? `https://agent-launch.ai/deploy/${tokenId}`;
+
+  const _markdown = `# Token Record Created: ${args.name} (${args.symbol})
+
+**Share this handoff link with the user:**
+
+> **${handoffLink}**
+
+| Field | Value |
+|-------|-------|
+| Token ID | ${tokenId ?? '—'} |
+| Name | ${args.name} |
+| Symbol | ${args.symbol} |
+| Chain | ${args.chainId ?? 97} |
+| Deploy Fee | 120 FET |
+
+## Next Steps
+1. **Share the handoff link with the user** — they click, connect wallet, deploy
+2. Deploy instructions: \`get_deploy_instructions({ tokenId: ${tokenId} })\`
+3. After deploy, trade link: \`get_trade_link({ address: "CONTRACT_ADDR", action: "buy" })\`
+
+## Other Surfaces
+- CLI: \`npx agentlaunch tokenize --name "${args.name}" --symbol "${args.symbol}"\`
+- SDK: \`client.tokenize({ name: "${args.name}", symbol: "${args.symbol}" })\``;
+
   return {
     ...response,
     instructions: {
@@ -100,6 +129,7 @@ export async function createTokenRecord(args: {
       step4: 'Click Deploy',
       step5: 'Done! Your token will be live in ~30 seconds',
     },
+    _markdown,
   };
 }
 
@@ -191,7 +221,7 @@ ${instructions.steps
 ${instructions.whatHappensNext.map((w) => `- ${w}`).join('\n')}
 `;
 
-  return { handoffLink, instructions, markdown };
+  return { handoffLink, instructions, markdown, _markdown: markdown };
 }
 
 /**
@@ -223,6 +253,18 @@ export async function getTradeLink(args: {
       : 'https://pancakeswap.finance/swap';
     const dexLink = `${dexBaseUrl}?outputCurrency=${args.address}`;
 
+    const _markdown = `# Trade Link: ${args.action === 'buy' ? 'Buy' : 'Sell'} on DEX
+
+> **${dexLink}**
+
+This token has graduated from the bonding curve and is trading on PancakeSwap.
+
+## Steps
+1. Click the link above
+2. Connect your wallet
+3. ${args.action === 'buy' ? 'Swap FET for tokens' : 'Swap tokens for FET'}
+4. Confirm the transaction in your wallet`;
+
     return {
       link: dexLink,
       instructions: {
@@ -235,6 +277,7 @@ export async function getTradeLink(args: {
           'Confirm the transaction in your wallet',
         ],
       },
+      _markdown,
     };
   }
 
@@ -269,12 +312,29 @@ export async function getTradeLink(args: {
           'Approve transaction in wallet',
         ];
 
+  const amountDisplay = args.amount
+    ? ` ${args.amount} ${args.action === 'buy' ? 'FET' : 'tokens'}`
+    : '';
+
+  const _markdown = `# Trade Link: ${args.action === 'buy' ? 'Buy' : 'Sell'} Tokens
+
+> **${link}**
+
+Share this link with the user to ${args.action === 'buy' ? 'buy' : 'sell'}${amountDisplay}.
+
+## Steps
+${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+## Other Surfaces
+- CLI: \`npx agentlaunch trade ${args.address} --action ${args.action}${args.amount ? ` --amount ${args.amount}` : ''}\``;
+
   return {
     link,
     instructions: {
       action: args.action === 'buy' ? 'Buy tokens' : 'Sell tokens',
       steps,
     },
+    _markdown,
   };
 }
 

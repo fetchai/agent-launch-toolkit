@@ -36,6 +36,7 @@ export interface ScaffoldAgentResult {
   success: true;
   files: string[];
   path: string;
+  _markdown?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -102,10 +103,30 @@ export async function scaffoldAgent(args: {
   fs.writeFileSync(configPath, generated.agentlaunchConfig, 'utf8');
   filePaths.push(configPath);
 
+  const fileList = filePaths.map((f) => `- \`${f}\``).join('\n');
+
+  const _markdown = `# Agent Scaffolded: ${args.name}
+
+**Type:** ${agentType} | **Template:** ${templateName}
+**Output:** \`${outputDir}\`
+
+## Files Created
+${fileList}
+
+## Next Steps
+1. Edit \`${outputDir}/agent.py\` to implement your agent logic
+2. Copy \`${outputDir}/.env.example\` to \`.env\` and fill in secrets
+3. Deploy: \`deploy_to_agentverse\`
+4. Tokenize: \`create_token_record\`
+
+## Other Surfaces
+- CLI: \`npx agentlaunch create\` (interactive wizard)`;
+
   return {
     success: true,
     files: filePaths,
     path: outputDir,
+    _markdown,
   };
 }
 
@@ -136,6 +157,7 @@ export interface ScaffoldSwarmResult {
   preset: string;
   directory: string;
   files: string[];
+  _markdown?: string;
 }
 
 /**
@@ -236,12 +258,33 @@ export async function scaffoldSwarm(args: {
   fs.writeFileSync(configPath, generated.agentlaunchConfig, 'utf8');
   filePaths.push(configPath);
 
+  const fileList = filePaths.map((f) => `- \`${f}\``).join('\n');
+  const roleInfo = presetMeta.role ? ` | **Role:** ${presetMeta.role}` : '';
+  const descInfo = presetMeta.description ? `\n> ${presetMeta.description}` : '';
+
+  const _markdown = `# Swarm Agent Scaffolded: ${args.name}
+
+**Preset:** ${presetName}${roleInfo}${descInfo}
+**Output:** \`${outputDir}\`
+
+## Files Created
+${fileList}
+
+## Next Steps
+1. Edit \`${outputDir}/agent.py\` to implement swarm role logic
+2. Deploy all swarm agents: \`deploy_swarm\`
+3. Check swarm health: \`network_status\`
+
+## Other Surfaces
+- CLI: \`npx agentlaunch create\``;
+
   return {
     success: true,
     name: args.name,
     preset: presetName,
     directory: outputDir,
     files: filePaths,
+    _markdown,
   };
 }
 
@@ -253,6 +296,7 @@ export interface GenerateOrgTemplateResult {
   success: true;
   size: string;
   template: string;
+  _markdown?: string;
 }
 
 /**
@@ -273,10 +317,24 @@ export async function generateOrgTemplateHandler(args: {
 
   const template = generateOrgTemplate(size);
 
+  const _markdown = `# Org Template: ${size}
+
+Fill in the YAML below, then pass it to \`scaffold_org_swarm\`.
+
+\`\`\`yaml
+${template}
+\`\`\`
+
+## Next Steps
+1. Edit the template: fill in agent names, roles, and descriptions
+2. Generate swarm config: \`scaffold_org_swarm({ orgChart: <your-filled-json> })\`
+3. Deploy all agents: \`deploy_swarm\``;
+
   return {
     success: true,
     size,
     template,
+    _markdown,
   };
 }
 
@@ -292,6 +350,7 @@ export interface ScaffoldOrgSwarmResult {
   summary: string;
   config: SwarmConfig;
   scaffoldedTo?: string;
+  _markdown?: string;
 }
 
 /**
@@ -319,6 +378,30 @@ export async function scaffoldOrgSwarm(args: {
     summary,
     config,
   };
+
+  const agentRows = config.agents
+    .map((a) => `| ${a.displayName} | ${a.role} |`)
+    .join('\n');
+
+  const _markdown = `# Org Swarm: ${config.orgName}
+
+| Metric | Value |
+|--------|-------|
+| Total Agents | ${config.totalAgents} |
+| Deploy Cost | ${config.totalDeployCost} FET |
+| Output Dir | ${args.outputDir ?? '(not scaffolded to disk)'} |
+
+## Agent Roster
+| Name | Role |
+|------|------|
+${agentRows}
+
+## Next Steps
+1. Deploy all agents: \`deploy_swarm({ presets: [...], apiKey })\`
+2. Monitor network: \`network_status\`
+3. Check individual commerce: \`check_agent_commerce\``;
+
+  result._markdown = _markdown;
 
   // Optionally scaffold files to disk
   if (args.outputDir) {

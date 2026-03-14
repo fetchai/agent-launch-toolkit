@@ -161,6 +161,9 @@ export async function getAgentStatus(
 
 /**
  * Update metadata (README, short_description, avatar_url) on an existing Agentverse agent.
+ *
+ * @see https://agent-launch.ai/docs/sdk#updateAgent
+ * @remarks MCP: `update_agent_metadata` | CLI: `npx agentlaunch optimize`
  */
 export async function updateAgent(
   options: AgentverseUpdateOptions,
@@ -279,6 +282,9 @@ export function buildOptimizationChecklist(opts: {
  *
  * @param options  Deploy configuration
  * @returns        Agent address, wallet address, and status
+ *
+ * @see https://agent-launch.ai/docs/sdk#deployAgent
+ * @remarks MCP: `deploy_to_agentverse` | CLI: `npx agentlaunch deploy`
  */
 export async function deployAgent(
   options: AgentverseDeployOptions,

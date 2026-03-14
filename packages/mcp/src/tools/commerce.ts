@@ -217,7 +217,25 @@ export async function checkAgentCommerce(args: {
   }
 
   // Fallback: read storage directly via Agentverse API
-  return await readCommerceFromStorage(args.address);
+  const data = await readCommerceFromStorage(args.address);
+
+  const _markdown = `# Commerce Status: ${args.address}
+
+| Metric | Value |
+|--------|-------|
+| Total Revenue | ${data.totalRevenue} wei |
+| Total Expenses | ${data.totalExpenses} wei |
+| Balance | ${data.balance ?? '—'} |
+| Effort Mode | ${data.effortMode} |
+| GDP Contribution | ${data.gdpContribution} |
+| Tier | ${data.tier ? JSON.stringify(data.tier) : '—'} |
+
+## Next Steps
+- Check swarm: \`network_status\`
+- View holdings: see \`holdings\` field in raw result
+- Optimize: \`npx agentlaunch optimize\``;
+
+  return { ...data, _markdown };
 }
 
 // ---------------------------------------------------------------------------
@@ -267,6 +285,35 @@ export async function networkStatus(args: {
     }
   }
 
+  const agentRows = agents
+    .map((a) => {
+      const rec = a as Record<string, unknown>;
+      const addr = String(rec.address ?? '').slice(0, 16) + '...';
+      const rev = rec.totalRevenue ?? '—';
+      const exp = rec.totalExpenses ?? '—';
+      const healthy = rec.error ? 'ERROR' : 'OK';
+      return `| ${addr} | ${rev} | ${exp} | ${healthy} |`;
+    })
+    .join('\n');
+
+  const _markdown = `# Swarm Status: ${args.addresses.length} agents
+
+| Metric | Value |
+|--------|-------|
+| Healthy | ${healthyCount} / ${args.addresses.length} |
+| Total Revenue | ${totalRevenue} wei |
+| Total Expenses | ${totalExpenses} wei |
+| Net GDP | ${totalRevenue - totalExpenses} wei |
+
+## Per-Agent Summary
+| Address | Revenue | Expenses | Health |
+|---------|---------|----------|--------|
+${agentRows}
+
+## Next Steps
+- Drill into an agent: \`check_agent_commerce({ address: "..." })\`
+- Redeploy failed agents: \`deploy_to_agentverse\``;
+
   return {
     agentCount: args.addresses.length,
     healthyCount,
@@ -275,6 +322,7 @@ export async function networkStatus(args: {
     totalExpenses: String(totalExpenses),
     netGDP: String(totalRevenue - totalExpenses),
     agents,
+    _markdown,
   };
 }
 
@@ -386,6 +434,32 @@ export async function deploySwarm(args: {
   const successful = deployed.filter((a) => a.status !== 'failed');
   const failed = deployed.filter((a) => a.status === 'failed');
 
+  const agentRows = deployed
+    .map((a) => `| ${a.name} | ${a.preset} | \`${a.address || '—'}\` | ${a.status} |`)
+    .join('\n');
+
+  const addresses = successful.map((a) => a.address);
+
+  const _markdown = `# Swarm Deployed: ${baseName}
+
+| Metric | Value |
+|--------|-------|
+| Deployed | ${successful.length} / ${deployed.length} |
+| Failed | ${failed.length} |
+
+## Agent List
+| Name | Preset | Address | Status |
+|------|--------|---------|--------|
+${agentRows}
+
+## Next Steps
+1. Monitor health: \`network_status({ addresses: ${JSON.stringify(addresses)} })\`
+2. Check commerce: \`check_agent_commerce\` per agent
+3. Tokenize agents: \`create_and_tokenize\` for each
+
+## Other Surfaces
+- CLI: \`npx agentlaunch deploy --swarm\``;
+
   return {
     success: failed.length === 0,
     baseName,
@@ -399,6 +473,7 @@ export async function deploySwarm(args: {
       'Use network_status to see overall swarm health',
       'To tokenize agents, use create_and_tokenize for each one',
     ],
+    _markdown,
   };
 }
 

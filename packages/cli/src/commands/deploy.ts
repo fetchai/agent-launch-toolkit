@@ -175,6 +175,7 @@ export function registerDeployCommand(program: Command): void {
           console.log(
             `  agentlaunch tokenize --agent ${deployed.agentAddress} --name "${agentName}" --symbol ABCD`,
           );
+          console.log("\n  MCP: deploy_to_agentverse | SDK: client.deploy()");
         }
       } else {
         if (isJson) {

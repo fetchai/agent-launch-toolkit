@@ -48,6 +48,9 @@ function defaultClient(apiKey?: string): AgentLaunchClient {
  * // data.token — JWT string
  * // data.expires_in — seconds until expiry
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#authenticate
+ * @remarks MCP: N/A (uses API key directly) | CLI: `npx agentlaunch config set-key`
  */
 export async function authenticate(
   apiKey: string,
@@ -84,6 +87,9 @@ export async function authenticate(
  * const { data } = await getMyAgents();
  * console.log(data.agents.map(a => a.address));
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#getMyAgents
+ * @remarks MCP: `deploy_to_agentverse` (lists during deploy) | CLI: `npx agentlaunch deploy`
  */
 export async function getMyAgents(
   client?: AgentLaunchClient,
@@ -115,6 +121,9 @@ export async function getMyAgents(
  * ```ts
  * const { agents, count } = await importFromAgentverse('av-xxxxxxxxxxxxxxxx');
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#importFromAgentverse
+ * @remarks MCP: `deploy_to_agentverse` | CLI: `npx agentlaunch deploy`
  */
 export async function importFromAgentverse(
   agentverseApiKey: string,

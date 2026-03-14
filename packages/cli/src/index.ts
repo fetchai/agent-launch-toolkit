@@ -57,6 +57,7 @@ import { registerOrgTemplateCommand } from "./commands/org-template.js";
 import { registerSwarmFromOrgCommand } from "./commands/swarm-from-org.js";
 import { registerMarketingCommand } from "./commands/marketing.js";
 import { registerAllianceCommand } from "./commands/alliance.js";
+import { registerDocsCommand } from "./commands/docs.js";
 
 const program = new Command();
 
@@ -100,6 +101,7 @@ registerOrgTemplateCommand(program);
 registerSwarmFromOrgCommand(program);
 registerMarketingCommand(program);
 registerAllianceCommand(program);
+registerDocsCommand(program);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error((err as Error).message ?? String(err));

@@ -340,6 +340,7 @@ export function registerTokenizeCommand(program: Command): void {
           `\nPlatform fee to deploy: 120 FET (read from contract at deploy time)`,
         );
         console.log(`Trading fee: 2% -> 100% to protocol treasury`);
+        console.log("\n  MCP: create_token_record | SDK: client.tokenize()");
       },
     );
 }
