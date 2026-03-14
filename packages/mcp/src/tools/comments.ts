@@ -28,7 +28,7 @@ function validateEthAddress(address: string): void {
  */
 export async function getComments(args: {
   address: string;
-}): Promise<Comment[]> {
+}): Promise<Comment[] & { _markdown?: string }> {
   if (!args.address || !args.address.trim()) {
     throw new Error('address is required');
   }
@@ -36,7 +36,34 @@ export async function getComments(args: {
   // Security: Validate address format
   validateEthAddress(args.address);
 
-  return client.get<Comment[]>(`/comments/${encodeURIComponent(args.address)}`);
+  const result = await client.get<Comment[]>(`/comments/${encodeURIComponent(args.address)}`);
+
+  const commentRows = result.length > 0
+    ? result
+        .slice(0, 10)
+        .map((c) => {
+          const author = (c.user?.address ?? c.user?.username ?? String(c.userId)).slice(0, 14) + '...';
+          const msg = c.message.slice(0, 60);
+          return `| ${author} | ${msg} |`;
+        })
+        .join('\n')
+    : '| — | No comments yet |';
+
+  const truncated = result.length > 10 ? `\n_Showing 10 of ${result.length} comments._` : '';
+
+  const _markdown = `# Comments: ${args.address}
+
+**Total:** ${result.length}
+
+| Author | Message |
+|--------|---------|
+${commentRows}${truncated}
+
+## Next Steps
+- Post a comment: \`post_comment({ address: "${args.address}", message: "..." })\`
+- View token: https://agent-launch.ai/trade/${args.address}`;
+
+  return Object.assign(result, { _markdown });
 }
 
 /**
@@ -48,7 +75,7 @@ export async function getComments(args: {
 export async function postComment(args: {
   address: string;
   message: string;
-}): Promise<unknown> {
+}): Promise<Record<string, unknown>> {
   if (!args.address || !args.address.trim()) {
     throw new Error('address is required');
   }
@@ -59,9 +86,22 @@ export async function postComment(args: {
   // Security: Validate address format
   validateEthAddress(args.address);
 
-  return client.post<unknown>(`/comments/${encodeURIComponent(args.address)}`, {
+  const result = await client.post<Record<string, unknown>>(`/comments/${encodeURIComponent(args.address)}`, {
     message: args.message,
   });
+
+  const _markdown = `# Comment Posted
+
+| Field | Value |
+|-------|-------|
+| Token | \`${args.address}\` |
+| Message | ${args.message} |
+
+## Next Steps
+- Read thread: \`get_comments({ address: "${args.address}" })\`
+- View token page: https://agent-launch.ai/trade/${args.address}`;
+
+  return { ...result, _markdown };
 }
 
 // ---------------------------------------------------------------------------

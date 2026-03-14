@@ -24,6 +24,7 @@ export interface DeployToAgentverseResult {
   success: true;
   agentAddress: string;
   status: string;
+  _markdown?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -86,10 +87,28 @@ export async function deployToAgentverse(args: {
     metadata,
   });
 
+  const _markdown = `# Agent Deployed: ${agentName}
+
+| Field | Value |
+|-------|-------|
+| Address | \`${result.agentAddress}\` |
+| Status | ${result.status} |
+| File | ${args.agentFile} |
+
+## Next Steps
+1. Tokenize this agent: \`create_token_record\` (or \`create_and_tokenize\`)
+2. Update profile: \`update_agent_metadata\`
+3. Monitor commerce: \`check_agent_commerce({ address: "${result.agentAddress}" })\`
+
+## Other Surfaces
+- CLI: \`npx agentlaunch deploy\`
+- SDK: \`deployAgent({ apiKey, agentName, sourceCode })\``;
+
   return {
     success: true,
     agentAddress: result.agentAddress,
     status: result.status,
+    _markdown,
   };
 }
 
@@ -101,6 +120,7 @@ export interface UpdateAgentMetadataResult {
   success: boolean;
   updatedFields: string[];
   optimization: OptimizationCheckItem[];
+  _markdown?: string;
 }
 
 /**
@@ -126,10 +146,33 @@ export async function updateAgentMetadata(args: {
     },
   });
 
+  const changedList = result.updatedFields.length > 0
+    ? result.updatedFields.map((f) => `- ${f}`).join('\n')
+    : '- (none)';
+
+  const optimizationIssues = result.optimization
+    .filter((item) => !item.done)
+    .map((item) => `- ${item.factor}`)
+    .join('\n') || '- All checks passed';
+
+  const _markdown = `# Metadata Updated: ${args.agentAddress}
+
+## Fields Changed
+${changedList}
+
+## Optimization Checklist
+${optimizationIssues}
+
+## Next Steps
+- Run full optimization: \`npx agentlaunch optimize\`
+- Deploy updated agent: \`deploy_to_agentverse\`
+- View on Agentverse: https://agentverse.ai/agents/${args.agentAddress}`;
+
   return {
     success: result.success,
     updatedFields: result.updatedFields,
     optimization: result.optimization,
+    _markdown,
   };
 }
 

@@ -107,6 +107,7 @@ export function registerSellCommand(program: Command): void {
         console.log(`Protocol fee:   ${result.fee} FET (2% to treasury)`);
         console.log(`Price impact:   ${result.priceImpact}%`);
         console.log(`${"=".repeat(50)}\n`);
+        console.log("\n  MCP: sell_tokens | SDK: client.sellTokens()");
       } catch (err) {
         if (options.json) {
           console.log(JSON.stringify({ error: (err as Error).message }));

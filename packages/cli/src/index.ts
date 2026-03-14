@@ -39,7 +39,7 @@ try {
 
 import { registerCommentsCommand } from "./commands/comments.js";
 import { registerConfigCommand } from "./commands/config.js";
-import { runCreate } from "./commands/create.js";
+import { runCreate, registerCreateCommand } from "./commands/create.js";
 import { registerDeployCommand } from "./commands/deploy.js";
 import { registerHoldersCommand } from "./commands/holders.js";
 import { registerListCommand } from "./commands/list.js";
@@ -57,6 +57,7 @@ import { registerOrgTemplateCommand } from "./commands/org-template.js";
 import { registerSwarmFromOrgCommand } from "./commands/swarm-from-org.js";
 import { registerMarketingCommand } from "./commands/marketing.js";
 import { registerAllianceCommand } from "./commands/alliance.js";
+import { registerDocsCommand } from "./commands/docs.js";
 
 const program = new Command();
 
@@ -80,6 +81,7 @@ program
   });
 
 // Register subcommands for power users
+registerCreateCommand(program);
 registerConfigCommand(program);
 registerDeployCommand(program);
 registerTokenizeCommand(program);
@@ -99,6 +101,7 @@ registerOrgTemplateCommand(program);
 registerSwarmFromOrgCommand(program);
 registerMarketingCommand(program);
 registerAllianceCommand(program);
+registerDocsCommand(program);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error((err as Error).message ?? String(err));

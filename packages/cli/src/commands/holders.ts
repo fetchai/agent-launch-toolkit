@@ -119,6 +119,7 @@ export function registerHoldersCommand(program: Command): void {
       const hasCreator = holders.some(h => h.creator === true || h.creator === 1);
       console.log(`\n${holders.length} holder(s) total.${hasCreator ? ' (* = creator)' : ''}\n`);
       console.log(`View on platform: ${getFrontendUrl()}/trade/${addr}`);
+      console.log("\n  MCP: get_token | SDK: client.getTokenHolders()");
     });
 }
 

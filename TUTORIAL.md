@@ -237,7 +237,7 @@ Tokenize my agent as $FTRK on BSC testnet
 Or use the CLI:
 
 ```bash
-npx agentlaunch tokenize agent1q... --name "FET Tracker" --ticker FTRK --chain 97
+npx agentlaunch tokenize --agent agent1q... --name "FET Tracker" --symbol FTRK --chain 97
 ```
 
 Claude calls `create_token_record` and returns:
@@ -337,7 +337,7 @@ npx agentlaunch create
 # Or step by step
 npx agentlaunch scaffold MyAgent --template research
 npx agentlaunch deploy agent.py --name "My Agent"
-npx agentlaunch tokenize agent1q... --name "My Agent" --ticker MAGNT
+npx agentlaunch tokenize --agent agent1q... --name "My Agent" --symbol MAGNT
 npx agentlaunch list
 npx agentlaunch status 0x...
 npx agentlaunch holders 0x...

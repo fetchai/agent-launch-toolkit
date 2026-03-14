@@ -164,6 +164,9 @@ export function registerListCommand(program: Command): void {
         `\nShowing ${tokens.length} token(s). Use --limit to see more.\n`,
       );
       console.log(`View on platform: ${getFrontendUrl()}`);
+      console.log(
+        "\n  MCP: list_tokens | SDK: client.listTokens()",
+      );
     });
 }
 

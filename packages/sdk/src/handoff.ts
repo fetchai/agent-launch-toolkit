@@ -60,6 +60,9 @@ function resolveBaseUrl(baseUrl?: string): string {
  * const devLink = generateDeployLink(42, 'https://fetch.ants-at-work.com');
  * // https://fetch.ants-at-work.com/deploy/42
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#generateDeployLink
+ * @remarks MCP: `get_deploy_instructions` | CLI: `npx agentlaunch tokenize`
  */
 export function generateDeployLink(tokenId: number, baseUrl?: string): string {
   if (!Number.isInteger(tokenId) || tokenId <= 0) {
@@ -97,6 +100,9 @@ export function generateDeployLink(tokenId: number, baseUrl?: string): string {
  * generateTradeLink('0xAbCd...', { action: 'sell', amount: 500 });
  * // https://agent-launch.ai/trade/0xAbCd...?action=sell&amount=500
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#generateTradeLink
+ * @remarks MCP: `get_trade_link` | CLI: `npx agentlaunch status`
  */
 export function generateTradeLink(
   address: string,

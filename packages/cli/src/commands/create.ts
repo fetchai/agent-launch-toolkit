@@ -788,6 +788,8 @@ AGENT_ADDRESS=${successful[0].address}
             console.log(`  Directory: ${targetDir}`);
           }
 
+          console.log("\n  MCP: create_and_tokenize | SDK: client.createAndTokenize()");
+
           // ---------------------------------------------------------------
           // Editor selection
           // ---------------------------------------------------------------

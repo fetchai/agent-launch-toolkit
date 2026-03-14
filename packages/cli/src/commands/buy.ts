@@ -125,6 +125,7 @@ export function registerBuyCommand(program: Command): void {
           console.log(`Approval Tx:    ${result.approvalTxHash}`);
         }
         console.log(`${"=".repeat(50)}\n`);
+        console.log("\n  MCP: buy_tokens | SDK: client.buyTokens()");
       } catch (err) {
         if (options.json) {
           console.log(JSON.stringify({ error: (err as Error).message }));
