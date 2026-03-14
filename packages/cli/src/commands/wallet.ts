@@ -71,6 +71,7 @@ export function registerWalletCommand(program: Command): void {
             console.log(`  ${symbol.padEnd(8)} ${bal.toFixed(4)}`);
           }
           console.log();
+          console.log("\n  MCP: get_wallet_balances | SDK: client.getWalletBalances()");
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

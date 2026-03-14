@@ -49,6 +49,9 @@ function defaultClient(): AgentLaunchClient {
  *
  * Requires X-API-Key authentication.
  *
+ * @see https://agent-launch.ai/docs/sdk#tokenize
+ * @remarks MCP: `create_token_record` | CLI: `npx agentlaunch tokenize`
+ *
  * @example
  * ```ts
  * const { data } = await tokenize({
@@ -79,6 +82,9 @@ export async function tokenize(
  *
  * No authentication required.
  *
+ * @see https://agent-launch.ai/docs/sdk#getToken
+ * @remarks MCP: `get_token` | CLI: `npx agentlaunch status`
+ *
  * @example
  * ```ts
  * const token = await getToken('0xAbCd...');
@@ -101,6 +107,9 @@ export async function getToken(
  * List tokens on the platform with optional filtering and pagination.
  *
  * No authentication required.
+ *
+ * @see https://agent-launch.ai/docs/sdk#listTokens
+ * @remarks MCP: `list_tokens` | CLI: `npx agentlaunch list`
  *
  * @example
  * ```ts

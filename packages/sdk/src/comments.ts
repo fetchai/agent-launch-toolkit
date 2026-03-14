@@ -47,6 +47,9 @@ function defaultClient(): AgentLaunchClient {
  *   console.log(`${c.user?.username ?? 'anon'}: ${c.message}`);
  * }
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#getComments
+ * @remarks MCP: `get_comments` | CLI: `npx agentlaunch comments`
  */
 export async function getComments(
   tokenAddress: string,
@@ -79,6 +82,9 @@ export async function getComments(
  * });
  * console.log(result.id, result.created_at);
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#postComment
+ * @remarks MCP: `post_comment` | CLI: `npx agentlaunch comments --post`
  */
 export async function postComment(
   params: PostCommentParams,

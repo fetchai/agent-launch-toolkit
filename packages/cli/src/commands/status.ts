@@ -125,6 +125,7 @@ export function registerStatusCommand(program: Command): void {
         `\nView on platform: ${getFrontendUrl()}/trade/${tokenAddress}`,
       );
       console.log(`Trading fee: 2% -> 100% to protocol treasury\n`);
+      console.log("\n  MCP: get_token | SDK: client.getToken()");
     });
 }
 

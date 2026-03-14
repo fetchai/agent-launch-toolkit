@@ -42,6 +42,7 @@ export interface CreateAndTokenizeResult {
   maxWalletAmount?: number;
   initialBuyAmount?: string;
   category?: number;
+  _markdown?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -196,6 +197,40 @@ export async function createAndTokenize(args: {
   const tradeTarget = isValidEthAddress(tokenAddress) ? tokenAddress : String(tokenId);
   const deployLink = `${FRONTEND_BASE_URL}/trade/${tradeTarget}?action=buy&amount=100`;
 
+  const codePreview = agentCode.split('\n').slice(0, 5).join('\n');
+
+  const _markdown = `# Agent Created & Tokenized: ${args.name}
+
+**Agent:** \`${agentAddress ?? '—'}\`
+
+## Deploy Token On-Chain
+
+> **Handoff link: ${handoffLink}**
+>
+> Share this link with the user — they click, connect wallet, deploy.
+
+| Field | Value |
+|-------|-------|
+| Token ID | ${tokenId} |
+| Symbol | ${ticker} |
+| Chain | ${chainId} |
+| Deploy Fee | 120 FET |
+
+## Agent Code Preview
+\`\`\`python
+${codePreview}
+\`\`\`
+_(Full code in agentCode field)_
+
+## Next Steps
+1. **Share the handoff link above** — the user signs the on-chain deployment
+2. Deploy instructions: \`get_deploy_instructions({ tokenId: ${tokenId} })\`
+3. After deploy, trade: \`get_trade_link({ address: "CONTRACT_ADDR", action: "buy" })\`
+
+## Other Surfaces
+- CLI: \`npx agentlaunch create\`
+- SDK: \`client.createAndTokenize({ name: "${args.name}" })\``;
+
   return {
     success: true,
     agentCode,
@@ -206,6 +241,7 @@ export async function createAndTokenize(args: {
     ...(args.maxWalletAmount !== undefined && { maxWalletAmount: args.maxWalletAmount }),
     ...(args.initialBuyAmount !== undefined && { initialBuyAmount: args.initialBuyAmount }),
     ...(args.category !== undefined && { category: args.category }),
+    _markdown,
   };
 }
 

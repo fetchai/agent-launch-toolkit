@@ -203,6 +203,9 @@ function resolveChain(config?: OnchainConfig): ChainConfig {
  * @param tokenAddress - Token contract address (0x...)
  * @param fetAmount - Amount of FET to spend (decimal string, e.g. "10")
  * @param config - Optional configuration (private key, chain, slippage)
+ *
+ * @see https://agent-launch.ai/docs/sdk#buyTokens
+ * @remarks MCP: `buy_tokens` | CLI: `npx agentlaunch buy`
  */
 export async function buyTokens(
   tokenAddress: string,
@@ -308,6 +311,9 @@ export async function buyTokens(
  * @param tokenAddress - Token contract address (0x...)
  * @param tokenAmount - Amount of tokens to sell (decimal string, e.g. "100000")
  * @param config - Optional configuration (private key, chain)
+ *
+ * @see https://agent-launch.ai/docs/sdk#sellTokens
+ * @remarks MCP: `sell_tokens` | CLI: `npx agentlaunch sell`
  */
 export async function sellTokens(
   tokenAddress: string,
@@ -363,6 +369,9 @@ export async function sellTokens(
  *
  * @param tokenAddress - Token contract address to check balance of
  * @param config - Optional configuration (private key, chain)
+ *
+ * @see https://agent-launch.ai/docs/sdk#getWalletBalances
+ * @remarks MCP: `get_wallet_balances` | CLI: `npx agentlaunch wallet`
  */
 export async function getWalletBalances(
   tokenAddress: string,

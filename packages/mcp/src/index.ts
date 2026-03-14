@@ -56,7 +56,7 @@ export const TOOLS = [
   {
     name: "list_tokens",
     description:
-      "List all tokens on the Agent-Launch platform with filtering and pagination",
+      "List all tokens on the Agent-Launch platform with filtering and pagination.\n\nUSE THIS TOOL WHEN:\n- User asks about available tokens or wants to browse the market\n- You need to discover token addresses for other operations\n\nExamples: list_tokens({ sort: \"trending\", limit: 10 })\n\nNext: `get_token` for details, `calculate_buy` to preview a trade.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -92,7 +92,8 @@ export const TOOLS = [
   },
   {
     name: "get_token",
-    description: "Get full details for a single token by address or ID",
+    description:
+      "Get full details for a single token by address, ID, or agent-launch.ai URL.\n\nUSE THIS TOOL WHEN:\n- User asks about a specific token's price, status, or details\n- User pastes an agent-launch.ai URL\n\nExamples: get_token({ address: \"0x...\" }), get_token({ id: 42 })\n\nNext: `calculate_buy`/`calculate_sell` for trade preview, `buy_tokens` to purchase.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -104,13 +105,17 @@ export const TOOLS = [
           type: "number",
           description: "Token ID",
         },
+        url: {
+          type: "string",
+          description: "Full agent-launch.ai URL (auto-extracts address/ID)",
+        },
       },
     },
   },
   {
     name: "get_platform_stats",
     description:
-      "Get platform-wide statistics including volume, token counts, and trending tokens",
+      "Get platform-wide statistics including volume, token counts, and trending tokens.\n\nUSE THIS TOOL WHEN: User asks about platform health or overall market.\n\nNext: `list_tokens` to explore specific tokens.",
     inputSchema: {
       type: "object" as const,
       properties: {},
@@ -119,7 +124,7 @@ export const TOOLS = [
   {
     name: "calculate_buy",
     description:
-      "Calculate how many tokens you'd receive for a FET amount",
+      "Calculate how many tokens you'd receive for a FET amount. Read-only preview.\n\nUSE THIS TOOL WHEN: User wants to preview a purchase. Always call before `buy_tokens`.\n\nExamples: calculate_buy({ address: \"0x...\", fetAmount: \"10\" })\n\nNext: `buy_tokens` to execute, `get_trade_link` for human handoff.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -137,7 +142,8 @@ export const TOOLS = [
   },
   {
     name: "calculate_sell",
-    description: "Calculate how much FET you'd receive for selling tokens",
+    description:
+      "Calculate how much FET you'd receive for selling tokens. Read-only preview.\n\nUSE THIS TOOL WHEN: User wants to preview a sell. Always call before `sell_tokens`.\n\nNext: `sell_tokens` to execute, `get_trade_link` for human handoff.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -156,7 +162,7 @@ export const TOOLS = [
   {
     name: "create_token_record",
     description:
-      "Create a token record for deployment (requires API key). Returns a handoff link for the human to complete deployment.",
+      "Create a token record for deployment (requires API key). Returns a handoff link.\n\nUSE THIS TOOL WHEN: User wants to create/launch/tokenize a new token. Always share the returned handoffLink.\n\nExamples: create_token_record({ name: \"AlphaBot\", symbol: \"ALPHA\", description: \"...\", category: \"AI\" })\n\nNext: share handoffLink. For all-in-one, use `create_and_tokenize`.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -191,7 +197,7 @@ export const TOOLS = [
   {
     name: "get_deploy_instructions",
     description:
-      "Get human-readable deployment instructions for a token",
+      "Get deployment instructions and handoff link for a token.\n\nUSE THIS TOOL WHEN: User has a tokenId and needs next steps.\n\nNext: share the handoff link with the user.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -205,7 +211,8 @@ export const TOOLS = [
   },
   {
     name: "get_trade_link",
-    description: "Generate a pre-filled trade link for human execution",
+    description:
+      "Generate a pre-filled trade link for human execution.\n\nUSE THIS TOOL WHEN: No WALLET_PRIVATE_KEY available, or you want the human to sign.\n\nNext: share the URL with the user.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -230,7 +237,7 @@ export const TOOLS = [
   {
     name: "scaffold_agent",
     description:
-      "Generate a ready-to-run Agentverse agent project from a template. Creates agent.py, README.md, and .env.example in a new directory.",
+      "Generate a ready-to-run Agentverse agent project from a template. Creates agent.py, README.md, and .env.example in a new directory.\n\nUSE THIS TOOL WHEN: User wants to create a new agent from scratch.\n\nExamples: scaffold_agent({ name: \"AlphaBot\", type: \"chat-memory\" })\n\nNext: `deploy_to_agentverse`, then `create_token_record`.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -257,7 +264,7 @@ export const TOOLS = [
   {
     name: "deploy_to_agentverse",
     description:
-      "Deploy a Python agent file to Agentverse hosted agents. Creates the agent, uploads the code, stores secrets, and starts it. Polls until compiled (up to 60 s).",
+      "Deploy a Python agent file to Agentverse hosted agents. Creates the agent, uploads the code, stores secrets, and starts it. Polls until compiled (up to 60 s).\n\nUSE THIS TOOL WHEN: User has agent code ready to deploy.\n\nNext: `create_token_record` to tokenize, or `create_and_tokenize` for all-in-one.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -298,7 +305,7 @@ export const TOOLS = [
   {
     name: "update_agent_metadata",
     description:
-      "Update an existing Agentverse agent's metadata (README, description, avatar URL) to improve its ranking. Returns an optimization checklist showing which of the 7 ranking factors are addressed.",
+      "Update an existing Agentverse agent's metadata (README, description, avatar URL) to improve its ranking. Returns an optimization checklist showing which of the 7 ranking factors are addressed.\n\nUSE THIS TOOL WHEN: User wants to improve agent visibility after deployment.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -330,7 +337,7 @@ export const TOOLS = [
   {
     name: "create_and_tokenize",
     description:
-      "Full end-to-end combo tool. Steps: (1) scaffold Agentverse agent code from template, (2) optionally deploy the agent to Agentverse if AGENT_LAUNCH_API_KEY is present, (3) call POST /agents/tokenize to create the token record, (4) return agentCode, tokenId, handoffLink, and deployLink. The human still needs to click the handoffLink to sign the on-chain deployment transaction — the agent never touches private keys.",
+      "Full end-to-end: scaffold agent, deploy to Agentverse, create token, return handoff link. Steps: (1) scaffold Agentverse agent code from template, (2) optionally deploy the agent to Agentverse if AGENT_LAUNCH_API_KEY is present, (3) call POST /agents/tokenize to create the token record, (4) return agentCode, tokenId, handoffLink, and deployLink. The human still needs to click the handoffLink to sign the on-chain deployment transaction — the agent never touches private keys.\n\nUSE THIS TOOL WHEN: User wants zero-to-launched in one step.\n\nExamples: create_and_tokenize({ name: \"AlphaBot\", description: \"Trading assistant\" })\n\nAlways share the returned handoffLink with the user.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -381,7 +388,8 @@ export const TOOLS = [
   // CF-055 ----------------------------------------------------------------
   {
     name: "get_comments",
-    description: "Get comments for a token by contract address",
+    description:
+      "Get comments for a token by contract address.\n\nUSE THIS TOOL WHEN: User wants to read community discussion or sentiment about a token.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -395,7 +403,8 @@ export const TOOLS = [
   },
   {
     name: "post_comment",
-    description: "Post a comment on a token (requires API key)",
+    description:
+      "Post a comment on a token (requires API key).\n\nUSE THIS TOOL WHEN: User wants to leave a message or announcement on a token's page.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -415,7 +424,7 @@ export const TOOLS = [
   {
     name: "scaffold_swarm",
     description:
-      "Scaffold a swarm-starter agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.",
+      "Scaffold a swarm-starter agent from a preset. Creates a complete agent project with commerce stack, ready to deploy.\n\nUSE THIS TOOL WHEN: User wants to create a specialized swarm agent (writer, analytics, etc.) rather than a generic agent.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -450,7 +459,7 @@ export const TOOLS = [
   {
     name: "check_agent_commerce",
     description:
-      "Check an agent's commerce status: revenue, pricing, balance, effort mode, holdings",
+      "Check an agent's commerce status: revenue, pricing, balance, effort mode, holdings.\n\nUSE THIS TOOL WHEN: User wants to see how a deployed agent is performing commercially, or before adjusting pricing.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -466,7 +475,7 @@ export const TOOLS = [
   {
     name: "network_status",
     description:
-      "Check the status of an agent swarm: per-agent revenue, total GDP, health, cross-holdings",
+      "Check the status of an agent swarm: per-agent revenue, total GDP, health, cross-holdings.\n\nUSE THIS TOOL WHEN: User wants a dashboard view of an entire swarm's health and earnings.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -484,7 +493,7 @@ export const TOOLS = [
     name: "buy_tokens",
     annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Buy tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Approves FET, calls buyTokens on-chain, returns tx hash and tokens received.",
+      "Buy tokens on a bonding curve. Transfers real value on-chain. Use dryRun=true for safe preview. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Approves FET, calls buyTokens on-chain, returns tx hash and tokens received.\n\nUSE THIS TOOL WHEN: User explicitly wants to purchase. Use `calculate_buy` first.\n\nAlternative: `get_trade_link` for human-signed trades.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -518,7 +527,7 @@ export const TOOLS = [
     name: "sell_tokens",
     annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Sell tokens on a bonding curve contract. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Calls sell() on-chain, returns tx hash and FET received.",
+      "Sell tokens on a bonding curve. Transfers real value on-chain. Use dryRun=true for safe preview. Requires WALLET_PRIVATE_KEY env var (unless dryRun=true). Calls sell() on-chain, returns tx hash and FET received.\n\nUSE THIS TOOL WHEN: User explicitly wants to sell. Use `calculate_sell` first.\n\nAlternative: `get_trade_link` for human-signed trades.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -547,7 +556,7 @@ export const TOOLS = [
   {
     name: "get_wallet_balances",
     description:
-      "Get wallet balances for BNB (gas), FET, and a specific token. Requires WALLET_PRIVATE_KEY env var.",
+      "Get wallet balances for BNB (gas), FET, and a specific token. Requires WALLET_PRIVATE_KEY env var.\n\nUSE THIS TOOL WHEN: User wants to check wallet before trading.\n\nNext: `buy_tokens` or `sell_tokens` once balances confirmed.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -568,7 +577,7 @@ export const TOOLS = [
   {
     name: "deploy_swarm",
     description:
-      "Deploy a complete agent swarm. Deploys each agent in sequence, sets secrets, starts them, returns addresses and status.",
+      "Deploy a complete agent swarm. Deploys each agent in sequence, sets secrets, starts them, returns addresses and status.\n\nUSE THIS TOOL WHEN: User wants to deploy multiple swarm agents to Agentverse at once.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -605,7 +614,7 @@ export const TOOLS = [
     name: "multi_token_payment",
     annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Send a payment in FET, USDC, or any ERC-20 token. Requires WALLET_PRIVATE_KEY env var. Enforces per-call spending limit (MCP_PAYMENT_LIMIT, default: 100).",
+      "Send a payment in FET, USDC, or any ERC-20 token. Requires WALLET_PRIVATE_KEY env var. Enforces per-call spending limit (MCP_PAYMENT_LIMIT, default: 100).\n\nUSE THIS TOOL WHEN: User wants to transfer tokens to another address. Use `check_spending_limit` first if delegating.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -632,7 +641,7 @@ export const TOOLS = [
   {
     name: "check_spending_limit",
     description:
-      "Check the ERC-20 allowance (spending limit) that an owner has granted to a spender. No wallet needed — read-only.",
+      "Check the ERC-20 allowance (spending limit) that an owner has granted to a spender. No wallet needed — read-only.\n\nUSE THIS TOOL WHEN: Before calling `multi_token_payment` on behalf of a user, or to verify a delegation is active.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -659,7 +668,7 @@ export const TOOLS = [
   {
     name: "create_delegation",
     description:
-      "Generate a handoff link for a human to approve an ERC-20 spending limit (delegation). The human opens the link, connects wallet, and signs an approve() transaction.",
+      "Generate a handoff link for a human to approve an ERC-20 spending limit (delegation). The human opens the link, connects wallet, and signs an approve() transaction.\n\nUSE THIS TOOL WHEN: Agent needs permission to spend a user's tokens — share the link for the human to sign.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -686,7 +695,7 @@ export const TOOLS = [
   {
     name: "get_fiat_link",
     description:
-      "Generate a MoonPay or Transak URL for purchasing crypto with fiat (credit card). Handoff-only — never processes fiat directly.",
+      "Generate a MoonPay or Transak URL for purchasing crypto with fiat (credit card). Handoff-only — never processes fiat directly.\n\nUSE THIS TOOL WHEN: User has no crypto and needs to buy FET or USDC with a credit card.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -718,7 +727,7 @@ export const TOOLS = [
   {
     name: "create_invoice",
     description:
-      "Create a payment invoice in agent storage. Invoices track service payments with status lifecycle (pending → paid → expired).",
+      "Create a payment invoice in agent storage. Invoices track service payments with status lifecycle (pending → paid → expired).\n\nUSE THIS TOOL WHEN: Agent has completed a service and needs to request payment from a user or another agent.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -757,7 +766,7 @@ export const TOOLS = [
   {
     name: "list_invoices",
     description:
-      "List invoices for an agent, optionally filtered by status (pending, paid, expired, refunded, disputed).",
+      "List invoices for an agent, optionally filtered by status (pending, paid, expired, refunded, disputed).\n\nUSE THIS TOOL WHEN: User wants to review outstanding or historical invoices for an agent.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -778,7 +787,7 @@ export const TOOLS = [
   {
     name: "generate_org_template",
     description:
-      "Generate a YAML org chart template for users to fill in. Returns a ready-to-edit template with C-Suite, departments, and teams for the chosen organization size.",
+      "Generate a YAML org chart template for users to fill in. Returns a ready-to-edit template with C-Suite, departments, and teams for the chosen organization size.\n\nUSE THIS TOOL WHEN: User wants to plan an agent organization but doesn't know the structure — call this first, then `scaffold_org_swarm`.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -794,7 +803,7 @@ export const TOOLS = [
   {
     name: "scaffold_org_swarm",
     description:
-      "Generate a complete agent swarm configuration from an org chart. Takes a JSON org chart (with name, cSuite, departments, teams) and returns deployment waves, agent configs, pricing, cross-holdings, and total cost. Optionally scaffolds agent files to disk.",
+      "Generate a complete agent swarm configuration from an org chart. Takes a JSON org chart (with name, cSuite, departments, teams) and returns deployment waves, agent configs, pricing, cross-holdings, and total cost. Optionally scaffolds agent files to disk.\n\nUSE THIS TOOL WHEN: User has a filled-in org chart and wants to generate all agent configs and deploy a full organization.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -874,7 +883,7 @@ export const TOOLS = [
   {
     name: "get_multi_token_balances",
     description:
-      "Query wallet balances for BNB + FET + USDC + custom tokens. No wallet key needed — read-only.",
+      "Query wallet balances for BNB + FET + USDC + custom tokens. No wallet key needed — read-only.\n\nUSE THIS TOOL WHEN: User provides a wallet address and wants to see all their token balances, or before authorizing a payment.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -926,11 +935,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     if (name in allHandlers) {
       const result = await allHandlers[name](args ?? {});
+      const text =
+        typeof result === "object" &&
+        result !== null &&
+        "_markdown" in result
+          ? (result as { _markdown: string })._markdown
+          : JSON.stringify(result, null, 2);
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(result, null, 2),
+            text,
           },
         ],
       };

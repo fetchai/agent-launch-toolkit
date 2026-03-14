@@ -66,6 +66,9 @@ function defaultClient(): AgentLaunchClient {
  * const price = await getTokenPrice('0xAbCd...');
  * console.log(`Current price: ${price} FET`);
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#getTokenPrice
+ * @remarks MCP: `get_token` | CLI: `npx agentlaunch status`
  */
 export async function getTokenPrice(
   address: string,
@@ -97,6 +100,9 @@ export async function getTokenPrice(
  * // Single holder lookup (returns null if not a holder)
  * const holder = await getTokenHolders('0xAbCd...', '0xUser...');
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#getTokenHolders
+ * @remarks MCP: `get_token` | CLI: `npx agentlaunch holders`
  */
 export async function getTokenHolders(
   address: string,
@@ -212,6 +218,9 @@ export function generateTradeLinkFromOptions(
  * console.log(`Price impact: ${result.priceImpact}%`);
  * console.log(`Protocol fee: ${result.fee} FET`);
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#calculateBuy
+ * @remarks MCP: `calculate_buy` | CLI: `npx agentlaunch buy --dry-run`
  */
 export async function calculateBuy(
   address: string,
@@ -250,6 +259,9 @@ export async function calculateBuy(
  * console.log(`Price impact: ${result.priceImpact}%`);
  * console.log(`Protocol fee: ${result.fee} FET`);
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#calculateSell
+ * @remarks MCP: `calculate_sell` | CLI: `npx agentlaunch sell --dry-run`
  */
 export async function calculateSell(
   address: string,
@@ -281,6 +293,9 @@ export async function calculateSell(
  * console.log(`Total tokens: ${stats.totalTokens}`);
  * console.log(`Total volume: ${stats.totalVolume}`);
  * ```
+ *
+ * @see https://agent-launch.ai/docs/sdk#getPlatformStats
+ * @remarks MCP: `get_platform_stats` | CLI: `npx agentlaunch list`
  */
 export async function getPlatformStats(
   client?: AgentLaunchClient,
