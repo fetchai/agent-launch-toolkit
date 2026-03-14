@@ -42,7 +42,7 @@ export interface DeployToAgentverseResult {
  *   5. Poll for compilation (up to 60s)
  */
 export async function deployToAgentverse(args: {
-  apiKey: string;
+  apiKey?: string;
   agentFile: string;
   agentName?: string;
   secrets?: Record<string, string>;
@@ -80,7 +80,8 @@ export async function deployToAgentverse(args: {
       : undefined;
 
   const result: AgentverseDeployResult = await deployAgent({
-    apiKey: args.apiKey,
+    // Let SDK fall back to env vars if apiKey not provided
+    ...(args.apiKey && { apiKey: args.apiKey }),
     agentName,
     sourceCode,
     secrets: args.secrets,
@@ -130,14 +131,15 @@ export interface UpdateAgentMetadataResult {
  * Agentverse agent. Returns the optimization checklist.
  */
 export async function updateAgentMetadata(args: {
-  apiKey: string;
+  apiKey?: string;
   agentAddress: string;
   readme?: string;
   shortDescription?: string;
   avatarUrl?: string;
 }): Promise<UpdateAgentMetadataResult> {
   const result = await updateAgent({
-    apiKey: args.apiKey,
+    // Let SDK fall back to env vars if apiKey not provided
+    ...(args.apiKey && { apiKey: args.apiKey }),
     agentAddress: args.agentAddress,
     metadata: {
       readme: args.readme,

@@ -224,7 +224,7 @@ describe('MCP payment tools -- create_invoice', () => {
           return makeResponse({});
         });
 
-        const invoice = await paymentHandlers.create_invoice({
+        const result = await paymentHandlers.create_invoice({
           agentAddress: agentAddr,
           invoiceId: 'inv-001',
           payer: payerAddr,
@@ -232,44 +232,23 @@ describe('MCP payment tools -- create_invoice', () => {
           amount: '10',
         });
 
-        assert.equal(invoice.status, 'pending', 'invoice status should be pending');
-        assert.ok(invoice.createdAt, 'invoice should have a createdAt timestamp');
-        assert.ok(invoice.updatedAt, 'invoice should have an updatedAt timestamp');
-        assert.equal(invoice.payer, payerAddr, 'payer should match');
-        assert.equal(invoice.service, 'api-call', 'service should match');
+        // Now returns a template instead of writing to storage
+        assert.ok(result.template, 'should return a template string');
+        assert.ok(result._markdown, 'should return markdown');
+        const parsed = JSON.parse(result.template);
+        assert.equal(parsed.status, 'pending', 'template status should be pending');
+        assert.equal(parsed.payer, payerAddr, 'payer should match');
+        assert.equal(parsed.service, 'api-call', 'service should match');
       },
     ),
   );
 
   it(
-    'MCP-INV02: returned invoice id matches provided invoiceId',
+    'MCP-INV02: returned template contains provided invoiceId',
     withEnv(
       { AGENTVERSE_API_KEY: 'test-mock-key' },
       async () => {
-        const store: Record<string, string> = {};
-
-        restoreFn = installFetchMock(async (url, init) => {
-          const urlStr = url.toString();
-
-          if (urlStr.includes('/storage/')) {
-            const key = decodeURIComponent(urlStr.split('/storage/')[1]);
-
-            if (init?.method === 'PUT') {
-              const body = JSON.parse(init.body as string);
-              store[key] = body.value ?? JSON.stringify(body);
-              return makeResponse('', 204);
-            }
-
-            if (key in store) {
-              return makeResponse({ value: store[key] });
-            }
-            return makeResponse({ message: 'Not found' }, 404);
-          }
-
-          return makeResponse({});
-        });
-
-        const invoice = await paymentHandlers.create_invoice({
+        const result = await paymentHandlers.create_invoice({
           agentAddress: agentAddr,
           invoiceId: 'inv-002',
           payer: payerAddr,
@@ -277,7 +256,8 @@ describe('MCP payment tools -- create_invoice', () => {
           amount: '5',
         });
 
-        assert.equal(invoice.id, 'inv-002', 'invoice id should match invoiceId argument');
+        const parsed = JSON.parse(result.template);
+        assert.equal(parsed.id, 'inv-002', 'template id should match invoiceId argument');
       },
     ),
   );

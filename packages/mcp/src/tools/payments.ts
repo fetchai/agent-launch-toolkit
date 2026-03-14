@@ -233,7 +233,13 @@ The user completes the purchase in their browser — no wallet signature needed 
 // create_invoice
 // ---------------------------------------------------------------------------
 
-/** Create a payment invoice in agent storage. */
+/**
+ * Create a payment invoice.
+ *
+ * NOTE: Agentverse storage is read-only from external APIs.
+ * Invoices must be created by the agent itself using ctx.storage.
+ * This tool returns a template for the agent to use.
+ */
 export async function createInvoiceTool(args: {
   agentAddress: string;
   invoiceId: string;
@@ -242,7 +248,7 @@ export async function createInvoiceTool(args: {
   amount: string;
   tokenSymbol?: string;
   chainId?: number;
-}): Promise<Invoice> {
+}): Promise<{ template: string; _markdown: string }> {
   const chainId = args.chainId ?? 97;
   const tokenSymbol = args.tokenSymbol ?? 'FET';
   const token = getPaymentToken(tokenSymbol, chainId);
@@ -250,36 +256,39 @@ export async function createInvoiceTool(args: {
     throw new Error(`Unknown token: ${tokenSymbol} on chain ${chainId}`);
   }
 
-  const amount: TokenAmount = {
-    amount: args.amount,
-    token,
-  };
-
-  const invoice = await createInvoice(args.agentAddress, {
+  // Build invoice template for the agent to store
+  const invoice = {
     id: args.invoiceId,
     issuer: args.agentAddress,
     payer: args.payer,
     service: args.service,
-    amount,
-  });
+    amount: { amount: args.amount, token },
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  };
 
-  const _markdown = `# Invoice Created
+  const template = JSON.stringify(invoice, null, 2);
 
-| Field | Value |
-|-------|-------|
-| Invoice ID | ${args.invoiceId} |
-| Service | ${args.service} |
-| Payer | \`${args.payer}\` |
-| Amount | ${args.amount} ${tokenSymbol} |
-| Chain | ${chainId} |
+  const _markdown = `# Invoice Template
+
+**Note:** Agentverse storage is read-only from external APIs. The agent must store this invoice using \`ctx.storage.set()\`.
+
+\`\`\`json
+${template}
+\`\`\`
+
+## Agent Code to Store Invoice
+\`\`\`python
+import json
+ctx.storage.set("invoice_${args.invoiceId}", json.dumps(${template.replace(/\n/g, '')}))
+\`\`\`
 
 ## Next Steps
-- List invoices: \`list_invoices({ agentAddress: "${args.agentAddress}" })\`
-- Collect payment: \`multi_token_payment({ tokenSymbol: "${tokenSymbol}", to: "${args.agentAddress}", amount: "${args.amount}" })\``;
+- Send this template to the agent via chat message
+- Agent stores it with ctx.storage.set()
+- Query later: \`list_invoices({ agentAddress: "${args.agentAddress}" })\``;
 
-  const withMarkdown = invoice as unknown as Invoice & { _markdown: string };
-  (withMarkdown as unknown as Record<string, unknown>)['_markdown'] = _markdown;
-  return withMarkdown;
+  return { template, _markdown };
 }
 
 // ---------------------------------------------------------------------------
