@@ -14,17 +14,118 @@ This toolkit lets AI agents (including you) do the full lifecycle:
 5. **Hand off** a link for a human to sign the blockchain transaction
 6. **Monitor** the token (price, holders, market cap)
 7. **Trade** via pre-filled links (buy/sell signals)
-8. **Swarm** -- deploy teams of agents that pay each other for services
+8. **Grow** -- expand your agent economy
 
-**IMPORTANT:** Always follow the full workflow in `docs/workflow.md`. NEVER skip
-Phase 3 (Optimize). See `.claude/rules/workflow.md` for enforcement details.
+**IMPORTANT:** Always follow the full workflow below. NEVER skip Phase 3 (Optimize).
+See `.claude/rules/workflow.md` for enforcement details.
+
+## Agent Lifecycle Workflow
+
+Every agent deployment MUST follow all 8 phases. See `docs/workflow.md` for the full guide.
+
+```
+[1] Create → [2] Deploy → [3] Optimize → [4] Tokenize → [5] Handoff → [6] Discover → [7] Trade → [8] Grow
+```
+
+### Phase 1: Create
+
+```bash
+npx agentlaunch                    # Interactive wizard (prompts for name, description, API key)
+npx agentlaunch my-agent --local   # Scaffold only, no deploy
+```
+
+Creates `agent.py` with Chat Protocol v0.3.0, LLM integration, and conversation memory.
+Claude Code launches in the project to help write real business logic (not placeholders).
+
+### Phase 2: Deploy
+
+```bash
+npx agentlaunch deploy --name "My Agent"
+```
+
+Under the hood: creates agent on Agentverse, uploads code (double-encoded JSON), sets secrets, starts agent, polls until compiled (15-60s). Auto-uploads README and short description.
+
+### Phase 3: Optimize (NEVER SKIP)
+
+After deploying, complete the Agentverse Setup Checklist to maximize ranking and ASI:One routing.
+
+| Checklist Item | How | API Settable? |
+|---------------|-----|---------------|
+| Chat Protocol | Built into agent code by `create` | N/A |
+| README | `npx agentlaunch optimize agent1q... --readme ./README.md` | Yes: `PUT /v1/hosting/agents/{addr}` |
+| Short Description | `npx agentlaunch optimize agent1q... --description "..."` | Yes: `PUT /v1/hosting/agents/{addr}` |
+| Custom Avatar | `npx agentlaunch optimize agent1q... --avatar <url>` | Yes: `PUT /v1/hosting/agents/{addr}` |
+| @Handle | Dashboard only (suggest 3-5 options to user) | No |
+| 3+ Interactions | Chat directly, use Response QA Agent, or ASI:One | No |
+| Domain Verification | DNS TXT record (bonus) | No |
+
+After `npx agentlaunch` with deploy: 3/6 items are done automatically (Chat Protocol, README, About).
+The remaining 3 require brief manual action. Run `npx agentlaunch optimize agent1q...` after each improvement.
+
+### Phase 4: Tokenize
+
+```bash
+npx agentlaunch tokenize --agent agent1q... --name "Price Oracle" --symbol DATA --chain 97
+```
+
+Creates a pending token record via `POST /agents/tokenize`. Returns a handoff link.
+Token is NOT on-chain yet -- needs a human to sign.
+
+### Phase 5: Handoff
+
+The handoff link (`https://agent-launch.ai/deploy/{tokenId}`) lets a human:
+1. Connect wallet
+2. Approve 120 FET spend
+3. Click Deploy -- token goes live on bonding curve
+
+**Architecture: agents think, humans sign.** Handoff is required for token deployment only.
+Everything else (trading, payments, cross-holdings) can be autonomous.
+
+### Phase 6: Discover
+
+Agent competes for ASI:One routing alongside 2.5M agents (including brand agents).
+Discovery depends on: README quality, interactions, success rate, handle, avatar, recency.
+Monitor via Agentverse dashboard: Overview (success rate, interactions) and Discovery (keywords, impressions).
+
+### Phase 7: Trade
+
+```bash
+# Preview
+npx agentlaunch buy 0x... --amount 10 --dry-run
+npx agentlaunch sell 0x... --amount 50000 --dry-run
+
+# Execute (requires WALLET_PRIVATE_KEY in .env)
+npx agentlaunch buy 0x... --amount 10
+npx agentlaunch sell 0x... --amount 50000
+```
+
+Agents with `BSC_PRIVATE_KEY` secret can trade autonomously via `HoldingsManager`.
+Without a key, `buy_via_web3()` returns a handoff link instead.
+
+### Phase 8: Grow
+
+Build additional agents to expand your economy. Each new agent can be tokenized independently.
+Quality flywheel: good agents -> token holders -> higher price -> more visibility -> more users.
+
+### Quick Reference: Commands by Phase
+
+| Phase | CLI Command | MCP Tool | Slash Command |
+|-------|------------|----------|---------------|
+| Create | `npx agentlaunch` | `scaffold_agent` | `/build-agent` |
+| Deploy | `npx agentlaunch deploy` | `deploy_to_agentverse` | `/deploy` |
+| Optimize | `npx agentlaunch optimize agent1q...` | `update_agent_metadata` | — |
+| Tokenize | `npx agentlaunch tokenize --agent agent1q...` | `create_token_record` | `/tokenize` |
+| Monitor | `npx agentlaunch status 0x...` | `get_token` | `/status` |
+| Trade (preview) | `npx agentlaunch buy 0x... --dry-run` | `calculate_buy` | — |
+| Trade (execute) | `npx agentlaunch buy 0x... --amount 10` | `buy_tokens` | — |
+| List | `npx agentlaunch list` | `list_tokens` | `/market` |
 
 ## What's Inside
 
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
-| **CLI** | `packages/cli/` | 16 commands, one-command full lifecycle |
+| **CLI** | `packages/cli/` | 24 commands, one-command full lifecycle |
 | **MCP Server** | `packages/mcp/` | 28 tools for Claude Code / Cursor |
 | **Templates** | `packages/templates/` | 9 agent blueprints (chat-memory is default) |
 
@@ -83,14 +184,6 @@ npx agentlaunch pay 0x... 10 --token USDC # Pay in any supported token
 npx agentlaunch invoice create --agent agent1q... --payer 0x... --service api --amount 10
 npx agentlaunch invoice list --agent agent1q... --status pending
 
-# Deploy agent swarms
-npx agentlaunch marketing                  # 7-agent Marketing Team (960 FET)
-npx agentlaunch alliance                   # 27-agent ASI Alliance (3,240 FET)
-npx agentlaunch marketing --dry-run        # Preview without deploying
-npx agentlaunch marketing --output ./team  # Scaffold locally only
-npx agentlaunch org-template --size smb    # Generate org chart template
-npx agentlaunch swarm-from-org people.yaml # Deploy custom org swarm
-
 # Run MCP server (for Claude Code integration)
 npx agent-launch-mcp
 
@@ -135,11 +228,8 @@ You have access to these tools:
 | `deploy_to_agentverse` | Deploy Python agent to Agentverse (auto-sets README + description) |
 | `update_agent_metadata` | Update README, description, avatar on an existing agent |
 | `scaffold_agent` | Generate agent code from template |
-| `scaffold_swarm` | Scaffold agent from swarm-starter preset |
 | `create_and_tokenize` | Full lifecycle in one call |
 | `check_agent_commerce` | Revenue, pricing, balance for an agent |
-| `network_status` | Swarm GDP, per-agent health |
-| `deploy_swarm` | Deploy multiple agents as a swarm |
 | `buy_tokens` | Buy tokens on-chain (or dry-run preview) |
 | `sell_tokens` | Sell tokens on-chain (or dry-run preview) |
 | `get_wallet_balances` | Check wallet BNB, FET, and token balances |
@@ -158,7 +248,6 @@ You have access to these tools:
 | Command | Action |
 |---------|--------|
 | `/build-agent` | Scaffold + deploy + tokenize (guided) |
-| `/build-swarm` | Scaffold, deploy, and tokenize a multi-agent swarm |
 | `/deploy` | Deploy agent.py to Agentverse |
 | `/tokenize` | Create token for an existing agent |
 | `/market` | Browse tokens and prices |
@@ -196,7 +285,6 @@ You have access to these tools:
 | Template | Description | Use Case |
 |----------|-------------|----------|
 | `chat-memory` | **LLM + conversation memory** (default) | Most agents — smart conversations out of the box |
-| `swarm-starter` | Full commerce stack | Agents that charge for services |
 | `custom` | Blank Chat Protocol boilerplate | Start from scratch |
 | `price-monitor` | Watches token prices, sends alerts | Monitoring service |
 | `trading-bot` | Buy/sell signal generation | Trading service |
@@ -204,18 +292,6 @@ You have access to these tools:
 | `research` | Deep dives and reports | Research service |
 | `gifter` | Treasury wallet + rewards | Community incentives |
 | `consumer-commerce` | Multi-token payments, invoices, fiat onramp | Consumer-facing commerce agents |
-
-## Agent Swarms
-
-The swarm-starter template generates agents with a complete commerce stack:
-- PaymentService, PricingTable, TierManager (charge for services)
-- WalletManager, RevenueTracker (track revenue)
-- SelfAwareMixin (token price awareness)
-- HoldingsManager (buy/sell other tokens)
-
-### Presets
-7 pre-configured roles: writer, social, community, analytics, outreach, ads, strategy.
-Use presets for instant configuration: `generateFromTemplate("swarm-starter", getPreset("writer").variables)`
 
 ## Platform Constants (Immutable)
 
@@ -367,8 +443,8 @@ When asked to "create todo from doc" or similar:
 ```markdown
 | Status | ID | Task | How | KPI | Depends |
 |:---:|:---|:---|:---|:---|:---|
-| `[ ]` | L-1 | Deploy the swarm | `npx agentlaunch` ... | All 7 running | — |
-| `[ ]` | L-2 | Fund wallets | Send ~15 FET ... | Balances confirmed | L-1 |
+| `[ ]` | L-1 | Deploy the agent | `npx agentlaunch deploy` | Agent compiled | — |
+| `[ ]` | L-2 | Optimize metadata | `npx agentlaunch optimize agent1q...` | 6/6 checklist | L-1 |
 ```
 
 ### Status Markers
