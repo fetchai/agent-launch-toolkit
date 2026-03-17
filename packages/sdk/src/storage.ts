@@ -222,11 +222,12 @@ export async function putStorage(
   apiKey?: string,
 ): Promise<void> {
   const resolvedKey = resolveKey(apiKey);
+  // Agentverse API: PUT /storage with key+value in body (not key in path)
   await avStorageFetch<unknown>(
     resolvedKey,
     'PUT',
-    `/hosting/agents/${encodeURIComponent(agentAddress)}/storage/${encodeURIComponent(key)}`,
-    { value },
+    `/hosting/agents/${encodeURIComponent(agentAddress)}/storage`,
+    { key, value },
   );
 }
 

@@ -82,20 +82,44 @@ export async function createTokenRecord(args: {
   symbol: string;
   description: string;
   category: string;
+  agentAddress?: string;
   logo?: string;
   chainId?: number;
 }): Promise<CreateTokenResult> {
-  const response = await client.post<CreateTokenResult>('/agents/tokenize', {
+  // agentAddress is required by the API for tokenization
+  if (!args.agentAddress) {
+    throw new Error(
+      'agentAddress is required. Deploy an agent first with deploy_to_agentverse, ' +
+      'then pass its address here. Or use create_and_tokenize for all-in-one.'
+    );
+  }
+
+  interface ApiResponse {
+    success?: boolean;
+    data?: {
+      token_id?: number;
+      handoff_link?: string;
+    };
+    tokenId?: number;
+    token_id?: number;
+    handoffLink?: string;
+    handoff_link?: string;
+  }
+
+  const response = await client.post<ApiResponse>('/agents/tokenize', {
     name: args.name,
     symbol: args.symbol,
     description: args.description,
     category: args.category,
+    agentAddress: args.agentAddress,
     logo: args.logo,
     chainId: args.chainId ?? 97,
   });
 
-  const tokenId = response.tokenId ?? response.token_id;
-  const handoffLink = response.handoffLink ?? response.handoff_link ?? `https://agent-launch.ai/deploy/${tokenId}`;
+  // Unwrap data envelope if present
+  const data = response.data ?? response;
+  const tokenId = data.token_id ?? (data as ApiResponse).tokenId ?? response.tokenId ?? response.token_id;
+  const handoffLink = data.handoff_link ?? (data as ApiResponse).handoffLink ?? response.handoffLink ?? response.handoff_link ?? `https://agent-launch.ai/deploy/${tokenId}`;
 
   const _markdown = `# Token Record Created: ${args.name} (${args.symbol})
 

@@ -171,16 +171,54 @@ const buyLink = al.handoff.generateBuyLink('0x...', 100);
 
 ### Claude Code Integration
 
-Open this repo in Claude Code and everything works — MCP tools and slash commands are pre-configured.
+Open this repo in Claude Code and everything works — MCP tools, slash commands, and coding rules are pre-configured in `.claude/`.
+
+```
+.claude/
+  settings.json       # MCP server config, permissions, aliases
+  rules/              # 11 auto-loaded coding rules (API paths, patterns, payments, etc.)
+  skills/             # 11 slash commands
+```
 
 **Slash Commands:**
-- `/build-agent` — Scaffold, deploy, tokenize one agent
-- `/deploy` — Deploy agent.py to Agentverse
-- `/tokenize` — Create token, get handoff link
-- `/market` — Browse tokens, check prices
-- `/status` — Check agent/token status
 
-**MCP Tools:** Auto-configured in `.claude/settings.json` — token operations, market data, agent deployment, scaffolding, trading, multi-token payments, delegation, invoices, and commerce tracking.
+| Command | What It Does |
+|---------|-------------|
+| `/build-agent` | Full guided flow: scaffold, deploy, optimize, tokenize |
+| `/deploy` | Deploy agent.py to Agentverse |
+| `/tokenize` | Create token for an existing agent |
+| `/market` | Browse tokens and prices |
+| `/status` | Check agent/token status |
+| `/todo` | Create structured TODO.md from a document |
+| `/grow` | Execute tasks from TODO.md autonomously |
+| `/welcome` | Show status and choose your path |
+
+**MCP Tools (28):** Auto-configured — token operations, market data, agent deployment, scaffolding, trading, wallet balances, multi-token payments, delegation, invoices, comments, and commerce tracking.
+
+**Coding Rules (11):** Auto-loaded rules for API paths, Agentverse deployment patterns, uAgent code patterns, payment protocol, wallet access, consumer payments, workflow enforcement, and more. Claude Code follows these automatically — no setup needed.
+
+---
+
+## The Agent Lifecycle
+
+Every agent follows 8 phases from idea to growing economy. See [docs/workflow.md](docs/workflow.md) for the full guide.
+
+```
+[1] Create → [2] Deploy → [3] Optimize → [4] Tokenize → [5] Handoff → [6] Discover → [7] Trade → [8] Grow
+```
+
+| Phase | What Happens | Command |
+|-------|-------------|---------|
+| **Create** | Scaffold agent code with Chat Protocol, LLM, memory | `npx agentlaunch` |
+| **Deploy** | Push to Agentverse, live in ~30 seconds | `npx agentlaunch deploy` |
+| **Optimize** | Complete Setup Checklist (README, description, avatar, handle, interactions) | `npx agentlaunch optimize agent1q...` |
+| **Tokenize** | Create bonding curve token, get handoff link | `npx agentlaunch tokenize --agent agent1q...` |
+| **Handoff** | Human opens link, connects wallet, deploys on-chain (120 FET) | Link from tokenize |
+| **Discover** | Agent appears in ASI:One search, gets routed queries | Automatic |
+| **Trade** | Buy/sell tokens on the bonding curve | `npx agentlaunch buy 0x...` |
+| **Grow** | Build complementary agents, expand your agent economy | — |
+
+**Phase 3 (Optimize) is critical** — it directly affects Agentverse ranking and ASI:One routing. The Setup Checklist has 6 items; 3 are automated by deploy, 3 require brief manual action (handle, interactions, avatar).
 
 ---
 
@@ -262,6 +300,7 @@ curl -X POST https://agent-launch.ai/api/faucet/claim \
 | Doc | Description |
 |-----|-------------|
 | **[Tutorial](TUTORIAL.md)** | Launch your first token in 10 minutes |
+| [Workflow](docs/workflow.md) | Full 8-phase agent lifecycle guide |
 | [Architecture](docs/architecture.md) | Package diagrams |
 
 ### Links

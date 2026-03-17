@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// MUST be first import — loads .env before any SDK clients are instantiated
+import "./env.js";
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -162,10 +165,14 @@ export const TOOLS = [
   {
     name: "create_token_record",
     description:
-      "Create a token record for deployment (requires API key). Returns a handoff link.\n\nUSE THIS TOOL WHEN: User wants to create/launch/tokenize a new token. Always share the returned handoffLink.\n\nExamples: create_token_record({ name: \"AlphaBot\", symbol: \"ALPHA\", description: \"...\", category: \"AI\" })\n\nNext: share handoffLink. For all-in-one, use `create_and_tokenize`.",
+      "Create a token record for deployment (requires API key and deployed agent). Returns a handoff link.\n\nUSE THIS TOOL WHEN: User has a deployed agent and wants to tokenize it.\n\nExamples: create_token_record({ agentAddress: \"agent1q...\", name: \"AlphaBot\", symbol: \"ALPHA\", description: \"...\", category: \"AI\" })\n\nPREREQUISITE: Deploy agent first with `deploy_to_agentverse`. For all-in-one, use `create_and_tokenize`.",
     inputSchema: {
       type: "object" as const,
       properties: {
+        agentAddress: {
+          type: "string",
+          description: "Agent address from Agentverse (agent1q...)",
+        },
         name: {
           type: "string",
           description: "Token name (max 32 chars)",
@@ -191,7 +198,7 @@ export const TOOLS = [
           description: "Chain ID (default: 97)",
         },
       },
-      required: ["name", "symbol", "description", "category"],
+      required: ["agentAddress", "name", "symbol", "description", "category"],
     },
   },
   {
@@ -727,7 +734,7 @@ export const TOOLS = [
   {
     name: "create_invoice",
     description:
-      "Create a payment invoice in agent storage. Invoices track service payments with status lifecycle (pending → paid → expired).\n\nUSE THIS TOOL WHEN: Agent has completed a service and needs to request payment from a user or another agent.",
+      "Generate an invoice template for an agent. Note: Agentverse storage is read-only externally, so this returns a JSON template the agent must store using ctx.storage.set().\n\nUSE THIS TOOL WHEN: You need to create an invoice structure for an agent to store.",
     inputSchema: {
       type: "object" as const,
       properties: {

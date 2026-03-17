@@ -1,6 +1,6 @@
 {
   "name": "agent-launch-mcp",
-  "version": "2.1.9",
+  "version": "2.3.1",
   "description": "MCP server for AgentLaunch - create AI agent tokens via Claude Code",
   "type": "module",
   "main": "dist/index.js",
@@ -22,14 +22,15 @@
   "author": "Agent-Launch",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "agentlaunch-sdk": "^0.2.6",
-    "agentlaunch-templates": "^0.4.0",
+    "agentlaunch-sdk": "0.2.9",
+    "agentlaunch-templates": "0.4.6",
+    "dotenv": "^17.3.1",
     "ethers": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0",
-    "tsx": "^4.0.0"
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.0"
   },
   "engines": {
     "node": ">=18.0.0"
