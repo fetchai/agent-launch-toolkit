@@ -92,6 +92,23 @@ import type {
 } from './types.js';
 
 // ---------------------------------------------------------------------------
+// Convenience response type
+// ---------------------------------------------------------------------------
+
+/** Flattened, camelCase response from the top-level `tokenize()` convenience method. */
+export interface TokenizeResult {
+  /** Database ID of the pending token record. */
+  tokenId: number;
+  /** Pre-built URL the human must open to complete on-chain deployment. */
+  handoffLink: string;
+  name: string;
+  symbol: string;
+  description: string;
+  image: string;
+  status: 'pending_deployment' | 'deployed';
+}
+
+// ---------------------------------------------------------------------------
 // Namespace interfaces
 // ---------------------------------------------------------------------------
 
@@ -437,6 +454,78 @@ export class AgentLaunch {
     } catch {
       return new AgentLaunch({ apiKey: options?.apiKey });
     }
+  }
+
+  /**
+   * Top-level convenience method for tokenizing an agent.
+   * Returns a flattened, camelCase response matching the docs example.
+   *
+   * @example
+   * ```ts
+   * const client = new AgentLaunch({ apiKey: process.env.AGENTVERSE_API_KEY });
+   * const result = await client.tokenize({
+   *   agentAddress: 'agent1q...',
+   *   name: 'MyBot',
+   *   symbol: 'MYB',
+   *   description: 'My AI agent token',
+   * });
+   * console.log(result.handoffLink);
+   * ```
+   */
+  async tokenize(params: TokenizeParams): Promise<TokenizeResult> {
+    if (!params.agentAddress) {
+      throw new Error(
+        'agentAddress is required. Pass the Agentverse agent address (agent1q...) ' +
+        'of the agent you want to tokenize.',
+      );
+    }
+    try {
+      const { data } = await this.tokens.tokenize(params);
+      return {
+        tokenId: data.token_id,
+        handoffLink: data.handoff_link,
+        name: data.name,
+        symbol: data.symbol,
+        description: data.description,
+        image: data.image,
+        status: data.status,
+      };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('was not found under the provided')) {
+        throw new Error(
+          `Agent ${params.agentAddress} was not found under this API key. ` +
+          'This can happen if the agent is connected via mailbox instead of hosted on Agentverse. ' +
+          'Currently only hosted agents (created via the Agentverse UI or API) can be tokenized. ' +
+          'To fix this, deploy your agent as a hosted agent on Agentverse first.',
+        );
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Top-level convenience method to list tokens.
+   *
+   * @example
+   * ```ts
+   * const { tokens } = await client.listTokens({ limit: 10 });
+   * ```
+   */
+  async listTokens(params?: TokenListParams): Promise<TokenListResponse> {
+    return this.tokens.listTokens(params);
+  }
+
+  /**
+   * Top-level convenience method to get a token by address.
+   *
+   * @example
+   * ```ts
+   * const token = await client.getToken('0x...');
+   * ```
+   */
+  async getToken(address: string): Promise<Token> {
+    return this.tokens.getToken(address);
   }
 
   constructor(config: AgentLaunchConfig = {}) {
