@@ -107,6 +107,172 @@ describe('.tokens.tokenize() — SDK-F02', () => {
 });
 
 // ---------------------------------------------------------------------------
+// SDK-F08: Top-level .tokenize() convenience method
+// ---------------------------------------------------------------------------
+
+describe('.tokenize() top-level convenience — SDK-F08', () => {
+  it('returns flattened camelCase response with handoffLink', async () => {
+    let capturedUrl = '';
+    let capturedMethod = '';
+
+    restoreFn = installFetchMock(async (_url, init) => {
+      capturedUrl = _url as string;
+      capturedMethod = init?.method ?? '';
+      return makeResponse({
+        success: true,
+        data: {
+          token_id: 99,
+          handoff_link: 'https://agent-launch.ai/deploy/99',
+          name: 'MyBot',
+          symbol: 'MYB',
+          description: 'My AI agent token',
+          image: '',
+          status: 'pending_deployment',
+        },
+      });
+    });
+
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-test-key',
+    });
+
+    const result = await client.tokenize({
+      agentAddress: 'agent1qtest',
+      name: 'MyBot',
+      symbol: 'MYB',
+      description: 'My AI agent token',
+    });
+
+    assert.equal(capturedMethod, 'POST');
+    assert.ok(capturedUrl.endsWith('/agents/tokenize'));
+    assert.equal(result.tokenId, 99);
+    assert.equal(result.handoffLink, 'https://agent-launch.ai/deploy/99');
+    assert.equal(result.name, 'MyBot');
+    assert.equal(result.symbol, 'MYB');
+    assert.equal(result.status, 'pending_deployment');
+  });
+
+  it('throws a clear error when agentAddress is missing', async () => {
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-test-key',
+    });
+
+    await assert.rejects(
+      () => client.tokenize({ name: 'MyBot', symbol: 'MYB' } as any),
+      (err: Error) => {
+        assert.ok(err.message.includes('agentAddress is required'));
+        return true;
+      },
+    );
+  });
+
+  it('provides helpful error when agent is not found (mailbox agent)', async () => {
+    restoreFn = installFetchMock(async () => {
+      return makeResponse(
+        { message: 'Agent agent1qwgx was not found under the provided API key.' },
+        422,
+        'Unprocessable Entity',
+      );
+    });
+
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-test-key',
+    });
+
+    await assert.rejects(
+      () => client.tokenize({ agentAddress: 'agent1qwgx' }),
+      (err: Error) => {
+        assert.ok(err.message.includes('connected via mailbox'), `Should mention mailbox, got: ${err.message}`);
+        assert.ok(err.message.includes('hosted agent'), `Should suggest hosted agent`);
+        return true;
+      },
+    );
+  });
+
+  it('delegates to .tokens.tokenize() internally', async () => {
+    restoreFn = installFetchMock(async () => {
+      return makeResponse({
+        success: true,
+        data: {
+          token_id: 1,
+          handoff_link: 'https://agent-launch.ai/deploy/1',
+          name: 'T',
+          symbol: 'T',
+          description: 'D',
+          image: '',
+          status: 'pending_deployment',
+        },
+      });
+    });
+
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-key',
+    });
+
+    // Both paths should work
+    const convenience = await client.tokenize({ agentAddress: 'agent1qtest' });
+    const namespaced = await client.tokens.tokenize({ agentAddress: 'agent1qtest' });
+
+    assert.equal(convenience.tokenId, namespaced.data.token_id);
+    assert.equal(convenience.handoffLink, namespaced.data.handoff_link);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SDK-F09: Top-level .listTokens() convenience method
+// ---------------------------------------------------------------------------
+
+describe('.listTokens() top-level convenience — SDK-F09', () => {
+  it('proxies to .tokens.listTokens()', async () => {
+    restoreFn = installFetchMock(async () => {
+      return makeResponse({
+        tokens: [{ id: 1, name: 'T', symbol: 'T', address: '0x123', price: '0.01' }],
+        total: 1,
+      });
+    });
+
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-key',
+    });
+
+    const result = await client.listTokens({ limit: 10 });
+    assert.ok(Array.isArray(result.tokens));
+    assert.equal(result.tokens.length, 1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SDK-F10: Top-level .getToken() convenience method
+// ---------------------------------------------------------------------------
+
+describe('.getToken() top-level convenience — SDK-F10', () => {
+  it('proxies to .tokens.getToken()', async () => {
+    restoreFn = installFetchMock(async () => {
+      return makeResponse({
+        id: 1,
+        name: 'Test',
+        symbol: 'TST',
+        address: '0xAbCd1234567890AbCd1234567890AbCd12345678',
+        price: '0.001',
+      });
+    });
+
+    const client = new AgentLaunch({
+      baseUrl: 'https://test.local',
+      apiKey: 'av-key',
+    });
+
+    const token = await client.getToken('0xAbCd1234567890AbCd1234567890AbCd12345678');
+    assert.equal(token.symbol, 'TST');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // SDK-F03: .market.getTokenPrice()
 // ---------------------------------------------------------------------------
 

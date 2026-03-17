@@ -45,6 +45,7 @@ export type {
   CommerceNamespace,
   OnchainNamespace,
   PaymentsNamespace,
+  TokenizeResult,
 } from './agentlaunch.js';
 
 // Core HTTP client
