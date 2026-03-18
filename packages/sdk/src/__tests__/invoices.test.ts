@@ -108,8 +108,21 @@ function createStorageMock(initial: Record<string, string> = {}) {
     }
     calls.push({ url, method, body });
 
-    // Parse storage key from URL
-    // URL pattern: https://agentverse.ai/v1/hosting/agents/{addr}/storage/{key}
+    // Handle PUT to /storage (key in body) — used by putStorage()
+    if (url === STORAGE_BASE && method === 'PUT') {
+      const putBody = body as { key: string; value: string };
+      store.set(putBody.key, putBody.value);
+      return {
+        ok: true,
+        status: 204,
+        statusText: 'No Content',
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve(''),
+        headers: new Headers(),
+      } as unknown as Response;
+    }
+
+    // Handle GET/DELETE to /storage/{key} — used by getStorage(), deleteStorage()
     const storagePrefix = STORAGE_BASE + '/';
     if (url.startsWith(storagePrefix)) {
       const key = decodeURIComponent(url.slice(storagePrefix.length));
@@ -119,14 +132,11 @@ function createStorageMock(initial: Record<string, string> = {}) {
         if (value === undefined) {
           return makeResponse({ message: 'Not found' }, 404, 'Not Found');
         }
-        // Return as JSON envelope with { value: ... }
         return makeResponse({ value }, 200);
       }
 
-      if (method === 'PUT') {
-        const putBody = body as { value: string };
-        store.set(key, putBody.value);
-        // 204 No Content — avStorageFetch handles empty body
+      if (method === 'DELETE') {
+        store.delete(key);
         return {
           ok: true,
           status: 204,
