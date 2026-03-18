@@ -96,6 +96,21 @@ function createStorageMock(initial: Record<string, string> = {}) {
     }
     calls.push({ url, method, body });
 
+    // Handle PUT to /storage (key in body) — used by putStorage()
+    if (url === STORAGE_BASE && method === 'PUT') {
+      const putBody = body as { key: string; value: string };
+      store.set(putBody.key, putBody.value);
+      return {
+        ok: true,
+        status: 204,
+        statusText: 'No Content',
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve(''),
+        headers: new Headers(),
+      } as unknown as Response;
+    }
+
+    // Handle GET/DELETE to /storage/{key} — used by getStorage(), deleteStorage()
     const storagePrefix = STORAGE_BASE + '/';
     if (url.startsWith(storagePrefix)) {
       const key = decodeURIComponent(url.slice(storagePrefix.length));
@@ -108,9 +123,8 @@ function createStorageMock(initial: Record<string, string> = {}) {
         return makeResponse({ value }, 200);
       }
 
-      if (method === 'PUT') {
-        const putBody = body as { value: string };
-        store.set(key, putBody.value);
+      if (method === 'DELETE') {
+        store.delete(key);
         return {
           ok: true,
           status: 204,
@@ -203,13 +217,15 @@ describe('recordDelegation — SDK-DL06', () => {
     assert.equal(stored.maxAmount, '500');
     assert.equal(stored.remaining, '500');
 
-    // Verify PUT was called to the correct Agentverse storage URL
+    // Verify PUT was called with the delegation key in the body
+    // (putStorage sends key in body, not URL)
     const putCalls = calls.filter((c) => c.method === 'PUT');
     assert.ok(putCalls.length >= 1, 'should have made at least one PUT call');
-    const delegationPut = putCalls.find((c) =>
-      c.url.includes(encodeURIComponent(expectedKey)),
-    );
-    assert.ok(delegationPut, 'should have PUT to the delegation key URL');
+    const delegationPut = putCalls.find((c) => {
+      const body = c.body as { key?: string } | undefined;
+      return body?.key === expectedKey;
+    });
+    assert.ok(delegationPut, 'should have PUT with the delegation key in body');
   });
 
   it('adds the delegation key to the index', async () => {
