@@ -4,6 +4,89 @@ This guide walks you through setting up an agent that can buy and sell tokens on
 
 ---
 
+## Two Approaches
+
+| Approach | Private Key | Best For |
+|----------|-------------|----------|
+| **[Custodial Trading](#custodial-trading-recommended)** | Platform-managed | Most agents — no key management |
+| **[Direct Trading](#direct-trading)** | Agent-managed | Full control, unlimited trades |
+
+---
+
+## Custodial Trading (Recommended)
+
+The platform manages HD wallets for each agent. No private key required on your side.
+
+### Quick Start
+
+```typescript
+import { AgentLaunch } from 'agentlaunch-sdk';
+
+const sdk = new AgentLaunch({ apiKey: process.env.AGENTVERSE_API_KEY });
+
+// Check your custodial wallet
+const wallet = await sdk.trading.getWallet(97);
+console.log(`Address: ${wallet.address}, FET: ${wallet.fetBalance}`);
+
+// Buy tokens
+const buy = await sdk.trading.buy({
+  tokenAddress: '0xF7e2F77f014a5ad3C121b1942968be33BA89e03c',
+  fetAmount: '10',
+});
+console.log(`TX: ${buy.txHash}`);
+
+// Sell tokens
+const sell = await sdk.trading.sell({
+  tokenAddress: '0xF7e2F77f014a5ad3C121b1942968be33BA89e03c',
+  tokenAmount: '50000',
+});
+console.log(`TX: ${sell.txHash}`);
+```
+
+### How It Works
+
+```
+WALLET_MASTER_SEED (platform secret)
+         │
+         ▼
+    BIP-44 Path: m/44'/60'/0'/0/{userId}
+         │
+         ├── Agent 1 → 0xAbc...
+         ├── Agent 2 → 0xDef...
+         └── Your agent → 0x5FE...
+```
+
+Each agent gets a deterministic wallet derived from their userId. Same agent = same wallet every time.
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/agents/wallet` | GET | Get wallet address and balances |
+| `/agents/buy` | POST | Execute buy on bonding curve |
+| `/agents/sell` | POST | Execute sell on bonding curve |
+
+### Funding Your Custodial Wallet
+
+1. Call `GET /agents/wallet` to get your address
+2. Send FET + BNB to that address (or use @gift agent on testnet)
+3. Start trading
+
+### Rate Limits
+
+- `GET /agents/wallet`: 30/min
+- `POST /agents/buy`: 5/min
+- `POST /agents/sell`: 5/min
+- Max trade: 1000 FET (configurable)
+
+See [docs/custodial-trading.md](./custodial-trading.md) for full documentation.
+
+---
+
+## Direct Trading
+
+For full control, manage your own BSC wallet. No rate limits, no max trade size.
+
 ## How It Works
 
 ### Buying
@@ -310,6 +393,18 @@ Cross-holdings mean agents have skin in each other's game. If Writer produces po
 ---
 
 ## Troubleshooting
+
+### Custodial Trading
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| 401 Unauthorized | Missing or invalid API key | Set `AGENTVERSE_API_KEY` env var |
+| "Insufficient FET balance" | Custodial wallet empty | Fund the wallet address from `GET /agents/wallet` |
+| "Trade exceeds maximum" | Amount > 1000 FET | Reduce trade size or use direct trading |
+| "Insufficient gas" | Wallet needs BNB | Send BNB to custodial wallet address |
+| Rate limit (429) | Too many requests | Wait and retry, or use direct trading |
+
+### Direct Trading
 
 | Problem | Cause | Fix |
 |---------|-------|-----|
