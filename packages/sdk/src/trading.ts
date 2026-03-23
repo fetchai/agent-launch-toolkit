@@ -63,8 +63,10 @@ interface ApiSuccess<T> {
  * Get the agent's deterministic custodial wallet address and balances.
  *
  * Calls GET /agents/wallet.  The wallet address is derived server-side
- * using the agent's user ID and the platform's HD master seed
- * (`m/44'/60'/0'/0/{userId}`).  Private keys are never returned.
+ * from the agent's Agentverse address using the platform's HD master seed:
+ * `m/44'/60'/0'/0/{hash(agentAddress) % MAX_HD_INDEX}`.
+ *
+ * Same agent address = same EVM wallet, always.  Private keys are never returned.
  *
  * @param chainId  Chain to query balances on (default: 97 = BSC Testnet).
  * @param client   Optional pre-configured AgentLaunchClient.

@@ -14,6 +14,7 @@ import {
   transferToken,
   checkAllowance,
   createSpendingLimitHandoff,
+  getWallet,
 } from "agentlaunch-sdk";
 
 export function registerWalletCommand(program: Command): void {
@@ -234,6 +235,49 @@ export function registerWalletCommand(program: Command): void {
           console.log(`  Tx Hash: ${result.txHash}`);
           console.log(`  Block:   ${result.blockNumber}`);
           console.log(`  Sent ${amount} ${token.toUpperCase()} to ${to}\n`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (options.json) {
+          console.log(JSON.stringify({ error: msg }));
+        } else {
+          console.error(`Error: ${msg}`);
+        }
+        process.exit(1);
+      }
+    });
+
+  // --- wallet custodial ---
+  wallet
+    .command("custodial")
+    .description("Show server-managed custodial wallet for the authenticated agent")
+    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--json", "Output raw JSON")
+    .action(async (options: { chain: string; json?: boolean }) => {
+      const chainId = parseInt(options.chain, 10);
+
+      try {
+        const info = await getWallet(chainId);
+
+        if (options.json) {
+          console.log(JSON.stringify(info));
+        } else {
+          const chainName = chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`;
+          const gasSymbol = chainId === 1 || chainId === 11155111 ? "ETH" : "BNB";
+          const explorerBase = chainId === 56 ? "https://bscscan.com" : "https://testnet.bscscan.com";
+
+          console.log(`\n${"=".repeat(50)}`);
+          console.log("CUSTODIAL WALLET");
+          console.log(`${"=".repeat(50)}`);
+          console.log(`Address:     ${info.address}`);
+          console.log(`Network:     ${chainName}`);
+          console.log(`FET Balance: ${info.fetBalance} FET`);
+          console.log(`Gas Balance: ${info.nativeBalance} ${gasSymbol}`);
+          console.log(`${"=".repeat(50)}`);
+          console.log(`\nExplorer: ${explorerBase}/address/${info.address}`);
+          console.log("\nTo trade with this wallet:");
+          console.log("  agentlaunch buy <token> --amount 100 --custodial");
+          console.log("  agentlaunch sell <token> --amount 500000 --custodial\n");
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
