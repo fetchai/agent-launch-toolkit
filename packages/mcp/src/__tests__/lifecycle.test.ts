@@ -2,7 +2,7 @@
  * MCP lifecycle tests
  *
  * Covers 8 gaps:
- *   MCP-S01   Server startup -- TOOLS array contains 30 tools
+ *   MCP-S01   Server startup -- TOOLS array contains 33 tools
  *   MCP-HO01  create_token_record returns handoff link
  *   MCP-AV01  deploy_to_agentverse validates file exists and non-empty
  *   MCP-AV02  deploy_to_agentverse returns agentAddress + optimization checklist
@@ -74,11 +74,11 @@ describe('MCP-S01: Server startup', () => {
     assert.ok(Array.isArray(TOOLS), 'TOOLS should be an array');
   });
 
-  it('TOOLS array has exactly 30 tools', () => {
+  it('TOOLS array has exactly 33 tools', () => {
     assert.equal(
       TOOLS.length,
-      30,
-      `Expected 30 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
+      33,
+      `Expected 33 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
     );
   });
 
@@ -134,6 +134,7 @@ describe('MCP-HO01: create_token_record', () => {
       symbol: 'TST',
       description: 'A test token for lifecycle testing',
       category: 'AI',
+      agentAddress: AGENT_ADDR,
     });
 
     assert.equal(result.tokenId, 42, 'should return tokenId from API response');

@@ -45,6 +45,7 @@ export type {
   CommerceNamespace,
   OnchainNamespace,
   PaymentsNamespace,
+  TradingNamespace,
   TokenizeResult,
 } from './agentlaunch.js';
 
@@ -99,6 +100,12 @@ export type {
   CreateSpendingLimitParams,
   FiatOnrampParams,
   FiatOnrampLink,
+  // Custodial trading types
+  ExecuteBuyParams,
+  ExecuteSellParams,
+  CustodialBuyResult,
+  CustodialSellResult,
+  WalletInfoResponse,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -193,6 +200,9 @@ export {
   listDelegations,
   recordDelegation,
 } from './delegation.js';
+
+// Custodial trading (server-side HD wallet, no private key required on client)
+export { getWallet, executeBuy, executeSell } from './trading.js';
 
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';

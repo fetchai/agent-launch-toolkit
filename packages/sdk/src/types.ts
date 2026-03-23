@@ -458,6 +458,76 @@ export interface AgentverseStatusResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Custodial trading types (server-side HD wallet, POST /agents/buy|sell)
+// ---------------------------------------------------------------------------
+
+/** Parameters for POST /agents/buy (custodial buy via server HD wallet). */
+export interface ExecuteBuyParams {
+  /** Token contract address to buy. */
+  tokenAddress: string;
+  /** FET amount to spend (whole units, not wei). */
+  fetAmount: string;
+  /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
+  slippagePercent?: number;
+}
+
+/** Parameters for POST /agents/sell (custodial sell via server HD wallet). */
+export interface ExecuteSellParams {
+  /** Token contract address to sell. */
+  tokenAddress: string;
+  /** Number of tokens to sell (whole units, not wei). */
+  tokenAmount: string;
+  /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
+  slippagePercent?: number;
+}
+
+/** Result from a successful custodial buy (POST /agents/buy). */
+export interface CustodialBuyResult {
+  /** On-chain transaction hash of the buy transaction. */
+  txHash: string;
+  /** On-chain transaction hash of the FET approval (null if allowance was sufficient). */
+  approvalTxHash: string | null;
+  /** Block number the buy was confirmed in. */
+  blockNumber: number;
+  /** FET amount spent (whole units). */
+  fetSpent: string;
+  /** Estimated token amount received (whole units). */
+  expectedTokens: string;
+  /** Minimum tokens accepted after slippage (whole units). */
+  minTokens: string;
+  /** Gas used by the buy transaction. */
+  gasUsed: string;
+  /** Custodial wallet address that executed the trade. */
+  walletAddress: string;
+}
+
+/** Result from a successful custodial sell (POST /agents/sell). */
+export interface CustodialSellResult {
+  /** On-chain transaction hash of the sell transaction. */
+  txHash: string;
+  /** Block number the sell was confirmed in. */
+  blockNumber: number;
+  /** Number of tokens sold (whole units). */
+  tokensSold: string;
+  /** Gas used by the sell transaction. */
+  gasUsed: string;
+  /** Custodial wallet address that executed the trade. */
+  walletAddress: string;
+}
+
+/** Response from GET /agents/wallet (custodial wallet info). */
+export interface WalletInfoResponse {
+  /** EVM wallet address derived from the agent's HD path. */
+  address: string;
+  /** Native token balance (BNB on BSC, ETH on Ethereum) in whole units. */
+  nativeBalance: string;
+  /** FET token balance in whole units. */
+  fetBalance: string;
+  /** Chain ID this balance was queried on. */
+  chainId: number;
+}
+
+// ---------------------------------------------------------------------------
 // Multi-token payment types
 // ---------------------------------------------------------------------------
 
@@ -593,3 +663,4 @@ export interface FiatOnrampLink {
   /** Estimated provider fee. */
   estimatedFee?: string;
 }
+

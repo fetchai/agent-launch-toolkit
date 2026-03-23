@@ -36,6 +36,7 @@ import {
   getNetworkGDP,
 } from './commerce.js';
 import { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
+import { getWallet, executeBuy, executeSell } from './trading.js';
 import {
   KNOWN_TOKENS,
   getToken as getPaymentToken,
@@ -67,6 +68,13 @@ import type {
   SellResult,
   WalletBalances,
 } from './onchain.js';
+import type {
+  ExecuteBuyParams,
+  ExecuteSellParams,
+  CustodialBuyResult,
+  CustodialSellResult,
+  WalletInfoResponse,
+} from './types.js';
 import type {
   PaymentToken,
   Invoice,
@@ -360,6 +368,30 @@ export interface OnchainNamespace {
   ): Promise<WalletBalances>;
 }
 
+/** Custodial trading operations (server-side HD wallet — no private key on client). */
+export interface TradingNamespace {
+  /**
+   * Get the agent's deterministic custodial wallet address and balances.
+   * @param chainId  Chain to query (default: 97 = BSC Testnet).
+   * @see getWallet
+   */
+  getWallet(chainId?: number): Promise<WalletInfoResponse>;
+
+  /**
+   * Execute a buy on the bonding curve via the agent's custodial wallet.
+   * @param params  tokenAddress, fetAmount, optional slippagePercent.
+   * @see executeBuy
+   */
+  buy(params: ExecuteBuyParams): Promise<CustodialBuyResult>;
+
+  /**
+   * Execute a sell on the bonding curve via the agent's custodial wallet.
+   * @param params  tokenAddress, tokenAmount, optional slippagePercent.
+   * @see executeSell
+   */
+  sell(params: ExecuteSellParams): Promise<CustodialSellResult>;
+}
+
 // ---------------------------------------------------------------------------
 // AgentLaunch class
 // ---------------------------------------------------------------------------
@@ -419,6 +451,9 @@ export class AgentLaunch {
 
   /** Multi-token payment operations. */
   readonly payments: PaymentsNamespace;
+
+  /** Custodial trading operations (server-side HD wallet, no private key required). */
+  readonly trading: TradingNamespace;
 
   /**
    * Create a client by reading a skill.md file.
@@ -633,6 +668,12 @@ export class AgentLaunch {
         generateDelegationLink(tokenAddress, spenderAddress, amount),
       fiatLink: (params: FiatOnrampParams) =>
         generateFiatOnrampLink(params),
+    };
+
+    this.trading = {
+      getWallet: (chainId?: number) => getWallet(chainId, client),
+      buy: (params: ExecuteBuyParams) => executeBuy(params, client),
+      sell: (params: ExecuteSellParams) => executeSell(params, client),
     };
   }
 }

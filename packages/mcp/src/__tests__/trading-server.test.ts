@@ -6,7 +6,7 @@
  *   MCP-TR01  buy_tokens dry-run returns preview via calculateBuy API
  *   MCP-TR03  sell_tokens dry-run returns preview via calculateSell API
  *   MCP-TR05  get_wallet_balances handler exists
- *   MCP-S02   All 30 tools registered in TOOLS array
+ *   MCP-S02   All 33 tools registered in TOOLS array
  *   MCP-S03   Every tool has valid name, description, and inputSchema
  *   MCP-S04   Handler maps do not contain unknown tool names
  *   MCP-CM03  check_agent_commerce handles storage failures gracefully
@@ -33,6 +33,7 @@ import { agentverseHandlers } from '../tools/agentverse.js';
 import { tokenizeHandlers } from '../tools/tokenize.js';
 import { commentHandlers } from '../tools/comments.js';
 import { paymentHandlers } from '../tools/payments.js';
+import { custodialHandlers } from '../tools/custodial.js';
 
 // ---------------------------------------------------------------------------
 // Fetch mock helpers
@@ -186,14 +187,17 @@ describe('MCP server registration', () => {
     'generate_org_template',
     'scaffold_org_swarm',
     'get_multi_token_balances',
+    'get_agent_wallet',
+    'buy_token',
+    'sell_token',
   ];
 
   // MCP-S02
-  it('TOOLS array has exactly 30 entries', () => {
+  it('TOOLS array has exactly 33 entries', () => {
     assert.equal(
       TOOLS.length,
-      30,
-      `expected 30 tools, got ${TOOLS.length}`,
+      33,
+      `expected 33 tools, got ${TOOLS.length}`,
     );
   });
 
@@ -260,6 +264,7 @@ describe('MCP server registration', () => {
       { name: 'commerceHandlers', map: commerceHandlers },
       { name: 'tradingHandlers', map: tradingHandlers },
       { name: 'paymentHandlers', map: paymentHandlers },
+      { name: 'custodialHandlers', map: custodialHandlers },
     ];
 
     for (const { name: mapName, map } of allHandlerMaps) {
@@ -284,6 +289,7 @@ describe('MCP server registration', () => {
       ...commerceHandlers,
       ...tradingHandlers,
       ...paymentHandlers,
+      ...custodialHandlers,
     };
 
     for (const tool of TOOLS) {
@@ -311,6 +317,7 @@ describe('MCP server registration', () => {
       ...commerceHandlers,
       ...tradingHandlers,
       ...paymentHandlers,
+      ...custodialHandlers,
     };
 
     assert.equal(

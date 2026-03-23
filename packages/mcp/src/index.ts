@@ -19,6 +19,7 @@ import { commentHandlers } from "./tools/comments.js";
 import { commerceHandlers } from "./tools/commerce.js";
 import { tradingHandlers } from "./tools/trading.js";
 import { paymentHandlers } from "./tools/payments.js";
+import { custodialHandlers } from "./tools/custodial.js";
 
 // Create the server
 const server = new Server(
@@ -39,7 +40,8 @@ const server = new Server(
 // READ-ONLY (safe):  list_tokens, get_token, get_platform_stats, calculate_buy,
 //   calculate_sell, get_deploy_instructions, check_spending_limit,
 //   check_agent_commerce, network_status, get_wallet_balances, get_comments,
-//   list_invoices, get_multi_token_balances, generate_org_template
+//   list_invoices, get_multi_token_balances, generate_org_template,
+//   get_agent_wallet
 //
 // WRITE (moderate):  create_token_record, scaffold_agent, deploy_to_agentverse,
 //   update_agent_metadata, create_and_tokenize, post_comment, scaffold_swarm,
@@ -47,7 +49,7 @@ const server = new Server(
 //   scaffold_org_swarm, get_trade_link
 //
 // DESTRUCTIVE (high risk — transfers value):  buy_tokens, sell_tokens,
-//   multi_token_payment
+//   multi_token_payment, buy_token, sell_token
 //
 // Tools in the DESTRUCTIVE category transfer real tokens on-chain.
 // MCP clients should gate these behind user confirmation or spending limits.
@@ -580,6 +582,72 @@ export const TOOLS = [
       required: ["address"],
     },
   },
+  // W1-MCP — Custodial trading (server-side, no WALLET_PRIVATE_KEY needed) ----
+  {
+    name: "get_agent_wallet",
+    description:
+      "Get your agent's custodial wallet address and balances. The wallet is managed server-side — no private key is required in your environment. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY).\n\nUSE THIS TOOL WHEN: You need to check your agent's wallet balance before trading, or to share your wallet address.\n\nNext: fund wallet with FET + BNB, then call `buy_token`.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        chainId: {
+          type: "number",
+          description:
+            "Chain ID to query balances on (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+      },
+    },
+  },
+  {
+    name: "buy_token",
+    annotations: { destructiveHint: true, readOnlyHint: false },
+    description:
+      "Buy tokens on the bonding curve using your agent's custodial wallet. The server handles FET approval automatically. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain buying without managing a private key locally. Use `calculate_buy` first to preview.\n\nAlternative: `buy_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenAddress: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        fetAmount: {
+          type: "string",
+          description: "Amount of FET to spend (e.g. '100')",
+        },
+        slippagePercent: {
+          type: "number",
+          description:
+            "Slippage tolerance percentage (0.1–50). Default: 5",
+        },
+      },
+      required: ["tokenAddress", "fetAmount"],
+    },
+  },
+  {
+    name: "sell_token",
+    annotations: { destructiveHint: true, readOnlyHint: false },
+    description:
+      "Sell tokens on the bonding curve using your agent's custodial wallet. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain selling without managing a private key locally. Use `calculate_sell` first to preview.\n\nAlternative: `sell_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenAddress: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        tokenAmount: {
+          type: "string",
+          description: "Amount of tokens to sell (e.g. '500000')",
+        },
+        slippagePercent: {
+          type: "number",
+          description:
+            "Slippage tolerance percentage (0.1–50). Default: 5",
+        },
+      },
+      required: ["tokenAddress", "tokenAmount"],
+    },
+  },
   // EXT-06 ----------------------------------------------------------------
   {
     name: "deploy_swarm",
@@ -938,6 +1006,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(commerceHandlers as Record<string, AnyHandler>),
       ...(tradingHandlers as Record<string, AnyHandler>),
       ...(paymentHandlers as Record<string, AnyHandler>),
+      ...(custodialHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {
