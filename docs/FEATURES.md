@@ -10,7 +10,7 @@
 | Metric | Count |
 |--------|-------|
 | CLI Commands | 16 |
-| MCP Tools (for Claude Code / Cursor) | 28 |
+| MCP Tools (for Claude Code / Cursor) | 30 |
 | SDK Functions | 60+ |
 | Agent Templates | 9 |
 | Swarm Presets | 16 (5 C-suite + 7 marketing + 4 consumer) |
@@ -111,7 +111,7 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 
 ## MCP Tools (Claude Code / Cursor)
 
-28 tools accessible via the `agent-launch-mcp` server, organized by capability and risk level.
+30 tools accessible via the `agent-launch-mcp` server, organized by capability and risk level.
 
 **Risk levels:** Tools are annotated as READ-ONLY (safe), WRITE (moderate), or DESTRUCTIVE (transfers value on-chain). Destructive tools (`buy_tokens`, `sell_tokens`, `multi_token_payment`) carry `destructiveHint: true` in their MCP annotations.
 
@@ -182,6 +182,13 @@ npx agentlaunch my-agent --local         # Scaffold only, no deploy
 | `create_invoice` | WRITE | Create payment invoice in agent storage |
 | `list_invoices` | READ-ONLY | List invoices by status (pending/paid/expired/refunded/disputed) |
 | `get_multi_token_balances` | READ-ONLY | Query FET + USDC + BNB + custom token balances |
+
+### Org Chart → Agent Swarm
+
+| Tool | Risk | Description |
+|------|------|-------------|
+| `generate_org_template` | READ-ONLY | Generate a YAML org chart template (startup/smb/enterprise) for planning an agent org |
+| `scaffold_org_swarm` | WRITE | Convert a filled-in org chart YAML into a complete agent swarm config with deployment waves, pricing, and cross-holdings |
 
 ---
 
@@ -565,7 +572,7 @@ Already configured in `.claude/settings.json`:
 }
 ```
 
-All 28 tools are available in Claude Code and Cursor out of the box.
+All 30 tools are available in Claude Code and Cursor out of the box.
 
 ---
 
@@ -588,7 +595,7 @@ CLI (agentlaunch)
   └── Launches Claude Code / Cursor after scaffolding
 
 MCP Server (agent-launch-mcp)
-  ├── 28 tools across 9 categories (risk-annotated)
+  ├── 30 tools across 10 categories (risk-annotated)
   ├── Per-call spending limits on payment tools
   ├── Stdio transport (Model Context Protocol)
   └── Works in Claude Code + Cursor
