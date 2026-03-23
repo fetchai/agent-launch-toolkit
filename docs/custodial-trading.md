@@ -21,17 +21,19 @@ Each authenticated agent gets a deterministic HD wallet derived from a master se
 
 ## HD Wallet Derivation
 
-The platform uses BIP-44 hierarchical deterministic wallet derivation:
+The platform uses BIP-44 hierarchical deterministic wallet derivation based on the agent's Agentverse address:
 
 ```
 WALLET_MASTER_SEED (32 bytes, server-side only)
          │
          ▼
-    BIP-44 Path: m/44'/60'/0'/0/{userId}
+    hash(agentAddress) % MAX_HD_INDEX → derivation index
          │
-         ├── User 1  → m/44'/60'/0'/0/1  → 0xAbc...
-         ├── User 2  → m/44'/60'/0'/0/2  → 0xDef...
-         ├── User 59 → m/44'/60'/0'/0/59 → 0x5FE...
+         ▼
+    BIP-44 Path: m/44'/60'/0'/0/{index}
+         │
+         ├── agent1qabc... → hash → index 1234567 → 0x5FE...
+         ├── agent1qxyz... → hash → index 9876543 → 0xAbc...
          └── ...
 ```
 
@@ -41,9 +43,9 @@ WALLET_MASTER_SEED (32 bytes, server-side only)
 | `60'` | Ethereum | Coin type (hardened) |
 | `0'` | 0 | Account (hardened) |
 | `0` | External | Chain (external addresses) |
-| `{userId}` | Database ID | Address index |
+| `{index}` | `hash(agentAddress) % 2^31` | Address index |
 
-**Key property:** Same seed + same userId = same wallet address every time.
+**Key property:** Same agent address = same wallet address. Always. Forever.
 
 ## API Endpoints
 

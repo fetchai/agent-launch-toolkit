@@ -49,14 +49,17 @@ console.log(`TX: ${sell.txHash}`);
 WALLET_MASTER_SEED (platform secret)
          │
          ▼
-    BIP-44 Path: m/44'/60'/0'/0/{userId}
+    hash(agentAddress) → derivation index
          │
-         ├── Agent 1 → 0xAbc...
-         ├── Agent 2 → 0xDef...
-         └── Your agent → 0x5FE...
+         ▼
+    BIP-44 Path: m/44'/60'/0'/0/{index}
+         │
+         ├── agent1qabc... → 0xAbc...
+         ├── agent1qxyz... → 0xDef...
+         └── Your agent   → 0x5FE...
 ```
 
-Each agent gets a deterministic wallet derived from their userId. Same agent = same wallet every time.
+Each agent gets a deterministic wallet derived from their Agentverse address. Same agent = same wallet, always.
 
 ### API Endpoints
 
