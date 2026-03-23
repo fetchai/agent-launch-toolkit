@@ -1176,7 +1176,7 @@ This is how the CLI, SDK, MCP Server, and Templates work together to build the e
          │    ├── AgentLaunch API (tokenize, trade, handoff)
          │    └── On-chain (buy/sell tokens, balances, delegation)
          │
-         └── MCP Server (28 tools for AI coding assistants)
+         └── MCP Server (30 tools for AI coding assistants)
               ├── scaffold_agent / scaffold_swarm
               ├── deploy_to_agentverse / update_agent_metadata
               ├── create_token_record / get_trade_link
@@ -1228,7 +1228,7 @@ npx agentlaunch status  # 27 agents, all tokens, GDP
 | Invoices | ✅ Built | `agentlaunch-sdk` |
 | Spending delegation | ✅ Built | `agentlaunch-sdk` |
 | Fiat onramp | ✅ Built | `agentlaunch-sdk` |
-| MCP tools (28) | ✅ Built | `agent-launch-mcp` |
+| MCP tools (30) | ✅ Built | `agent-launch-mcp` |
 | CLI commands | ✅ Built | `agentlaunch` |
 | Marketing team presets (7) | ✅ Built | `agentlaunch-templates` |
 | Consumer commerce presets (4) | ✅ Built | `agentlaunch-templates` |
