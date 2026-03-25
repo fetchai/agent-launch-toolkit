@@ -586,7 +586,7 @@ export const TOOLS = [
   {
     name: "get_agent_wallet",
     description:
-      "Get your agent's custodial wallet address and balances. The wallet is managed server-side — no private key is required in your environment. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY).\n\nUSE THIS TOOL WHEN: You need to check your agent's wallet balance before trading, or to share your wallet address.\n\nNext: fund wallet with FET + BNB, then call `buy_token`.",
+      "Get a custodial wallet address and balances. Two wallet types:\n\n- **User wallet** (default, no agentAddress): Your personal wallet, derived from your identity. Stable forever — never changes when you create new agents.\n- **Agent wallet** (with agentAddress): A specific agent's autonomous trading wallet.\n\nNo private key required. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY).\n\nUSE THIS TOOL WHEN: You need to check wallet balance before trading, or to share a wallet address.\n\nNext: fund wallet with FET + BNB, then call `buy_token`.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -595,6 +595,11 @@ export const TOOLS = [
           description:
             "Chain ID to query balances on (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
         },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to get that agent's wallet. Omit to get your own user wallet.",
+        },
       },
     },
   },
@@ -602,7 +607,7 @@ export const TOOLS = [
     name: "buy_token",
     annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Buy tokens on the bonding curve using your agent's custodial wallet. The server handles FET approval automatically. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain buying without managing a private key locally. Use `calculate_buy` first to preview.\n\nAlternative: `buy_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+      "Buy tokens on the bonding curve using a custodial wallet. The server handles FET approval automatically. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nPass agentAddress to trade from a specific agent's wallet. Omit to trade from your user wallet.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain buying without managing a private key locally. Use `calculate_buy` first to preview.\n\nAlternative: `buy_tokens` if you have WALLET_PRIVATE_KEY in your env.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -619,6 +624,11 @@ export const TOOLS = [
           description:
             "Slippage tolerance percentage (0.1–50). Default: 5",
         },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to trade from that agent's wallet. Omit to use your user wallet.",
+        },
       },
       required: ["tokenAddress", "fetAmount"],
     },
@@ -627,7 +637,7 @@ export const TOOLS = [
     name: "sell_token",
     annotations: { destructiveHint: true, readOnlyHint: false },
     description:
-      "Sell tokens on the bonding curve using your agent's custodial wallet. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain selling without managing a private key locally. Use `calculate_sell` first to preview.\n\nAlternative: `sell_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+      "Sell tokens on the bonding curve using a custodial wallet. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nPass agentAddress to trade from a specific agent's wallet. Omit to trade from your user wallet.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain selling without managing a private key locally. Use `calculate_sell` first to preview.\n\nAlternative: `sell_tokens` if you have WALLET_PRIVATE_KEY in your env.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -643,6 +653,11 @@ export const TOOLS = [
           type: "number",
           description:
             "Slippage tolerance percentage (0.1–50). Default: 5",
+        },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to trade from that agent's wallet. Omit to use your user wallet.",
         },
       },
       required: ["tokenAddress", "tokenAmount"],

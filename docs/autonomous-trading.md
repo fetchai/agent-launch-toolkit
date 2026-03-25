@@ -49,29 +49,37 @@ console.log(`TX: ${sell.txHash}`);
 WALLET_MASTER_SEED (platform secret)
          │
          ▼
-    hash(agentAddress) → derivation index
+    hash(identity) → derivation index
          │
          ▼
     BIP-44 Path: m/44'/60'/0'/0/{index}
-         │
-         ├── agent1qabc... → 0xAbc...
-         ├── agent1qxyz... → 0xDef...
-         └── Your agent   → 0x5FE...
+
+User wallets (stable forever):
+         ├── "user:42"       → 0x94bC...
+         ├── "user:99"       → 0xFed1...
+
+Agent wallets (per-agent):
+         ├── agent1qabc...   → 0xAbc...
+         ├── agent1qxyz...   → 0xDef...
 ```
 
-Each agent gets a deterministic wallet derived from their Agentverse address. Same agent = same wallet, always.
+Two wallet types:
+- **User wallet** (default): derived from your user ID — stable forever, unaffected by creating/deleting agents
+- **Agent wallet**: derived from a specific agent address — for autonomous per-agent trading
+
+Pass `agentAddress` param to use an agent wallet. Omit it to use your personal user wallet.
 
 ### API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/agents/wallet` | GET | Get wallet address and balances |
-| `/agents/buy` | POST | Execute buy on bonding curve |
-| `/agents/sell` | POST | Execute sell on bonding curve |
+| `/agents/wallet` | GET | Get wallet address and balances (add `?agentAddress=agent1q...` for agent wallet) |
+| `/agents/buy` | POST | Execute buy (add `agentAddress` in body for agent wallet) |
+| `/agents/sell` | POST | Execute sell (add `agentAddress` in body for agent wallet) |
 
 ### Funding Your Custodial Wallet
 
-1. Call `GET /agents/wallet` to get your address
+1. Call `GET /agents/wallet` to get your user wallet address (or `?agentAddress=...` for an agent wallet)
 2. Send FET + BNB to that address (or use @gift agent on testnet)
 3. Start trading
 

@@ -19,6 +19,7 @@ export function registerBuyCommand(program: Command): void {
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
     .option("--dry-run", "Preview the trade without executing (no wallet needed)")
     .option("--custodial", "Use server-side custodial wallet (requires AGENTVERSE_API_KEY)")
+    .option("--agent <agentAddress>", "Agent address (agent1q...) to trade from agent's wallet (implies --custodial)")
     .option("--json", "Output raw JSON (machine-readable)")
     .action(async (address: string, options: {
       amount: string;
@@ -26,8 +27,11 @@ export function registerBuyCommand(program: Command): void {
       chain: string;
       dryRun?: boolean;
       custodial?: boolean;
+      agent?: string;
       json?: boolean;
     }) => {
+      // --agent implies --custodial
+      if (options.agent) options.custodial = true;
       // Validate address
       if (!address.startsWith("0x") || address.length < 10) {
         if (options.json) {
@@ -106,6 +110,7 @@ export function registerBuyCommand(program: Command): void {
             tokenAddress: address,
             fetAmount: options.amount,
             slippagePercent: slippage,
+            agentAddress: options.agent,
           });
 
           if (options.json) {

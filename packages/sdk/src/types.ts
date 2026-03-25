@@ -469,6 +469,8 @@ export interface ExecuteBuyParams {
   fetAmount: string;
   /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
   slippagePercent?: number;
+  /** Agent address to trade from (agent1q...). Omit to use the user's own wallet. */
+  agentAddress?: string;
 }
 
 /** Parameters for POST /agents/sell (custodial sell via server HD wallet). */
@@ -479,6 +481,8 @@ export interface ExecuteSellParams {
   tokenAmount: string;
   /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
   slippagePercent?: number;
+  /** Agent address to trade from (agent1q...). Omit to use the user's own wallet. */
+  agentAddress?: string;
 }
 
 /** Result from a successful custodial buy (POST /agents/buy). */
@@ -517,7 +521,7 @@ export interface CustodialSellResult {
 
 /** Response from GET /agents/wallet (custodial wallet info). */
 export interface WalletInfoResponse {
-  /** EVM wallet address derived from the agent's HD path. */
+  /** EVM wallet address (derived from user identity or agent address). */
   address: string;
   /** Native token balance (BNB on BSC, ETH on Ethereum) in whole units. */
   nativeBalance: string;
@@ -525,6 +529,10 @@ export interface WalletInfoResponse {
   fetBalance: string;
   /** Chain ID this balance was queried on. */
   chainId: number;
+  /** Whether this is a user wallet or an agent wallet. */
+  type?: 'user' | 'agent';
+  /** Agent address, if this is an agent wallet. */
+  agentAddress?: string;
 }
 
 // ---------------------------------------------------------------------------

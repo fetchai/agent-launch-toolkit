@@ -371,22 +371,27 @@ export interface OnchainNamespace {
 /** Custodial trading operations (server-side HD wallet — no private key on client). */
 export interface TradingNamespace {
   /**
-   * Get the agent's deterministic custodial wallet address and balances.
-   * @param chainId  Chain to query (default: 97 = BSC Testnet).
+   * Get a custodial wallet address and balances.
+   * Omit agentAddress to get the user's own wallet.
+   * Pass an agentAddress to get that agent's autonomous trading wallet.
+   * @param chainId       Chain to query (default: 97 = BSC Testnet).
+   * @param agentAddress  Agent address (agent1q...). Omit for user wallet.
    * @see getWallet
    */
-  getWallet(chainId?: number): Promise<WalletInfoResponse>;
+  getWallet(chainId?: number, agentAddress?: string): Promise<WalletInfoResponse>;
 
   /**
-   * Execute a buy on the bonding curve via the agent's custodial wallet.
-   * @param params  tokenAddress, fetAmount, optional slippagePercent.
+   * Execute a buy on the bonding curve.
+   * Pass agentAddress in params to trade from an agent's wallet (default: user wallet).
+   * @param params  tokenAddress, fetAmount, optional slippagePercent, optional agentAddress.
    * @see executeBuy
    */
   buy(params: ExecuteBuyParams): Promise<CustodialBuyResult>;
 
   /**
-   * Execute a sell on the bonding curve via the agent's custodial wallet.
-   * @param params  tokenAddress, tokenAmount, optional slippagePercent.
+   * Execute a sell on the bonding curve.
+   * Pass agentAddress in params to trade from an agent's wallet (default: user wallet).
+   * @param params  tokenAddress, tokenAmount, optional slippagePercent, optional agentAddress.
    * @see executeSell
    */
   sell(params: ExecuteSellParams): Promise<CustodialSellResult>;
@@ -671,7 +676,8 @@ export class AgentLaunch {
     };
 
     this.trading = {
-      getWallet: (chainId?: number) => getWallet(chainId, client),
+      getWallet: (chainId?: number, agentAddress?: string) =>
+        getWallet(chainId, agentAddress, client),
       buy: (params: ExecuteBuyParams) => executeBuy(params, client),
       sell: (params: ExecuteSellParams) => executeSell(params, client),
     };

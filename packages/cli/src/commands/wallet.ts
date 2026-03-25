@@ -250,31 +250,41 @@ export function registerWalletCommand(program: Command): void {
   // --- wallet custodial ---
   wallet
     .command("custodial")
-    .description("Show server-managed custodial wallet for the authenticated agent")
+    .description("Show server-managed custodial wallet (user wallet by default, or a specific agent's wallet)")
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--agent <address>", "Agent address (agent1q...) to get that agent's wallet instead of your user wallet")
     .option("--json", "Output raw JSON")
-    .action(async (options: { chain: string; json?: boolean }) => {
+    .action(async (options: { chain: string; agent?: string; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
 
       try {
-        const info = await getWallet(chainId);
+        const info = await getWallet(chainId, options.agent);
 
         if (options.json) {
           console.log(JSON.stringify(info));
         } else {
-          const chainName = chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`;
+          const chainLabel = chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`;
           const gasSymbol = chainId === 1 || chainId === 11155111 ? "ETH" : "BNB";
           const explorerBase = chainId === 56 ? "https://bscscan.com" : "https://testnet.bscscan.com";
+          const walletType = options.agent ? "AGENT WALLET" : "USER WALLET";
 
           console.log(`\n${"=".repeat(50)}`);
-          console.log("CUSTODIAL WALLET");
+          console.log(walletType);
           console.log(`${"=".repeat(50)}`);
           console.log(`Address:     ${info.address}`);
-          console.log(`Network:     ${chainName}`);
+          if (options.agent) {
+            console.log(`Agent:       ${options.agent}`);
+          } else {
+            console.log(`Type:        Personal (stable across all agents)`);
+          }
+          console.log(`Network:     ${chainLabel}`);
           console.log(`FET Balance: ${info.fetBalance} FET`);
           console.log(`Gas Balance: ${info.nativeBalance} ${gasSymbol}`);
           console.log(`${"=".repeat(50)}`);
           console.log(`\nExplorer: ${explorerBase}/address/${info.address}`);
+          console.log("\nWallet types:");
+          console.log("  agentlaunch wallet custodial              # Your user wallet (default)");
+          console.log("  agentlaunch wallet custodial --agent agent1q...  # Agent's wallet");
           console.log("\nTo trade with this wallet:");
           console.log("  agentlaunch buy <token> --amount 100 --custodial");
           console.log("  agentlaunch sell <token> --amount 500000 --custodial\n");
