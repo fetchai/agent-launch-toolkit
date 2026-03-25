@@ -155,6 +155,42 @@ export async function getAgentStatus(
   );
 }
 
+/**
+ * Stop an Agentverse agent.
+ */
+export async function stopAgent(
+  apiKey: string,
+  agentAddress: string,
+): Promise<void> {
+  await avFetch<unknown>(
+    apiKey,
+    'POST',
+    `/hosting/agents/${agentAddress}/stop`,
+    {},
+  );
+}
+
+/**
+ * Fetch the latest logs from an Agentverse agent.
+ * Returns log lines as a string. Useful for debugging compilation errors.
+ */
+export async function getAgentLogs(
+  apiKey: string,
+  agentAddress: string,
+): Promise<string> {
+  const result = await avFetch<{ logs?: string; items?: Array<{ log?: string; message?: string }> }>(
+    apiKey,
+    'GET',
+    `/hosting/agents/${agentAddress}/logs/latest`,
+  );
+  // The API may return logs as a string or as an items array
+  if (typeof result.logs === 'string') return result.logs;
+  if (Array.isArray(result.items)) {
+    return result.items.map(i => i.log ?? i.message ?? '').join('\n');
+  }
+  return JSON.stringify(result);
+}
+
 // ---------------------------------------------------------------------------
 // Update metadata on an existing agent
 // ---------------------------------------------------------------------------
@@ -327,9 +363,11 @@ export async function deployAgent(
   // Step 4: Start agent
   await startAgent(apiKey, agentAddress);
 
-  // Step 5: Poll for compilation
-  let status: 'starting' | 'compiled' | 'running' = 'starting';
+  // Step 5: Poll for compilation (up to 60s)
+  let status: 'starting' | 'compiled' | 'running' | 'error' = 'starting';
   let walletAddress: string | undefined;
+  let logs: string | undefined;
+  let compilationError: string | undefined;
 
   for (let i = 0; i < maxPolls; i++) {
     await sleep(POLL_INTERVAL_MS);
@@ -349,6 +387,35 @@ export async function deployAgent(
     }
   }
 
+  // Step 6: If not compiled/running, check logs for errors
+  if (status === 'starting') {
+    try {
+      logs = await getAgentLogs(apiKey, agentAddress);
+      // Look for common Python error patterns in logs
+      const errorPatterns = [
+        /(?:ImportError|ModuleNotFoundError):\s*.+/,
+        /(?:SyntaxError):\s*.+/,
+        /(?:NameError):\s*.+/,
+        /(?:TypeError):\s*.+/,
+        /(?:AttributeError):\s*.+/,
+        /(?:IndentationError):\s*.+/,
+        /(?:ValueError):\s*.+/,
+        /Traceback \(most recent call last\)/,
+        /Error:\s*.+/,
+      ];
+      for (const pattern of errorPatterns) {
+        const match = logs.match(pattern);
+        if (match) {
+          compilationError = match[0];
+          status = 'error';
+          break;
+        }
+      }
+    } catch {
+      // Logs endpoint may not be available yet — leave status as 'starting'
+    }
+  }
+
   // Build optimization checklist
   const optimization = buildOptimizationChecklist({
     agentAddress,
@@ -365,5 +432,7 @@ export async function deployAgent(
     digest: uploaded.digest,
     secretErrors: secretErrors.length > 0 ? secretErrors : undefined,
     optimization,
+    logs: status === 'error' ? logs : undefined,
+    compilationError,
   };
 }
