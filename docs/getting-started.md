@@ -232,6 +232,8 @@ cd my-trading-bot
 npx agentlaunch deploy
 ```
 
+The default template generates `agent.py` with Chat Protocol v0.3.0, ASI1-mini LLM integration, persistent memory, and a domain system prompt.
+
 ---
 
 ## Path C: MCP Server (`agent-launch-mcp`)

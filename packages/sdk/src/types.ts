@@ -405,14 +405,18 @@ export interface AgentverseDeployResult {
   agentAddress: string;
   /** The agent's Fetch wallet address (if available after compilation). */
   walletAddress?: string;
-  /** Final status: 'starting', 'compiled', or 'running'. */
-  status: 'starting' | 'compiled' | 'running';
+  /** Final status: 'starting', 'compiled', 'running', or 'error'. */
+  status: 'starting' | 'compiled' | 'running' | 'error';
   /** Code digest from upload (if returned). */
   digest?: string;
   /** Any errors from setting secrets (non-fatal). */
   secretErrors?: string[];
   /** Post-deploy optimization checklist (7 ranking factors). */
   optimization?: OptimizationCheckItem[];
+  /** Agent logs (populated on error or when compilation fails). */
+  logs?: string;
+  /** Compilation error message extracted from logs (if any). */
+  compilationError?: string;
 }
 
 /** Options for updating an already-deployed agent's metadata on Agentverse. */

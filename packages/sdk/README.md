@@ -34,6 +34,8 @@ npm install ethers@^6
 | Read/write agent storage | `getStorage()` / `putStorage()` | [Agentverse Storage](#agentverse-storage) |
 | Preview a buy without executing | `calculateBuy()` | [Market Operations](#market-operations) |
 | Deploy an agent to Agentverse | `deployAgent()` | [Agent Deployment](#agentverse-deployment--optimization) |
+| Fetch agent execution logs | `getAgentLogs()` | [Agent Deployment](#agentverse-deployment--optimization) |
+| Stop a running agent | `stopAgent()` | [Agent Deployment](#agentverse-deployment--optimization) |
 | Generate a deploy link for a human | `generateDeployLink()` | [Handoff Links](#handoff-link-generation) |
 
 ## Quick Start

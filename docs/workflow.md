@@ -45,7 +45,7 @@ Claude Code launches automatically in the new project directory with a 6-step wo
 **What gets created:**
 ```
 my-agent/
-  agent.py              # Working agent code (Chat Protocol + LLM + memory)
+  agent.py              # Working agent code (Chat Protocol + ASI1-mini LLM + persistent memory + domain system prompt)
   CLAUDE.md             # Context for Claude Code sessions
   .claude/              # Rules, skills, MCP config
   .cursor/              # Cursor IDE config

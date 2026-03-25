@@ -34,7 +34,7 @@ npx agentlaunch                    # Interactive wizard (prompts for name, descr
 npx agentlaunch my-agent --local   # Scaffold only, no deploy
 ```
 
-Creates `agent.py` with Chat Protocol v0.3.0, LLM integration, and conversation memory.
+Creates `agent.py` with Chat Protocol v0.3.0, ASI1-mini LLM integration, persistent memory, and domain system prompt.
 Claude Code launches in the project to help write real business logic (not placeholders).
 
 ### Phase 2: Deploy
@@ -284,7 +284,7 @@ You have access to these tools:
 
 | Template | Description | Use Case |
 |----------|-------------|----------|
-| `chat-memory` | **LLM + conversation memory** (default) | Most agents — smart conversations out of the box |
+| `chat-memory` | **LLM + persistent memory + domain system prompt** (default) | Most agents — smart conversations out of the box |
 | `custom` | Blank Chat Protocol boilerplate | Start from scratch |
 | `price-monitor` | Watches token prices, sends alerts | Monitoring service |
 | `trading-bot` | Buy/sell signal generation | Trading service |

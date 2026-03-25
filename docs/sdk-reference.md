@@ -1,4 +1,4 @@
-# SDK Reference -- `agentlaunch-sdk` v0.2.5
+# SDK Reference -- `agentlaunch-sdk` v0.2.12
 
 Full API reference for the official TypeScript SDK for the AgentLaunch platform.
 
@@ -667,6 +667,52 @@ interface ImportAgentverseResponse {
 ```
 
 **SDK path:** `POST /agents/import-agentverse`
+
+---
+
+### `getAgentLogs(apiKey, address)`
+
+Fetch the latest execution logs for an Agentverse agent.
+
+```ts
+import { getAgentLogs } from 'agentlaunch-sdk';
+
+const logs = await getAgentLogs('av-xxxxxxxxxxxxxxxx', 'agent1q...');
+console.log(logs); // Array of log entries with timestamps
+```
+
+**SDK path:** `GET /v1/hosting/agents/{address}/logs/latest` (Agentverse API)
+
+---
+
+### `stopAgent(apiKey, address)`
+
+Stop a running Agentverse agent.
+
+```ts
+import { stopAgent } from 'agentlaunch-sdk';
+
+await stopAgent('av-xxxxxxxxxxxxxxxx', 'agent1q...');
+```
+
+**SDK path:** `POST /v1/hosting/agents/{address}/stop` (Agentverse API)
+
+---
+
+### `deployAgent(options)` — Compilation Error Handling
+
+When compilation fails, `deployAgent()` now returns `status: 'error'` with additional diagnostic fields:
+
+```ts
+const result = await deployAgent({ ... });
+
+if (result.status === 'error') {
+  console.error('Compilation error:', result.compilationError);
+  console.error('Agent logs:', result.logs);
+}
+```
+
+The `compilationError` field contains the error message from the Agentverse compiler, and `logs` contains recent agent logs to help diagnose the issue.
 
 ---
 

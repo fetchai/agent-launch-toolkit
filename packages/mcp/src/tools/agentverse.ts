@@ -21,9 +21,11 @@ function validatePathWithinCwd(filePath: string, paramName: string): string {
 // ---------------------------------------------------------------------------
 
 export interface DeployToAgentverseResult {
-  success: true;
+  success: boolean;
   agentAddress: string;
   status: string;
+  compilationError?: string;
+  logs?: string;
   _markdown?: string;
 }
 
@@ -88,12 +90,36 @@ export async function deployToAgentverse(args: {
     metadata,
   });
 
-  const _markdown = `# Agent Deployed: ${agentName}
+  // Build response markdown based on status
+  let _markdown: string;
+
+  if (result.status === 'error') {
+    _markdown = `# Agent Deploy FAILED: ${agentName}
 
 | Field | Value |
 |-------|-------|
 | Address | \`${result.agentAddress}\` |
-| Status | ${result.status} |
+| Status | **ERROR** — compilation failed |
+| Error | ${result.compilationError ?? 'Unknown'} |
+| File | ${args.agentFile} |
+
+## Compilation Error
+\`\`\`
+${result.compilationError ?? 'No error details available'}
+\`\`\`
+
+${result.logs ? `## Agent Logs (last lines)\n\`\`\`\n${result.logs.split('\n').slice(-20).join('\n')}\n\`\`\`` : ''}
+
+## Fix Steps
+1. Read the error above and fix the issue in \`${args.agentFile}\`
+2. Redeploy: \`deploy_to_agentverse\``;
+  } else {
+    _markdown = `# Agent Deployed: ${agentName}
+
+| Field | Value |
+|-------|-------|
+| Address | \`${result.agentAddress}\` |
+| Status | ${result.status === 'running' ? 'Running' : result.status} |
 | File | ${args.agentFile} |
 
 ## Next Steps
@@ -104,11 +130,14 @@ export async function deployToAgentverse(args: {
 ## Other Surfaces
 - CLI: \`npx agentlaunch deploy\`
 - SDK: \`deployAgent({ apiKey, agentName, sourceCode })\``;
+  }
 
   return {
-    success: true,
+    success: result.status !== 'error',
     agentAddress: result.agentAddress,
     status: result.status,
+    compilationError: result.compilationError,
+    logs: result.status === 'error' ? result.logs : undefined,
     _markdown,
   };
 }
