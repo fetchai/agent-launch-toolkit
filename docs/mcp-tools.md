@@ -1,4 +1,4 @@
-# MCP Tools Reference — `agent-launch-mcp` v2.1.6
+# MCP Tools Reference — `agent-launch-mcp` v2.3.3
 
 The AgentLaunch MCP server exposes 22 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, execute on-chain trades, and generate handoff links entirely from your IDE.
 
@@ -483,7 +483,7 @@ Deploy a Python agent file to Agentverse hosted agents. Creates the agent record
 }
 ```
 
-**Output:**
+**Output (success):**
 
 ```json
 {
@@ -492,6 +492,20 @@ Deploy a Python agent file to Agentverse hosted agents. Creates the agent record
   "status": "running"
 }
 ```
+
+**Output (compilation failure):**
+
+```json
+{
+  "success": false,
+  "agentAddress": "agent1q...",
+  "status": "error",
+  "compilationError": "SyntaxError: invalid syntax (agent.py, line 42)",
+  "logs": ["2026-03-26T10:00:00Z ERROR: compilation failed..."]
+}
+```
+
+When compilation fails, the response includes `compilationError` with the compiler message and `logs` with recent agent logs for diagnosis.
 
 **Example prompt:**
 ```
