@@ -21,7 +21,7 @@
   ],
   "author": "Agent-Launch",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.28.0",
     "agentlaunch-sdk": "^0.2.11",
     "agentlaunch-templates": "0.4.6",
     "dotenv": "^17.3.1",
