@@ -1,13 +1,14 @@
 /**
  * MCP tool handlers for server-side custodial trading operations (W1-MCP).
  *
- * These tools delegate execution to the AgentLaunch backend — the server
- * derives the agent's HD wallet, executes on-chain transactions, and returns
- * results.  No private key is required in the MCP environment; authentication
- * is via AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) in the environment.
+ * Two wallet types:
+ *   - **User wallet** (default): derived from user identity, stable forever.
+ *   - **Agent wallet**: derived from agent address, for autonomous agent trading.
  *
- * Contrast with trading.ts which executes trades directly from a
- * WALLET_PRIVATE_KEY env var held by the MCP client.
+ * These tools delegate execution to the AgentLaunch backend — the server
+ * derives the wallet from a master seed and executes on-chain transactions.
+ * No private key is required in the MCP environment; authentication is via
+ * AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) in the environment.
  *
  * Tools: get_agent_wallet, buy_token, sell_token
  */
@@ -16,67 +17,82 @@ import { getWallet, executeBuy, executeSell } from 'agentlaunch-sdk';
 import type { WalletInfoResponse, CustodialBuyResult, CustodialSellResult } from 'agentlaunch-sdk';
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function chainName(chainId: number): string {
+  if (chainId === 56) return 'BSC Mainnet';
+  if (chainId === 97) return 'BSC Testnet';
+  if (chainId === 1) return 'Ethereum Mainnet';
+  if (chainId === 11155111) return 'Ethereum Sepolia';
+  return `Chain ${chainId}`;
+}
+
+function explorerBase(chainId: number): string {
+  if (chainId === 56) return 'https://bscscan.com';
+  if (chainId === 97) return 'https://testnet.bscscan.com';
+  if (chainId === 1) return 'https://etherscan.io';
+  return 'https://sepolia.etherscan.io';
+}
+
+function gasSymbol(chainId: number): string {
+  return chainId === 1 || chainId === 11155111 ? 'ETH' : 'BNB';
+}
+
+// ---------------------------------------------------------------------------
 // Tool implementations
 // ---------------------------------------------------------------------------
 
 /**
  * get_agent_wallet
  *
- * Returns the agent's server-managed custodial wallet address and balances.
- * The wallet address is deterministic — it will not change between calls.
- * Requires AGENTLAUNCH_API_KEY or AGENTVERSE_API_KEY in env.
+ * Returns a custodial wallet address and balances.
+ * - No agentAddress → user's own wallet (derived from user identity, stable forever)
+ * - With agentAddress → that agent's wallet (derived from agent address)
  *
- * Maps to: GET /api/agents/wallet?chainId={chainId}
+ * Maps to: GET /api/agents/wallet?chainId={chainId}&agentAddress={agentAddress}
  */
 export async function getAgentWalletTool(args: {
   chainId?: number;
+  agentAddress?: string;
 }): Promise<WalletInfoResponse & { _markdown: string }> {
   const chainId = args.chainId ?? 97;
 
-  const info = await getWallet(chainId);
+  const info = await getWallet(chainId, args.agentAddress);
 
-  const chainName =
-    chainId === 56
-      ? 'BSC Mainnet'
-      : chainId === 97
-        ? 'BSC Testnet'
-        : chainId === 1
-          ? 'Ethereum Mainnet'
-          : chainId === 11155111
-            ? 'Ethereum Sepolia'
-            : `Chain ${chainId}`;
+  const walletType = args.agentAddress ? 'Agent Wallet' : 'User Wallet';
+  const walletLabel = args.agentAddress
+    ? `Agent: \`${args.agentAddress}\``
+    : 'Your personal wallet (stable across all agents)';
 
-  const explorerBase =
-    chainId === 56
-      ? 'https://bscscan.com'
-      : chainId === 97
-        ? 'https://testnet.bscscan.com'
-        : chainId === 1
-          ? 'https://etherscan.io'
-          : 'https://sepolia.etherscan.io';
+  const gas = gasSymbol(chainId);
+  const explorer = explorerBase(chainId);
 
-  const gasSymbol = chainId === 1 || chainId === 11155111 ? 'ETH' : 'BNB';
-
-  const _markdown = `# Agent Custodial Wallet
+  const _markdown = `# ${walletType}
 
 | Property | Value |
 |----------|-------|
 | Address | \`${info.address}\` |
-| Network | ${chainName} |
+| Type | ${walletLabel} |
+| Network | ${chainName(chainId)} |
 | FET Balance | ${info.fetBalance} FET |
-| Gas Balance | ${info.nativeBalance} ${gasSymbol} |
+| Gas Balance | ${info.nativeBalance} ${gas} |
 
-[View on Explorer](${explorerBase}/address/${info.address})
+[View on Explorer](${explorer}/address/${info.address})
+
+## Wallet Types
+- **User wallet** (default): \`get_agent_wallet({})\` — your personal wallet, never changes
+- **Agent wallet**: \`get_agent_wallet({ agentAddress: "agent1q..." })\` — per-agent trading wallet
 
 ## Next Steps
 - Fund with FET before trading (wallet needs FET to buy tokens)
-- Fund with ${gasSymbol} for gas (minimum ~0.001 ${gasSymbol} per trade)
+- Fund with ${gas} for gas (minimum ~0.001 ${gas} per trade)
 - Buy tokens: \`buy_token({ tokenAddress: "0x...", fetAmount: "100" })\`
 - Sell tokens: \`sell_token({ tokenAddress: "0x...", tokenAmount: "500000" })\`
 
 ## Other Surfaces
-- SDK: \`sdk.trading.getWallet()\`
-- CLI: \`npx agentlaunch wallet --custodial\``;
+- SDK: \`sdk.trading.getWallet(${chainId}${args.agentAddress ? `, "${args.agentAddress}"` : ''})\`
+- CLI: \`npx agentlaunch wallet custodial${args.agentAddress ? ` --agent ${args.agentAddress}` : ''}\``;
 
   return { ...info, _markdown };
 }
@@ -84,9 +100,9 @@ export async function getAgentWalletTool(args: {
 /**
  * buy_token
  *
- * Executes a bonding-curve buy using the agent's server-managed custodial
- * wallet.  The backend handles FET approval automatically if the current
- * allowance is insufficient.  Requires AGENTLAUNCH_API_KEY or AGENTVERSE_API_KEY.
+ * Executes a bonding-curve buy using a custodial wallet.
+ * - No agentAddress → trades from user's wallet
+ * - With agentAddress → trades from that agent's wallet
  *
  * Maps to: POST /api/agents/buy
  */
@@ -94,6 +110,7 @@ export async function buyTokenTool(args: {
   tokenAddress: string;
   fetAmount: string;
   slippagePercent?: number;
+  agentAddress?: string;
 }): Promise<CustodialBuyResult & { _markdown: string }> {
   const slippagePercent = args.slippagePercent ?? 5;
 
@@ -101,6 +118,7 @@ export async function buyTokenTool(args: {
     tokenAddress: args.tokenAddress,
     fetAmount: args.fetAmount,
     slippagePercent,
+    agentAddress: args.agentAddress,
   });
 
   const bscscan = `https://testnet.bscscan.com/tx/${result.txHash}`;
@@ -108,6 +126,8 @@ export async function buyTokenTool(args: {
     result.approvalTxHash
       ? `| Approval Tx | [${result.approvalTxHash.slice(0, 18)}…](https://testnet.bscscan.com/tx/${result.approvalTxHash}) |`
       : '';
+
+  const walletType = args.agentAddress ? `Agent (${args.agentAddress})` : 'User';
 
   const _markdown = `# Custodial Buy Executed
 
@@ -121,6 +141,7 @@ ${approvalLine}
 | Block | ${result.blockNumber} |
 | Gas Used | ${result.gasUsed} |
 | Wallet | \`${result.walletAddress}\` |
+| Wallet Type | ${walletType} |
 
 ## Next Steps
 - Check wallet: \`get_agent_wallet({})\`
@@ -137,9 +158,9 @@ ${approvalLine}
 /**
  * sell_token
  *
- * Executes a bonding-curve sell using the agent's server-managed custodial
- * wallet.  No FET approval is required for sells.
- * Requires AGENTLAUNCH_API_KEY or AGENTVERSE_API_KEY.
+ * Executes a bonding-curve sell using a custodial wallet.
+ * - No agentAddress → trades from user's wallet
+ * - With agentAddress → trades from that agent's wallet
  *
  * Maps to: POST /api/agents/sell
  */
@@ -147,6 +168,7 @@ export async function sellTokenTool(args: {
   tokenAddress: string;
   tokenAmount: string;
   slippagePercent?: number;
+  agentAddress?: string;
 }): Promise<CustodialSellResult & { _markdown: string }> {
   const slippagePercent = args.slippagePercent ?? 5;
 
@@ -154,9 +176,12 @@ export async function sellTokenTool(args: {
     tokenAddress: args.tokenAddress,
     tokenAmount: args.tokenAmount,
     slippagePercent,
+    agentAddress: args.agentAddress,
   });
 
   const bscscan = `https://testnet.bscscan.com/tx/${result.txHash}`;
+
+  const walletType = args.agentAddress ? `Agent (${args.agentAddress})` : 'User';
 
   const _markdown = `# Custodial Sell Executed
 
@@ -167,6 +192,7 @@ export async function sellTokenTool(args: {
 | Block | ${result.blockNumber} |
 | Gas Used | ${result.gasUsed} |
 | Wallet | \`${result.walletAddress}\` |
+| Wallet Type | ${walletType} |
 
 ## Next Steps
 - Check wallet balances: \`get_agent_wallet({})\`
