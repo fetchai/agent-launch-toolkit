@@ -443,7 +443,7 @@ Even when sending TFET, you pay the gas fee in tBNB. Always keep a small tBNB ba
 |------------------|------------------|
 | Simple tBNB transfer | ~0.0001 tBNB |
 | TFET transfer | ~0.0002 tBNB |
-| Complex contract interaction | ~0.001 tBNB |
+| Complex contract interaction | ~0.005 tBNB |
 
 ---
 
@@ -469,7 +469,7 @@ You'll receive 0.1-0.5 tBNB, enough for hundreds of transactions.
 Message the $GIFT agent on Agentverse:
 1. Visit: [agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
 2. Send message: `claim 0xYOUR_WALLET_ADDRESS`
-3. Receive: 200 TFET + 0.001 tBNB (up to 3 claims)
+3. Receive: 200 TFET + 0.005 tBNB (up to 3 claims)
 
 **Option 2: Ask in Discord**
 

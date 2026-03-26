@@ -611,7 +611,7 @@ describe('claim command', () => {
       success: true,
       wallet: '0xABCDEF1234567890ABCDEF1234567890ABCDEF12',
       fetAmount: 200,
-      bnbAmount: 0.001,
+      bnbAmount: 0.005,
       fetTxHash: '0xtxhash_fet_123',
       bnbTxHash: '0xtxhash_bnb_456',
     };
@@ -652,7 +652,7 @@ describe('claim command', () => {
     const parsed = JSON.parse(output);
     assert.equal(parsed.success, true);
     assert.equal(parsed.fetAmount, 200);
-    assert.equal(parsed.bnbAmount, 0.001);
+    assert.equal(parsed.bnbAmount, 0.005);
   });
 
   it('CLI-24b: claim rejects invalid wallet address', async () => {

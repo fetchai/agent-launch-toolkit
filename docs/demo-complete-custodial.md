@@ -85,7 +85,7 @@ Message the $GIFT agent on Agentverse:
 claim 0xYourWalletAddress
 ```
 
-You'll receive 200 TFET + 0.001 tBNB for gas.
+You'll receive 200 TFET + 0.005 tBNB for gas.
 
 ---
 

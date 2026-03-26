@@ -14,7 +14,7 @@ Generated: 2026-03-09T04:27:41.770Z
 | CLI Commands | 20 |
 | Templates | 10 |
 | @gift TFET | 200 |
-| @gift tBNB | 0.001 |
+| @gift tBNB | 0.005 |
 
 ## Summary
 

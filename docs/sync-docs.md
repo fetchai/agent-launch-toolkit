@@ -57,7 +57,7 @@ Review the validation report and fix each issue.
 | CLI Commands | **25** |
 | Templates | **9** |
 | @gift TFET | **200** |
-| @gift tBNB | **0.001** |
+| @gift tBNB | **0.005** |
 
 ### Templates (9)
 1. chat-memory
@@ -180,7 +180,7 @@ Review the validation report and fix each issue.
 |------|------|---------|
 | 376 | `20+ tools` | `30 tools` |
 | 42, 48, 52 | `150 TFET` | `200 TFET` |
-| 42, 48 | `0.01 tBNB` | `0.001 tBNB` |
+| 42, 48 | `0.01 tBNB` | `0.005 tBNB` |
 
 ### frontend/src/app/docs/DocsHubClient.tsx
 
@@ -194,7 +194,7 @@ Review the validation report and fix each issue.
 
 | Line | Find | Replace |
 |------|------|---------|
-| 539 | `150 TFET + 0.01 tBNB` | `200 TFET + 0.001 tBNB` |
+| 539 | `150 TFET + 0.01 tBNB` | `200 TFET + 0.005 tBNB` |
 
 ### frontend/src/app/docs/mcp/page.tsx
 
@@ -221,7 +221,7 @@ Review the validation report and fix each issue.
 | Line | Find | Replace |
 |------|------|---------|
 | 136, 297 | `150 TFET` | `200 TFET` |
-| 136, 297 | `0.01 tBNB` | `0.001 tBNB` |
+| 136, 297 | `0.01 tBNB` | `0.005 tBNB` |
 
 ### frontend/src/app/docs/quickstart/page.tsx
 
@@ -260,7 +260,7 @@ find docs frontend/src/app -type f \( -name "*.md" -o -name "*.tsx" -o -name "*.
   -exec sed -i '' 's/150 TFET/200 TFET/g' {} \;
 
 find docs frontend/src/app -type f \( -name "*.md" -o -name "*.tsx" -o -name "*.ts" \) \
-  -exec sed -i '' 's/0\.01 tBNB/0.001 tBNB/g' {} \;
+  -exec sed -i '' 's/0\.01 tBNB/0.005 tBNB/g' {} \;
 
 # Fix versions (manual review recommended)
 # SDK: 0.2.3 → 0.2.7, 0.2.5 → 0.2.7
