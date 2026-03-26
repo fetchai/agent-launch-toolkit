@@ -136,7 +136,7 @@ If no .env or API key:
 │                                                                │
 │  3. Get testnet tokens (free):                                 │
 │     Message @gift on Agentverse: "claim 0x<your-wallet>"      │
-│     You'll receive 200 TFET + 0.001 tBNB instantly            │
+│     You'll receive 200 TFET + 0.005 tBNB instantly            │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
 ```

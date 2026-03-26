@@ -448,7 +448,7 @@ Test everything on BSC Testnet (chainId: 97) before mainnet.
 ```
 Agent: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 Command: claim 0x<wallet>
-Result: 200 TFET + 0.001 tBNB
+Result: 200 TFET + 0.005 tBNB
 ```
 
 **Or faucet:** https://testnet.bnbchain.org/faucet-smart

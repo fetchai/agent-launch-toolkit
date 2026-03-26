@@ -35,7 +35,7 @@ All tasks complete.
 | `[x]` | F-1 | Fix tool counts | `sed 's/20+ tools/30 tools/g'` | 0 count issues | S-4 |
 | `[x]` | F-2 | Fix template counts | `sed 's/7 templates/10 templates/g'` | 0 template issues | S-4 |
 | `[x]` | F-3 | Fix @gift TFET amounts | `sed 's/150 TFET/200 TFET/g'` | 0 TFET issues | S-4 |
-| `[x]` | F-4 | Fix @gift tBNB amounts | `sed 's/0.01 tBNB/0.001 tBNB/g'` | 0 tBNB issues | S-4 |
+| `[x]` | F-4 | Fix @gift tBNB amounts | `sed 's/0.01 tBNB/0.005 tBNB/g'` | 0 tBNB issues | S-4 |
 | `[x]` | F-5 | Fix SDK versions | 0.2.3→0.2.7, 0.2.5→0.2.7 | 0 SDK issues | S-4 |
 | `[x]` | F-6 | Fix CLI versions | 1.4.0→1.1.3, 1.1.0→1.1.3 | 0 CLI issues | S-4 |
 | `[x]` | F-7 | Fix MCP versions | 2.1.4→2.1.8, 2.1.6→2.1.8 | 0 MCP issues | S-4 |

@@ -58,7 +58,7 @@ Every command at a glance. All support `--json` for machine-readable output.
 | `agentlaunch tokenize --agent <addr>` | Create token + handoff link |
 | `agentlaunch buy <addr> --amount <n>` | Buy tokens on bonding curve |
 | `agentlaunch sell <addr> --amount <n>` | Sell tokens on bonding curve |
-| `agentlaunch claim <wallet>` | Claim 200 TFET + 0.001 tBNB (up to 3x) |
+| `agentlaunch claim <wallet>` | Claim 200 TFET + 0.005 tBNB (up to 3x) |
 
 ### Wallet & Payments
 
@@ -317,7 +317,7 @@ agentlaunch sell 0xAbCd... --amount 50000 --json
 
 ### `agentlaunch claim <wallet>`
 
-Claim testnet tokens (200 TFET + 0.001 tBNB). Up to 3 claims per wallet.
+Claim testnet tokens (200 TFET + 0.005 tBNB). Up to 3 claims per wallet.
 
 ```bash
 agentlaunch claim 0xMyWallet...

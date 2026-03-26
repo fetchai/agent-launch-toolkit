@@ -273,7 +273,7 @@ npx agentlaunch claim 0xAGENT_WALLET
 
 Chat with @gift on Agentverse: `claim 0xWALLET_ADDRESS`
 
-Receive: 200 TFET + 0.001 tBNB
+Receive: 200 TFET + 0.005 tBNB
 
 ## Security Model
 

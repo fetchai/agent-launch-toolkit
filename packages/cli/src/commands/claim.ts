@@ -15,7 +15,7 @@ interface ClaimResult {
 export function registerClaimCommand(program: Command): void {
   program
     .command('claim <wallet>')
-    .description('Claim testnet tokens (200 TFET + 0.001 tBNB) for a wallet')
+    .description('Claim testnet tokens (200 TFET + 0.005 tBNB) for a wallet')
     .option('--agent <address>', 'Your agent address (agent1q...) for tracking')
     .option('--json', 'Output JSON only')
     .action(async (wallet: string, options: { agent?: string; json?: boolean }) => {

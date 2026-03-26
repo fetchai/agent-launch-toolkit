@@ -775,7 +775,7 @@ echo "AGENTVERSE_API_KEY=YOUR_KEY" >> .env
 Message the @gift faucet agent on Agentverse:
 - Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 - Send: \`claim 0x<your-wallet-address>\`
-- Receive: 200 TFET + 0.001 tBNB (covers 120 FET deploy fee)
+- Receive: 200 TFET + 0.005 tBNB (covers 120 FET deploy fee)
 
 ## First Token: Three Paths
 
