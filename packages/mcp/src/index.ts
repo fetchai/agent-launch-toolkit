@@ -20,6 +20,7 @@ import { commerceHandlers } from "./tools/commerce.js";
 import { tradingHandlers } from "./tools/trading.js";
 import { paymentHandlers } from "./tools/payments.js";
 import { custodialHandlers } from "./tools/custodial.js";
+import { skillHandlers } from "./tools/skill.js";
 
 // Create the server
 const server = new Server(
@@ -994,6 +995,32 @@ export const TOOLS = [
       required: ["walletAddress"],
     },
   },
+  // Skill discovery --------------------------------------------------------
+  {
+    name: "get_skill",
+    description:
+      "Get the AgentLaunch skill manifest — the complete guide for AI agents to discover, tokenize, and trade.\n\nUSE THIS TOOL WHEN:\n- User asks what AgentLaunch can do\n- An agent needs to self-configure or discover available capabilities\n- User wants the skill.md content\n\nExamples: get_skill(), get_skill({ format: \"json\" })\n\nNext: `install_skill` to configure MCP tools, `list_tokens` to browse.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        format: {
+          type: "string",
+          enum: ["markdown", "json"],
+          description:
+            "Output format: 'markdown' (default) returns raw skill.md, 'json' returns structured phases/tools/endpoints",
+        },
+      },
+    },
+  },
+  {
+    name: "install_skill",
+    description:
+      "Get the MCP server configuration to install AgentLaunch tools in Claude Code or Cursor.\n\nUSE THIS TOOL WHEN:\n- User wants to add AgentLaunch tools to their editor\n- Agent needs to self-install MCP capabilities\n- User asks how to set up AgentLaunch integration\n\nReturns ready-to-paste JSON config for claude_desktop_config.json, .claude/settings.json, or .cursor/mcp.json.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
 ];
 
 // Handle list_tools request
@@ -1022,6 +1049,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(tradingHandlers as Record<string, AnyHandler>),
       ...(paymentHandlers as Record<string, AnyHandler>),
       ...(custodialHandlers as Record<string, AnyHandler>),
+      ...(skillHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {
