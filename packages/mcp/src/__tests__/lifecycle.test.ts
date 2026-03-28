@@ -74,11 +74,11 @@ describe('MCP-S01: Server startup', () => {
     assert.ok(Array.isArray(TOOLS), 'TOOLS should be an array');
   });
 
-  it('TOOLS array has exactly 33 tools', () => {
+  it('TOOLS array has exactly 38 tools', () => {
     assert.equal(
       TOOLS.length,
-      33,
-      `Expected 33 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
+      38,
+      `Expected 38 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
     );
   });
 

@@ -1,6 +1,6 @@
-# MCP Tools Reference — `agent-launch-mcp` v2.3.3
+# MCP Tools Reference — `agent-launch-mcp` v2.3.5
 
-The AgentLaunch MCP server exposes 22 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, execute on-chain trades, and generate handoff links entirely from your IDE.
+The AgentLaunch MCP server exposes 41 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, deploy to Agentverse, execute on-chain trades, and generate handoff links entirely from your IDE.
 
 **Install:**
 ```bash

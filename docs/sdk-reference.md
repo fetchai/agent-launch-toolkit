@@ -1,4 +1,4 @@
-# SDK Reference -- `agentlaunch-sdk` v0.2.12
+# SDK Reference -- `agentlaunch-sdk` v0.2.13
 
 Full API reference for the official TypeScript SDK for the AgentLaunch platform.
 

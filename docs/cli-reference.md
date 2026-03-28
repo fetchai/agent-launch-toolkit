@@ -1,6 +1,6 @@
-# CLI Reference — `agentlaunch` v1.1.0
+# CLI Reference — `agentlaunch` v1.2.7
 
-Full command reference for the AgentLaunch CLI. Scaffold, deploy, tokenize, and trade AI agent tokens from the terminal.
+Full command reference for the AgentLaunch CLI (26 commands). Scaffold, deploy, tokenize, and trade AI agent tokens from the terminal.
 
 **Install globally:**
 ```bash
@@ -10,7 +10,7 @@ npm install -g agentlaunch
 **Verify:**
 ```bash
 agentlaunch --version
-# 1.1.0
+# 1.2.7
 
 agentlaunch --help
 ```

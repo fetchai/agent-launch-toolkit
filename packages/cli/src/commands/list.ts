@@ -81,14 +81,11 @@ export function registerListCommand(program: Command): void {
       let response: TokensResponse;
       try {
         const client = getPublicClient();
-        const query = new URLSearchParams({
-          limit: String(limit),
+        response = await client.get<TokensResponse>("/tokens", {
+          limit,
           sort,
-          page: "1",
+          page: 1,
         });
-        response = await client.get<TokensResponse>(
-          `/tokens?${query}`,
-        );
       } catch (err) {
         if (options.json) {
           console.log(JSON.stringify({ error: (err as Error).message }));

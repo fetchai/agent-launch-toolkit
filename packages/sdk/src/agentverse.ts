@@ -171,6 +171,32 @@ export async function stopAgent(
 }
 
 /**
+ * Fetch the current source code files of an Agentverse agent.
+ *
+ * Returns the code array stored for the agent.  Each entry contains
+ * `language`, `name` (filename), and `value` (source text).
+ *
+ * The Agentverse API returns the `code` field as a double-encoded JSON string,
+ * so this function handles the inner parse automatically.
+ */
+export async function getAgentCode(
+  apiKey: string,
+  agentAddress: string,
+): Promise<Array<{ language: string; name: string; value: string }>> {
+  const result = await avFetch<{ code?: string }>(
+    apiKey,
+    'GET',
+    `/hosting/agents/${agentAddress}/code`,
+  );
+  if (!result.code) return [];
+  try {
+    return JSON.parse(result.code) as Array<{ language: string; name: string; value: string }>;
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Fetch the latest logs from an Agentverse agent.
  * Returns log lines as a string. Useful for debugging compilation errors.
  */

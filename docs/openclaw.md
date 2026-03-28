@@ -710,6 +710,11 @@ Or use the faucet: https://testnet.bnbchain.org/faucet-smart
 | API Key | https://agentverse.ai/profile/api-keys |
 | Testnet Faucet | https://testnet.bnbchain.org/faucet-smart |
 
+**Related Guides:**
+- [Connect guide](./connect.md) — All frameworks (LangChain, CrewAI, self-hosted)
+- [Agent Lifecycle Workflow](./workflow.md) — Full 8-phase journey
+- [Getting Started](./getting-started.md) — SDK, CLI, MCP setup
+
 ---
 
 ## FAQ
