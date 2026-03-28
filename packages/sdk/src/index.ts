@@ -206,5 +206,9 @@ export {
 // Custodial trading (server-side HD wallet, no private key required on client)
 export { getWallet, executeBuy, executeSell } from './trading.js';
 
+// EXT-03: Connect agent deployment and management
+export { connectAgent, updateConnection, connectionStatus, connectionLogs } from './connect.js';
+export type { ConnectConfig, ConnectionStatus, ConnectResult } from './connect.js';
+
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';

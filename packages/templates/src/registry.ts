@@ -16,6 +16,7 @@ import { template as dataAnalyzerTemplate } from "./templates/data-analyzer.js";
 import { template as researchTemplate } from "./templates/research.js";
 import { template as gifterTemplate } from "./templates/gifter.js";
 import { template as consumerCommerceTemplate } from "./templates/consumer-commerce.js";
+import { template as connectTemplate } from "./templates/connect.js";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -63,6 +64,7 @@ const TEMPLATES: AgentTemplate[] = [
   researchTemplate,
   gifterTemplate,
   consumerCommerceTemplate,
+  connectTemplate,
 ];
 
 // ---------------------------------------------------------------------------

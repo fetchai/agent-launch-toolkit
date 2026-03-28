@@ -252,6 +252,58 @@ Every token launches on a bonding curve: price starts low, rises with each purch
 
 ---
 
+## Agent Connect — Make Your Agent Discoverable
+
+Already have an agent running on your own server, a cloud function, or any HTTP endpoint? Connect it to Agentverse with one command — no rewrite required. Make your agent discoverable to 2.7M agents and ready for ASI:One routing.
+
+```bash
+npx agentlaunch connect --name "MyAPI" --endpoint https://myapi.example.com/agent
+```
+
+This creates a thin Agentverse agent that forwards all incoming messages to your external endpoint and relays responses back. Your existing logic runs where it already lives.
+
+### CLI Commands
+
+```bash
+npx agentlaunch connect --name "MyAPI" --endpoint https://...        # Connect agent → get Agentverse address
+npx agentlaunch connect-update agent1q... --endpoint https://...     # Point to a new endpoint
+npx agentlaunch connect-status agent1q...                            # Show health and last ping
+npx agentlaunch connect-logs agent1q... [--tail 50]                  # Stream forwarded message logs
+```
+
+### MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `connect_agent` | Connect your agent to Agentverse — make it discoverable to 2.7M agents |
+| `get_connect_status` | Check health, uptime, and last forwarded message |
+| `update_connect_endpoint` | Redirect an existing connection to a new URL |
+
+### SDK
+
+```typescript
+const al = new AgentLaunch();
+
+// Connect agent — returns Agentverse address, ready for ASI:One routing
+const agent = await al.agents.connectAgent({
+  name: 'MyAPI',
+  endpoint: 'https://myapi.example.com/agent',
+});
+
+// Redirect to a new URL (zero downtime)
+await al.agents.updateConnectedAgent(agent.address, 'https://v2.myapi.example.com/agent');
+
+// Health check
+const status = await al.agents.statusConnectedAgent(agent.address);
+
+// Recent forwarded messages
+const logs = await al.agents.logsConnectedAgent(agent.address, { tail: 50 });
+```
+
+Full docs: [docs/agent-connect.md](docs/agent-connect.md)
+
+---
+
 ## Get Started
 
 ### Claiming Testnet Tokens

@@ -21,6 +21,15 @@ import { tradingHandlers } from "./tools/trading.js";
 import { paymentHandlers } from "./tools/payments.js";
 import { custodialHandlers } from "./tools/custodial.js";
 import { skillHandlers } from "./tools/skill.js";
+import {
+  connectAgentToolDefinition,
+  connectHandlers as deployConnectHandlers,
+} from "./tools/connect/deploy.js";
+import { connectHandlers as statusConnectHandlers } from "./tools/connect/status.js";
+import {
+  UPDATE_CONNECTION_TOOL,
+  connectHandlers as updateConnectHandlers,
+} from "./tools/connect/update.js";
 
 // Create the server
 const server = new Server(
@@ -47,7 +56,9 @@ const server = new Server(
 // WRITE (moderate):  create_token_record, scaffold_agent, deploy_to_agentverse,
 //   update_agent_metadata, create_and_tokenize, post_comment, scaffold_swarm,
 //   deploy_swarm, create_delegation, get_fiat_link, create_invoice,
-//   scaffold_org_swarm, get_trade_link
+//   scaffold_org_swarm, get_trade_link, connect_agent, update_connection
+//
+// READ-ONLY (safe, connect):  get_connection_status
 //
 // DESTRUCTIVE (high risk — transfers value):  buy_tokens, sell_tokens,
 //   multi_token_payment, buy_token, sell_token
@@ -1021,6 +1032,24 @@ export const TOOLS = [
       properties: {},
     },
   },
+  // Connect agent tools ------------------------------------------------------
+  connectAgentToolDefinition,
+  {
+    name: "get_connection_status",
+    description:
+      "Get the current connection status of an agent by its agent1q... address.\n\nUSE THIS TOOL WHEN:\n- You need to check whether a connected agent is running or stopped\n- User asks about the state or last activity of a connected agent\n\nExamples: get_connection_status({ address: \"agent1q...\" })\n\nNext: `update_connection` to change the target URL, `connect_agent` to connect a new agent.",
+    inputSchema: {
+      type: "object" as const,
+      required: ["address"],
+      properties: {
+        address: {
+          type: "string",
+          description: "The agent1q... address of the agent to query",
+        },
+      },
+    },
+  },
+  UPDATE_CONNECTION_TOOL,
 ];
 
 // Handle list_tools request
@@ -1050,6 +1079,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(paymentHandlers as Record<string, AnyHandler>),
       ...(custodialHandlers as Record<string, AnyHandler>),
       ...(skillHandlers as Record<string, AnyHandler>),
+      ...(deployConnectHandlers as Record<string, AnyHandler>),
+      ...(statusConnectHandlers as Record<string, AnyHandler>),
+      ...(updateConnectHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {
