@@ -64,11 +64,8 @@ export async function authenticate(
   });
 
   // The auth endpoint accepts the key in the body and does not require
-  // an X-API-Key header, so we call post directly with no guard.
-  // We build a one-off request to avoid the "apiKey required" guard.
-  return (c as AgentLaunchClient & {
-    post<T>(path: string, body: unknown): Promise<T>;
-  }).post<AgentAuthResponse>('/agents/auth', { api_key: apiKey });
+  // an X-API-Key header, so we use postPublic to skip the auth guard.
+  return c.postPublic<AgentAuthResponse>('/agents/auth', { api_key: apiKey });
 }
 
 // ---------------------------------------------------------------------------
@@ -134,9 +131,7 @@ export async function importFromAgentverse(
     baseUrl: process.env['AGENT_LAUNCH_BASE_URL'],
   });
 
-  return (c as AgentLaunchClient & {
-    post<T>(path: string, body: unknown): Promise<T>;
-  }).post<ImportAgentverseResponse>('/agents/import-agentverse', {
+  return c.postPublic<ImportAgentverseResponse>('/agents/import-agentverse', {
     agentverseApiKey,
   });
 }

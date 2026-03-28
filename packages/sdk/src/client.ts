@@ -49,8 +49,13 @@ function resolveApiKey(configKey?: string): string | undefined {
  */
 async function extractErrorMessage(response: Response): Promise<string | undefined> {
   try {
-    const body = (await response.json()) as { message?: string; error?: string };
-    return body.message ?? body.error ?? undefined;
+    const body = (await response.json()) as { message?: string; error?: string | { code?: string; message?: string } };
+    if (body.message) return body.message;
+    if (typeof body.error === 'string') return body.error;
+    if (body.error && typeof body.error === 'object') {
+      return body.error.message ?? JSON.stringify(body.error);
+    }
+    return undefined;
   } catch {
     // Body is not JSON — ignore
     return undefined;
@@ -228,6 +233,40 @@ export class AgentLaunchClient {
   async post<T>(path: string, body: unknown): Promise<T> {
     // Build headers first — throws synchronously if apiKey is missing
     const headers = this.headers(true);
+
+    const response = await this.fetchWithRetry(
+      () => fetch(this.url(path), {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      }),
+      `POST ${path}`,
+    );
+
+    if (!response.ok) {
+      const serverMessage = await extractErrorMessage(response);
+      throw new AgentLaunchError(
+        `POST ${path} failed: ${response.status} ${response.statusText}` +
+        (serverMessage ? ` — ${serverMessage}` : ''),
+        response.status,
+        serverMessage,
+      );
+    }
+
+    return response.json() as Promise<T>;
+  }
+
+  /**
+   * Perform a typed POST request that does NOT require authentication.
+   *
+   * Used for endpoints where credentials are passed in the request body
+   * rather than via headers (e.g. `/agents/auth`).
+   *
+   * @param path API path
+   * @param body Request body (serialised to JSON)
+   */
+  async postPublic<T>(path: string, body: unknown): Promise<T> {
+    const headers = this.headers(false);
 
     const response = await this.fetchWithRetry(
       () => fetch(this.url(path), {

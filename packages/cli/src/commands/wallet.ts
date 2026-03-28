@@ -17,10 +17,73 @@ import {
   getWallet,
 } from "agentlaunch-sdk";
 
+async function runBalances(options: { address?: string; token?: string; chain: string; json?: boolean }): Promise<void> {
+  const chainId = parseInt(options.chain, 10);
+
+  let walletAddr: string;
+
+  if (options.address) {
+    // Read-only mode — no private key needed
+    walletAddr = options.address;
+  } else {
+    const privateKey = process.env["WALLET_PRIVATE_KEY"];
+    if (!privateKey) {
+      const msg = "Provide --address for read-only queries, or set WALLET_PRIVATE_KEY in .env.";
+      if (options.json) {
+        console.log(JSON.stringify({ error: msg }));
+      } else {
+        console.error(`Error: ${msg}`);
+      }
+      process.exit(1);
+    }
+
+    // Derive wallet address from private key
+    const ethers = await import("ethers");
+    walletAddr = new ethers.Wallet(
+      privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`,
+    ).address;
+  }
+
+  const tokenSymbols = options.token?.split(",").map((s) => s.trim().toUpperCase());
+
+  try {
+    const balances = await getMultiTokenBalances(walletAddr, tokenSymbols, chainId);
+
+    if (options.json) {
+      console.log(JSON.stringify({ wallet: walletAddr, chainId, balances }));
+    } else {
+      console.log(`\n  Wallet: ${walletAddr}`);
+      console.log(`  Chain:  ${chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`}\n`);
+      for (const [symbol, balance] of Object.entries(balances)) {
+        const bal = parseFloat(balance);
+        console.log(`  ${symbol.padEnd(8)} ${bal.toFixed(4)}`);
+      }
+      console.log();
+      console.log("\n  MCP: get_wallet_balances | SDK: client.getWalletBalances()");
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (options.json) {
+      console.log(JSON.stringify({ error: msg }));
+    } else {
+      console.error(`Error: ${msg}`);
+    }
+    process.exit(1);
+  }
+}
+
 export function registerWalletCommand(program: Command): void {
   const wallet = program
     .command("wallet")
-    .description("Multi-token wallet operations: balances, delegation, transfers");
+    .description("Multi-token wallet operations: balances, delegation, transfers")
+    .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
+    .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
+    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--json", "Output raw JSON")
+    .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
+      // Default: run balances when no subcommand is given
+      await runBalances(options);
+    });
 
   // --- wallet balances ---
   wallet
@@ -31,58 +94,7 @@ export function registerWalletCommand(program: Command): void {
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
     .option("--json", "Output raw JSON")
     .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
-      const chainId = parseInt(options.chain, 10);
-
-      let walletAddr: string;
-
-      if (options.address) {
-        // Read-only mode — no private key needed
-        walletAddr = options.address;
-      } else {
-        const privateKey = process.env["WALLET_PRIVATE_KEY"];
-        if (!privateKey) {
-          const msg = "Provide --address for read-only queries, or set WALLET_PRIVATE_KEY in .env.";
-          if (options.json) {
-            console.log(JSON.stringify({ error: msg }));
-          } else {
-            console.error(`Error: ${msg}`);
-          }
-          process.exit(1);
-        }
-
-        // Derive wallet address from private key
-        const ethers = await import("ethers");
-        walletAddr = new ethers.Wallet(
-          privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`,
-        ).address;
-      }
-
-      const tokenSymbols = options.token?.split(",").map((s) => s.trim().toUpperCase());
-
-      try {
-        const balances = await getMultiTokenBalances(walletAddr, tokenSymbols, chainId);
-
-        if (options.json) {
-          console.log(JSON.stringify({ wallet: walletAddr, chainId, balances }));
-        } else {
-          console.log(`\n  Wallet: ${walletAddr}`);
-          console.log(`  Chain:  ${chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`}\n`);
-          for (const [symbol, balance] of Object.entries(balances)) {
-            const bal = parseFloat(balance);
-            console.log(`  ${symbol.padEnd(8)} ${bal.toFixed(4)}`);
-          }
-          console.log();
-          console.log("\n  MCP: get_wallet_balances | SDK: client.getWalletBalances()");
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (options.json) {
-          console.log(JSON.stringify({ error: msg }));
-        } else {
-          console.error(`Error: ${msg}`);
-        }
-        process.exit(1);
-      }
+      await runBalances(options);
     });
 
   // --- wallet delegate ---

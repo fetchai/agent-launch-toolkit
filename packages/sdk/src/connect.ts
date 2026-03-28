@@ -373,8 +373,12 @@ export async function connectAgent(
   const timeoutSeconds =
     config.timeout !== undefined ? Math.ceil(config.timeout / 1000) : 30;
 
+  // Sanitize agent name to prevent Python code injection via docstring breakout.
+  // Strip characters that could escape a triple-quoted docstring or inject newlines.
+  const safeName = config.name.replace(/["\\\n\r]/g, '').slice(0, 64);
+
   const sourceCode = CONNECT_TEMPLATE
-    .replace(/\{\{AGENT_NAME\}\}/g, config.name)
+    .replace(/\{\{AGENT_NAME\}\}/g, safeName)
     .replace(/\{\{SEED_PHRASE\}\}/g, seedPhrase);
 
   // Step 3: Create the agent record on Agentverse.
@@ -459,15 +463,24 @@ export async function updateConnection(
   // The connect template writes:  EXTERNAL_ENDPOINT = "https://..."
   // We match that assignment regardless of surrounding whitespace.
   if (config.endpoint !== undefined) {
+    // Validate the endpoint is a proper URL to prevent injection via malformed values.
+    try {
+      new URL(config.endpoint);
+    } catch {
+      throw new Error(`Invalid endpoint URL: ${config.endpoint}`);
+    }
+    // Escape double quotes to prevent breaking out of the Python string literal.
+    const safeEndpoint = config.endpoint.replace(/"/g, '\\"');
+
     const endpointPattern = /^(\s*EXTERNAL_ENDPOINT\s*=\s*)["'].*?["']/m;
     if (endpointPattern.test(source)) {
       source = source.replace(
         endpointPattern,
-        `$1"${config.endpoint}"`,
+        `$1"${safeEndpoint}"`,
       );
     } else {
       // Pattern not present — prepend the assignment so the agent picks it up.
-      source = `EXTERNAL_ENDPOINT = "${config.endpoint}"\n${source}`;
+      source = `EXTERNAL_ENDPOINT = "${safeEndpoint}"\n${source}`;
     }
   }
 
