@@ -14,22 +14,38 @@ Required secrets (set via Agentverse dashboard or agentverse-cli):
   AUTH_SECRET         Optional — value of the auth header (e.g. Bearer sk-...)
   TIMEOUT             Optional — HTTP timeout in seconds  (default: 30)
 
-Expected request shape sent to EXTERNAL_ENDPOINT:
+Request shape sent to EXTERNAL_ENDPOINT:
   POST /chat
   Content-Type: application/json
   {
     "message": "user message text",
     "sender":  "agent1q...",
-    "context": {"agent_address": "agent1q..."}
+    "context": {
+      "agent_address": "agent1q...",
+      "message_id": "uuid"
+    }
   }
 
-Expected response shape from EXTERNAL_ENDPOINT:
-  {"reply": "response text"}
+Response shape from EXTERNAL_ENDPOINT:
+  {
+    "reply": "response text to send back to sender",
+    "outbox": [                          // Optional: messages to send to other agents
+      {
+        "to": "agent1q...",              // Target agent address
+        "message": "Hello other agent!"
+      }
+    ]
+  }
+
+Outbox messages are sent asynchronously. When those agents respond,
+their responses arrive as new requests to your endpoint with the
+original agent address in the "sender" field.
 """
 
 import asyncio
 import os
 from datetime import datetime
+from typing import Any
 from uuid import uuid4
 
 import aiohttp
@@ -64,24 +80,31 @@ def _build_headers() -> dict:
     return headers
 
 
-async def _forward(message: str, sender: str, agent_address: str) -> str:
-    """POST the message to EXTERNAL_ENDPOINT and return the reply text.
+async def _forward(
+    message: str, sender: str, agent_address: str, message_id: str
+) -> dict[str, Any]:
+    """POST the message to EXTERNAL_ENDPOINT and return the full response.
 
-    Handles three error categories with distinct user-facing messages:
-      - asyncio.TimeoutError   — upstream took too long
-      - aiohttp.ClientError    — network / DNS / connection failure
-      - Non-200 HTTP status    — upstream returned an error response
+    Returns a dict with:
+      - reply: str (the text to send back)
+      - outbox: list[dict] (optional messages to send to other agents)
     """
     if not EXTERNAL_ENDPOINT:
-        return (
-            "Connect agent is not configured yet. "
-            "Please set the EXTERNAL_ENDPOINT secret on Agentverse."
-        )
+        return {
+            "reply": (
+                "Connect agent is not configured yet. "
+                "Please set the EXTERNAL_ENDPOINT secret on Agentverse."
+            ),
+            "outbox": [],
+        }
 
     payload = {
         "message": message,
         "sender": sender,
-        "context": {"agent_address": agent_address},
+        "context": {
+            "agent_address": agent_address,
+            "message_id": message_id,
+        },
     }
 
     try:
@@ -93,24 +116,32 @@ async def _forward(message: str, sender: str, agent_address: str) -> str:
                 headers=_build_headers(),
             ) as resp:
                 if resp.status != 200:
-                    return (
-                        f"Upstream returned HTTP {resp.status}. "
-                        "Please check your EXTERNAL_ENDPOINT configuration."
-                    )
+                    return {
+                        "reply": (
+                            f"Upstream returned HTTP {resp.status}. "
+                            "Please check your EXTERNAL_ENDPOINT configuration."
+                        ),
+                        "outbox": [],
+                    }
                 data = await resp.json(content_type=None)
-                return str(data.get("reply", "")).strip() or (
-                    "Upstream returned an empty reply."
-                )
+                return {
+                    "reply": str(data.get("reply", "")).strip()
+                    or "Upstream returned an empty reply.",
+                    "outbox": data.get("outbox", []),
+                }
 
     except asyncio.TimeoutError:
-        return (
-            f"Request timed out after {TIMEOUT}s. "
-            "Try increasing the TIMEOUT secret or check your endpoint."
-        )
+        return {
+            "reply": (
+                f"Request timed out after {TIMEOUT}s. "
+                "Try increasing the TIMEOUT secret or check your endpoint."
+            ),
+            "outbox": [],
+        }
     except aiohttp.ClientConnectionError as exc:
-        return f"Could not reach the upstream endpoint: {exc}"
+        return {"reply": f"Could not reach the upstream endpoint: {exc}", "outbox": []}
     except aiohttp.ClientError as exc:
-        return f"HTTP error while forwarding message: {exc}"
+        return {"reply": f"HTTP error while forwarding message: {exc}", "outbox": []}
 
 
 async def _reply(
@@ -133,6 +164,40 @@ async def _reply(
         ctx.logger.error(f"Failed to send reply to {sender[:20]}: {exc}")
 
 
+async def _send_outbox(ctx: Context, outbox: list[dict]) -> None:
+    """Send messages from the outbox to other agents.
+
+    Each outbox item should have:
+      - to: str (agent address)
+      - message: str (text to send)
+    """
+    for item in outbox:
+        to_address = item.get("to", "")
+        message_text = item.get("message", "")
+
+        if not to_address or not message_text:
+            ctx.logger.warning(f"Skipping invalid outbox item: {item}")
+            continue
+
+        # Validate address format
+        if not to_address.startswith("agent1q"):
+            ctx.logger.warning(f"Invalid agent address in outbox: {to_address[:20]}")
+            continue
+
+        try:
+            ctx.logger.info(f"Sending outbox message to {to_address[:20]}")
+            await ctx.send(
+                to_address,
+                ChatMessage(
+                    timestamp=datetime.now(),
+                    msg_id=uuid4(),
+                    content=[TextContent(type="text", text=message_text[:4000])],
+                ),
+            )
+        except Exception as exc:  # noqa: BLE001
+            ctx.logger.error(f"Failed to send outbox message to {to_address[:20]}: {exc}")
+
+
 # ==============================================================================
 # AGENT
 # ==============================================================================
@@ -143,6 +208,15 @@ chat_proto = Protocol(spec=chat_protocol_spec)
 
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage) -> None:
+    """Handle incoming chat messages.
+
+    1. Acknowledge the message
+    2. Forward to external endpoint
+    3. Send reply back to sender
+    4. Send any outbox messages to other agents
+    """
+    message_id = str(msg.msg_id)
+
     # Always acknowledge first so ASI:One does not time out
     try:
         await ctx.send(
@@ -166,13 +240,24 @@ async def handle_chat(ctx: Context, sender: str, msg: ChatMessage) -> None:
 
     ctx.logger.info(f"Forwarding message from {sender[:20]} to {EXTERNAL_ENDPOINT}")
 
+    # Forward to external endpoint
     response = await _forward(
         message=text,
         sender=sender,
         agent_address=str(ctx.address),
+        message_id=message_id,
     )
 
-    await _reply(ctx, sender, response, end=True)
+    # Send reply back to original sender
+    reply_text = response.get("reply", "")
+    if reply_text:
+        await _reply(ctx, sender, reply_text, end=True)
+
+    # Process outbox - send messages to other agents
+    outbox = response.get("outbox", [])
+    if outbox:
+        ctx.logger.info(f"Processing {len(outbox)} outbox message(s)")
+        await _send_outbox(ctx, outbox)
 
 
 @chat_proto.on_message(ChatAcknowledgement)
