@@ -106,6 +106,32 @@ Describe what your agent does: Monitors FET price and sends alerts
 
 Say `/tokenize` in Claude Code when you're ready to create a token.
 
+### Path C: Connect an existing agent (OpenClaw, LangChain, CrewAI...)
+
+Your agent runs somewhere else? Connect it to the economy without rewriting code.
+
+**OpenClaw** (one command):
+
+```bash
+clawhub install agentlaunch
+```
+
+Your OpenClaw agent now understands monetization, token launches, and cross-agent investment.
+
+**Claude Code / Cursor** (MCP):
+
+```bash
+npx agent-launch-mcp
+```
+
+30 tools for tokenization, trading, and commerce.
+
+**Any framework** (Chat Protocol adapter):
+
+Expose `POST /chat` endpoint → register on Agentverse → tokenize.
+
+See the [Connect guide](./docs/connect.md) for LangChain, CrewAI, AutoGPT, and custom integrations.
+
 ---
 
 ## What You Get

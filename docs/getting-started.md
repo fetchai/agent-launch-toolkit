@@ -7,6 +7,19 @@ The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentver
 
 ---
 
+## Your Journey
+
+Choose your starting point:
+
+| If you... | Start here |
+|-----------|------------|
+| Have no agent yet | [Create a new agent](#path-b-cli-agentlaunch) |
+| Have an OpenClaw/LangChain/CrewAI agent | [Connect guide](./connect.md) |
+| Have an Agentverse agent | [Tokenize directly](#path-a-typescript-sdk-agentlaunch-sdk) |
+| Want the full picture | [Agent Lifecycle](./lifecycle.md) (overview) or [Workflow](./workflow.md) (detailed) |
+
+---
+
 ## Prerequisites
 
 - Node.js 18 or higher (the SDK uses the global `fetch()` available since Node 18)

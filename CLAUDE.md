@@ -125,9 +125,9 @@ Quality flywheel: good agents -> token holders -> higher price -> more visibilit
 | Package | Path | Description |
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
-| **CLI** | `packages/cli/` | 24 commands, one-command full lifecycle |
-| **MCP Server** | `packages/mcp/` | 28 tools for Claude Code / Cursor |
-| **Templates** | `packages/templates/` | 9 agent blueprints (chat-memory is default) |
+| **CLI** | `packages/cli/` | 26 commands, one-command full lifecycle |
+| **MCP Server** | `packages/mcp/` | 41 tools for Claude Code / Cursor |
+| **Templates** | `packages/templates/` | 10 agent blueprints (chat-memory is default) |
 
 ## Authentication
 
@@ -200,8 +200,8 @@ agent-launch-toolkit/
   packages/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch (interactive + scripted commands)
-    mcp/                    # agent-launch-mcp (28 tools for Claude Code)
-    templates/              # agentlaunch-templates (9 agent blueprints, chat-memory is default)
+    mcp/                    # agent-launch-mcp (41 tools for Claude Code)
+    templates/              # agentlaunch-templates (10 agent blueprints, chat-memory is default)
   .claude/
     settings.json           # MCP server config, permissions
     rules/                  # Auto-loaded coding rules
