@@ -222,11 +222,11 @@ try {
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "requires @cosmjs/crypto" | Missing dependency | `npm install @cosmjs/crypto` |
-| "requires bech32" | Missing dependency | `npm install bech32` |
-| "Invalid private key format" | Wrong key format | Use 32-byte hex (64 chars) |
-| "Signature verification failed" | Wrong signing method | Ensure ADR-036 format |
-| "Challenge failed: 500" | EVM address used | Use Cosmos address (handled automatically) |
+| "Invalid private key format" | Wrong key format | Use 32-byte hex (64 chars), with or without `0x` prefix |
+| "Signature verification failed" | Wrong signing method | Handled automatically — uses ADR-036 format |
+| "Challenge failed: 500" | EVM address used | Handled automatically — derives Cosmos address |
+
+**Note:** Dependency errors like "requires @cosmjs/crypto" or "requires bech32" only occur if using the SDK directly. The CLI and MCP bundle all dependencies automatically.
 
 ## Reference
 
