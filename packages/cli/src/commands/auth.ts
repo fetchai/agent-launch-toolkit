@@ -260,6 +260,14 @@ export function registerAuthCommand(program: Command): void {
         console.log("=".repeat(50));
         if (generatedWallet) {
           console.log("\nYour wallet and API key are saved. You're ready to build!");
+          console.log("\n" + "-".repeat(50));
+          console.log("IMPORTANT - BACK UP YOUR .env FILE:");
+          console.log("  - Your .env contains your wallet private key");
+          console.log("  - This wallet can hold real funds (FET, tokens)");
+          console.log("  - Back it up somewhere safe (password manager, secure drive)");
+          console.log("  - Never commit .env to git (add to .gitignore)");
+          console.log("  - Never share your .env file with anyone");
+          console.log("-".repeat(50));
           console.log("\nNEXT: npx agentlaunch my-first-agent");
         } else {
           console.log("\nYou can now use all agentlaunch commands.");

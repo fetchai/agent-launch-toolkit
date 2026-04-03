@@ -186,11 +186,31 @@ interface WalletAuthResult {
 
 ## Security Considerations
 
-1. **Never log private keys** — The SDK never logs the private key
-2. **Prefer env vars** — Use `WALLET_PRIVATE_KEY` in `.env` instead of CLI flags
-3. **Shell history** — Using `--private-key` flag leaves the key in shell history
-4. **Memory handling** — Private key is only held in memory during authentication
-5. **Token storage** — Store the resulting API key securely (e.g., in `.env`)
+### Back Up Your .env File
+
+Your `.env` file contains your wallet private key. This wallet can hold real funds (FET, tokens, etc.).
+
+- **Back it up** — Store a copy somewhere safe (password manager, encrypted drive, secure backup)
+- **Never commit to git** — Add `.env` to your `.gitignore` (the CLI does this automatically)
+- **Never share** — Don't send your `.env` file to anyone or paste it in chat
+
+If you lose your `.env` file and have no backup, you lose access to any funds in that wallet.
+
+### Best Practices
+
+1. **Back up immediately** — As soon as you generate a wallet, back up your `.env`
+2. **Use env vars** — Use `WALLET_PRIVATE_KEY` in `.env` instead of CLI flags
+3. **Avoid shell history** — Using `--private-key` flag leaves the key in shell history
+4. **One wallet per project** — Keep wallets isolated to limit blast radius
+5. **Rotate API keys** — API keys expire after 30 days by default; regenerate as needed
+
+### Cryptographic Safety
+
+The wallet generation and authentication are cryptographically secure:
+
+- **Wallet generation** — Uses `ethers.Wallet.createRandom()` with CSPRNG (cryptographically secure pseudo-random number generator)
+- **Signing** — Standard secp256k1 ECDSA with ADR-036 format (Cosmos standard)
+- **Libraries** — All crypto operations use audited, industry-standard libraries (`ethers`, `@cosmjs/crypto`)
 
 ## Error Handling
 
