@@ -28,6 +28,8 @@ import {
   generateSellLink,
 } from './handoff.js';
 import { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
+import { authenticateWithWallet, deriveCosmosAddress, generateWalletAndAuthenticate } from './wallet-auth.js';
+import type { GenerateWalletResult } from './wallet-auth.js';
 import { listStorage, getStorage, putStorage, deleteStorage } from './storage.js';
 import {
   getAgentRevenue,
@@ -36,6 +38,7 @@ import {
   getNetworkGDP,
 } from './commerce.js';
 import { buyTokens, sellTokens, getWalletBalances } from './onchain.js';
+import { getWallet, executeBuy, executeSell } from './trading.js';
 import {
   KNOWN_TOKENS,
   getToken as getPaymentToken,
@@ -68,6 +71,13 @@ import type {
   WalletBalances,
 } from './onchain.js';
 import type {
+  ExecuteBuyParams,
+  ExecuteSellParams,
+  CustodialBuyResult,
+  CustodialSellResult,
+  WalletInfoResponse,
+} from './types.js';
+import type {
   PaymentToken,
   Invoice,
   InvoiceStatus,
@@ -89,6 +99,8 @@ import type {
   AgentAuthResponse,
   MyAgentsResponse,
   ImportAgentverseResponse,
+  WalletAuthConfig,
+  WalletAuthResult,
 } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -213,6 +225,57 @@ export interface AgentsNamespace {
   importFromAgentverse(
     agentverseApiKey: string,
   ): Promise<ImportAgentverseResponse>;
+}
+
+/** Authentication operations. */
+export interface AuthNamespace {
+  /**
+   * Authenticate using a wallet private key to obtain an Agentverse API key.
+   *
+   * Requires optional peer dependencies: @cosmjs/crypto and bech32.
+   *
+   * @param config Private key string or full configuration object
+   * @returns API key, expiration timestamp, and derived Cosmos address
+   * @see authenticateWithWallet
+   *
+   * @example
+   * ```ts
+   * const result = await al.auth.fromWallet(process.env.WALLET_PRIVATE_KEY);
+   * console.log('API Key:', result.apiKey);
+   * ```
+   */
+  fromWallet(config: string | WalletAuthConfig): Promise<WalletAuthResult>;
+
+  /**
+   * Derive the Cosmos (Fetch) address from a private key without authenticating.
+   *
+   * @param privateKey Hex-encoded private key (with or without 0x prefix)
+   * @returns The Cosmos address (fetch1...)
+   * @see deriveCosmosAddress
+   */
+  deriveAddress(privateKey: string): Promise<string>;
+
+  /**
+   * Generate a new wallet and authenticate in one step (zero-to-hero flow).
+   *
+   * Creates a random wallet using ethers.Wallet.createRandom(), then authenticates
+   * with Agentverse to obtain an API key. Returns everything needed to start building.
+   *
+   * Requires optional peer dependencies: ethers, @cosmjs/crypto, and bech32.
+   *
+   * @param expiresIn Optional expiration time in seconds (default: 30 days)
+   * @returns Private key, EVM address, Cosmos address, and API key
+   * @see generateWalletAndAuthenticate
+   *
+   * @example
+   * ```ts
+   * const result = await al.auth.generate();
+   * console.log('Private Key:', result.privateKey);
+   * console.log('API Key:', result.apiKey);
+   * // Save both to .env and start building!
+   * ```
+   */
+  generate(expiresIn?: number): Promise<GenerateWalletResult>;
 }
 
 /** Agentverse storage operations. */
@@ -360,6 +423,35 @@ export interface OnchainNamespace {
   ): Promise<WalletBalances>;
 }
 
+/** Custodial trading operations (server-side HD wallet — no private key on client). */
+export interface TradingNamespace {
+  /**
+   * Get a custodial wallet address and balances.
+   * Omit agentAddress to get the user's own wallet.
+   * Pass an agentAddress to get that agent's autonomous trading wallet.
+   * @param chainId       Chain to query (default: 97 = BSC Testnet).
+   * @param agentAddress  Agent address (agent1q...). Omit for user wallet.
+   * @see getWallet
+   */
+  getWallet(chainId?: number, agentAddress?: string): Promise<WalletInfoResponse>;
+
+  /**
+   * Execute a buy on the bonding curve.
+   * Pass agentAddress in params to trade from an agent's wallet (default: user wallet).
+   * @param params  tokenAddress, fetAmount, optional slippagePercent, optional agentAddress.
+   * @see executeBuy
+   */
+  buy(params: ExecuteBuyParams): Promise<CustodialBuyResult>;
+
+  /**
+   * Execute a sell on the bonding curve.
+   * Pass agentAddress in params to trade from an agent's wallet (default: user wallet).
+   * @param params  tokenAddress, tokenAmount, optional slippagePercent, optional agentAddress.
+   * @see executeSell
+   */
+  sell(params: ExecuteSellParams): Promise<CustodialSellResult>;
+}
+
 // ---------------------------------------------------------------------------
 // AgentLaunch class
 // ---------------------------------------------------------------------------
@@ -408,6 +500,9 @@ export class AgentLaunch {
   /** Agent authentication and Agentverse management. */
   readonly agents: AgentsNamespace;
 
+  /** Wallet authentication operations (obtain API key from wallet). */
+  readonly auth: AuthNamespace;
+
   /** Agentverse storage read/write operations. */
   readonly storage: StorageNamespace;
 
@@ -419,6 +514,9 @@ export class AgentLaunch {
 
   /** Multi-token payment operations. */
   readonly payments: PaymentsNamespace;
+
+  /** Custodial trading operations (server-side HD wallet, no private key required). */
+  readonly trading: TradingNamespace;
 
   /**
    * Create a client by reading a skill.md file.
@@ -575,6 +673,15 @@ export class AgentLaunch {
         importFromAgentverse(agentverseApiKey, client),
     };
 
+    this.auth = {
+      fromWallet: (walletConfig: string | WalletAuthConfig) =>
+        authenticateWithWallet(walletConfig),
+      deriveAddress: (privateKey: string) =>
+        deriveCosmosAddress(privateKey),
+      generate: (expiresIn?: number) =>
+        generateWalletAndAuthenticate(expiresIn),
+    };
+
     // Storage and commerce namespaces use the Agentverse API key directly
     // (Bearer auth to agentverse.ai, not X-API-Key to agent-launch.ai).
     const apiKey = config.apiKey;
@@ -633,6 +740,13 @@ export class AgentLaunch {
         generateDelegationLink(tokenAddress, spenderAddress, amount),
       fiatLink: (params: FiatOnrampParams) =>
         generateFiatOnrampLink(params),
+    };
+
+    this.trading = {
+      getWallet: (chainId?: number, agentAddress?: string) =>
+        getWallet(chainId, agentAddress, client),
+      buy: (params: ExecuteBuyParams) => executeBuy(params, client),
+      sell: (params: ExecuteSellParams) => executeSell(params, client),
     };
   }
 }

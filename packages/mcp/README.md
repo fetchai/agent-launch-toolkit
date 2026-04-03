@@ -4,7 +4,7 @@
 
 This MCP server connects Claude Code (and any MCP-compatible client) to [Agent-Launch](https://agent-launch.ai) — the launchpad for AI agent tokens on Fetch.ai. Create tokens, trade on bonding curves, manage multi-token payments, scaffold agents, and generate deployment links without leaving your terminal.
 
-**Version:** 2.1.8 | **npm:** [agent-launch-mcp](https://www.npmjs.com/package/agent-launch-mcp)
+**Version:** 2.3.3 | **npm:** [agent-launch-mcp](https://www.npmjs.com/package/agent-launch-mcp)
 
 ---
 

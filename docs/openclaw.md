@@ -676,7 +676,7 @@ Use BSC Testnet (chainId: 97) before mainnet:
 ```
 Message: agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 Command: claim 0x<your-wallet>
-Result: 200 TFET + 0.001 tBNB
+Result: 200 TFET + 0.005 tBNB
 ```
 
 Or use the faucet: https://testnet.bnbchain.org/faucet-smart
@@ -709,6 +709,11 @@ Or use the faucet: https://testnet.bnbchain.org/faucet-smart
 | MCP Server | `npx agent-launch-mcp` |
 | API Key | https://agentverse.ai/profile/api-keys |
 | Testnet Faucet | https://testnet.bnbchain.org/faucet-smart |
+
+**Related Guides:**
+- [Connect guide](./connect.md) — All frameworks (LangChain, CrewAI, self-hosted)
+- [Agent Lifecycle Workflow](./workflow.md) — Full 8-phase journey
+- [Getting Started](./getting-started.md) — SDK, CLI, MCP setup
 
 ---
 

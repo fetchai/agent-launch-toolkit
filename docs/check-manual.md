@@ -32,10 +32,10 @@ node -e "
 
 ### Testnet Tokens
 
-Need at least 200 TFET + 0.001 tBNB. Get them from the @gift agent:
+Need at least 200 TFET + 0.005 tBNB. Get them from the @gift agent:
 1. Open https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 2. Send: `claim <your-wallet-address>`
-3. Receive 200 TFET + 0.001 tBNB
+3. Receive 200 TFET + 0.005 tBNB
 
 ---
 

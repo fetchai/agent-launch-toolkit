@@ -7,7 +7,7 @@
  */
 
 import { Command } from "commander";
-import { calculateBuy, buyTokens, DEFAULT_SLIPPAGE_PERCENT } from "agentlaunch-sdk";
+import { calculateBuy, buyTokens, executeBuy, DEFAULT_SLIPPAGE_PERCENT } from "agentlaunch-sdk";
 import { getPublicClient } from "../http.js";
 
 export function registerBuyCommand(program: Command): void {
@@ -18,14 +18,20 @@ export function registerBuyCommand(program: Command): void {
     .option("--slippage <percent>", "Slippage tolerance percentage", String(DEFAULT_SLIPPAGE_PERCENT))
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
     .option("--dry-run", "Preview the trade without executing (no wallet needed)")
+    .option("--custodial", "Use server-side custodial wallet (requires AGENTVERSE_API_KEY)")
+    .option("--agent <agentAddress>", "Agent address (agent1q...) to trade from agent's wallet (implies --custodial)")
     .option("--json", "Output raw JSON (machine-readable)")
     .action(async (address: string, options: {
       amount: string;
       slippage: string;
       chain: string;
       dryRun?: boolean;
+      custodial?: boolean;
+      agent?: string;
       json?: boolean;
     }) => {
+      // --agent implies --custodial
+      if (options.agent) options.custodial = true;
       // Validate address
       if (!address.startsWith("0x") || address.length < 10) {
         if (options.json) {
@@ -98,7 +104,42 @@ export function registerBuyCommand(program: Command): void {
           return;
         }
 
-        // Real execution
+        // Custodial execution (server-side wallet)
+        if (options.custodial) {
+          const custodialResult = await executeBuy({
+            tokenAddress: address,
+            fetAmount: options.amount,
+            slippagePercent: slippage,
+            agentAddress: options.agent,
+          });
+
+          if (options.json) {
+            console.log(JSON.stringify({ custodial: true, ...custodialResult }));
+            return;
+          }
+
+          const chainName = chainId === 56 ? "BSC Mainnet" : "BSC Testnet";
+          console.log(`\n${"=".repeat(50)}`);
+          console.log("CUSTODIAL BUY EXECUTED");
+          console.log(`${"=".repeat(50)}`);
+          console.log(`Token:          ${address}`);
+          console.log(`Chain:          ${chainName}`);
+          console.log(`Wallet:         ${custodialResult.walletAddress}`);
+          console.log(`Tx Hash:        ${custodialResult.txHash}`);
+          console.log(`Block:          ${custodialResult.blockNumber}`);
+          console.log(`FET spent:      ${custodialResult.fetSpent} FET`);
+          console.log(`Tokens (expected): ${custodialResult.expectedTokens}`);
+          console.log(`Min tokens:     ${custodialResult.minTokens} (${slippage}% slippage)`);
+          console.log(`Gas used:       ${custodialResult.gasUsed}`);
+          if (custodialResult.approvalTxHash) {
+            console.log(`Approval Tx:    ${custodialResult.approvalTxHash}`);
+          }
+          console.log(`${"=".repeat(50)}\n`);
+          console.log("\n  MCP: buy_token | SDK: sdk.trading.buy()");
+          return;
+        }
+
+        // On-chain execution (requires WALLET_PRIVATE_KEY)
         const result = await buyTokens(address, options.amount, {
           chainId,
           slippagePercent: slippage,

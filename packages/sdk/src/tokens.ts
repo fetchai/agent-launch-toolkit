@@ -121,5 +121,17 @@ export async function listTokens(
   client?: AgentLaunchClient,
 ): Promise<TokenListResponse> {
   const c = client ?? defaultClient();
-  return c.get<TokenListResponse>('/tokens', params as Record<string, string | number | boolean | undefined>);
+
+  // The /agents/tokens endpoint returns a paginated envelope:
+  // { success, data: Token[], meta: { page, limit, total, totalPages } }
+  const raw = await c.get<{
+    success: boolean;
+    data: Token[];
+    meta?: { page: number; limit: number; total: number; totalPages: number };
+  }>('/agents/tokens', params as Record<string, string | number | boolean | undefined>);
+
+  return {
+    tokens: raw.data ?? [],
+    total: raw.meta?.total,
+  };
 }

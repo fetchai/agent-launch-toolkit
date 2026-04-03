@@ -20,7 +20,7 @@
     {
       "file": "claim.ts",
       "name": "claim <wallet>",
-      "description": "Claim testnet tokens (200 TFET + 0.001 tBNB) for a wallet"
+      "description": "Claim testnet tokens (200 TFET + 0.005 tBNB) for a wallet"
     },
     {
       "file": "comments.ts",
@@ -293,7 +293,7 @@
   "presets": [],
   "constants": {
     "giftTfet": "200",
-    "giftTbnb": "0.001",
+    "giftTbnb": "0.005",
     "deployFee": "120"
   },
   "counts": {

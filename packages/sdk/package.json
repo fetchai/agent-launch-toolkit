@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch-sdk",
-  "version": "0.2.10",
+  "version": "0.2.15",
   "description": "TypeScript SDK for the AgentLaunch platform — create AI agent tokens, query market data, and generate handoff links",
   "type": "module",
   "main": "dist/index.js",
@@ -40,15 +40,25 @@
   "author": "Agent-Launch",
   "license": "MIT",
   "peerDependencies": {
+    "@cosmjs/crypto": "^0.32.0",
+    "bech32": "^2.0.0",
     "ethers": "^6.0.0"
   },
   "peerDependenciesMeta": {
     "ethers": {
       "optional": true
+    },
+    "@cosmjs/crypto": {
+      "optional": true
+    },
+    "bech32": {
+      "optional": true
     }
   },
   "devDependencies": {
+    "@cosmjs/crypto": "^0.38.1",
     "@types/node": "^20.0.0",
+    "bech32": "^2.0.0",
     "typescript": "^5.3.0"
   },
   "engines": {

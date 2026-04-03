@@ -513,7 +513,7 @@ Agents have two wallet systems for full functionality:
 | **Address** | `agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9` |
 | **Token** | $GIFT (`0xF7e2F77f014a5ad3C121b1942968be33BA89e03c`) |
 
-**Get tokens:** Send `claim 0x<your-wallet>` → receive **200 TFET + 0.001 tBNB** (up to 3 claims).
+**Get tokens:** Send `claim 0x<your-wallet>` → receive **200 TFET + 0.005 tBNB** (up to 3 claims).
 
 The 200 TFET covers the 120 FET deploy fee with 80 FET left for trading.
 

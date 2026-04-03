@@ -2,9 +2,9 @@
 
 > **Purpose:** Validate all toolkit commands work correctly, then sync docs to `../fetchlaunchpad`.
 >
-> **Last validated:** 2026-03-09
+> **Last validated:** 2026-03-28
 >
-> **Status:** 0 issues (validated)
+> **Status:** NEEDS SYNC (versions updated, fetchlaunchpad outdated)
 
 ---
 
@@ -49,28 +49,29 @@ Review the validation report and fix each issue.
 
 | Item | Value |
 |------|-------|
-| SDK Version | **0.2.8** |
-| CLI Version | **1.1.3** |
-| MCP Version | **2.1.8** |
-| Templates Version | **0.4.3** |
-| MCP Tools | **30** |
-| CLI Commands | **25** |
-| Templates | **9** |
+| SDK Version | **0.2.14** |
+| CLI Version | **1.2.8** |
+| MCP Version | **2.3.6** |
+| Templates Version | **0.4.10** |
+| MCP Tools | **41** |
+| CLI Commands | **26** |
+| Templates | **10** |
 | @gift TFET | **200** |
-| @gift tBNB | **0.001** |
+| @gift tBNB | **0.005** |
 
-### Templates (9)
+### Templates (10)
 1. chat-memory
-2. consumer-commerce
-3. custom
-4. data-analyzer
-5. gifter
-6. price-monitor
-7. research
-8. swarm-starter
-9. trading-bot
+2. connect
+3. consumer-commerce
+4. custom
+5. data-analyzer
+6. gifter
+7. price-monitor
+8. research
+9. swarm-starter
+10. trading-bot
 
-### MCP Tools (30)
+### MCP Tools (41)
 1. list_tokens
 2. get_token
 3. get_platform_stats
@@ -91,16 +92,24 @@ Review the validation report and fix each issue.
 18. buy_tokens
 19. sell_tokens
 20. get_wallet_balances
-21. deploy_swarm
-22. multi_token_payment
-23. check_spending_limit
-24. create_delegation
-25. get_fiat_link
-26. create_invoice
-27. list_invoices
-28. generate_org_template
-29. scaffold_org_swarm
-30. get_multi_token_balances
+21. get_agent_wallet
+22. buy_token
+23. sell_token
+24. deploy_swarm
+25. multi_token_payment
+26. check_spending_limit
+27. create_delegation
+28. get_fiat_link
+29. create_invoice
+30. list_invoices
+31. generate_org_template
+32. scaffold_org_swarm
+33. get_multi_token_balances
+34. get_skill
+35. install_skill
+36. get_connection_status
+37. connect_agent
+38. update_connection
 
 ### Marketing Presets (7)
 - writer, social, community, analytics, outreach, ads, strategy
@@ -180,7 +189,7 @@ Review the validation report and fix each issue.
 |------|------|---------|
 | 376 | `20+ tools` | `30 tools` |
 | 42, 48, 52 | `150 TFET` | `200 TFET` |
-| 42, 48 | `0.01 tBNB` | `0.001 tBNB` |
+| 42, 48 | `0.01 tBNB` | `0.005 tBNB` |
 
 ### frontend/src/app/docs/DocsHubClient.tsx
 
@@ -194,7 +203,7 @@ Review the validation report and fix each issue.
 
 | Line | Find | Replace |
 |------|------|---------|
-| 539 | `150 TFET + 0.01 tBNB` | `200 TFET + 0.001 tBNB` |
+| 539 | `150 TFET + 0.01 tBNB` | `200 TFET + 0.005 tBNB` |
 
 ### frontend/src/app/docs/mcp/page.tsx
 
@@ -221,7 +230,7 @@ Review the validation report and fix each issue.
 | Line | Find | Replace |
 |------|------|---------|
 | 136, 297 | `150 TFET` | `200 TFET` |
-| 136, 297 | `0.01 tBNB` | `0.001 tBNB` |
+| 136, 297 | `0.01 tBNB` | `0.005 tBNB` |
 
 ### frontend/src/app/docs/quickstart/page.tsx
 
@@ -260,7 +269,7 @@ find docs frontend/src/app -type f \( -name "*.md" -o -name "*.tsx" -o -name "*.
   -exec sed -i '' 's/150 TFET/200 TFET/g' {} \;
 
 find docs frontend/src/app -type f \( -name "*.md" -o -name "*.tsx" -o -name "*.ts" \) \
-  -exec sed -i '' 's/0\.01 tBNB/0.001 tBNB/g' {} \;
+  -exec sed -i '' 's/0\.01 tBNB/0.005 tBNB/g' {} \;
 
 # Fix versions (manual review recommended)
 # SDK: 0.2.3 → 0.2.7, 0.2.5 → 0.2.7

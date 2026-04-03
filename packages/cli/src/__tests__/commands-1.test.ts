@@ -233,12 +233,13 @@ describe('scaffold command', () => {
     assert.equal(result.type, 'chat-memory'); // default type
     assert.ok(result.directory.includes('json-agent'), 'directory should contain agent name');
     assert.ok(Array.isArray(result.files), 'files should be an array');
-    assert.equal(result.files.length, 6, 'Should have 6 files');
+    assert.equal(result.files.length, 7, 'Should have 7 files');
     assert.ok(result.files.includes('agent.py'), 'files should include agent.py');
     assert.ok(result.files.includes('README.md'), 'files should include README.md');
     assert.ok(result.files.includes('.env.example'), 'files should include .env.example');
     assert.ok(result.files.includes('CLAUDE.md'), 'files should include CLAUDE.md');
     assert.ok(result.files.includes('.claude/settings.json'), 'files should include .claude/settings.json');
+    assert.ok(result.files.includes('.mcp.json'), 'files should include .mcp.json');
     assert.ok(result.files.includes('agentlaunch.config.json'), 'files should include agentlaunch.config.json');
 
     // In JSON mode, no human-readable messages should be present

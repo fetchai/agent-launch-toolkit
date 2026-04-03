@@ -49,7 +49,7 @@ DEFAULT_FAQS = {
     "how to tokenize": "After deploying, use `npx agentlaunch tokenize` or the `/tokenize` slash command.",
     "what is fet": "FET is the native token of the Fetch.ai ecosystem, used for agent services and trading.",
     "deploy fee": "The deploy fee is 120 FET, paid when tokenizing an agent on-chain.",
-    "how to get testnet tokens": "Message @gift on Agentverse: send `claim 0x<your-wallet>` to receive 200 TFET + 0.001 tBNB.",
+    "how to get testnet tokens": "Message @gift on Agentverse: send `claim 0x<your-wallet>` to receive 200 TFET + 0.005 tBNB.",
 }
 
 

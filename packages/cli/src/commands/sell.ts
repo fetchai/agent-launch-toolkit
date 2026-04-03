@@ -7,7 +7,7 @@
  */
 
 import { Command } from "commander";
-import { calculateSell, sellTokens } from "agentlaunch-sdk";
+import { calculateSell, sellTokens, executeSell } from "agentlaunch-sdk";
 import { getPublicClient } from "../http.js";
 
 export function registerSellCommand(program: Command): void {
@@ -17,13 +17,21 @@ export function registerSellCommand(program: Command): void {
     .requiredOption("--amount <tokens>", "Amount of tokens to sell")
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
     .option("--dry-run", "Preview the trade without executing (no wallet needed)")
+    .option("--custodial", "Use server-side custodial wallet (requires AGENTVERSE_API_KEY)")
+    .option("--agent <agentAddress>", "Agent address (agent1q...) to trade from agent's wallet (implies --custodial)")
+    .option("--slippage <percent>", "Slippage tolerance percentage (custodial only)", "5")
     .option("--json", "Output raw JSON (machine-readable)")
     .action(async (address: string, options: {
       amount: string;
       chain: string;
       dryRun?: boolean;
+      custodial?: boolean;
+      agent?: string;
+      slippage?: string;
       json?: boolean;
     }) => {
+      // --agent implies --custodial
+      if (options.agent) options.custodial = true;
       // Validate address
       if (!address.startsWith("0x") || address.length < 10) {
         if (options.json) {
@@ -84,7 +92,38 @@ export function registerSellCommand(program: Command): void {
           return;
         }
 
-        // Real execution
+        // Custodial execution (server-side wallet)
+        if (options.custodial) {
+          const slippage = parseFloat(options.slippage ?? "5");
+          const custodialResult = await executeSell({
+            tokenAddress: address,
+            tokenAmount: options.amount,
+            slippagePercent: slippage,
+            agentAddress: options.agent,
+          });
+
+          if (options.json) {
+            console.log(JSON.stringify({ custodial: true, ...custodialResult }));
+            return;
+          }
+
+          const chainName = chainId === 56 ? "BSC Mainnet" : "BSC Testnet";
+          console.log(`\n${"=".repeat(50)}`);
+          console.log("CUSTODIAL SELL EXECUTED");
+          console.log(`${"=".repeat(50)}`);
+          console.log(`Token:          ${address}`);
+          console.log(`Chain:          ${chainName}`);
+          console.log(`Wallet:         ${custodialResult.walletAddress}`);
+          console.log(`Tx Hash:        ${custodialResult.txHash}`);
+          console.log(`Block:          ${custodialResult.blockNumber}`);
+          console.log(`Tokens sold:    ${custodialResult.tokensSold}`);
+          console.log(`Gas used:       ${custodialResult.gasUsed}`);
+          console.log(`${"=".repeat(50)}\n`);
+          console.log("\n  MCP: sell_token | SDK: sdk.trading.sell()");
+          return;
+        }
+
+        // On-chain execution (requires WALLET_PRIVATE_KEY)
         const result = await sellTokens(address, options.amount, {
           chainId,
         });

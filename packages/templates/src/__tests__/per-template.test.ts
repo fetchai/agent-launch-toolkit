@@ -133,6 +133,74 @@ describe('chat-memory — TPL-T02', () => {
       'chat-memory should have configurable memory size',
     );
   });
+
+  it('imports OpenAI for LLM integration', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('from openai import OpenAI'),
+      'chat-memory should import OpenAI for LLM integration',
+    );
+  });
+
+  it('references ASI1_API_KEY secret', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('ASI1_API_KEY'),
+      'chat-memory should reference ASI1_API_KEY secret for LLM',
+    );
+  });
+
+  it('has SYSTEM_PROMPT variable', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('SYSTEM_PROMPT'),
+      'chat-memory should have a SYSTEM_PROMPT variable for LLM instructions',
+    );
+  });
+
+  it('uses ctx.storage for persistent memory', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('ctx.storage'),
+      'chat-memory should use ctx.storage for persistent conversation memory',
+    );
+  });
+
+  it('uses Protocol(spec=chat_protocol_spec) not create_protocol', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('chat_protocol_spec'),
+      'chat-memory should import and use chat_protocol_spec directly',
+    );
+    assert.ok(
+      !code.includes('create_protocol'),
+      'chat-memory should not use deprecated create_protocol',
+    );
+  });
+
+  it('uses datetime.now() not utcnow()', () => {
+    const { code } = generateFromTemplate('chat-memory', { agent_name: 'ChatBot' });
+    assert.ok(
+      code.includes('datetime.now()'),
+      'chat-memory should use datetime.now()',
+    );
+    assert.ok(
+      !code.includes('utcnow()'),
+      'chat-memory should not use deprecated datetime.utcnow()',
+    );
+  });
+
+  it('accepts system_prompt template variable', () => {
+    const customPrompt = 'You are a pirate assistant. Always respond in pirate speak.';
+    const { code } = generateFromTemplate('chat-memory', {
+      agent_name: 'PirateBot',
+      system_prompt: customPrompt,
+    });
+    assert.ok(
+      code.includes(customPrompt),
+      'chat-memory should interpolate the system_prompt variable into generated code',
+    );
+  });
 });
 
 describe('swarm-starter — TPL-T03', () => {

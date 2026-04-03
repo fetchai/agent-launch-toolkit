@@ -20,6 +20,7 @@ media/
 
 # Private strategy docs
 docs/secret/
+secret/
 
 # Prevent stale compiled TypeScript from being committed in src/
 packages/*/src/**/*.js

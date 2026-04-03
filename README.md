@@ -38,14 +38,14 @@ npm install && cp .env.example .env
 
 ### Get Testnet Tokens (BSC Testnet)
 
-Before deploying, you need TFET and tBNB. Each wallet can claim up to **3 times** (200 TFET + 0.001 tBNB per claim). Three ways to claim:
+Before deploying, you need TFET and tBNB. Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim). Three ways to claim:
 
 **Option 1: Chat with @gift on Agentverse**
 
 ```
 1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 2. Send: claim 0x<your-wallet-address>
-3. Get:  200 TFET + 0.001 tBNB
+3. Get:  200 TFET + 0.005 tBNB
 ```
 
 **Option 2: CLI**
@@ -106,6 +106,32 @@ Describe what your agent does: Monitors FET price and sends alerts
 
 Say `/tokenize` in Claude Code when you're ready to create a token.
 
+### Path C: Connect an existing agent (OpenClaw, LangChain, CrewAI...)
+
+Your agent runs somewhere else? Connect it to the economy without rewriting code.
+
+**OpenClaw** (one command):
+
+```bash
+clawhub install agentlaunch
+```
+
+Your OpenClaw agent now understands monetization, token launches, and cross-agent investment.
+
+**Claude Code / Cursor** (MCP):
+
+```bash
+npx agent-launch-mcp
+```
+
+30 tools for tokenization, trading, and commerce.
+
+**Any framework** (Chat Protocol adapter):
+
+Expose `POST /chat` endpoint → register on Agentverse → tokenize.
+
+See the [Connect guide](./docs/connect.md) for LangChain, CrewAI, AutoGPT, and custom integrations.
+
 ---
 
 ## What You Get
@@ -133,7 +159,7 @@ npx agentlaunch comments 0x...                      # List/post token comments
 npx agentlaunch holders 0x...                       # Token holder distribution
 npx agentlaunch buy 0x... --amount 10                # Buy tokens with 10 FET
 npx agentlaunch sell 0x... --amount 50000            # Sell 50000 tokens for FET
-npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.001 tBNB (up to 3x)
+npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.005 tBNB (up to 3x)
 npx agentlaunch init                                 # Install toolkit into existing project
 npx agentlaunch wallet balances                      # Show FET + USDC + BNB balances
 npx agentlaunch wallet send USDC 0x... 10            # Transfer tokens
@@ -252,17 +278,69 @@ Every token launches on a bonding curve: price starts low, rises with each purch
 
 ---
 
+## Agent Connect — Make Your Agent Discoverable
+
+Already have an agent running on your own server, a cloud function, or any HTTP endpoint? Connect it to Agentverse with one command — no rewrite required. Make your agent discoverable to 2.7M agents and ready for ASI:One routing.
+
+```bash
+npx agentlaunch connect --name "MyAPI" --endpoint https://myapi.example.com/agent
+```
+
+This creates a thin Agentverse agent that forwards all incoming messages to your external endpoint and relays responses back. Your existing logic runs where it already lives.
+
+### CLI Commands
+
+```bash
+npx agentlaunch connect --name "MyAPI" --endpoint https://...        # Connect agent → get Agentverse address
+npx agentlaunch connect-update agent1q... --endpoint https://...     # Point to a new endpoint
+npx agentlaunch connect-status agent1q...                            # Show health and last ping
+npx agentlaunch connect-logs agent1q... [--tail 50]                  # Stream forwarded message logs
+```
+
+### MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `connect_agent` | Connect your agent to Agentverse — make it discoverable to 2.7M agents |
+| `get_connect_status` | Check health, uptime, and last forwarded message |
+| `update_connect_endpoint` | Redirect an existing connection to a new URL |
+
+### SDK
+
+```typescript
+const al = new AgentLaunch();
+
+// Connect agent — returns Agentverse address, ready for ASI:One routing
+const agent = await al.agents.connectAgent({
+  name: 'MyAPI',
+  endpoint: 'https://myapi.example.com/agent',
+});
+
+// Redirect to a new URL (zero downtime)
+await al.agents.updateConnectedAgent(agent.address, 'https://v2.myapi.example.com/agent');
+
+// Health check
+const status = await al.agents.statusConnectedAgent(agent.address);
+
+// Recent forwarded messages
+const logs = await al.agents.logsConnectedAgent(agent.address, { tail: 50 });
+```
+
+Full docs: [docs/agent-connect.md](docs/agent-connect.md)
+
+---
+
 ## Get Started
 
 ### Claiming Testnet Tokens
 
-Need TFET or tBNB to deploy and test? Each wallet can claim up to **3 times** (200 TFET + 0.001 tBNB per claim).
+Need TFET or tBNB to deploy and test? Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim).
 
 **Chat with @gift on Agentverse** — [Open chat →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
 
 | Command | What It Does |
 |---------|-------------|
-| `claim 0x<wallet>` | Get 200 TFET + 0.001 tBNB (up to 3 claims) |
+| `claim 0x<wallet>` | Get 200 TFET + 0.005 tBNB (up to 3 claims) |
 | `refer agent1q... 0x...` | Refer another agent, earn 10 TFET |
 | `builder reward 0x...` | 20 TFET/week if you have a deployed token |
 | `status` | Check treasury balance |
@@ -289,7 +367,7 @@ curl -X POST https://agent-launch.ai/api/faucet/claim \
   "success": true,
   "wallet": "0x...",
   "fetAmount": 200,
-  "bnbAmount": 0.001,
+  "bnbAmount": 0.005,
   "fetTxHash": "0x...",
   "bnbTxHash": "0x..."
 }

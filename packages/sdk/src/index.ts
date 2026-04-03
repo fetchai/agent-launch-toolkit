@@ -41,10 +41,12 @@ export type {
   MarketNamespace,
   HandoffNamespace,
   AgentsNamespace,
+  AuthNamespace,
   StorageNamespace,
   CommerceNamespace,
   OnchainNamespace,
   PaymentsNamespace,
+  TradingNamespace,
   TokenizeResult,
 } from './agentlaunch.js';
 
@@ -99,6 +101,15 @@ export type {
   CreateSpendingLimitParams,
   FiatOnrampParams,
   FiatOnrampLink,
+  // Custodial trading types
+  ExecuteBuyParams,
+  ExecuteSellParams,
+  CustodialBuyResult,
+  CustodialSellResult,
+  WalletInfoResponse,
+  // Wallet authentication types
+  WalletAuthConfig,
+  WalletAuthResult,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -135,13 +146,19 @@ export {
 // SDK-005: Agent operations
 export { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
 
+// Wallet authentication (requires @cosmjs/crypto and bech32 as optional peer dependencies)
+export { authenticateWithWallet, deriveCosmosAddress, generateWalletAndAuthenticate } from './wallet-auth.js';
+export type { GenerateWalletResult } from './wallet-auth.js';
+
 // Agentverse deployment
 export {
   createAgent,
   uploadCode,
   setSecret,
   startAgent,
+  stopAgent,
   getAgentStatus,
+  getAgentLogs,
   deployAgent,
   updateAgent,
   buildOptimizationChecklist,
@@ -193,6 +210,13 @@ export {
   listDelegations,
   recordDelegation,
 } from './delegation.js';
+
+// Custodial trading (server-side HD wallet, no private key required on client)
+export { getWallet, executeBuy, executeSell } from './trading.js';
+
+// EXT-03: Connect agent deployment and management
+export { connectAgent, updateConnection, connectionStatus, connectionLogs } from './connect.js';
+export type { ConnectConfig, ConnectionStatus, ConnectResult } from './connect.js';
 
 // URL resolution
 export { getApiUrl, getFrontendUrl, getEnvironment, resolveApiKey, resolveBaseUrl, DEV_API_URL, DEV_FRONTEND_URL, PROD_API_URL, PROD_FRONTEND_URL } from './urls.js';

@@ -150,6 +150,13 @@ If the description is vague ("a helpful assistant"), push back. Help them find a
 ### Step 2: Build the Agent Logic
 Read agent.py and propose real code changes based on the vision from Step 1. This is where you write REAL business logic — not placeholder TODOs.
 
+The agent already has these features built in — DO NOT re-implement them:
+- **Persistent conversation memory** — per-user, stored in ctx.storage, survives restarts
+- **ASI1-mini LLM** — OpenAI-compatible client at api.asi1.ai/v1, with domain-specific system prompt
+- **Chat Protocol v0.3.0** — with acknowledgement handler and EndSessionContent
+
+Your job is to customize the SYSTEM_PROMPT and add domain-specific logic (API calls, data processing, specialized commands) — not to rebuild the foundation.
+
 Available packages on Agentverse (most people only use 3 — use more):
 - **AI**: anthropic, openai, langchain-anthropic, langchain-core, langchain-community, langchain-google-genai, transformers, sentence-transformers
 - **Data**: pandas, numpy, scipy, scikit-learn, faiss-cpu
@@ -167,10 +174,20 @@ Key patterns to use:
 
 Write production code. Explain each pattern as you introduce it. Pause and ask if the developer wants to adjust before continuing.
 
-### Step 3: Deploy
+### Step 3: Deploy & Verify
 ${opts.isDeployed ? "The agent is already deployed. If you made code changes, push updated code to Agentverse using the deploy_to_agentverse MCP tool or 'npx agentlaunch deploy'." : "Deploy the agent to Agentverse using the deploy_to_agentverse MCP tool or 'npx agentlaunch deploy'. Explain what happens: code uploads, agent compiles, goes live in ~30 seconds."}
 
-After deploy, verify it's running (check logs). Mention the agent takes 15-60s to compile.
+After deploy, ALWAYS verify the agent is healthy:
+1. Check compilation status — the deploy command polls for up to 60s
+2. If status is 'starting' (not compiled), check logs for errors
+3. If there are compilation errors, read the error message, fix the code, and redeploy
+4. Once compiled, test by sending a message via Agentverse chat
+5. Never proceed to Step 4 until the agent is confirmed running
+
+Common compilation errors:
+- ImportError: package not available on Agentverse (check allowed imports)
+- SyntaxError: Python syntax issue in generated code
+- NameError: undefined variable (usually a missing import)
 
 ### Step 4: Make It Beautiful
 A well-presented agent gets more discovery, more interactions, more token holders. Do all of these:
@@ -523,10 +540,9 @@ export function registerCreateCommand(program: Command): void {
                     AGENTVERSE_API_KEY: apiKey,
                     AGENTLAUNCH_API_KEY: apiKey,
                   };
-                  // For chat-memory agents, set the default ASI1 LLM key
-                  if (templateUsed === "chat-memory") {
-                    deploySecrets.LLM_API_KEY = "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b";
-                  }
+                  // Set ASI1 LLM key for intelligent responses
+                  deploySecrets.ASI1_API_KEY = process.env.ASI1_API_KEY || "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b";
+
                   const result = await deployAgent({
                     apiKey,
                     agentName,
@@ -1120,13 +1136,43 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
                 console.log(`      Wallet:  ${deployed.walletAddress}`);
               }
               if (deployed.status === "compiled" || deployed.status === "running") {
-                console.log("      Compiled.");
+                console.log("      Compiled. Agent is running.");
               }
               if (deployed.secretErrors?.length) {
                 for (const se of deployed.secretErrors) {
                   console.log(`      Warning: ${se}`);
                 }
               }
+            }
+
+            if (deployed.status === "error") {
+              if (isJson) {
+                console.log(
+                  JSON.stringify({
+                    error: "Compilation error",
+                    compilationError: deployed.compilationError,
+                    logs: deployed.logs,
+                    agentAddress: deployed.agentAddress,
+                    partial: result,
+                  }),
+                );
+              } else {
+                console.error(`\n      ERROR: Agent failed to compile.`);
+                if (deployed.compilationError) {
+                  console.error(`      Error: ${deployed.compilationError}`);
+                }
+                if (deployed.logs) {
+                  console.error(`\n      --- Agent Logs ---`);
+                  const logLines = deployed.logs.split('\n').slice(-15);
+                  for (const line of logLines) {
+                    console.error(`      ${line}`);
+                  }
+                  console.error(`      --- End Logs ---\n`);
+                }
+                console.error(`      Agent address: ${deployed.agentAddress}`);
+                console.error(`      Fix the error in agent.py and redeploy with: npx agentlaunch deploy`);
+              }
+              process.exit(1);
             }
 
             if (deployed.status === "starting") {
@@ -1137,12 +1183,21 @@ AGENT_LAUNCH_API_URL=https://agent-launch.ai/api
                   JSON.stringify({
                     error: msg,
                     agentAddress: deployed.agentAddress,
+                    logs: deployed.logs,
                     partial: result,
                   }),
                 );
               } else {
                 console.error(`\nWarning: ${msg}`);
                 console.error(`Agent address: ${deployed.agentAddress}`);
+                if (deployed.logs) {
+                  console.error(`\n      --- Agent Logs ---`);
+                  const logLines = deployed.logs.split('\n').slice(-10);
+                  for (const line of logLines) {
+                    console.error(`      ${line}`);
+                  }
+                  console.error(`      --- End Logs ---\n`);
+                }
                 console.error("Check at: https://agentverse.ai/agents");
               }
               process.exit(1);
@@ -1410,7 +1465,7 @@ export async function runCreate(options: RunCreateOptions): Promise<void> {
       const deploySecrets: Record<string, string> = {
         AGENTVERSE_API_KEY: apiKey,
         AGENTLAUNCH_API_KEY: apiKey,
-        LLM_API_KEY: "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b",
+        ASI1_API_KEY: process.env.ASI1_API_KEY || "sk_2a3c92a0b11e4f18b50708cca1a55179ab38a7c2fb7f4eee95fd68e1e28f860b",
       };
 
       const result = await deployAgent({
@@ -1433,6 +1488,25 @@ export async function runCreate(options: RunCreateOptions): Promise<void> {
         console.log(`  Address: ${agentAddress}`);
         if (result.status === "compiled" || result.status === "running") {
           console.log("  Status:  Running");
+        } else if (result.status === "error") {
+          console.error(`  Status:  ERROR — failed to compile`);
+          if (result.compilationError) {
+            console.error(`  Error:   ${result.compilationError}`);
+          }
+          if (result.logs) {
+            console.error(`\n  --- Agent Logs ---`);
+            const logLines = result.logs.split('\n').slice(-15);
+            for (const line of logLines) {
+              console.error(`  ${line}`);
+            }
+            console.error(`  --- End Logs ---\n`);
+          }
+          console.error(`  Fix the error in agent.py and redeploy with: npx agentlaunch deploy`);
+        } else if (result.status === "starting") {
+          console.log("  Status:  Compiling (may take up to 60s more)");
+          if (result.logs) {
+            console.log(`  Logs:    ${result.logs.split('\n').slice(-3).join(' | ')}`);
+          }
         }
       }
     } catch (err) {

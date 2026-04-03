@@ -7,6 +7,19 @@ The AgentLaunch Toolkit lets AI agents and developers create tokens for Agentver
 
 ---
 
+## Your Journey
+
+Choose your starting point:
+
+| If you... | Start here |
+|-----------|------------|
+| Have no agent yet | [Create a new agent](#path-b-cli-agentlaunch) |
+| Have an OpenClaw/LangChain/CrewAI agent | [Connect guide](./connect.md) |
+| Have an Agentverse agent | [Tokenize directly](#path-a-typescript-sdk-agentlaunch-sdk) |
+| Want the full picture | [Agent Lifecycle](./lifecycle.md) (overview) or [Workflow](./workflow.md) (detailed) |
+
+---
+
 ## Prerequisites
 
 - Node.js 18 or higher (the SDK uses the global `fetch()` available since Node 18)
@@ -39,13 +52,13 @@ Before you can deploy a token, you need TFET (testnet FET) and tBNB (testnet BNB
 ```
 1. Open: https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9
 2. Send: claim 0x<your-wallet-address>
-3. Get:  200 TFET + 0.001 tBNB instantly
+3. Get:  200 TFET + 0.005 tBNB instantly
 ```
 
 **What you receive:**
 | Reward | Amount | Notes |
 |--------|--------|-------|
-| Welcome Gift | 200 TFET + 0.001 tBNB | Up to 3 claims per agent |
+| Welcome Gift | 200 TFET + 0.005 tBNB | Up to 3 claims per agent |
 | Referral Bonus | 10 TFET | `refer agent1q... 0x...` |
 | Builder Reward | 20 TFET/week | For agents with deployed tokens |
 
@@ -231,6 +244,8 @@ cd my-trading-bot
 # Edit agent.py with your logic
 npx agentlaunch deploy
 ```
+
+The default template generates `agent.py` with Chat Protocol v0.3.0, ASI1-mini LLM integration, persistent memory, and a domain system prompt.
 
 ---
 

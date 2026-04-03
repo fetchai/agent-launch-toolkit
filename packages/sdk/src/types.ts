@@ -405,14 +405,18 @@ export interface AgentverseDeployResult {
   agentAddress: string;
   /** The agent's Fetch wallet address (if available after compilation). */
   walletAddress?: string;
-  /** Final status: 'starting', 'compiled', or 'running'. */
-  status: 'starting' | 'compiled' | 'running';
+  /** Final status: 'starting', 'compiled', 'running', or 'error'. */
+  status: 'starting' | 'compiled' | 'running' | 'error';
   /** Code digest from upload (if returned). */
   digest?: string;
   /** Any errors from setting secrets (non-fatal). */
   secretErrors?: string[];
   /** Post-deploy optimization checklist (7 ranking factors). */
   optimization?: OptimizationCheckItem[];
+  /** Agent logs (populated on error or when compilation fails). */
+  logs?: string;
+  /** Compilation error message extracted from logs (if any). */
+  compilationError?: string;
 }
 
 /** Options for updating an already-deployed agent's metadata on Agentverse. */
@@ -455,6 +459,84 @@ export interface AgentverseStatusResponse {
   wallet_address?: string;
   code_digest?: string;
   revision?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Custodial trading types (server-side HD wallet, POST /agents/buy|sell)
+// ---------------------------------------------------------------------------
+
+/** Parameters for POST /agents/buy (custodial buy via server HD wallet). */
+export interface ExecuteBuyParams {
+  /** Token contract address to buy. */
+  tokenAddress: string;
+  /** FET amount to spend (whole units, not wei). */
+  fetAmount: string;
+  /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
+  slippagePercent?: number;
+  /** Agent address to trade from (agent1q...). Omit to use the user's own wallet. */
+  agentAddress?: string;
+}
+
+/** Parameters for POST /agents/sell (custodial sell via server HD wallet). */
+export interface ExecuteSellParams {
+  /** Token contract address to sell. */
+  tokenAddress: string;
+  /** Number of tokens to sell (whole units, not wei). */
+  tokenAmount: string;
+  /** Slippage tolerance as a percentage (0.1–50). Default: 5. */
+  slippagePercent?: number;
+  /** Agent address to trade from (agent1q...). Omit to use the user's own wallet. */
+  agentAddress?: string;
+}
+
+/** Result from a successful custodial buy (POST /agents/buy). */
+export interface CustodialBuyResult {
+  /** On-chain transaction hash of the buy transaction. */
+  txHash: string;
+  /** On-chain transaction hash of the FET approval (null if allowance was sufficient). */
+  approvalTxHash: string | null;
+  /** Block number the buy was confirmed in. */
+  blockNumber: number;
+  /** FET amount spent (whole units). */
+  fetSpent: string;
+  /** Estimated token amount received (whole units). */
+  expectedTokens: string;
+  /** Minimum tokens accepted after slippage (whole units). */
+  minTokens: string;
+  /** Gas used by the buy transaction. */
+  gasUsed: string;
+  /** Custodial wallet address that executed the trade. */
+  walletAddress: string;
+}
+
+/** Result from a successful custodial sell (POST /agents/sell). */
+export interface CustodialSellResult {
+  /** On-chain transaction hash of the sell transaction. */
+  txHash: string;
+  /** Block number the sell was confirmed in. */
+  blockNumber: number;
+  /** Number of tokens sold (whole units). */
+  tokensSold: string;
+  /** Gas used by the sell transaction. */
+  gasUsed: string;
+  /** Custodial wallet address that executed the trade. */
+  walletAddress: string;
+}
+
+/** Response from GET /agents/wallet (custodial wallet info). */
+export interface WalletInfoResponse {
+  /** EVM wallet address (derived from user identity or agent address). */
+  address: string;
+  /** Native token balance (BNB on BSC, ETH on Ethereum) in whole units. */
+  nativeBalance: string;
+  /** FET token balance in whole units. */
+  fetBalance: string;
+  /** Chain ID this balance was queried on. */
+  chainId: number;
+  /** Whether this is a user wallet or an agent wallet. */
+  type?: 'user' | 'agent';
+  /** Agent address, if this is an agent wallet. */
+  agentAddress?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -592,4 +674,32 @@ export interface FiatOnrampLink {
   estimatedCrypto?: string;
   /** Estimated provider fee. */
   estimatedFee?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Wallet authentication types
+// ---------------------------------------------------------------------------
+
+/** Configuration for wallet authentication. */
+export interface WalletAuthConfig {
+  /** Hex-encoded private key (with or without 0x prefix). */
+  privateKey: string;
+  /** OAuth client ID. Defaults to 'agentverse'. */
+  clientId?: string;
+  /** OAuth scope. Defaults to 'av'. */
+  scope?: string;
+  /** Expiration time in seconds. Defaults to 30 days (2592000). */
+  expiresIn?: number;
+  /** Accounts API base URL. Defaults to 'https://accounts.fetch.ai/v1'. */
+  accountsApiUrl?: string;
+}
+
+/** Result of successful wallet authentication. */
+export interface WalletAuthResult {
+  /** The Agentverse API key (av-...). */
+  apiKey: string;
+  /** Unix timestamp (ms) when the key expires. */
+  expiresAt: number;
+  /** Cosmos address derived from the private key (fetch1...). */
+  cosmosAddress: string;
 }

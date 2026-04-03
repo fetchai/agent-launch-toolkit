@@ -19,6 +19,18 @@ import { commentHandlers } from "./tools/comments.js";
 import { commerceHandlers } from "./tools/commerce.js";
 import { tradingHandlers } from "./tools/trading.js";
 import { paymentHandlers } from "./tools/payments.js";
+import { custodialHandlers } from "./tools/custodial.js";
+import { skillHandlers } from "./tools/skill.js";
+import { authHandlers } from "./tools/auth.js";
+import {
+  connectAgentToolDefinition,
+  connectHandlers as deployConnectHandlers,
+} from "./tools/connect/deploy.js";
+import { connectHandlers as statusConnectHandlers } from "./tools/connect/status.js";
+import {
+  UPDATE_CONNECTION_TOOL,
+  connectHandlers as updateConnectHandlers,
+} from "./tools/connect/update.js";
 
 // Create the server
 const server = new Server(
@@ -39,15 +51,19 @@ const server = new Server(
 // READ-ONLY (safe):  list_tokens, get_token, get_platform_stats, calculate_buy,
 //   calculate_sell, get_deploy_instructions, check_spending_limit,
 //   check_agent_commerce, network_status, get_wallet_balances, get_comments,
-//   list_invoices, get_multi_token_balances, generate_org_template
+//   list_invoices, get_multi_token_balances, generate_org_template,
+//   get_agent_wallet, check_auth
 //
 // WRITE (moderate):  create_token_record, scaffold_agent, deploy_to_agentverse,
 //   update_agent_metadata, create_and_tokenize, post_comment, scaffold_swarm,
 //   deploy_swarm, create_delegation, get_fiat_link, create_invoice,
-//   scaffold_org_swarm, get_trade_link
+//   scaffold_org_swarm, get_trade_link, connect_agent, update_connection,
+//   wallet_auth
+//
+// READ-ONLY (safe, connect):  get_connection_status
 //
 // DESTRUCTIVE (high risk — transfers value):  buy_tokens, sell_tokens,
-//   multi_token_payment
+//   multi_token_payment, buy_token, sell_token
 //
 // Tools in the DESTRUCTIVE category transfer real tokens on-chain.
 // MCP clients should gate these behind user confirmation or spending limits.
@@ -580,6 +596,87 @@ export const TOOLS = [
       required: ["address"],
     },
   },
+  // W1-MCP — Custodial trading (server-side, no WALLET_PRIVATE_KEY needed) ----
+  {
+    name: "get_agent_wallet",
+    description:
+      "Get a custodial wallet address and balances. Two wallet types:\n\n- **User wallet** (default, no agentAddress): Your personal wallet, derived from your identity. Stable forever — never changes when you create new agents.\n- **Agent wallet** (with agentAddress): A specific agent's autonomous trading wallet.\n\nNo private key required. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY).\n\nUSE THIS TOOL WHEN: You need to check wallet balance before trading, or to share a wallet address.\n\nNext: fund wallet with FET + BNB, then call `buy_token`.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        chainId: {
+          type: "number",
+          description:
+            "Chain ID to query balances on (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+        },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to get that agent's wallet. Omit to get your own user wallet.",
+        },
+      },
+    },
+  },
+  {
+    name: "buy_token",
+    annotations: { destructiveHint: true, readOnlyHint: false },
+    description:
+      "Buy tokens on the bonding curve using a custodial wallet. The server handles FET approval automatically. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nPass agentAddress to trade from a specific agent's wallet. Omit to trade from your user wallet.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain buying without managing a private key locally. Use `calculate_buy` first to preview.\n\nAlternative: `buy_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenAddress: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        fetAmount: {
+          type: "string",
+          description: "Amount of FET to spend (e.g. '100')",
+        },
+        slippagePercent: {
+          type: "number",
+          description:
+            "Slippage tolerance percentage (0.1–50). Default: 5",
+        },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to trade from that agent's wallet. Omit to use your user wallet.",
+        },
+      },
+      required: ["tokenAddress", "fetAmount"],
+    },
+  },
+  {
+    name: "sell_token",
+    annotations: { destructiveHint: true, readOnlyHint: false },
+    description:
+      "Sell tokens on the bonding curve using a custodial wallet. Requires AGENTLAUNCH_API_KEY (or AGENTVERSE_API_KEY) — no WALLET_PRIVATE_KEY needed.\n\nPass agentAddress to trade from a specific agent's wallet. Omit to trade from your user wallet.\n\nUSE THIS TOOL WHEN: You want autonomous on-chain selling without managing a private key locally. Use `calculate_sell` first to preview.\n\nAlternative: `sell_tokens` if you have WALLET_PRIVATE_KEY in your env.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        tokenAddress: {
+          type: "string",
+          description: "Token contract address (0x...)",
+        },
+        tokenAmount: {
+          type: "string",
+          description: "Amount of tokens to sell (e.g. '500000')",
+        },
+        slippagePercent: {
+          type: "number",
+          description:
+            "Slippage tolerance percentage (0.1–50). Default: 5",
+        },
+        agentAddress: {
+          type: "string",
+          description:
+            "Agent address (agent1q...) to trade from that agent's wallet. Omit to use your user wallet.",
+        },
+      },
+      required: ["tokenAddress", "tokenAmount"],
+    },
+  },
   // EXT-06 ----------------------------------------------------------------
   {
     name: "deploy_swarm",
@@ -911,6 +1008,93 @@ export const TOOLS = [
       required: ["walletAddress"],
     },
   },
+  // Skill discovery --------------------------------------------------------
+  {
+    name: "get_skill",
+    description:
+      "Get the AgentLaunch skill manifest — the complete guide for AI agents to discover, tokenize, and trade.\n\nUSE THIS TOOL WHEN:\n- User asks what AgentLaunch can do\n- An agent needs to self-configure or discover available capabilities\n- User wants the skill.md content\n\nExamples: get_skill(), get_skill({ format: \"json\" })\n\nNext: `install_skill` to configure MCP tools, `list_tokens` to browse.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        format: {
+          type: "string",
+          enum: ["markdown", "json"],
+          description:
+            "Output format: 'markdown' (default) returns raw skill.md, 'json' returns structured phases/tools/endpoints",
+        },
+      },
+    },
+  },
+  {
+    name: "install_skill",
+    description:
+      "Get the MCP server configuration to install AgentLaunch tools in Claude Code or Cursor.\n\nUSE THIS TOOL WHEN:\n- User wants to add AgentLaunch tools to their editor\n- Agent needs to self-install MCP capabilities\n- User asks how to set up AgentLaunch integration\n\nReturns ready-to-paste JSON config for claude_desktop_config.json, .claude/settings.json, or .cursor/mcp.json.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  // Connect agent tools ------------------------------------------------------
+  connectAgentToolDefinition,
+  {
+    name: "get_connection_status",
+    description:
+      "Get the current connection status of an agent by its agent1q... address.\n\nUSE THIS TOOL WHEN:\n- You need to check whether a connected agent is running or stopped\n- User asks about the state or last activity of a connected agent\n\nExamples: get_connection_status({ address: \"agent1q...\" })\n\nNext: `update_connection` to change the target URL, `connect_agent` to connect a new agent.",
+    inputSchema: {
+      type: "object" as const,
+      required: ["address"],
+      properties: {
+        address: {
+          type: "string",
+          description: "The agent1q... address of the agent to query",
+        },
+      },
+    },
+  },
+  UPDATE_CONNECTION_TOOL,
+  // Wallet authentication (W-14, W-15) ---------------------------------------
+  {
+    name: "wallet_auth",
+    description:
+      "Get an Agentverse API key by signing with a wallet private key. Implements Fetch.ai wallet auth flow: derives Cosmos address, signs challenge, exchanges for API key.\n\nUSE THIS TOOL WHEN:\n- User wants to authenticate without visiting the Agentverse dashboard\n- Setting up automation that needs an API key\n\nSECURITY: The private key is only used for signing and is never logged.\n\nNext: save the returned API key to .env, then use other tools.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        private_key: {
+          type: "string",
+          description: "Wallet private key (32-byte hex, with or without 0x prefix)",
+        },
+        expires_in: {
+          type: "number",
+          description: "Expiration time in seconds (default: 2592000 = 30 days)",
+        },
+      },
+      required: ["private_key"],
+    },
+  },
+  {
+    name: "check_auth",
+    description:
+      "Check if the current Agentverse API key (from AGENTVERSE_API_KEY or AGENT_LAUNCH_API_KEY env var) is valid.\n\nUSE THIS TOOL WHEN:\n- User is unsure if their API key is still working\n- Troubleshooting auth errors\n- Before starting a session to confirm credentials\n\nNext: if invalid, use `wallet_auth` or `generate_wallet` to get a new key.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
+    name: "generate_wallet",
+    description:
+      "Generate a new wallet AND authenticate in one step. This is the ZERO-TO-HERO tool: creates a wallet from scratch and returns both the private key AND API key.\n\nUSE THIS TOOL WHEN:\n- User has NO existing wallet or API key\n- Setting up a brand new project from scratch\n- User says 'start from zero' or 'create everything'\n\nReturns: privateKey, evmAddress, cosmosAddress, apiKey\n\nNext: save both WALLET_PRIVATE_KEY and AGENTVERSE_API_KEY to .env, then run scaffold_agent or deploy_to_agentverse.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        expires_in: {
+          type: "number",
+          description: "API key expiry in seconds (default: 2592000 = 30 days)",
+        },
+      },
+    },
+  },
 ];
 
 // Handle list_tools request
@@ -938,6 +1122,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(commerceHandlers as Record<string, AnyHandler>),
       ...(tradingHandlers as Record<string, AnyHandler>),
       ...(paymentHandlers as Record<string, AnyHandler>),
+      ...(custodialHandlers as Record<string, AnyHandler>),
+      ...(skillHandlers as Record<string, AnyHandler>),
+      ...(authHandlers as Record<string, AnyHandler>),
+      ...(deployConnectHandlers as Record<string, AnyHandler>),
+      ...(statusConnectHandlers as Record<string, AnyHandler>),
+      ...(updateConnectHandlers as Record<string, AnyHandler>),
     };
 
     if (name in allHandlers) {

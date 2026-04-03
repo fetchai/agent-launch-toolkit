@@ -68,11 +68,11 @@ const ADDR = '0x' + 'a'.repeat(40);
 // =========================================================================
 
 describe('MCP Server Infrastructure', () => {
-  it('MCP-S02: TOOLS array has exactly 30 tools', () => {
+  it('MCP-S02: TOOLS array has exactly 41 tools', () => {
     assert.equal(
       TOOLS.length,
-      30,
-      `Expected 30 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
+      41,
+      `Expected 41 tools, got ${TOOLS.length}: ${TOOLS.map((t) => t.name).join(', ')}`,
     );
   });
 

@@ -93,7 +93,7 @@ Telegram Bot API (free, no rate limits for bots).
 DEFAULT_FAQS = {
     "what is agentlaunch": "AgentLaunch is a platform for building, deploying, and tokenizing AI agents on the Fetch.ai ecosystem.",
     "how to deploy": "Use `npx agentlaunch my-agent` to create and deploy an agent in one command.",
-    "how to get testnet tokens": "Message @gift on Agentverse: send `claim 0x<your-wallet>` to receive 200 TFET + 0.001 tBNB.",
+    "how to get testnet tokens": "Message @gift on Agentverse: send `claim 0x<your-wallet>` to receive 200 TFET + 0.005 tBNB.",
     "what is asi": "ASI is the unified token of the Artificial Superintelligence Alliance — merging FET, AGIX, OCEAN, and CUDOS.",
 }
 ```

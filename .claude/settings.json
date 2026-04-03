@@ -28,15 +28,6 @@
       "Bash(git reset --hard origin/*)"
     ]
   },
-  "mcpServers": {
-    "agent-launch": {
-      "command": "node",
-      "args": ["./packages/mcp/dist/index.js"],
-      "env": {
-        "AGENT_LAUNCH_API_KEY": "${AGENTVERSE_API_KEY}"
-      }
-    }
-  },
   "settings": {
     "project": {
       "name": "AgentLaunch Toolkit",

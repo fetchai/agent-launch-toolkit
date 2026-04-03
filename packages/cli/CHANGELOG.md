@@ -6,6 +6,40 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.9] — 2026-04-03
+
+### Added
+
+- **`agentlaunch auth wallet`** — Authenticate with a wallet private key to obtain an Agentverse API key
+  - Accepts `--private-key` flag or reads `WALLET_PRIVATE_KEY` from environment
+  - `--save` flag writes the API key to `.env` file in current directory
+  - Shows security warning when using `--private-key` flag (visible in shell history)
+  - Requires `@cosmjs/crypto` and `bech32` as peer dependencies
+- **`agentlaunch auth status`** — Check if the current API key is valid
+  - Verifies key against Agentverse API
+  - Shows expiration status and hints for re-authentication
+
+---
+
+## [1.2.8] — 2026-03-29
+
+### Added
+
+- **`agentlaunch connect`** — Deploy agents with webhook proxy for external service integration
+- **`agentlaunch connect-status`** — Check connection health and message delivery stats
+- **`agentlaunch connect-update`** — Update webhook URL, secrets, and agent code
+- **`agentlaunch connect-logs`** — Tail logs for connected agents
+- **`agentlaunch skill`** — Discover and install agent skills from the registry
+- **Scaffold now generates `.mcp.json`** — Cursor/Claude Code auto-discovers MCP server
+
+### Fixed
+
+- **`wallet balances --json`** — Commander parent command was consuming `--json` flag before subcommands; moved option to subcommands only
+- **`wallet delegate --json`** — Same `--json` flag fix
+- **`list` command** — Properly handles paginated token responses
+
+---
+
 ## [1.0.0] — 2026-02-22
 
 ### Added
