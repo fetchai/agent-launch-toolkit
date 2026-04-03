@@ -1,4 +1,4 @@
-# SDK Reference -- `agentlaunch-sdk` v0.2.13
+# SDK Reference -- `agentlaunch-sdk` v0.2.15
 
 Full API reference for the official TypeScript SDK for the AgentLaunch platform.
 
@@ -58,6 +58,62 @@ The SDK defaults to production (`https://agent-launch.ai/api`):
 
 Set `AGENT_LAUNCH_ENV=dev` to use dev URLs. Production is the default.
 Or override directly with `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`.
+
+### Wallet Authentication (Programmatic API Key)
+
+Obtain an API key programmatically from a wallet private key, enabling fully autonomous agent authentication.
+
+**Dependencies:** When using the CLI or MCP server, all crypto dependencies are bundled automatically. When using the SDK directly, install the optional peer dependencies:
+```bash
+npm install @cosmjs/crypto bech32 ethers
+```
+
+**Usage:**
+```ts
+import { 
+  authenticateWithWallet, 
+  deriveCosmosAddress,
+  generateWalletAndAuthenticate 
+} from 'agentlaunch-sdk';
+
+// ZERO-TO-HERO: Generate new wallet + authenticate in one call
+const wallet = await generateWalletAndAuthenticate();
+console.log('Private Key:', wallet.privateKey);  // Save this!
+console.log('EVM Address:', wallet.evmAddress);
+console.log('Cosmos Address:', wallet.cosmosAddress);
+console.log('API Key:', wallet.apiKey);          // Ready to use!
+
+// Simple usage with existing wallet
+const result = await authenticateWithWallet(process.env.WALLET_PRIVATE_KEY);
+console.log('API Key:', result.apiKey);
+console.log('Expires:', new Date(result.expiresAt));
+console.log('Address:', result.cosmosAddress);
+
+// With options
+const result = await authenticateWithWallet({
+  privateKey: process.env.WALLET_PRIVATE_KEY,
+  expiresIn: 86400, // 1 day (default: 30 days)
+});
+
+// Just derive address (no auth)
+const address = await deriveCosmosAddress(process.env.WALLET_PRIVATE_KEY);
+```
+
+**Fluent API:**
+```ts
+import { AgentLaunch } from 'agentlaunch-sdk';
+
+const al = new AgentLaunch({});
+
+// Zero-to-hero (generate wallet + auth)
+const wallet = await al.auth.generate();
+
+// With existing wallet
+const auth = await al.auth.fromWallet(process.env.WALLET_PRIVATE_KEY);
+const address = await al.auth.deriveAddress(process.env.WALLET_PRIVATE_KEY);
+```
+
+See [docs/wallet-auth.md](wallet-auth.md) for the full algorithm and security considerations.
 
 ---
 

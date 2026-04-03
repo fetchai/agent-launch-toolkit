@@ -79,7 +79,6 @@ export function registerWalletCommand(program: Command): void {
     .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
     .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
     .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
-    .option("--json", "Output raw JSON")
     .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
       // Default: run balances when no subcommand is given
       await runBalances(options);

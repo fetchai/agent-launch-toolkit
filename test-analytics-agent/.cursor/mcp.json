@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "agent-launch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "agent-launch-mcp"
+      ],
+      "env": {
+        "AGENTVERSE_API_KEY": "${AGENTVERSE_API_KEY}"
+      }
+    }
+  }
+}

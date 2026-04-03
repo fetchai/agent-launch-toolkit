@@ -676,3 +676,30 @@ export interface FiatOnrampLink {
   estimatedFee?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Wallet authentication types
+// ---------------------------------------------------------------------------
+
+/** Configuration for wallet authentication. */
+export interface WalletAuthConfig {
+  /** Hex-encoded private key (with or without 0x prefix). */
+  privateKey: string;
+  /** OAuth client ID. Defaults to 'agentverse'. */
+  clientId?: string;
+  /** OAuth scope. Defaults to 'av'. */
+  scope?: string;
+  /** Expiration time in seconds. Defaults to 30 days (2592000). */
+  expiresIn?: number;
+  /** Accounts API base URL. Defaults to 'https://accounts.fetch.ai/v1'. */
+  accountsApiUrl?: string;
+}
+
+/** Result of successful wallet authentication. */
+export interface WalletAuthResult {
+  /** The Agentverse API key (av-...). */
+  apiKey: string;
+  /** Unix timestamp (ms) when the key expires. */
+  expiresAt: number;
+  /** Cosmos address derived from the private key (fetch1...). */
+  cosmosAddress: string;
+}

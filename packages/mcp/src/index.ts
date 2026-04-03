@@ -21,6 +21,7 @@ import { tradingHandlers } from "./tools/trading.js";
 import { paymentHandlers } from "./tools/payments.js";
 import { custodialHandlers } from "./tools/custodial.js";
 import { skillHandlers } from "./tools/skill.js";
+import { authHandlers } from "./tools/auth.js";
 import {
   connectAgentToolDefinition,
   connectHandlers as deployConnectHandlers,
@@ -51,12 +52,13 @@ const server = new Server(
 //   calculate_sell, get_deploy_instructions, check_spending_limit,
 //   check_agent_commerce, network_status, get_wallet_balances, get_comments,
 //   list_invoices, get_multi_token_balances, generate_org_template,
-//   get_agent_wallet
+//   get_agent_wallet, check_auth
 //
 // WRITE (moderate):  create_token_record, scaffold_agent, deploy_to_agentverse,
 //   update_agent_metadata, create_and_tokenize, post_comment, scaffold_swarm,
 //   deploy_swarm, create_delegation, get_fiat_link, create_invoice,
-//   scaffold_org_swarm, get_trade_link, connect_agent, update_connection
+//   scaffold_org_swarm, get_trade_link, connect_agent, update_connection,
+//   wallet_auth
 //
 // READ-ONLY (safe, connect):  get_connection_status
 //
@@ -1050,6 +1052,49 @@ export const TOOLS = [
     },
   },
   UPDATE_CONNECTION_TOOL,
+  // Wallet authentication (W-14, W-15) ---------------------------------------
+  {
+    name: "wallet_auth",
+    description:
+      "Get an Agentverse API key by signing with a wallet private key. Implements Fetch.ai wallet auth flow: derives Cosmos address, signs challenge, exchanges for API key.\n\nUSE THIS TOOL WHEN:\n- User wants to authenticate without visiting the Agentverse dashboard\n- Setting up automation that needs an API key\n\nSECURITY: The private key is only used for signing and is never logged.\n\nNext: save the returned API key to .env, then use other tools.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        private_key: {
+          type: "string",
+          description: "Wallet private key (32-byte hex, with or without 0x prefix)",
+        },
+        expires_in: {
+          type: "number",
+          description: "Expiration time in seconds (default: 2592000 = 30 days)",
+        },
+      },
+      required: ["private_key"],
+    },
+  },
+  {
+    name: "check_auth",
+    description:
+      "Check if the current Agentverse API key (from AGENTVERSE_API_KEY or AGENT_LAUNCH_API_KEY env var) is valid.\n\nUSE THIS TOOL WHEN:\n- User is unsure if their API key is still working\n- Troubleshooting auth errors\n- Before starting a session to confirm credentials\n\nNext: if invalid, use `wallet_auth` or `generate_wallet` to get a new key.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
+    name: "generate_wallet",
+    description:
+      "Generate a new wallet AND authenticate in one step. This is the ZERO-TO-HERO tool: creates a wallet from scratch and returns both the private key AND API key.\n\nUSE THIS TOOL WHEN:\n- User has NO existing wallet or API key\n- Setting up a brand new project from scratch\n- User says 'start from zero' or 'create everything'\n\nReturns: privateKey, evmAddress, cosmosAddress, apiKey\n\nNext: save both WALLET_PRIVATE_KEY and AGENTVERSE_API_KEY to .env, then run scaffold_agent or deploy_to_agentverse.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        expires_in: {
+          type: "number",
+          description: "API key expiry in seconds (default: 2592000 = 30 days)",
+        },
+      },
+    },
+  },
 ];
 
 // Handle list_tools request
@@ -1079,6 +1124,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ...(paymentHandlers as Record<string, AnyHandler>),
       ...(custodialHandlers as Record<string, AnyHandler>),
       ...(skillHandlers as Record<string, AnyHandler>),
+      ...(authHandlers as Record<string, AnyHandler>),
       ...(deployConnectHandlers as Record<string, AnyHandler>),
       ...(statusConnectHandlers as Record<string, AnyHandler>),
       ...(updateConnectHandlers as Record<string, AnyHandler>),

@@ -13,6 +13,15 @@ If no path is given, look for `agent.py` in the current directory.
 
 ## Steps
 
+0. **Check authentication**: Before anything else, verify an API key exists.
+   - If `AGENTVERSE_API_KEY` is set in `.env`, proceed
+   - If not, offer the zero-to-hero flow:
+     ```bash
+     npx agentlaunch auth wallet --generate
+     ```
+     This creates a new wallet AND API key in one command.
+   - Alternative: user can get a key from https://agentverse.ai/profile/api-keys
+
 1. **Read** the agent.py file
 2. **Validate** it follows uAgent patterns:
    - Has `Agent()` with zero params

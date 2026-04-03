@@ -28,6 +28,8 @@ import {
   generateSellLink,
 } from './handoff.js';
 import { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
+import { authenticateWithWallet, deriveCosmosAddress, generateWalletAndAuthenticate } from './wallet-auth.js';
+import type { GenerateWalletResult } from './wallet-auth.js';
 import { listStorage, getStorage, putStorage, deleteStorage } from './storage.js';
 import {
   getAgentRevenue,
@@ -97,6 +99,8 @@ import type {
   AgentAuthResponse,
   MyAgentsResponse,
   ImportAgentverseResponse,
+  WalletAuthConfig,
+  WalletAuthResult,
 } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -221,6 +225,57 @@ export interface AgentsNamespace {
   importFromAgentverse(
     agentverseApiKey: string,
   ): Promise<ImportAgentverseResponse>;
+}
+
+/** Authentication operations. */
+export interface AuthNamespace {
+  /**
+   * Authenticate using a wallet private key to obtain an Agentverse API key.
+   *
+   * Requires optional peer dependencies: @cosmjs/crypto and bech32.
+   *
+   * @param config Private key string or full configuration object
+   * @returns API key, expiration timestamp, and derived Cosmos address
+   * @see authenticateWithWallet
+   *
+   * @example
+   * ```ts
+   * const result = await al.auth.fromWallet(process.env.WALLET_PRIVATE_KEY);
+   * console.log('API Key:', result.apiKey);
+   * ```
+   */
+  fromWallet(config: string | WalletAuthConfig): Promise<WalletAuthResult>;
+
+  /**
+   * Derive the Cosmos (Fetch) address from a private key without authenticating.
+   *
+   * @param privateKey Hex-encoded private key (with or without 0x prefix)
+   * @returns The Cosmos address (fetch1...)
+   * @see deriveCosmosAddress
+   */
+  deriveAddress(privateKey: string): Promise<string>;
+
+  /**
+   * Generate a new wallet and authenticate in one step (zero-to-hero flow).
+   *
+   * Creates a random wallet using ethers.Wallet.createRandom(), then authenticates
+   * with Agentverse to obtain an API key. Returns everything needed to start building.
+   *
+   * Requires optional peer dependencies: ethers, @cosmjs/crypto, and bech32.
+   *
+   * @param expiresIn Optional expiration time in seconds (default: 30 days)
+   * @returns Private key, EVM address, Cosmos address, and API key
+   * @see generateWalletAndAuthenticate
+   *
+   * @example
+   * ```ts
+   * const result = await al.auth.generate();
+   * console.log('Private Key:', result.privateKey);
+   * console.log('API Key:', result.apiKey);
+   * // Save both to .env and start building!
+   * ```
+   */
+  generate(expiresIn?: number): Promise<GenerateWalletResult>;
 }
 
 /** Agentverse storage operations. */
@@ -445,6 +500,9 @@ export class AgentLaunch {
   /** Agent authentication and Agentverse management. */
   readonly agents: AgentsNamespace;
 
+  /** Wallet authentication operations (obtain API key from wallet). */
+  readonly auth: AuthNamespace;
+
   /** Agentverse storage read/write operations. */
   readonly storage: StorageNamespace;
 
@@ -613,6 +671,15 @@ export class AgentLaunch {
       getMyAgents: () => getMyAgents(client),
       importFromAgentverse: (agentverseApiKey: string) =>
         importFromAgentverse(agentverseApiKey, client),
+    };
+
+    this.auth = {
+      fromWallet: (walletConfig: string | WalletAuthConfig) =>
+        authenticateWithWallet(walletConfig),
+      deriveAddress: (privateKey: string) =>
+        deriveCosmosAddress(privateKey),
+      generate: (expiresIn?: number) =>
+        generateWalletAndAuthenticate(expiresIn),
     };
 
     // Storage and commerce namespaces use the Agentverse API key directly

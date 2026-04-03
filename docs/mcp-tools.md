@@ -1,6 +1,6 @@
-# MCP Tools Reference — `agent-launch-mcp` v2.3.5
+# MCP Tools Reference — `agent-launch-mcp` v2.3.7
 
-The AgentLaunch MCP server exposes 41 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, deploy to Agentverse, execute on-chain trades, and generate handoff links entirely from your IDE.
+The AgentLaunch MCP server exposes 45 platform operations as tools for Claude Code and Cursor. Once configured, you can create tokens, query market data, scaffold agents, deploy to Agentverse, execute on-chain trades, and generate handoff links entirely from your IDE.
 
 **Install:**
 ```bash
@@ -82,6 +82,7 @@ URLs are configured in `.env`. The `.env.example` ships with production URLs act
 
 ## Tool Categories
 
+- [Authentication](#authentication) — Wallet-based auth and API key validation
 - [Discovery](#discovery) — Browse tokens and platform stats
 - [Calculate](#calculate) — Bonding curve price calculations
 - [Write](#write) — Create and update token records
@@ -91,6 +92,83 @@ URLs are configured in `.env`. The `.env.example` ships with production URLs act
 - [Combo](#combo) — End-to-end shortcuts
 - [Commerce](#commerce) — Agent revenue, pricing, and swarm health
 - [Trading](#trading) — On-chain buy/sell and wallet balances
+
+---
+
+## Authentication
+
+### `wallet_auth`
+
+Get an Agentverse API key by signing with a wallet private key. Implements the Fetch.ai wallet authentication flow: derives Cosmos address from private key, requests a challenge, signs it in ADR-036 format, and exchanges it for an API key.
+
+**Security:** The private key is only used for signing and is never logged or stored.
+
+**Input schema:**
+
+```json
+{
+  "private_key": "0x...",      // 32-byte hex, with or without 0x prefix (required)
+  "expires_in": 2592000        // expiration in seconds, default 30 days
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "apiKey": "av-xxxxxxxxxxxx",
+  "expiresAt": 1712345678000,
+  "expiresIn": "30 days",
+  "cosmosAddress": "fetch1..."
+}
+```
+
+**Example prompt:**
+```
+Authenticate with my wallet and get an API key
+```
+
+**Requires:** `@cosmjs/crypto` and `bech32` npm packages (installed automatically with the SDK).
+
+---
+
+### `check_auth`
+
+Check if the current Agentverse API key (from `AGENTVERSE_API_KEY` or `AGENT_LAUNCH_API_KEY` env var) is valid. Validates by calling the Agentverse API.
+
+**Input schema:**
+
+```json
+{}
+```
+
+No parameters required.
+
+**Output (valid):**
+
+```json
+{
+  "success": true,
+  "valid": true,
+  "agentCount": 5
+}
+```
+
+**Output (invalid):**
+
+```json
+{
+  "success": true,
+  "valid": false,
+  "error": "401 Unauthorized"
+}
+```
+
+**Example prompt:**
+```
+Is my API key still valid?
+```
 
 ---
 
@@ -1008,6 +1086,116 @@ What are my wallet balances for token 0xF7e2F77f...?
 
 ---
 
+### `wallet_auth`
+
+Authenticate with a wallet private key to obtain an Agentverse API key programmatically. Enables fully autonomous agent authentication without manual dashboard visits.
+
+**Requires:** `@cosmjs/crypto` and `bech32` installed as peer dependencies.
+
+**Input schema:**
+
+```json
+{
+  "private_key": "0x...",    // required — hex-encoded private key
+  "expires_in": 2592000      // optional — expiry in seconds (default: 30 days)
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "apiKey": "av-xxxxxxxx...",
+  "expiresAt": 1714723200000,
+  "expiresIn": "30 days",
+  "cosmosAddress": "fetch1abc123..."
+}
+```
+
+**Example prompt:**
+```
+Authenticate with my wallet to get an API key. My private key is in WALLET_PRIVATE_KEY.
+```
+
+**Security:** The private key is used only for signing and is never logged or stored.
+
+---
+
+### `generate_wallet`
+
+Generate a new wallet and authenticate in one step (zero-to-hero flow).
+
+Creates a random wallet, authenticates with Agentverse, and returns everything needed to start building. No pre-existing keys required.
+
+**Input schema:**
+
+```json
+{
+  "expires_in": 2592000  // optional, default 30 days
+}
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "privateKey": "0x...",
+  "evmAddress": "0x...",
+  "cosmosAddress": "fetch1...",
+  "apiKey": "av-...",
+  "expiresAt": 1750000000000,
+  "expiresIn": "30 days"
+}
+```
+
+**Example prompt:**
+```
+Generate a new wallet and get me an API key so I can start building.
+```
+
+**When to use:** User has no wallet and no API key. This is the true zero-to-hero entry point.
+
+---
+
+### `check_auth`
+
+Check if the current Agentverse API key (from `AGENTVERSE_API_KEY` or `AGENT_LAUNCH_API_KEY` env var) is valid.
+
+**Input schema:**
+
+```json
+{}   // no parameters required
+```
+
+**Output:**
+
+```json
+{
+  "success": true,
+  "valid": true,
+  "agentCount": 5
+}
+```
+
+Or if invalid:
+
+```json
+{
+  "success": true,
+  "valid": false,
+  "error": "401 Unauthorized"
+}
+```
+
+**Example prompt:**
+```
+Check if my API key is still valid.
+```
+
+---
+
 ## Error Handling
 
 All tools return errors as MCP error responses with a descriptive message:
@@ -1043,6 +1231,9 @@ For reference, these are the correct API paths used by the tools:
 
 | Tool | Method | Path |
 |------|--------|------|
+| `wallet_auth` | `POST` | `accounts.fetch.ai/v1/auth/login/wallet/*` |
+| `generate_wallet` | `POST` | `accounts.fetch.ai/v1/auth/login/wallet/*` |
+| `check_auth` | `GET` | `agentverse.ai/v1/hosting/agents` |
 | `list_tokens` | `GET` | `/tokens` |
 | `get_token` | `GET` | `/tokens/address/:address` or `/tokens/id/:id` |
 | `get_platform_stats` | `GET` | `/platform/stats` |

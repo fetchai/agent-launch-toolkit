@@ -1,0 +1,29 @@
+# AgentLaunch Agent Project
+
+This is an AgentLaunch agent project. Use the MCP tools to build, deploy, and tokenize.
+
+## Quick Commands
+
+- `npm run deploy` - Deploy to Agentverse
+- `npm run tokenize` - Create token + handoff link
+- `npm run status` - Check status
+
+## Key Files
+
+- `agent.py` - Your agent code (edit this!)
+- `CLAUDE.md` - Full context for Claude
+- `docs/` - SDK, CLI, MCP documentation
+- `examples/` - Working code samples
+
+## Swarm-Starter Template (Recommended)
+
+Use the swarm-starter template for agents with a full commerce stack:
+- Payment handling, pricing tables, revenue tracking
+- Token-gated tiers, wallet management
+- 7 presets: writer, social, community, analytics, outreach, ads, strategy
+
+## Platform Constants
+
+- Deploy fee: 120 FET
+- Graduation: 30,000 FET liquidity
+- Trading fee: 2% to protocol treasury (NO creator fee)

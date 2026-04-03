@@ -6,7 +6,7 @@
  *   MCP-TR01  buy_tokens dry-run returns preview via calculateBuy API
  *   MCP-TR03  sell_tokens dry-run returns preview via calculateSell API
  *   MCP-TR05  get_wallet_balances handler exists
- *   MCP-S02   All 38 tools registered in TOOLS array
+ *   MCP-S02   All 40 tools registered in TOOLS array
  *   MCP-S03   Every tool has valid name, description, and inputSchema
  *   MCP-S04   Handler maps do not contain unknown tool names
  *   MCP-CM03  check_agent_commerce handles storage failures gracefully
@@ -35,6 +35,7 @@ import { commentHandlers } from '../tools/comments.js';
 import { paymentHandlers } from '../tools/payments.js';
 import { custodialHandlers } from '../tools/custodial.js';
 import { skillHandlers } from '../tools/skill.js';
+import { authHandlers } from '../tools/auth.js';
 import { connectHandlers as deployConnectHandlers } from '../tools/connect/deploy.js';
 import { connectHandlers as statusConnectHandlers } from '../tools/connect/status.js';
 import { connectHandlers as updateConnectHandlers } from '../tools/connect/update.js';
@@ -199,14 +200,16 @@ describe('MCP server registration', () => {
     'connect_agent',
     'get_connection_status',
     'update_connection',
+    'wallet_auth',
+    'check_auth',
   ];
 
   // MCP-S02
-  it('TOOLS array has exactly 38 entries', () => {
+  it('TOOLS array has exactly 41 entries', () => {
     assert.equal(
       TOOLS.length,
-      38,
-      `expected 38 tools, got ${TOOLS.length}`,
+      41,
+      `expected 41 tools, got ${TOOLS.length}`,
     );
   });
 
@@ -275,6 +278,7 @@ describe('MCP server registration', () => {
       { name: 'paymentHandlers', map: paymentHandlers },
       { name: 'custodialHandlers', map: custodialHandlers },
       { name: 'skillHandlers', map: skillHandlers },
+      { name: 'authHandlers', map: authHandlers },
       { name: 'deployConnectHandlers', map: deployConnectHandlers },
       { name: 'statusConnectHandlers', map: statusConnectHandlers },
       { name: 'updateConnectHandlers', map: updateConnectHandlers },
@@ -304,6 +308,7 @@ describe('MCP server registration', () => {
       ...paymentHandlers,
       ...custodialHandlers,
       ...skillHandlers,
+      ...authHandlers,
       ...deployConnectHandlers,
       ...statusConnectHandlers,
       ...updateConnectHandlers,
