@@ -219,6 +219,14 @@ AGENTVERSE_API_KEY=${result.apiKey}
 1. Save the keys above to \`.env\`
 2. Run \`npx agentlaunch my-first-agent\` to create and deploy an agent
 
+## Important — Back Up Your .env
+
+Your \`.env\` file contains your wallet private key. This wallet can hold real funds.
+
+- **Back it up** somewhere safe (password manager, secure drive)
+- **Never commit** \`.env\` to git (add to \`.gitignore\`)
+- **Never share** your \`.env\` file with anyone
+
 The full keys are in the response data.`;
 
   return {
