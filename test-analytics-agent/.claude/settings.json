@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "agent-launch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "agent-launch-mcp"
+      ],
+      "env": {
+        "AGENTVERSE_API_KEY": "eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE3NzcxMDEzMzksImlhdCI6MTc3NDUwOTMzOSwiaXNzIjoiZmV0Y2guYWkiLCJqdGkiOiIxZDBiM2YzZWI1M2NiNWIxMmNhNWQyNDgiLCJzY29wZSI6ImF2Iiwic3ViIjoiMzJiNjhhNjZjMzE0YTlhOWQzOTJlYjA0MTg1MjE4MzZlYzU1YWU0YWExZWU4NWMzIn0.VyXKzuRkeQ6WRb1cttOhk0bQgljfqFsYCqMhSDs7iPXl9uvyUDS0GbtjdN37NIF2s_z9_odNWgRcxxuT2b2euXRNn5z_j7hRCjArzswCEKP917RqeEmcfn8tPlmFK1W-shBmGe96neZzlLw0R9LpiTpugvyFNjJo9dZslwYcJ8DfPI3QbkwVavmP121hWUIo5yBVk7ZaYS_L5vRD__YTmOOnb5-8EREDcW9fMKi1xegffd_-FxD6F4DC3Mp2tY2EOy0Ws9JmSqHT18wvvdt3PGfB_L9YqKdboglherpuKyKPrH1k89dSLtTHXNvfrzYksP2qmk0kQyyzvpESK6Fdxg"
+      }
+    }
+  }
+}

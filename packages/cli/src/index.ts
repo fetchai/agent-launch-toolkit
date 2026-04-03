@@ -63,8 +63,12 @@ import { registerConnectLogsCommand } from "./commands/connect-logs.js";
 import { registerConnectCommand } from "./commands/connect.js";
 import { registerConnectStatusCommand } from "./commands/connect-status.js";
 import { registerConnectUpdateCommand } from "./commands/connect-update.js";
+import { registerAuthCommand } from "./commands/auth.js";
 
 const program = new Command();
+
+// Enable positional options so --json after a subcommand goes to the subcommand, not the root
+program.enablePositionalOptions();
 
 program
   .name("agentlaunch")
@@ -112,6 +116,7 @@ registerConnectLogsCommand(program);
 registerConnectCommand(program);
 registerConnectStatusCommand(program);
 registerConnectUpdateCommand(program);
+registerAuthCommand(program);
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error((err as Error).message ?? String(err));

@@ -41,6 +41,7 @@ export type {
   MarketNamespace,
   HandoffNamespace,
   AgentsNamespace,
+  AuthNamespace,
   StorageNamespace,
   CommerceNamespace,
   OnchainNamespace,
@@ -106,6 +107,9 @@ export type {
   CustodialBuyResult,
   CustodialSellResult,
   WalletInfoResponse,
+  // Wallet authentication types
+  WalletAuthConfig,
+  WalletAuthResult,
 } from './types.js';
 export { AgentLaunchError } from './types.js';
 
@@ -141,6 +145,10 @@ export {
 
 // SDK-005: Agent operations
 export { authenticate, getMyAgents, importFromAgentverse } from './agents.js';
+
+// Wallet authentication (requires @cosmjs/crypto and bech32 as optional peer dependencies)
+export { authenticateWithWallet, deriveCosmosAddress, generateWalletAndAuthenticate } from './wallet-auth.js';
+export type { GenerateWalletResult } from './wallet-auth.js';
 
 // Agentverse deployment
 export {

@@ -1,6 +1,6 @@
-# CLI Reference — `agentlaunch` v1.2.7
+# CLI Reference — `agentlaunch` v1.2.9
 
-Full command reference for the AgentLaunch CLI (26 commands). Scaffold, deploy, tokenize, and trade AI agent tokens from the terminal.
+Full command reference for the AgentLaunch CLI (28 commands). Scaffold, deploy, tokenize, and trade AI agent tokens from the terminal.
 
 **Install globally:**
 ```bash
@@ -10,7 +10,7 @@ npm install -g agentlaunch
 **Verify:**
 ```bash
 agentlaunch --version
-# 1.2.7
+# 1.2.8
 
 agentlaunch --help
 ```
@@ -109,6 +109,108 @@ agentlaunch list   # Uses custom backend
 ```
 
 Priority order: `AGENT_LAUNCH_API_URL` > `config set-url` > `AGENT_LAUNCH_ENV` > production default.
+
+---
+
+## Authentication
+
+### `agentlaunch auth wallet`
+
+Authenticate with a wallet private key to obtain an Agentverse API key programmatically.
+
+```bash
+# ZERO-TO-HERO: Generate a new wallet + API key (saves both to .env)
+agentlaunch auth wallet --generate
+
+# Use WALLET_PRIVATE_KEY from .env or environment
+agentlaunch auth wallet
+
+# Explicit private key (caution: visible in shell history!)
+agentlaunch auth wallet --private-key 0x...
+
+# Save API key to .env automatically
+agentlaunch auth wallet --save
+
+# JSON output
+agentlaunch auth wallet --json
+```
+
+**Flags:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--generate` | Generate a new wallet (saves both WALLET_PRIVATE_KEY and API key) | false |
+| `--private-key <key>` | Hex-encoded private key (prefer `WALLET_PRIVATE_KEY` env var) | from env |
+| `--save` | Save the API key to `.env` file in current directory | false |
+| `--json` | Output raw JSON | false |
+
+**Zero-to-hero flow:**
+
+The `--generate` flag creates everything you need from scratch:
+1. Generates a new random wallet using `ethers.Wallet.createRandom()`
+2. Authenticates with Agentverse to get an API key
+3. Saves both `WALLET_PRIVATE_KEY` and `AGENTVERSE_API_KEY` to `.env`
+4. You're ready to deploy agents immediately!
+
+**Security notes:**
+- Using `--private-key` exposes the key in shell history — prefer `WALLET_PRIVATE_KEY` env var
+- Private keys are never logged or displayed
+- The resulting API key is also saved to `~/.agentlaunch/config.json`
+
+**Dependencies:** All required crypto dependencies (`@cosmjs/crypto`, `bech32`, `ethers`) are bundled with the CLI - no manual installation needed.
+
+**Example output:**
+
+```
+  Authenticating with wallet...
+  Cosmos Address: fetch1abc123...
+  Requesting challenge...
+  Signing challenge...
+  Exchanging for API key...
+
+==================================================
+AUTHENTICATION SUCCESSFUL
+==================================================
+Cosmos Address: fetch1abc123...
+API Key:        av-xxxxxx... (masked)
+Expires:        2026-05-03 (30 days)
+Saved to:       ~/.agentlaunch/config.json
+                .env (current directory)
+==================================================
+
+You can now use all agentlaunch commands.
+```
+
+---
+
+### `agentlaunch auth status`
+
+Check if the current API key is valid.
+
+```bash
+agentlaunch auth status
+agentlaunch auth status --json
+```
+
+**Flags:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--json` | Output raw JSON | false |
+
+**Example output:**
+
+```
+  Checking API key...
+
+----------------------------------------
+API KEY STATUS
+----------------------------------------
+  Configured: Yes
+  Valid:      Yes
+  Key:        av-xxxxxx... (masked)
+----------------------------------------
+```
 
 ---
 
@@ -772,6 +874,8 @@ These are the correct API paths used by the CLI (base URL: `https://agent-launch
 | `tokenize` | `POST` | `/agents/tokenize` |
 | `buy --dry-run` | `GET` | `/tokens/calculate-buy` |
 | `sell --dry-run` | `GET` | `/tokens/calculate-sell` |
+| `auth wallet` | `POST` | `accounts.fetch.ai/v1/auth/login/wallet/*` |
+| `auth status` | `GET` | `agentverse.ai/v1/hosting/agents` |
 
 ---
 

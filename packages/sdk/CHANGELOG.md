@@ -5,6 +5,41 @@ All notable changes to `agentlaunch-sdk` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.15] - 2026-04-03
+
+### Added
+
+- **Wallet authentication** (`wallet-auth.ts`) — Obtain Agentverse API key from wallet private key
+  - `authenticateWithWallet(config)` — Full authentication flow via accounts.fetch.ai
+  - `deriveCosmosAddress(privateKey)` — Derive Cosmos address without authenticating
+  - Implements ADR-036 signing format with 64-byte R||S signatures
+  - Requires optional peer dependencies: `@cosmjs/crypto`, `bech32`
+- **AgentLaunch.auth namespace** — Fluent API for wallet authentication
+  - `al.auth.fromWallet(privateKey)` — Authenticate and get API key
+  - `al.auth.deriveAddress(privateKey)` — Get wallet address
+- **New types**: `WalletAuthConfig`, `WalletAuthResult`
+
+---
+
+## [0.2.14] - 2026-03-29
+
+### Added
+
+- **Connect module** (`connect.ts`) — Agent-to-agent messaging via outbox pattern
+  - `deployConnectedAgent()` — Deploy agent with webhook proxy for external HTTPS services
+  - `getConnectionStatus()` — Check agent connection health and message stats
+  - `updateConnection()` — Update webhook URL, secrets, and agent code
+  - `sendOutboxMessage()` — Queue messages for agent-to-agent delivery
+
+### Fixed
+
+- **Error serialization** — API errors now properly serialize with status codes and messages
+- **Auth flow** — Fixed JWT exchange edge cases with malformed API keys
+- **Agent listing** — Correctly handles `{ items: [...] }` response shape in all code paths
+- **Client security** — Input validation on all URL parameters to prevent injection
+
+---
+
 ## [0.1.0] - 2026-02-22
 
 ### Added

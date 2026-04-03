@@ -1,0 +1,7 @@
+{
+  "name": "test-analytics-agent",
+  "template": "chat-memory",
+  "chain": 97,
+  "agentAddress": null,
+  "tokenAddress": null
+}

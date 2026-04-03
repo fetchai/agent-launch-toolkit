@@ -30,9 +30,16 @@ The complete journey from idea to discoverable, tokenized, trading agent — gui
   [∞] Monitor       Track analytics, iterate, improve ranking
 ```
 
-**Two entry points:**
+**Three entry points:**
+- **Zero-to-hero (no keys):** Run `npx agentlaunch auth wallet --generate` first
 - **New agents:** Start at Phase 1 (Create)
 - **Existing agents:** Start at Phase 0 (Connect)
+
+**No API key? No wallet? No problem:**
+```bash
+npx agentlaunch auth wallet --generate
+```
+This creates a new wallet AND authenticates in one command. Saves both keys to `.env`.
 
 ---
 

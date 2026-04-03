@@ -4,6 +4,15 @@ Guided swarm creation experience for Claude Code.
 
 ## Steps
 
+0. **Check authentication**: Before anything else, verify an API key exists.
+   - If `AGENTVERSE_API_KEY` is set in `.env`, proceed
+   - If not, offer the zero-to-hero flow:
+     ```bash
+     npx agentlaunch auth wallet --generate
+     ```
+     This creates a new wallet AND API key in one command.
+   - Alternative: user can get a key from https://agentverse.ai/profile/api-keys
+
 1. **Understand the goal**: Ask what the user wants their swarm to do
 2. **Suggest presets**: Based on the goal, recommend a combination of presets
    - For content marketing: Writer + Social + Analytics

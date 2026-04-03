@@ -119,6 +119,8 @@ Quality flywheel: good agents -> token holders -> higher price -> more visibilit
 | Trade (preview) | `npx agentlaunch buy 0x... --dry-run` | `calculate_buy` | — |
 | Trade (execute) | `npx agentlaunch buy 0x... --amount 10` | `buy_tokens` | — |
 | List | `npx agentlaunch list` | `list_tokens` | `/market` |
+| Auth (wallet) | `npx agentlaunch auth wallet` | `wallet_auth` | — |
+| Auth (status) | `npx agentlaunch auth status` | `check_auth` | — |
 
 ## What's Inside
 
@@ -126,7 +128,7 @@ Quality flywheel: good agents -> token holders -> higher price -> more visibilit
 |---------|------|-------------|
 | **SDK** | `packages/sdk/` | TypeScript client for every API endpoint |
 | **CLI** | `packages/cli/` | 26 commands, one-command full lifecycle |
-| **MCP Server** | `packages/mcp/` | 41 tools for Claude Code / Cursor |
+| **MCP Server** | `packages/mcp/` | 43 tools for Claude Code / Cursor |
 | **Templates** | `packages/templates/` | 10 agent blueprints (chat-memory is default) |
 
 ## Authentication
@@ -137,6 +139,42 @@ Everything uses ONE key: the Agentverse API key from `.env`.
 - Auth header: `X-API-Key: <AGENTVERSE_API_KEY>`
 - No wallet signatures needed for API operations
 - Human wallet only needed for on-chain signing (via handoff links)
+
+### Programmatic API Key via Wallet Auth
+
+Agents can now obtain API keys programmatically using their wallet private key:
+
+```bash
+# CLI: Get API key from wallet
+npx agentlaunch auth wallet                           # Uses WALLET_PRIVATE_KEY from .env
+npx agentlaunch auth wallet --private-key 0x...       # Explicit key (visible in shell history!)
+npx agentlaunch auth wallet --save                    # Save to .env automatically
+
+# CLI: Check current API key validity
+npx agentlaunch auth status
+```
+
+```typescript
+// SDK: Authenticate with wallet
+import { authenticateWithWallet } from 'agentlaunch-sdk';
+
+const result = await authenticateWithWallet(process.env.WALLET_PRIVATE_KEY);
+console.log('API Key:', result.apiKey);
+console.log('Expires:', new Date(result.expiresAt));
+console.log('Address:', result.cosmosAddress);
+
+// Or via fluent API
+const al = new AgentLaunch({});
+const auth = await al.auth.fromWallet(process.env.WALLET_PRIVATE_KEY);
+```
+
+**How it works:** Sign a challenge from `accounts.fetch.ai` in ADR-036 format, exchange for API key.
+See `docs/wallet-auth.md` for the full algorithm and security considerations.
+
+**Dependencies:** Requires optional peer deps `@cosmjs/crypto` and `bech32`:
+```bash
+npm install @cosmjs/crypto bech32
+```
 
 ## Environment URLs
 
@@ -200,7 +238,7 @@ agent-launch-toolkit/
   packages/
     sdk/                    # agentlaunch-sdk (TypeScript HTTP client)
     cli/                    # agentlaunch (interactive + scripted commands)
-    mcp/                    # agent-launch-mcp (41 tools for Claude Code)
+    mcp/                    # agent-launch-mcp (43 tools for Claude Code)
     templates/              # agentlaunch-templates (10 agent blueprints, chat-memory is default)
   .claude/
     settings.json           # MCP server config, permissions
@@ -242,6 +280,8 @@ You have access to these tools:
 | `create_invoice` | Create payment invoice in agent storage |
 | `list_invoices` | List invoices by status |
 | `get_multi_token_balances` | Query FET + USDC + BNB + custom balances |
+| `wallet_auth` | Get Agentverse API key from wallet private key |
+| `check_auth` | Check if current API key is valid |
 
 ## Slash Commands
 

@@ -1,6 +1,6 @@
 {
   "name": "agentlaunch",
-  "version": "1.2.7",
+  "version": "1.2.10",
   "description": "CLI for AgentLaunch — scaffold, deploy, and tokenize AI agents from the command line",
   "type": "module",
   "main": "dist/index.js",
@@ -23,8 +23,10 @@
   "author": "AgentLaunch",
   "license": "MIT",
   "dependencies": {
-    "agentlaunch-sdk": "^0.2.11",
-    "agentlaunch-templates": "0.4.6",
+    "@cosmjs/crypto": "^0.32.0",
+    "agentlaunch-sdk": "^0.2.14",
+    "agentlaunch-templates": "0.4.11",
+    "bech32": "^2.0.0",
     "commander": "^12.0.0",
     "ethers": "^6.0.0",
     "yaml": "^2.8.3"

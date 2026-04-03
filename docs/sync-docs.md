@@ -49,10 +49,10 @@ Review the validation report and fix each issue.
 
 | Item | Value |
 |------|-------|
-| SDK Version | **0.2.13** |
-| CLI Version | **1.2.7** |
-| MCP Version | **2.3.5** |
-| Templates Version | **0.4.9** |
+| SDK Version | **0.2.14** |
+| CLI Version | **1.2.8** |
+| MCP Version | **2.3.6** |
+| Templates Version | **0.4.10** |
 | MCP Tools | **41** |
 | CLI Commands | **26** |
 | Templates | **10** |

@@ -4,6 +4,15 @@ Build, deploy, and tokenize an agent in one guided flow.
 
 ## Steps
 
+0. **Check authentication**: Before anything else, verify an API key exists.
+   - If `AGENTVERSE_API_KEY` is set in `.env`, proceed
+   - If not, offer the zero-to-hero flow:
+     ```bash
+     npx agentlaunch auth wallet --generate
+     ```
+     This creates a new wallet AND API key in one command.
+   - Alternative: user can get a key from https://agentverse.ai/profile/api-keys
+
 1. **Gather requirements**: Ask the user what kind of agent they want to build.
    Get the agent name, ticker symbol, and description.
 

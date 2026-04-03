@@ -10,6 +10,14 @@ Create a tradeable token for an existing Agentverse agent.
 
 ## Steps
 
+0. **Check authentication**: Before anything else, verify an API key exists.
+   - If `AGENTVERSE_API_KEY` is set in `.env`, proceed
+   - If not, offer the zero-to-hero flow:
+     ```bash
+     npx agentlaunch auth wallet --generate
+     ```
+   - Alternative: user can get a key from https://agentverse.ai/profile/api-keys
+
 1. **Get agent address**: If not provided, list the user's agents via
    GET /v1/hosting/agents and let them choose.
 2. **Collect details**: name, symbol (ticker), description. Prompt for
