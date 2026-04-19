@@ -45,7 +45,7 @@ export async function multiTokenPaymentTool(args: {
   amount: string;
   chainId?: number;
 }): Promise<{ txHash: string; blockNumber: number; token: string; amount: string; to: string; _markdown: string }> {
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
   const token = getPaymentToken(args.tokenSymbol, chainId);
   if (!token) {
     throw new Error(`Unknown token: ${args.tokenSymbol} on chain ${chainId}. Known: FET, USDC.`);
@@ -115,7 +115,7 @@ export async function checkSpendingLimitTool(args: {
   spender: string;
   chainId?: number;
 }): Promise<SpendingLimit & { _markdown: string }> {
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
   const token = getPaymentToken(args.tokenSymbol, chainId);
   if (!token) {
     throw new Error(`Unknown token: ${args.tokenSymbol} on chain ${chainId}`);
@@ -249,7 +249,7 @@ export async function createInvoiceTool(args: {
   tokenSymbol?: string;
   chainId?: number;
 }): Promise<{ template: string; _markdown: string }> {
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
   const tokenSymbol = args.tokenSymbol ?? 'FET';
   const token = getPaymentToken(tokenSymbol, chainId);
   if (!token) {
@@ -350,7 +350,7 @@ export async function getMultiTokenBalancesTool(args: {
     .map(([token, amount]) => `| ${token} | ${amount} |`)
     .join('\n');
 
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
 
   const _markdown = `# Balances
 

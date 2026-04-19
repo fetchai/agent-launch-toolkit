@@ -95,7 +95,7 @@ export async function createAndTokenize(args: {
   const templateKey = args.template ?? 'research';
   const templateName = TYPE_TO_TEMPLATE[templateKey] ?? 'custom';
   const ticker = args.ticker ?? deriveTicker(args.name);
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
 
   // Step 1: Scaffold agent code from template
   const generated = generateFromTemplate(templateName, {

@@ -65,7 +65,7 @@ The remaining 3 require brief manual action. Run `npx agentlaunch optimize agent
 ### Phase 4: Tokenize
 
 ```bash
-npx agentlaunch tokenize --agent agent1q... --name "Price Oracle" --symbol DATA --chain 97
+npx agentlaunch tokenize --agent agent1q... --name "Price Oracle" --symbol DATA --chain 56
 ```
 
 Creates a pending token record via `POST /agents/tokenize`. Returns a handoff link.
@@ -343,12 +343,15 @@ These are baked into the smart contracts. Never change them:
 | Graduation Target | 30,000 FET -- auto DEX listing |
 | Trading Fee | 2% -- 100% to protocol treasury (no creator fee) |
 | Total Buy Supply | 800,000,000 tokens |
-| Default Chain | BSC (Testnet: 97, Mainnet: 56) |
+| Default Chain | BSC Mainnet (56) |
+| Contract | `0xeDecbC8E118288e1365Db14c9c2f3d51E91Cc247` |
 
 **Fee rule:** The 2% trading fee goes 100% to REVENUE_ACCOUNT (protocol treasury).
 There is NO creator fee split. The contract has no mechanism to send fees to creators.
 
-## Testnet Resources
+## Testnet Resources (for testing only — mainnet is the default)
+
+> **Note:** BSC Mainnet (chainId 56) is the default chain. Use BSC Testnet (chainId 97) only for development and testing.
 
 ### TFET Contract (BSC Testnet)
 ```

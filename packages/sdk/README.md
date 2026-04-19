@@ -47,7 +47,7 @@ import { tokenize, generateDeployLink } from 'agentlaunch-sdk';
 const { data } = await tokenize({
   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj...',
   name: 'My Agent Token',
-  chainId: 97, // BSC Testnet
+  chainId: 56, // BSC Mainnet (default) — use 97 for testnet
 });
 
 // 2. Generate a deploy link for a human to complete on-chain deployment
@@ -92,7 +92,7 @@ const { data } = await tokenize({
   symbol: 'MAT',                                     // optional — derived from name
   description: 'An AI agent that...',               // optional
   image: 'https://example.com/logo.png',             // optional — 'auto' for placeholder
-  chainId: 97,                                       // optional — default: 11155111 (Sepolia)
+  chainId: 56,                                        // optional — default: 56 (BSC Mainnet)
   maxWalletAmount: 1,                                // optional — 0=unlimited, 1=0.5%, 2=1%
   initialBuyAmount: '50',                            // optional — FET to buy on deploy (max 1000)
   category: 3,                                       // optional — see /tokens/categories
@@ -146,7 +146,7 @@ const { tokens, total } = await listTokens({
   search: 'agent',
   sortBy: 'market_cap',
   sortOrder: 'DESC',
-  chainId: 97,
+  chainId: 56,
 });
 ```
 
@@ -164,7 +164,7 @@ Buy tokens on the bonding curve. Handles FET approval automatically.
 import { buyTokens } from 'agentlaunch-sdk';
 
 const result = await buyTokens('0xAbCd...', '10', {
-  chainId: 97,        // BSC Testnet (default)
+  chainId: 56,        // BSC Mainnet (default) — use 97 for testnet
   slippagePercent: 5,  // 5% slippage tolerance (default)
 });
 
@@ -204,7 +204,7 @@ console.log(balances.wallet);        // '0x1234...'
 console.log(balances.bnb);           // '0.05'
 console.log(balances.fet);           // '150.0'
 console.log(balances.token);         // '500000.0'
-console.log(balances.chainId);       // 97
+console.log(balances.chainId);       // 56
 ```
 
 #### `getERC20Balance(tokenAddress, walletAddress, config?)`
@@ -270,7 +270,7 @@ const { txHash, blockNumber } = await transferFromERC20(
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `privateKey` | `string` | `WALLET_PRIVATE_KEY` env | Wallet private key |
-| `chainId` | `number` | `97` | BSC Testnet (97) or Mainnet (56) |
+| `chainId` | `number` | `56` | BSC Mainnet (56) or Testnet (97) |
 | `slippagePercent` | `number` | `5` | Slippage tolerance (0-100) |
 | `client` | `AgentLaunchClient` | — | For API calls (calculateBuy/Sell) |
 
@@ -295,14 +295,14 @@ Registry of well-known token addresses per chain.
 import { KNOWN_TOKENS, getPaymentToken, getTokensForChain } from 'agentlaunch-sdk';
 
 // Look up a token by symbol
-const fet = getPaymentToken('FET', 97);
-// { symbol: 'FET', contractAddress: '0x304d...', decimals: 18, chainId: 97, isStablecoin: false }
+const fet = getPaymentToken('FET', 56);
+// { symbol: 'FET', contractAddress: '0xBd5d...', decimals: 18, chainId: 56, isStablecoin: false }
 
-const usdc = getPaymentToken('USDC', 97);
-// { symbol: 'USDC', contractAddress: '0x6454...', decimals: 18, chainId: 97, isStablecoin: true }
+const usdc = getPaymentToken('USDC', 56);
+// { symbol: 'USDC', contractAddress: '0x8AC7...', decimals: 18, chainId: 56, isStablecoin: true }
 
 // List all tokens on a chain
-const bscTestnetTokens = getTokensForChain(97); // [FET, USDC]
+const bscMainnetTokens = getTokensForChain(56); // [FET, USDC]
 ```
 
 **Known token addresses:**
@@ -322,9 +322,9 @@ Get the balance of any ERC-20 token for a wallet.
 import { getTokenBalance } from 'agentlaunch-sdk';
 
 const balance = await getTokenBalance(
-  '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7', // FET
+  '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87', // FET on BSC Mainnet
   '0xMyWallet...',
-  97,
+  56,
 );
 console.log(balance); // '150.0'
 ```
@@ -342,7 +342,7 @@ console.log(balances);
 // { BNB: '0.05', FET: '150.0', USDC: '25.0' }
 
 // Specific tokens only
-const fetOnly = await getMultiTokenBalances('0xMyWallet...', ['FET'], 97);
+const fetOnly = await getMultiTokenBalances('0xMyWallet...', ['FET'], 56);
 // { BNB: '0.05', FET: '150.0' }
 ```
 
@@ -354,11 +354,11 @@ Transfer any ERC-20 token to a recipient.
 import { transferToken } from 'agentlaunch-sdk';
 
 const { txHash, blockNumber } = await transferToken(
-  '0x64544969ed7EBf5f083679233325356EbE738930', // USDC
+  '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', // USDC on BSC Mainnet
   '0xRecipient...',
   '10',
   process.env.WALLET_PRIVATE_KEY!,
-  97,
+  56,
 );
 ```
 
@@ -380,7 +380,7 @@ const invoice = await createInvoice('agent1q...', {
   issuer: 'agent1q...',
   payer: '0xCustomer...',
   service: 'blog_post',
-  amount: { amount: '0.01', token: { symbol: 'FET', contractAddress: '0x304d...', decimals: 18, chainId: 97, isStablecoin: false } },
+  amount: { amount: '0.01', token: { symbol: 'FET', contractAddress: '0xBd5d...', decimals: 18, chainId: 56, isStablecoin: false } },
 });
 
 console.log(invoice.status);    // 'pending'
@@ -442,10 +442,10 @@ Check the on-chain ERC-20 allowance for a spender.
 import { checkAllowance } from 'agentlaunch-sdk';
 
 const limit = await checkAllowance(
-  '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7', // FET
+  '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87', // FET on BSC Mainnet
   '0xOwner...',
   '0xAgent...',
-  97,
+  56,
 );
 
 console.log(limit.remaining); // '100.0'
@@ -475,7 +475,7 @@ Generate a handoff link for a human to approve a spending limit.
 import { createSpendingLimitHandoff } from 'agentlaunch-sdk';
 
 const link = createSpendingLimitHandoff(
-  { tokenSymbol: 'FET', amount: '100', chainId: 97 },
+  { tokenSymbol: 'FET', amount: '100', chainId: 56 },
   '0xAgentWallet...',
 );
 // https://agent-launch.ai/delegate?token=0x304d...&spender=0xAgent...&amount=100
@@ -491,7 +491,7 @@ import { recordDelegation } from 'agentlaunch-sdk';
 await recordDelegation('agent1q...', {
   owner: '0xOwner...',
   spender: '0xAgent...',
-  token: { symbol: 'FET', contractAddress: '0x304d...', decimals: 18, chainId: 97, isStablecoin: false },
+  token: { symbol: 'FET', contractAddress: '0xBd5d...', decimals: 18, chainId: 56, isStablecoin: false },
   maxAmount: '100',
   spent: '0',
   remaining: '100',
@@ -924,7 +924,7 @@ const sellResult = await al.onchain.sell('0xAbCd...', '50000');
 const balances = await al.onchain.getBalances('0xAbCd...');
 
 // Multi-token payments
-const fetToken = al.payments.getToken('FET', 97);
+const fetToken = al.payments.getToken('FET', 56);
 const multiBalances = await al.payments.getMultiTokenBalances('0xWallet...');
 const inv = await al.payments.createInvoice('agent1q...', {
   id: 'inv-001', issuer: 'agent1q...', payer: '0x...', service: 'api',
@@ -1019,7 +1019,7 @@ On-chain functions throw standard `Error` with descriptive messages:
 - **Total Buy Tokens:** 800,000,000
 - **Deployment Fee:** 120 FET (read dynamically from contract, can change via governance)
 - **Trading Fee:** 2% per transaction — goes 100% to the protocol treasury. There is no creator fee.
-- **Default Chain:** BSC (mainnet: 56, testnet: 97)
+- **Default Chain:** BSC Mainnet (56) — use 97 for testnet
 
 ## Cross-References
 

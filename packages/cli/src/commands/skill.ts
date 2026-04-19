@@ -110,6 +110,6 @@ Platform Constants:
   Graduation:   30,000 FET → auto DEX listing
   Trading fee:  2% → 100% protocol treasury
   Bonding curve: 800M tradeable + 200M DEX reserve
-  Chain:        BSC Testnet (97) / BSC Mainnet (56)`);
+  Chain:        BSC Mainnet (56) / BSC Testnet (97)`);
     });
 }

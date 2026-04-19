@@ -440,9 +440,11 @@ When tokenizing, pick the right category:
 
 ---
 
-## Testnet First
+## Testing on Testnet
 
-Test everything on BSC Testnet (chainId: 97) before mainnet.
+> **BSC Mainnet (chainId: 56) is the default.** Use BSC Testnet (chainId: 97) for development and testing only.
+
+To test on testnet, pass `chainId: 97` to the tokenize API or use `--chain 97` in the CLI.
 
 **Get testnet tokens:**
 ```

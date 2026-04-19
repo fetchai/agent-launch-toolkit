@@ -56,7 +56,7 @@ export async function getAgentWalletTool(args: {
   chainId?: number;
   agentAddress?: string;
 }): Promise<WalletInfoResponse & { _markdown: string }> {
-  const chainId = args.chainId ?? 97;
+  const chainId = args.chainId ?? 56;
 
   const info = await getWallet(chainId, args.agentAddress);
 

@@ -113,7 +113,7 @@ export async function createTokenRecord(args: {
     category: args.category,
     agentAddress: args.agentAddress,
     logo: args.logo,
-    chainId: args.chainId ?? 97,
+    chainId: args.chainId ?? 56,
   });
 
   // Unwrap data envelope if present
@@ -132,7 +132,7 @@ export async function createTokenRecord(args: {
 | Token ID | ${tokenId ?? '—'} |
 | Name | ${args.name} |
 | Symbol | ${args.symbol} |
-| Chain | ${args.chainId ?? 97} |
+| Chain | ${args.chainId ?? 56} |
 | Deploy Fee | 120 FET |
 
 ## Next Steps

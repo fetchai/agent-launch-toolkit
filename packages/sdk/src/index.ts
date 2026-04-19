@@ -17,7 +17,7 @@
  * const { data } = await tokenize({
  *   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj...',
  *   name: 'My Agent Token',
- *   chainId: 97,
+ *   chainId: 56,
  * });
  *
  * const link = generateDeployLink(data.token_id);

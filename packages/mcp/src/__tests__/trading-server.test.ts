@@ -202,6 +202,7 @@ describe('MCP server registration', () => {
     'update_connection',
     'wallet_auth',
     'check_auth',
+    'generate_wallet',
   ];
 
   // MCP-S02

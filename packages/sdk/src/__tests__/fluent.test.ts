@@ -230,8 +230,9 @@ describe('.listTokens() top-level convenience — SDK-F09', () => {
   it('proxies to .tokens.listTokens()', async () => {
     restoreFn = installFetchMock(async () => {
       return makeResponse({
-        tokens: [{ id: 1, name: 'T', symbol: 'T', address: '0x123', price: '0.01' }],
-        total: 1,
+        success: true,
+        data: [{ id: 1, name: 'T', symbol: 'T', address: '0x123', price: '0.01' }],
+        meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
       });
     });
 
@@ -381,7 +382,7 @@ describe('.payments.getToken() — SDK-F05', () => {
     assert.equal(token, undefined);
   });
 
-  it('defaults to chainId 97 when not specified', () => {
+  it('defaults to chainId 56 when not specified', () => {
     const al = new AgentLaunch({
       baseUrl: 'https://test.local',
     });
@@ -389,7 +390,7 @@ describe('.payments.getToken() — SDK-F05', () => {
     const token = al.payments.getToken('FET');
 
     assert.ok(token, 'should return a token without explicit chainId');
-    assert.equal(token!.chainId, 97);
+    assert.equal(token!.chainId, 56);
   });
 });
 

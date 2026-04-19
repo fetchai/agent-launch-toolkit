@@ -123,7 +123,7 @@ describe('MCP-HO01: create_token_record', () => {
       const body = JSON.parse(init?.body as string);
       assert.equal(body.name, 'TestToken');
       assert.equal(body.symbol, 'TST');
-      assert.equal(body.chainId, 97);
+      assert.equal(body.chainId, 56);
       return Promise.resolve(makeResponse(apiResponse));
     });
 

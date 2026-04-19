@@ -24,6 +24,21 @@ import { validateEthAddress } from './handoff.js';
 
 /** Well-known token addresses per chain. */
 export const KNOWN_TOKENS: PaymentToken[] = [
+  // BSC Mainnet (56)
+  {
+    symbol: 'FET',
+    contractAddress: '0x031b41e504677879370e9DBcF937283A8691Fa7f',
+    decimals: 18,
+    chainId: 56,
+    isStablecoin: false,
+  },
+  {
+    symbol: 'USDC',
+    contractAddress: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+    decimals: 18,
+    chainId: 56,
+    isStablecoin: true,
+  },
   // BSC Testnet (97)
   {
     symbol: 'FET',
@@ -39,31 +54,16 @@ export const KNOWN_TOKENS: PaymentToken[] = [
     chainId: 97,
     isStablecoin: true,
   },
-  // BSC Mainnet (56)
-  {
-    symbol: 'FET',
-    contractAddress: '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87',
-    decimals: 18,
-    chainId: 56,
-    isStablecoin: false,
-  },
-  {
-    symbol: 'USDC',
-    contractAddress: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-    decimals: 18,
-    chainId: 56,
-    isStablecoin: true,
-  },
 ];
 
 /**
  * Look up a known token by symbol and chain.
  *
  * @param symbol - Token symbol (e.g. "FET", "USDC")
- * @param chainId - Chain ID (default: 97)
+ * @param chainId - Chain ID (default: 56)
  * @returns PaymentToken or undefined if not found
  */
-export function getToken(symbol: string, chainId = 97): PaymentToken | undefined {
+export function getToken(symbol: string, chainId = 56): PaymentToken | undefined {
   return KNOWN_TOKENS.find(
     (t) => t.symbol.toUpperCase() === symbol.toUpperCase() && t.chainId === chainId,
   );
@@ -72,7 +72,7 @@ export function getToken(symbol: string, chainId = 97): PaymentToken | undefined
 /**
  * List all known tokens for a chain.
  */
-export function getTokensForChain(chainId = 97): PaymentToken[] {
+export function getTokensForChain(chainId = 56): PaymentToken[] {
   return KNOWN_TOKENS.filter((t) => t.chainId === chainId);
 }
 
@@ -98,13 +98,13 @@ async function loadEthers(): Promise<any> {
  *
  * @param tokenAddress - ERC-20 contract address
  * @param walletAddress - Wallet to check
- * @param chainId - Chain ID (default: 97)
+ * @param chainId - Chain ID (default: 56)
  * @returns Balance as a decimal string
  */
 export async function getTokenBalance(
   tokenAddress: string,
   walletAddress: string,
-  chainId = 97,
+  chainId = 56,
 ): Promise<string> {
   validateEthAddress(tokenAddress);
   validateEthAddress(walletAddress);
@@ -129,13 +129,13 @@ export async function getTokenBalance(
  *
  * @param walletAddress - Wallet to check
  * @param tokenSymbols - Array of token symbols (default: all known tokens for chain)
- * @param chainId - Chain ID (default: 97)
+ * @param chainId - Chain ID (default: 56)
  * @returns Record of symbol -> balance string
  */
 export async function getMultiTokenBalances(
   walletAddress: string,
   tokenSymbols?: string[],
-  chainId = 97,
+  chainId = 56,
 ): Promise<Record<string, string>> {
   validateEthAddress(walletAddress);
   const ethers = await loadEthers();
@@ -176,7 +176,7 @@ export async function getMultiTokenBalances(
  * @param to - Recipient address
  * @param amount - Amount as decimal string
  * @param privateKey - Sender's private key
- * @param chainId - Chain ID (default: 97)
+ * @param chainId - Chain ID (default: 56)
  * @returns Transaction hash
  */
 export async function transferToken(
@@ -184,7 +184,7 @@ export async function transferToken(
   to: string,
   amount: string,
   privateKey: string,
-  chainId = 97,
+  chainId = 56,
 ): Promise<{ txHash: string; blockNumber: number }> {
   validateEthAddress(tokenAddress);
   validateEthAddress(to);

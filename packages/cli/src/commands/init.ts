@@ -340,8 +340,8 @@ AGENT_LAUNCH_ENV=production
 # AGENT_LAUNCH_FRONTEND_URL=https://agent-launch.ai
 
 # ─── Chain ID ─────────────────────────────────────────────
-# 97 = BSC Testnet (default), 56 = BSC Mainnet
-CHAIN_ID=97
+# 56 = BSC Mainnet (default), 97 = BSC Testnet
+CHAIN_ID=56
 `;
 }
 
@@ -805,7 +805,7 @@ console.log(result.handoffLink); // https://agent-launch.ai/deploy/42
 curl -X POST https://agent-launch.ai/api/agents/tokenize \\
   -H "X-API-Key: YOUR_KEY" \\
   -H "Content-Type: application/json" \\
-  -d '{"agentAddress":"agent1q...","name":"My Agent","symbol":"MYAG","chainId":97}'
+  -d '{"agentAddress":"agent1q...","name":"My Agent","symbol":"MYAG","chainId":56}'
 \`\`\`
 
 ## Handoff Flow
@@ -828,7 +828,7 @@ Token is live on BSC Testnet
 |----------|---------|-------------|
 | AGENTVERSE_API_KEY | — | Auth for write endpoints |
 | AGENT_LAUNCH_ENV | production | Set to \`dev\` for dev URLs |
-| CHAIN_ID | 97 | 97=BSC Testnet, 56=BSC Mainnet |
+| CHAIN_ID | 56 | 56=BSC Mainnet, 97=BSC Testnet |
 | WALLET_PRIVATE_KEY | — | Only for autonomous on-chain trading |
 
 ## Next Steps
@@ -877,7 +877,7 @@ const result = await tokenize({
   name: 'My Agent',    // max 32 chars
   symbol: 'MYAG',      // 2–11 chars
   description: '...',  // max 500 chars
-  chainId: 97,         // 97=BSC Testnet, 56=BSC Mainnet
+  chainId: 56,         // 56=BSC Mainnet, 97=BSC Testnet
 });
 // result.handoffLink → https://agent-launch.ai/deploy/{id}
 // result.tokenId     → numeric ID for the handoff link
@@ -914,7 +914,7 @@ const preview = await calculateSell('0x...', '1000000');
 \`\`\`ts
 import { buyTokens } from 'agentlaunch-sdk';
 // Requires WALLET_PRIVATE_KEY env var
-const result = await buyTokens('0x...', '10', { chainId: 97, slippagePercent: 5 });
+const result = await buyTokens('0x...', '10', { chainId: 56, slippagePercent: 5 });
 // result.txHash, result.tokensReceived, result.fetSpent, result.fee
 \`\`\`
 
@@ -922,7 +922,7 @@ const result = await buyTokens('0x...', '10', { chainId: 97, slippagePercent: 5 
 \`\`\`ts
 import { sellTokens } from 'agentlaunch-sdk';
 // Requires WALLET_PRIVATE_KEY env var
-const result = await sellTokens('0x...', '1000000', { chainId: 97 });
+const result = await sellTokens('0x...', '1000000', { chainId: 56 });
 // result.txHash, result.fetReceived, result.tokensSold, result.fee
 \`\`\`
 
@@ -941,7 +941,7 @@ const deployed = await deployAgent({
 \`\`\`ts
 import { getMultiTokenBalances } from 'agentlaunch-sdk';
 // Requires WALLET_PRIVATE_KEY or pass address directly
-const balances = await getMultiTokenBalances('0x...', ['FET', 'BNB'], 97);
+const balances = await getMultiTokenBalances('0x...', ['FET', 'BNB'], 56);
 // { FET: '150.0000', BNB: '0.0012' }
 \`\`\`
 
@@ -951,7 +951,7 @@ const balances = await getMultiTokenBalances('0x...', ['FET', 'BNB'], 97);
 |----------|----------|-------------|
 | AGENTVERSE_API_KEY | Write ops | Auth for tokenize, deploy |
 | WALLET_PRIVATE_KEY | On-chain | Buy, sell, wallet balances |
-| CHAIN_ID | No | Default: 97 (BSC Testnet) |
+| CHAIN_ID | No | Default: 56 (BSC Mainnet) |
 | AGENT_LAUNCH_ENV | No | \`dev\` to use dev URLs |
 | AGENT_LAUNCH_API_URL | No | Override API base URL |
 | AGENT_LAUNCH_FRONTEND_URL | No | Override frontend URL |
@@ -996,7 +996,7 @@ Create a token record and get a handoff link.
 \`\`\`bash
 agentlaunch tokenize --agent agent1q... --name "Token" --symbol TKN
 agentlaunch tokenize --agent agent1q... --name "Token" --symbol TKN \\
-  --description "My token" --chain 97 --json
+  --description "My token" --chain 56 --json
 \`\`\`
 
 ### list
@@ -1200,7 +1200,7 @@ const result = await tokenize({
   name: 'My Research Agent',
   symbol: 'MRA',
   description: 'AI-powered research assistant',
-  chainId: 97,
+  chainId: 56,
 });
 
 // Send to human via any channel

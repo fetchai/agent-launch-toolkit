@@ -70,7 +70,7 @@ interface ApiSuccess<T> {
  * Derivation uses BIP-44: `m/44'/60'/0'/0/{hash(identity) % MAX_HD_INDEX}`.
  * Private keys are never returned.
  *
- * @param chainId       Chain to query balances on (default: 97 = BSC Testnet).
+ * @param chainId       Chain to query balances on (default: 56 = BSC Mainnet).
  * @param agentAddress  Agent address (agent1q...) to query. Omit for user wallet.
  * @param client        Optional pre-configured AgentLaunchClient.
  */

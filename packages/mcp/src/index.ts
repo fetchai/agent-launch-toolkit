@@ -91,7 +91,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Filter by chain (97=BSC testnet, 56=BSC mainnet)",
+            "Filter by chain (56=BSC mainnet, 97=BSC testnet)",
         },
         sort: {
           type: "string",
@@ -211,7 +211,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID (default: 97)",
+          description: "Chain ID (default: 56)",
         },
       },
       required: ["agentAddress", "name", "symbol", "description", "category"],
@@ -386,7 +386,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Chain ID (default: 97 = BSC testnet, 56 = BSC mainnet).",
+            "Chain ID (default: 56 = BSC mainnet, 97 = BSC testnet).",
         },
         maxWalletAmount: {
           type: "number",
@@ -531,7 +531,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+            "Chain ID (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
         slippagePercent: {
           type: "number",
@@ -565,7 +565,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+            "Chain ID (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
         dryRun: {
           type: "boolean",
@@ -590,7 +590,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+            "Chain ID (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
       },
       required: ["address"],
@@ -607,7 +607,7 @@ export const TOOLS = [
         chainId: {
           type: "number",
           description:
-            "Chain ID to query balances on (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+            "Chain ID to query balances on (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
         agentAddress: {
           type: "string",
@@ -736,7 +736,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+          description: "Chain ID (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
       },
       required: ["tokenSymbol", "to", "amount"],
@@ -763,7 +763,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID. Default: 97",
+          description: "Chain ID. Default: 56",
         },
       },
       required: ["tokenSymbol", "owner", "spender"],
@@ -790,7 +790,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID. Default: 97",
+          description: "Chain ID. Default: 56",
         },
       },
       required: ["tokenSymbol", "amount", "agentAddress"],
@@ -861,7 +861,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID. Default: 97",
+          description: "Chain ID. Default: 56",
         },
       },
       required: ["agentAddress", "invoiceId", "payer", "service", "amount"],
@@ -1002,7 +1002,7 @@ export const TOOLS = [
         },
         chainId: {
           type: "number",
-          description: "Chain ID (97=BSC Testnet, 56=BSC Mainnet). Default: 97",
+          description: "Chain ID (56=BSC Mainnet, 97=BSC Testnet). Default: 56",
         },
       },
       required: ["walletAddress"],

@@ -1,10 +1,10 @@
 /**
  * CLI: wallet command group
  *
- * agentlaunch wallet balances [--token USDC] [--chain 97] [--json]
- * agentlaunch wallet delegate <token> <amount> --spender <address> [--chain 97] [--json]
- * agentlaunch wallet allowance <token> --owner <address> --spender <address> [--chain 97] [--json]
- * agentlaunch wallet send <token> <to> <amount> [--chain 97] [--json]
+ * agentlaunch wallet balances [--token USDC] [--chain 56] [--json]
+ * agentlaunch wallet delegate <token> <amount> --spender <address> [--chain 56] [--json]
+ * agentlaunch wallet allowance <token> --owner <address> --spender <address> [--chain 56] [--json]
+ * agentlaunch wallet send <token> <to> <amount> [--chain 56] [--json]
  */
 
 import { Command } from "commander";
@@ -53,7 +53,7 @@ async function runBalances(options: { address?: string; token?: string; chain: s
       console.log(JSON.stringify({ wallet: walletAddr, chainId, balances }));
     } else {
       console.log(`\n  Wallet: ${walletAddr}`);
-      console.log(`  Chain:  ${chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`}\n`);
+      console.log(`  Chain:  ${chainId === 56 ? "BSC Mainnet" : chainId === 97 ? "BSC Testnet" : `Chain ${chainId}`}\n`);
       for (const [symbol, balance] of Object.entries(balances)) {
         const bal = parseFloat(balance);
         console.log(`  ${symbol.padEnd(8)} ${bal.toFixed(4)}`);
@@ -78,7 +78,7 @@ export function registerWalletCommand(program: Command): void {
     .description("Multi-token wallet operations: balances, delegation, transfers")
     .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
     .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
-    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--chain <chainId>", "Chain ID (56=BSC Mainnet, 97=BSC Testnet)", "56")
     .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
       // Default: run balances when no subcommand is given
       await runBalances(options);
@@ -90,7 +90,7 @@ export function registerWalletCommand(program: Command): void {
     .description("Show wallet balances for BNB, FET, USDC, and custom tokens")
     .option("--address <address>", "Wallet address to query (read-only, no private key needed)")
     .option("--token <symbols>", "Comma-separated token symbols (default: all known)")
-    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--chain <chainId>", "Chain ID (56=BSC Mainnet, 97=BSC Testnet)", "56")
     .option("--json", "Output raw JSON")
     .action(async (options: { address?: string; token?: string; chain: string; json?: boolean }) => {
       await runBalances(options);
@@ -101,7 +101,7 @@ export function registerWalletCommand(program: Command): void {
     .command("delegate <token> <amount>")
     .description("Generate a delegation handoff link for ERC-20 spending approval")
     .requiredOption("--spender <address>", "Agent wallet address to authorize (0x...)")
-    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--chain <chainId>", "Chain ID", "56")
     .option("--json", "Output raw JSON")
     .action(async (token: string, amount: string, options: { spender: string; chain: string; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
@@ -139,7 +139,7 @@ export function registerWalletCommand(program: Command): void {
     .description("Check ERC-20 spending limit (allowance)")
     .requiredOption("--owner <address>", "Token owner address (0x...)")
     .requiredOption("--spender <address>", "Approved spender address (0x...)")
-    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--chain <chainId>", "Chain ID", "56")
     .option("--json", "Output raw JSON")
     .action(async (token: string, options: { owner: string; spender: string; chain: string; json?: boolean }) => {
       const chainId = parseInt(options.chain, 10);
@@ -186,7 +186,7 @@ export function registerWalletCommand(program: Command): void {
   wallet
     .command("send <token> <to> <amount>")
     .description("Send ERC-20 tokens to a recipient")
-    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--chain <chainId>", "Chain ID", "56")
     .option("-y, --yes", "Skip confirmation prompt")
     .option("--json", "Output raw JSON")
     .action(async (token: string, to: string, amount: string, options: { chain: string; yes?: boolean; json?: boolean }) => {
@@ -262,7 +262,7 @@ export function registerWalletCommand(program: Command): void {
   wallet
     .command("custodial")
     .description("Show server-managed custodial wallet (user wallet by default, or a specific agent's wallet)")
-    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--chain <chainId>", "Chain ID (56=BSC Mainnet, 97=BSC Testnet)", "56")
     .option("--agent <address>", "Agent address (agent1q...) to get that agent's wallet instead of your user wallet")
     .option("--json", "Output raw JSON")
     .action(async (options: { chain: string; agent?: string; json?: boolean }) => {
@@ -274,7 +274,7 @@ export function registerWalletCommand(program: Command): void {
         if (options.json) {
           console.log(JSON.stringify(info));
         } else {
-          const chainLabel = chainId === 97 ? "BSC Testnet" : chainId === 56 ? "BSC Mainnet" : `Chain ${chainId}`;
+          const chainLabel = chainId === 56 ? "BSC Mainnet" : chainId === 97 ? "BSC Testnet" : `Chain ${chainId}`;
           const gasSymbol = chainId === 1 || chainId === 11155111 ? "ETH" : "BNB";
           const explorerBase = chainId === 56 ? "https://bscscan.com" : "https://testnet.bscscan.com";
           const walletType = options.agent ? "AGENT WALLET" : "USER WALLET";

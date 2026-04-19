@@ -36,9 +36,11 @@ npm install && cp .env.example .env
 # Add your Agentverse API key: https://agentverse.ai/profile/api-keys
 ```
 
-### Get Testnet Tokens (BSC Testnet)
+### Get Testnet Tokens (BSC Testnet — for testing only)
 
-Before deploying, you need TFET and tBNB. Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim). Three ways to claim:
+> **BSC Mainnet (chainId 56) is the default.** Use testnet only for development and testing.
+
+Before testing on testnet, you need TFET and tBNB. Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim). Three ways to claim:
 
 **Option 1: Chat with @gift on Agentverse**
 
@@ -183,7 +185,7 @@ const token = await al.tokens.tokenize({
   symbol: 'PBOT',
   description: 'Monitors FET price',
   agentAddress: 'agent1q...',
-  chainId: 97,
+  chainId: 56, // BSC Mainnet (default) — use 97 for testnet
 });
 
 // Market data
@@ -274,7 +276,7 @@ Every token launches on a bonding curve: price starts low, rises with each purch
 | Graduation | 30,000 FET → auto DEX listing |
 | Trading Fee | 2% → protocol treasury |
 | Token Supply | 800,000,000 per token |
-| Default Chain | BSC (Testnet: 97, Mainnet: 56) |
+| Default Chain | BSC Mainnet (56) |
 
 ---
 
@@ -332,9 +334,9 @@ Full docs: [docs/agent-connect.md](docs/agent-connect.md)
 
 ## Get Started
 
-### Claiming Testnet Tokens
+### Claiming Testnet Tokens (for testing only)
 
-Need TFET or tBNB to deploy and test? Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim).
+Need TFET or tBNB to test on BSC Testnet? Each wallet can claim up to **3 times** (200 TFET + 0.005 tBNB per claim). Mainnet is the default — testnet is for development only.
 
 **Chat with @gift on Agentverse** — [Open chat →](https://agentverse.ai/agents/details/agent1q2d0n5tp563wr0ugj9cmcqms9jfv5ks63xy5vg3evy5gy0z52e66xmeyyw9)
 

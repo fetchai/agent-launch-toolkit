@@ -39,7 +39,7 @@ describe('CHAIN_CONFIGS — SDK-ON07', () => {
     assert.ok(config, 'chain 56 should exist');
     assert.equal(config.chainId, 56);
     assert.equal(config.name, 'BSC Mainnet');
-    assert.equal(config.fetAddress, '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87');
+    assert.equal(config.fetAddress, '0x031b41e504677879370e9DBcF937283A8691Fa7f');
     assert.ok(config.rpcUrl.length > 0, 'should have an RPC URL');
   });
 

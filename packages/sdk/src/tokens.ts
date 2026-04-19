@@ -57,7 +57,7 @@ function defaultClient(): AgentLaunchClient {
  * const { data } = await tokenize({
  *   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qx...',
  *   name: 'My Agent',
- *   chainId: 97,
+ *   chainId: 56,
  * });
  * console.log(data.handoff_link); // https://agent-launch.ai/deploy/42
  * ```

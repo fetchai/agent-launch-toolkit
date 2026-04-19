@@ -44,7 +44,7 @@ export function registerConfigCommand(program: Command): void {
       const env = getEnvironment();
       const apiUrl = cfg.baseUrl ?? DEFAULT_BASE_URL;
       const frontendUrl = resolveFrontendUrl();
-      const chainId = process.env.CHAIN_ID || '97';
+      const chainId = process.env.CHAIN_ID || '56';
       const keyDisplay = cfg.apiKey ? maskKey(cfg.apiKey) : "(not set)";
 
       console.log("\n  AgentLaunch Configuration\n");

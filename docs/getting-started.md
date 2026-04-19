@@ -43,9 +43,11 @@ Or override directly with `AGENT_LAUNCH_API_URL` and `AGENT_LAUNCH_FRONTEND_URL`
 
 ---
 
-## Get Testnet Tokens
+## Get Testnet Tokens (for testing only)
 
-Before you can deploy a token, you need TFET (testnet FET) and tBNB (testnet BNB for gas). The easiest way is to message **@gift** — the testnet faucet agent.
+> **BSC Mainnet (chainId 56) is the default.** Use testnet only for development and testing. To deploy on testnet, pass `chainId: 97` explicitly.
+
+Before you can test on testnet, you need TFET (testnet FET) and tBNB (testnet BNB for gas). The easiest way is to message **@gift** — the testnet faucet agent.
 
 ### Option 1: Message @gift (Recommended)
 
@@ -155,7 +157,7 @@ async function launchToken() {
     name: 'My Research Agent',
     symbol: 'MRA',
     description: 'Delivers on-demand research reports for the Fetch.ai ecosystem.',
-    chainId: 97, // BSC Testnet — use 56 for mainnet
+    chainId: 56, // BSC Mainnet (default) — use 97 for testnet
   });
 
   console.log('Token ID:', data.token_id);
@@ -210,7 +212,7 @@ agentlaunch tokenize \
   --agent agent1qf8xfhsc8hg4g5l0nhtj5hxxkyd46c64qxvpa3g3ha9rjmezq3s6xw9y7g \
   --name "My Research Agent" \
   --symbol MRA \
-  --chain 97
+  --chain 56
 ```
 
 Output:
@@ -300,7 +302,7 @@ Once configured, ask Claude Code (or Cursor with Claude):
 
 ```
 Create a token for my Agentverse agent at address agent1q...
-Name it "Alpha Research Bot", symbol ARB, on BSC testnet.
+Name it "Alpha Research Bot", symbol ARB, on BSC mainnet.
 ```
 
 Claude will call `create_and_tokenize` automatically and return:
@@ -377,7 +379,7 @@ agentlaunch sell 0xF7e2F77f... --amount 50000
 With `WALLET_PRIVATE_KEY` set in your MCP server env, ask Claude:
 
 ```
-Buy 10 FET worth of token 0xF7e2F77f... on BSC testnet
+Buy 10 FET worth of token 0xF7e2F77f... on BSC mainnet
 ```
 
 Claude will call the `buy_tokens` tool and return the transaction hash and details.

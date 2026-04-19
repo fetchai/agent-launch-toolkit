@@ -236,7 +236,7 @@ agentlaunch tokenize \
   --name "My Research Agent" \
   --symbol RSRCH \
   --description "Delivers on-demand research" \
-  --chain 97 \
+  --chain 56 \
   --json
 ```
 
@@ -249,7 +249,7 @@ agentlaunch tokenize \
 | `--symbol <symbol>` | Ticker (2-11 chars) | required |
 | `--description <desc>` | Token description | - |
 | `--image <url>` | Token logo URL | - |
-| `--chain <chainId>` | 97 = BSC Testnet, 56 = BSC Mainnet | 97 |
+| `--chain <chainId>` | 56 = BSC Mainnet (default), 97 = BSC Testnet | 56 |
 | `--max-wallet <0\|1\|2>` | Max wallet size: 0=unlimited, 1=0.5% (5M tokens), 2=1% (10M tokens) | 0 |
 | `--initial-buy <amount>` | FET to spend buying tokens immediately after deploy (0-1000 FET) | 0 |
 | `--category <id>` | Category ID for the token | 1 |
@@ -284,7 +284,7 @@ agentlaunch buy 0xAbCd... --amount 10 --json
 | `--amount <fet>` | FET amount to spend | required |
 | `--dry-run` | Preview only (no transaction) | false |
 | `--slippage <pct>` | Slippage tolerance (%) | 5 |
-| `--chain <id>` | Chain ID (97=testnet, 56=mainnet) | 97 |
+| `--chain <id>` | Chain ID (56=mainnet, 97=testnet) | 56 |
 | `--json` | Output only JSON | false |
 
 ---
@@ -310,7 +310,7 @@ agentlaunch sell 0xAbCd... --amount 50000 --json
 |------|-------------|---------|
 | `--amount <tokens>` | Token amount to sell | required |
 | `--dry-run` | Preview only (no transaction) | false |
-| `--chain <id>` | Chain ID (97=testnet, 56=mainnet) | 97 |
+| `--chain <id>` | Chain ID (56=mainnet, 97=testnet) | 56 |
 | `--json` | Output only JSON | false |
 
 ---
@@ -398,7 +398,7 @@ agentlaunch pay 0xRecipient... 10 --token USDC --json
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--token <symbol>` | Token to pay with (FET, USDC) | FET |
-| `--chain <id>` | Chain ID | 97 |
+| `--chain <id>` | Chain ID (56=mainnet, 97=testnet) | 56 |
 | `--json` | Output only JSON | false |
 
 ---

@@ -24,7 +24,7 @@ import type { AgentLaunchClient } from './client.js';
 export interface OnchainConfig {
   /** Wallet private key. Falls back to WALLET_PRIVATE_KEY env var. */
   privateKey?: string;
-  /** Chain ID (97 = BSC Testnet, 56 = BSC Mainnet). Default: 97. */
+  /** Chain ID (56 = BSC Mainnet, 97 = BSC Testnet). Default: 56. */
   chainId?: number;
   /** Slippage tolerance as a percentage (0-100). Default: 5. */
   slippagePercent?: number;
@@ -94,6 +94,8 @@ export interface ChainConfig {
   rpcUrl: string;
   /** FET token contract address on this chain. */
   fetAddress: string;
+  /** FETAgentVerseDeployer contract address on this chain (if deployed). */
+  deployerAddress?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -130,17 +132,18 @@ export const ERC20_ABI = [
 
 /** Supported chain configurations. */
 export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
+  56: {
+    chainId: 56,
+    name: 'BSC Mainnet',
+    rpcUrl: 'https://bsc-dataseed1.binance.org',
+    fetAddress: '0x031b41e504677879370e9DBcF937283A8691Fa7f',
+    deployerAddress: '0xeDecbC8E118288e1365Db14c9c2f3d51E91Cc247',
+  },
   97: {
     chainId: 97,
     name: 'BSC Testnet',
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
     fetAddress: '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7',
-  },
-  56: {
-    chainId: 56,
-    name: 'BSC Mainnet',
-    rpcUrl: 'https://bsc-dataseed1.binance.org',
-    fetAddress: '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87',
   },
 };
 
@@ -175,7 +178,7 @@ function resolvePrivateKey(config?: OnchainConfig): string {
 
 /** Resolve chain configuration from chain ID. */
 function resolveChain(config?: OnchainConfig): ChainConfig {
-  const chainId = config?.chainId ?? Number(process.env['CHAIN_ID'] ?? 97);
+  const chainId = config?.chainId ?? Number(process.env['CHAIN_ID'] ?? 56);
   const chain = CHAIN_CONFIGS[chainId];
   if (!chain) {
     throw new Error(

@@ -34,7 +34,7 @@ const EMBEDDED_SKILL = `# AgentLaunch — Tokenize Any AI Agent
 curl -X POST https://agent-launch.ai/api/agents/tokenize \\
   -H "X-API-Key: YOUR_AGENTVERSE_API_KEY" \\
   -H "Content-Type: application/json" \\
-  -d '{"name": "MyBot", "symbol": "MYB", "description": "My AI agent", "chainId": 97}'
+  -d '{"name": "MyBot", "symbol": "MYB", "description": "My AI agent", "chainId": 56}'
 
 Response: { "success": true, "data": { "id": 42, "handoffLink": "https://agent-launch.ai/deploy/42" } }
 
@@ -64,7 +64,7 @@ ${EMBEDDED_MATRIX}
 - Graduation: 30,000 FET → auto DEX listing
 - Trading fee: 2% → 100% protocol treasury (no creator fee)
 - Bonding curve: 800M tradeable + 200M DEX reserve
-- Chain: BSC Testnet (97) / BSC Mainnet (56)
+- Chain: BSC Mainnet (56) / BSC Testnet (97)
 
 Full reference: https://agent-launch.ai/skill.md
 `;
