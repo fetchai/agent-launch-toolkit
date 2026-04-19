@@ -22,7 +22,7 @@ When working with AgentLaunch tokens and the platform API:
 - NO creator fee. The 2% fee has NO split. All to protocol.
 - Total buy supply: 800,000,000 tokens per token
 - Buy price difference: 1000 (10x)
-- Default chain: BSC (testnet=97, mainnet=56)
+- Default chain: BSC Mainnet (56). Also supported: BSC Testnet (97)
 
 ## API Authentication
 
@@ -292,16 +292,16 @@ When reviewing or writing code that makes API calls:
 
 ## Multi-Token Support
 
-The toolkit supports FET and USDC on BSC (Testnet chain 97, Mainnet chain 56).
+The toolkit supports FET and USDC on BSC (Mainnet chain 56, Testnet chain 97).
 
 ### Known Token Addresses
 
 | Token | Chain | Address |
 |-------|-------|---------|
+| FET | BSC Mainnet (56) | \`0x031b41e504677879370e9DBcF937283A8691Fa7f\` |
 | FET | BSC Testnet (97) | \`0x304ddf3eE068c53514f782e2341B71A80c8aE3C7\` |
-| FET | BSC Mainnet (56) | \`0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87\` |
-| USDC | BSC Testnet (97) | \`0x64544969ed7EBf5f083679233325356EbE738930\` |
 | USDC | BSC Mainnet (56) | \`0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d\` |
+| USDC | BSC Testnet (97) | \`0x64544969ed7EBf5f083679233325356EbE738930\` |
 
 ### Token Registry
 
@@ -309,8 +309,8 @@ Use \`getToken(symbol, chainId)\` to look up tokens. Never hardcode addresses.
 
 \`\`\`typescript
 import { getToken, KNOWN_TOKENS } from 'agentlaunch-sdk';
-const fet = getToken('FET', 97);   // PaymentToken object
-const usdc = getToken('USDC', 97); // PaymentToken object
+const fet = getToken('FET', 56);   // PaymentToken object
+const usdc = getToken('USDC', 56); // PaymentToken object
 \`\`\`
 
 ## Spending Delegation
@@ -333,7 +333,7 @@ import { checkAllowance, spendFromDelegation, createSpendingLimitHandoff } from 
 const link = createSpendingLimitHandoff({ tokenSymbol: 'FET', amount: '100' }, agentWallet);
 
 // Check on-chain allowance
-const limit = await checkAllowance(tokenAddress, ownerAddress, spenderAddress, 97);
+const limit = await checkAllowance(tokenAddress, ownerAddress, spenderAddress, 56);
 
 // Spend from delegation
 const result = await spendFromDelegation(tokenAddress, owner, recipient, '10');
@@ -1243,7 +1243,7 @@ Build, deploy, and tokenize an agent in one guided flow.
 7. **Tokenize on AgentLaunch**:
    - Use the \`create_token_record\` MCP tool
    - POST /agents/tokenize with name, symbol, description, chainId
-   - Default chain: BSC Testnet (97)
+   - Default chain: BSC Mainnet (56)
 
 8. **Return results to user**:
    - Agent address (agent1q...)
@@ -1974,7 +1974,7 @@ Create a tradeable token for an existing Agentverse agent.
 3. **Create token record**: Use the \`create_token_record\` MCP tool or
    POST /agents/tokenize with:
    - agentAddress, name, symbol, description
-   - chainId (default: 97 for BSC Testnet)
+   - chainId (default: 56 for BSC Mainnet)
 4. **Return handoff link**: Show the deploy link and instructions.
 5. **Explain next steps**:
    - Human clicks the link
@@ -2223,7 +2223,7 @@ const { data } = await tokenize({
   agentAddress: 'agent1q...',
   name: 'My Agent',
   symbol: 'MYAG',
-  chainId: 97,
+  chainId: 56,
 });
 
 console.log(data.handoff_link); // Share with human
@@ -2539,7 +2539,7 @@ async function main() {
     name: 'My Agent',
     symbol: 'MYAG',
     description: 'AI research assistant for on-chain analysis',
-    chainId: 97, // BSC Testnet
+    chainId: 56, // BSC Mainnet
   });
 
   console.log('Token ID:', data.token_id);
@@ -3038,7 +3038,7 @@ export function buildSwarmConfig(ctx: SwarmContext): string {
     {
       name: ctx.swarmName,
       type: "swarm",
-      chain: 97,
+      chain: 56,
       deployedAt: ctx.deployedAt,
       agents,
       peerAddresses: ctx.peerAddresses,

@@ -27,14 +27,14 @@ import { getStorage, putStorage } from './storage.js';
  * @param tokenAddress - ERC-20 contract address
  * @param owner - Address that granted the allowance
  * @param spender - Address allowed to spend
- * @param chainId - Chain ID (default: 97)
+ * @param chainId - Chain ID (default: 56)
  * @returns SpendingLimit with on-chain data
  */
 export async function checkAllowance(
   tokenAddress: string,
   owner: string,
   spender: string,
-  chainId = 97,
+  chainId = 56,
 ): Promise<SpendingLimit> {
   validateEthAddress(tokenAddress);
   validateEthAddress(owner);
@@ -100,7 +100,7 @@ export function createSpendingLimitHandoff(
   params: { tokenSymbol: string; amount: string; chainId?: number },
   agentAddress: string,
 ): string {
-  const chainId = params.chainId ?? 97;
+  const chainId = params.chainId ?? 56;
   const token = getToken(params.tokenSymbol, chainId);
   if (!token) {
     throw new Error(

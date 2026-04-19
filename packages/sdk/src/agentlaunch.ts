@@ -11,7 +11,7 @@
  *
  * const { data } = await al.tokens.tokenize({
  *   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj...',
- *   chainId: 97,
+ *   chainId: 56,
  * });
  *
  * const link = al.handoff.generateDeployLink(data.token_id);
@@ -429,7 +429,7 @@ export interface TradingNamespace {
    * Get a custodial wallet address and balances.
    * Omit agentAddress to get the user's own wallet.
    * Pass an agentAddress to get that agent's autonomous trading wallet.
-   * @param chainId       Chain to query (default: 97 = BSC Testnet).
+   * @param chainId       Chain to query (default: 56 = BSC Mainnet).
    * @param agentAddress  Agent address (agent1q...). Omit for user wallet.
    * @see getWallet
    */

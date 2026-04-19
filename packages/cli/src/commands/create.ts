@@ -2,7 +2,7 @@
  * CLI-002 + CLI-006: create command
  *
  * agentlaunch create [--name "My Agent"] [--ticker MYAG] [--template custom]
- *                    [--description "..."] [--chain 97] [--deploy] [--tokenize] [--json]
+ *                    [--description "..."] [--chain 56] [--deploy] [--tokenize] [--json]
  *
  * Flagship one-command flow:
  *   1. Scaffold agent project (always) — via agentlaunch-templates
@@ -328,8 +328,8 @@ export function registerCreateCommand(program: Command): void {
     .option("--description <desc>", "Token description (max 500 chars)")
     .option(
       "--chain <chainId>",
-      "Chain ID: 97 (BSC testnet) or 56 (BSC mainnet) (default: 97)",
-      "97",
+      "Chain ID: 56 (BSC mainnet) or 97 (BSC testnet) (default: 56)",
+      "56",
     )
     .option("--deploy", "Deploy agent to Agentverse after scaffolding")
     .option("--tokenize", "Create token record on AgentLaunch after deploy")
@@ -943,7 +943,7 @@ AGENT_ADDRESS=${successful[0].address}
 
         const chainId = parseInt(options.chain, 10);
         if (![56, 97].includes(chainId)) {
-          errors.push("--chain must be 97 (BSC testnet) or 56 (BSC mainnet)");
+          errors.push("--chain must be 56 (BSC mainnet) or 97 (BSC testnet)");
         }
 
         if (errors.length > 0) {

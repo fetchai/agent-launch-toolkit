@@ -112,11 +112,13 @@ describe('MCP Server Infrastructure', () => {
 
 describe('Discovery Tools', () => {
   it('MCP-D01: list_tokens returns token list', async () => {
-    const mockBody = { items: [{ id: 1, name: 'Test' }], total: 1 };
-    restoreFn = installFetchMock(() => Promise.resolve(makeResponse(mockBody)));
+    // The SDK's listTokens() expects the API envelope: { success, data, meta }
+    const mockApiResponse = { success: true, data: [{ id: 1, name: 'Test' }], meta: { page: 1, limit: 20, total: 1, totalPages: 1 } };
+    restoreFn = installFetchMock(() => Promise.resolve(makeResponse(mockApiResponse)));
 
     const { _markdown, ...result } = await discoveryHandlers.list_tokens({}) as any;
-    assert.deepEqual(result, mockBody);
+    // SDK transforms to { tokens, total }
+    assert.deepEqual(result, { tokens: [{ id: 1, name: 'Test' }], total: 1 });
     assert.ok(typeof _markdown === 'string', 'should include _markdown string');
   });
 
@@ -124,7 +126,7 @@ describe('Discovery Tools', () => {
     let capturedUrl = '';
     restoreFn = installFetchMock((url) => {
       capturedUrl = String(url);
-      return Promise.resolve(makeResponse({ items: [], total: 0 }));
+      return Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }));
     });
 
     await discoveryHandlers.list_tokens({ status: 'bonding' });
@@ -138,7 +140,7 @@ describe('Discovery Tools', () => {
     let capturedUrl = '';
     restoreFn = installFetchMock((url) => {
       capturedUrl = String(url);
-      return Promise.resolve(makeResponse({ items: [], total: 0 }));
+      return Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } }));
     });
 
     await discoveryHandlers.list_tokens({ chainId: 97 });

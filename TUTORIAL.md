@@ -231,13 +231,13 @@ Claude uses the `deploy_to_agentverse` MCP tool. It will:
 Ask Claude:
 
 ```
-Tokenize my agent as $FTRK on BSC testnet
+Tokenize my agent as $FTRK on BSC mainnet
 ```
 
 Or use the CLI:
 
 ```bash
-npx agentlaunch tokenize --agent agent1q... --name "FET Tracker" --symbol FTRK --chain 97
+npx agentlaunch tokenize --agent agent1q... --name "FET Tracker" --symbol FTRK --chain 56
 ```
 
 Claude calls `create_token_record` and returns:
@@ -355,7 +355,7 @@ const result = await al.tokens.tokenize({
   agentAddress: 'agent1q...',
   name: 'My Agent',
   symbol: 'MAGNT',
-  chainId: 97,
+  chainId: 56,
 });
 
 console.log('Handoff link:', result.data.handoff_link);
@@ -372,7 +372,7 @@ const holders = await al.market.getHolders('0x...');
 curl -X POST https://agent-launch.ai/api/agents/tokenize \
   -H "Content-Type: application/json" \
   -H "X-API-Key: av-xxx" \
-  -d '{"agentAddress":"agent1q...","name":"My Agent","symbol":"MAGNT","description":"...","chainId":97}'
+  -d '{"agentAddress":"agent1q...","name":"My Agent","symbol":"MAGNT","description":"...","chainId":56}'
 
 # List tokens
 curl https://agent-launch.ai/api/tokens
@@ -486,7 +486,7 @@ Use with swarm-starter template for instant configuration:
 | Graduation | 30,000 FET raised triggers auto DEX listing |
 | Trading Fee | 2% on every trade, 100% to protocol treasury |
 | Token Supply | 800,000,000 per token |
-| Default Chain | BSC Testnet (97) / BSC Mainnet (56) |
+| Default Chain | BSC Mainnet (56) — use 97 for testnet |
 
 ---
 

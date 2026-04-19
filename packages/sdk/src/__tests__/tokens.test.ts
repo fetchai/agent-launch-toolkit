@@ -256,7 +256,7 @@ describe('listTokens()', () => {
 
     const restore = installFetchMock((url) => {
       capturedUrl = url;
-      return Promise.resolve(makeResponse({ tokens: [mockToken], total: 1 }));
+      return Promise.resolve(makeResponse({ success: true, data: [mockToken], meta: { page: 1, limit: 10, total: 1, totalPages: 1 } }));
     });
 
     const client = makeClient();
@@ -271,7 +271,7 @@ describe('listTokens()', () => {
 
     const restore = installFetchMock((url) => {
       capturedUrl = url;
-      return Promise.resolve(makeResponse({ tokens: [], total: 0 }));
+      return Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 2, limit: 20, total: 0, totalPages: 0 } }));
     });
 
     const client = makeClient();
@@ -287,7 +287,7 @@ describe('listTokens()', () => {
 
     const restore = installFetchMock((url) => {
       capturedUrl = url;
-      return Promise.resolve(makeResponse({ tokens: [], total: 0 }));
+      return Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } }));
     });
 
     const client = makeClient();
@@ -300,7 +300,7 @@ describe('listTokens()', () => {
 
   it('returns token list and total from the API response', async () => {
     const restore = installFetchMock(() =>
-      Promise.resolve(makeResponse({ tokens: [mockToken], total: 1 })),
+      Promise.resolve(makeResponse({ success: true, data: [mockToken], meta: { page: 1, limit: 10, total: 1, totalPages: 1 } })),
     );
 
     const client = makeClient();
@@ -317,7 +317,7 @@ describe('listTokens()', () => {
 
     const restore = installFetchMock(() => {
       callCount++;
-      return Promise.resolve(makeResponse({ tokens: [mockToken], total: 1 }));
+      return Promise.resolve(makeResponse({ success: true, data: [mockToken], meta: { page: 1, limit: 10, total: 1, totalPages: 1 } }));
     });
 
     const client = makeClient();
@@ -330,7 +330,7 @@ describe('listTokens()', () => {
 
   it('returns empty tokens array when no tokens exist', async () => {
     const restore = installFetchMock(() =>
-      Promise.resolve(makeResponse({ tokens: [], total: 0 })),
+      Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } })),
     );
 
     const client = makeClient();
@@ -346,7 +346,7 @@ describe('listTokens()', () => {
 
     const restore = installFetchMock((url) => {
       capturedUrl = url;
-      return Promise.resolve(makeResponse({ tokens: [], total: 0 }));
+      return Promise.resolve(makeResponse({ success: true, data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } }));
     });
 
     const client = makeClient();

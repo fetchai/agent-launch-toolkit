@@ -62,8 +62,8 @@ export function registerTokenizeCommand(program: Command): void {
     .option("--image <url>", "URL of the token logo image")
     .option(
       "--chain <chainId>",
-      "Chain ID: 97 (BSC testnet) or 56 (BSC mainnet)",
-      "97",
+      "Chain ID: 56 (BSC mainnet) or 97 (BSC testnet)",
+      "56",
     )
     .option(
       "--max-wallet <value>",
@@ -133,12 +133,12 @@ export function registerTokenizeCommand(program: Command): void {
           if (isJson) {
             console.log(
               JSON.stringify({
-                error: "--chain must be 97 (BSC testnet) or 56 (BSC mainnet)",
+                error: "--chain must be 56 (BSC mainnet) or 97 (BSC testnet)",
               }),
             );
           } else {
             console.error(
-              "Error: --chain must be 97 (BSC testnet) or 56 (BSC mainnet)",
+              "Error: --chain must be 56 (BSC mainnet) or 97 (BSC testnet)",
             );
           }
           process.exit(1);

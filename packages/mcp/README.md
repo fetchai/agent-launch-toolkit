@@ -230,7 +230,7 @@ After editing the config, restart Claude Code / Claude Desktop.
   "tokenSymbol": "USDC",
   "to": "0xRecipient...",
   "amount": "10",
-  "chainId": 97
+  "chainId": 56
 }
 ```
 
@@ -244,7 +244,7 @@ After editing the config, restart Claude Code / Claude Desktop.
   "tokenSymbol": "FET",
   "owner": "0xOwner...",
   "spender": "0xAgent...",
-  "chainId": 97
+  "chainId": 56
 }
 ```
 
@@ -258,7 +258,7 @@ After editing the config, restart Claude Code / Claude Desktop.
   "tokenSymbol": "FET",
   "amount": "100",
   "agentAddress": "0xAgent...",
-  "chainId": 97
+  "chainId": 56
 }
 ```
 
@@ -287,7 +287,7 @@ After editing the config, restart Claude Code / Claude Desktop.
 {
   "walletAddress": "0x...",
   "tokenSymbols": ["FET", "USDC"],
-  "chainId": 97
+  "chainId": 56
 }
 ```
 

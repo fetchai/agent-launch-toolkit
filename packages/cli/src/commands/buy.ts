@@ -1,7 +1,7 @@
 /**
  * CLI: buy command
  *
- * agentlaunch buy <address> --amount <FET> [--slippage 5] [--chain 97] [--dry-run] [--json]
+ * agentlaunch buy <address> --amount <FET> [--slippage 5] [--chain 56] [--dry-run] [--json]
  *
  * Executes a buy on a bonding curve token contract, or previews the trade with --dry-run.
  */
@@ -16,7 +16,7 @@ export function registerBuyCommand(program: Command): void {
     .description("Buy tokens on a bonding curve (on-chain or dry-run preview)")
     .requiredOption("--amount <fet>", "Amount of FET to spend")
     .option("--slippage <percent>", "Slippage tolerance percentage", String(DEFAULT_SLIPPAGE_PERCENT))
-    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--chain <chainId>", "Chain ID (56=BSC Mainnet, 97=BSC Testnet)", "56")
     .option("--dry-run", "Preview the trade without executing (no wallet needed)")
     .option("--custodial", "Use server-side custodial wallet (requires AGENTVERSE_API_KEY)")
     .option("--agent <agentAddress>", "Agent address (agent1q...) to trade from agent's wallet (implies --custodial)")
@@ -55,11 +55,11 @@ export function registerBuyCommand(program: Command): void {
 
       // Validate chain
       const chainId = parseInt(options.chain, 10);
-      if (![97, 56].includes(chainId)) {
+      if (![56, 97].includes(chainId)) {
         if (options.json) {
-          console.log(JSON.stringify({ error: "Supported chains: 97 (BSC Testnet), 56 (BSC Mainnet)" }));
+          console.log(JSON.stringify({ error: "Supported chains: 56 (BSC Mainnet), 97 (BSC Testnet)" }));
         } else {
-          console.error("Error: Supported chains: 97 (BSC Testnet), 56 (BSC Mainnet)");
+          console.error("Error: Supported chains: 56 (BSC Mainnet), 97 (BSC Testnet)");
         }
         process.exit(1);
       }

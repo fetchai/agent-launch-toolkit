@@ -530,7 +530,7 @@ function buildAgentlaunchConfig(
     {
       name,
       template: template.name,
-      chain: 97,
+      chain: 56,
       agentAddress: null,
       tokenAddress: null,
     },

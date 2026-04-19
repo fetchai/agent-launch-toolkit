@@ -551,7 +551,7 @@ export interface PaymentToken {
   contractAddress: string;
   /** Token decimals (usually 18 for FET, 18 for USDC on BSC). */
   decimals: number;
-  /** Chain ID (97 = BSC Testnet, 56 = BSC Mainnet). */
+  /** Chain ID (56 = BSC Mainnet, 97 = BSC Testnet). */
   chainId: number;
   /** Whether this is a stablecoin (e.g. USDC, USDT). */
   isStablecoin: boolean;

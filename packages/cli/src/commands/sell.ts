@@ -1,7 +1,7 @@
 /**
  * CLI: sell command
  *
- * agentlaunch sell <address> --amount <tokens> [--chain 97] [--dry-run] [--json]
+ * agentlaunch sell <address> --amount <tokens> [--chain 56] [--dry-run] [--json]
  *
  * Executes a sell on a bonding curve token contract, or previews the trade with --dry-run.
  */
@@ -15,7 +15,7 @@ export function registerSellCommand(program: Command): void {
     .command("sell <address>")
     .description("Sell tokens on a bonding curve (on-chain or dry-run preview)")
     .requiredOption("--amount <tokens>", "Amount of tokens to sell")
-    .option("--chain <chainId>", "Chain ID (97=BSC Testnet, 56=BSC Mainnet)", "97")
+    .option("--chain <chainId>", "Chain ID (56=BSC Mainnet, 97=BSC Testnet)", "56")
     .option("--dry-run", "Preview the trade without executing (no wallet needed)")
     .option("--custodial", "Use server-side custodial wallet (requires AGENTVERSE_API_KEY)")
     .option("--agent <agentAddress>", "Agent address (agent1q...) to trade from agent's wallet (implies --custodial)")
@@ -55,11 +55,11 @@ export function registerSellCommand(program: Command): void {
 
       // Validate chain
       const chainId = parseInt(options.chain, 10);
-      if (![97, 56].includes(chainId)) {
+      if (![56, 97].includes(chainId)) {
         if (options.json) {
-          console.log(JSON.stringify({ error: "Supported chains: 97 (BSC Testnet), 56 (BSC Mainnet)" }));
+          console.log(JSON.stringify({ error: "Supported chains: 56 (BSC Mainnet), 97 (BSC Testnet)" }));
         } else {
-          console.error("Error: Supported chains: 97 (BSC Testnet), 56 (BSC Mainnet)");
+          console.error("Error: Supported chains: 56 (BSC Mainnet), 97 (BSC Testnet)");
         }
         process.exit(1);
       }

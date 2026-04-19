@@ -171,7 +171,7 @@ describe('Delegation — handoff link generation', () => {
     );
   });
 
-  it('createSpendingLimitHandoff defaults to chain 97', async () => {
+  it('createSpendingLimitHandoff defaults to chain 56', async () => {
     const { createSpendingLimitHandoff } = await import('../delegation.js');
     const link = createSpendingLimitHandoff(
       { tokenSymbol: 'FET', amount: '50' },

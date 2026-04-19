@@ -113,16 +113,16 @@ describe('authenticateWithWallet — input validation', () => {
     const { authenticateWithWallet } = await import('../wallet-auth.js');
 
     // This test will fail at the dependency check if not installed,
-    // or at the API call step if installed
+    // or at the key derivation step (all-zero key is invalid for secp256k1),
+    // or at the API call step if everything else succeeds.
     await assert.rejects(
       () => authenticateWithWallet('0x' + '0'.repeat(64)),
       (err: Error) => {
-        // Should get past the format validation
+        // Should get past the format validation — any error that is NOT
+        // "Invalid private key format" proves the 0x prefix was accepted.
         assert.ok(
-          err.message.includes('cosmjs/crypto') ||
-          err.message.includes('bech32') ||
-          err.message.includes('challenge') ||
-          err.message.includes('ENOTFOUND'),
+          !err.message.includes('Invalid private key format'),
+          `Should accept 0x prefix and pass format validation. Got: ${err.message}`,
         );
         return true;
       },

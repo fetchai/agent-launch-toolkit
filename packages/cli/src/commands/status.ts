@@ -89,7 +89,7 @@ export function registerStatusCommand(program: Command): void {
       const holders =
         token.holders ?? token.holderCount ?? token.holder_count ?? 0;
       const progress = formatProgress(token.progress);
-      const chainId = token.chainId ?? token.chain_id ?? 97;
+      const chainId = token.chainId ?? token.chain_id ?? 56;
       const chainName =
         chainId === 56
           ? "BSC Mainnet"

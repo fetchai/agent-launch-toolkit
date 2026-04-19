@@ -1,7 +1,7 @@
 /**
  * CLI: pay and invoice commands
  *
- * agentlaunch pay <agent> <amount> --token USDC [--chain 97] [--json]
+ * agentlaunch pay <agent> <amount> --token USDC [--chain 56] [--json]
  * agentlaunch invoice create --agent <addr> --payer <addr> --service <svc> --amount <n> [--token FET] [--json]
  * agentlaunch invoice list --agent <addr> [--status pending] [--json]
  */
@@ -21,7 +21,7 @@ export function registerPayCommand(program: Command): void {
     .command("pay <to> <amount>")
     .description("Pay an agent or wallet in any supported token")
     .option("--token <symbol>", "Token symbol (default: FET)", "FET")
-    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--chain <chainId>", "Chain ID", "56")
     .option("-y, --yes", "Skip confirmation prompt")
     .option("--json", "Output raw JSON")
     .action(async (to: string, amount: string, options: { token: string; chain: string; yes?: boolean; json?: boolean }) => {
@@ -109,7 +109,7 @@ export function registerPayCommand(program: Command): void {
     .requiredOption("--service <name>", "Service being invoiced")
     .requiredOption("--amount <amount>", "Invoice amount (decimal string)")
     .option("--token <symbol>", "Token symbol (default: FET)", "FET")
-    .option("--chain <chainId>", "Chain ID", "97")
+    .option("--chain <chainId>", "Chain ID", "56")
     .option("--json", "Output raw JSON")
     .action(async (options: {
       agent: string;
