@@ -20,7 +20,7 @@ import {
   authenticateWithWallet,
   deriveCosmosAddress,
   type WalletAuthResult,
-} from "agentlaunch-sdk";
+} from '@fetchai/agent-launch-sdk';
 import { writeConfig, maskKey, tryGetApiKey } from "../config.js";
 
 /**

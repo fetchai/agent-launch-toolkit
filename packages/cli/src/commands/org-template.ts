@@ -6,7 +6,7 @@
  */
 
 import { Command } from "commander";
-import { generateOrgTemplate } from "agentlaunch-templates";
+import { generateOrgTemplate } from '@fetchai/agent-launch-templates';
 
 export function registerOrgTemplateCommand(program: Command): void {
   program

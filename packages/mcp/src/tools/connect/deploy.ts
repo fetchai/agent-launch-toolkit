@@ -7,8 +7,8 @@
 // running a full Python agent.
 // ---------------------------------------------------------------------------
 
-import { connectAgent as sdkConnectAgent } from 'agentlaunch-sdk';
-import type { ConnectConfig } from 'agentlaunch-sdk';
+import { connectAgent as sdkConnectAgent } from '@fetchai/agent-launch-sdk';
+import type { ConnectConfig } from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Return type

@@ -1,5 +1,5 @@
-import { AgentLaunchClient } from 'agentlaunch-sdk';
-import type { CalculateBuyResponse, CalculateSellResponse } from 'agentlaunch-sdk';
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
+import type { CalculateBuyResponse, CalculateSellResponse } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient();
 

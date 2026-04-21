@@ -20,8 +20,8 @@ import {
   getPreset,
   type OrgChart,
   type SwarmConfig,
-} from "agentlaunch-templates";
-import { deployAgent } from "agentlaunch-sdk";
+} from '@fetchai/agent-launch-templates';
+import { deployAgent } from '@fetchai/agent-launch-sdk';
 
 interface SwarmFromOrgOptions {
   dryRun?: boolean;

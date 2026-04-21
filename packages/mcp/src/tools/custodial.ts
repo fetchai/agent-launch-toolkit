@@ -13,8 +13,8 @@
  * Tools: get_agent_wallet, buy_token, sell_token
  */
 
-import { getWallet, executeBuy, executeSell } from 'agentlaunch-sdk';
-import type { WalletInfoResponse, CustodialBuyResult, CustodialSellResult } from 'agentlaunch-sdk';
+import { getWallet, executeBuy, executeSell } from '@fetchai/agent-launch-sdk';
+import type { WalletInfoResponse, CustodialBuyResult, CustodialSellResult } from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Helpers

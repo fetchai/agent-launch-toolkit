@@ -12,8 +12,8 @@ import {
   transferToken,
   createInvoice,
   listInvoices,
-} from "agentlaunch-sdk";
-import type { InvoiceStatus, TokenAmount } from "agentlaunch-sdk";
+} from '@fetchai/agent-launch-sdk';
+import type { InvoiceStatus, TokenAmount } from '@fetchai/agent-launch-sdk';
 
 export function registerPayCommand(program: Command): void {
   // --- pay ---

@@ -1,5 +1,5 @@
-import { AgentLaunchClient, getFrontendUrl, getToken } from 'agentlaunch-sdk';
-import type { Token } from 'agentlaunch-sdk';
+import { AgentLaunchClient, getFrontendUrl, getToken } from '@fetchai/agent-launch-sdk';
+import type { Token } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient();
 const FRONTEND_BASE_URL = getFrontendUrl();

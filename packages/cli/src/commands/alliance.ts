@@ -14,7 +14,7 @@ import {
   generateSwarmFromOrg,
   summarizeSwarm,
   type OrgChart,
-} from "agentlaunch-templates";
+} from '@fetchai/agent-launch-templates';
 import { scaffoldSwarm, deploySwarmAgents } from "../lib/deploy-swarm.js";
 
 // The full 27-agent ASI Alliance org chart

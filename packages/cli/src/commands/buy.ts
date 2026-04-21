@@ -7,7 +7,7 @@
  */
 
 import { Command } from "commander";
-import { calculateBuy, buyTokens, executeBuy, DEFAULT_SLIPPAGE_PERCENT } from "agentlaunch-sdk";
+import { calculateBuy, buyTokens, executeBuy, DEFAULT_SLIPPAGE_PERCENT } from '@fetchai/agent-launch-sdk';
 import { getPublicClient } from "../http.js";
 
 export function registerBuyCommand(program: Command): void {

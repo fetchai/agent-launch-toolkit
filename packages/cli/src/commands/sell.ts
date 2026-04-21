@@ -7,7 +7,7 @@
  */
 
 import { Command } from "commander";
-import { calculateSell, sellTokens, executeSell } from "agentlaunch-sdk";
+import { calculateSell, sellTokens, executeSell } from '@fetchai/agent-launch-sdk';
 import { getPublicClient } from "../http.js";
 
 export function registerSellCommand(program: Command): void {

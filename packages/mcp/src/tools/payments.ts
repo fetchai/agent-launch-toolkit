@@ -14,7 +14,7 @@ import {
   checkAllowance,
   createSpendingLimitHandoff,
   generateFiatOnrampLink,
-} from 'agentlaunch-sdk';
+} from '@fetchai/agent-launch-sdk';
 import type {
   PaymentToken,
   Invoice,
@@ -22,7 +22,7 @@ import type {
   SpendingLimit,
   FiatOnrampLink,
   TokenAmount,
-} from 'agentlaunch-sdk';
+} from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Spending safety
