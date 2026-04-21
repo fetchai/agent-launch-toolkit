@@ -103,7 +103,7 @@ describe('Build verification — templates package', () => {
 
 describe('Build verification — SDK package', () => {
   it('exports AgentLaunchClient', async () => {
-    const mod = await import('agentlaunch-sdk');
+    const mod = await import('@fetchai/agent-launch-sdk');
     assert.ok(
       typeof mod.AgentLaunchClient === 'function',
       'should export AgentLaunchClient',
@@ -111,7 +111,7 @@ describe('Build verification — SDK package', () => {
   });
 
   it('exports AgentLaunch fluent wrapper', async () => {
-    const mod = await import('agentlaunch-sdk');
+    const mod = await import('@fetchai/agent-launch-sdk');
     assert.ok(
       typeof mod.AgentLaunch === 'function',
       'should export AgentLaunch',
@@ -120,7 +120,7 @@ describe('Build verification — SDK package', () => {
 
   it('exports storage functions', async () => {
     // Cast to Record to access properties that will be added by the storage module agent
-    const mod = await import('agentlaunch-sdk') as unknown as Record<string, unknown>;
+    const mod = await import('@fetchai/agent-launch-sdk') as unknown as Record<string, unknown>;
     assert.ok(typeof mod['listStorage'] === 'function', 'should export listStorage');
     assert.ok(typeof mod['getStorage'] === 'function', 'should export getStorage');
     assert.ok(typeof mod['putStorage'] === 'function', 'should export putStorage');
@@ -129,7 +129,7 @@ describe('Build verification — SDK package', () => {
 
   it('exports commerce functions', async () => {
     // Cast to Record to access properties that will be added by the commerce module agent
-    const mod = await import('agentlaunch-sdk') as unknown as Record<string, unknown>;
+    const mod = await import('@fetchai/agent-launch-sdk') as unknown as Record<string, unknown>;
     assert.ok(typeof mod['getAgentRevenue'] === 'function', 'should export getAgentRevenue');
     assert.ok(typeof mod['getPricingTable'] === 'function', 'should export getPricingTable');
     assert.ok(typeof mod['getAgentCommerceStatus'] === 'function', 'should export getAgentCommerceStatus');
@@ -137,7 +137,7 @@ describe('Build verification — SDK package', () => {
   });
 
   it('AgentLaunch fluent wrapper creates all namespaces', async () => {
-    const { AgentLaunch } = await import('agentlaunch-sdk');
+    const { AgentLaunch } = await import('@fetchai/agent-launch-sdk');
     const al = new AgentLaunch({ apiKey: 'test-key' });
     assert.ok(al.tokens, 'should have tokens namespace');
     assert.ok(al.market, 'should have market namespace');

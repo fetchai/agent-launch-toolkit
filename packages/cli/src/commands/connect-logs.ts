@@ -10,7 +10,7 @@
  */
 
 import { Command } from "commander";
-import { connectionLogs } from "agentlaunch-sdk";
+import { connectionLogs } from '@fetchai/agent-launch-sdk';
 import { requireApiKey } from "../config.js";
 
 const DEFAULT_LIMIT = 50;

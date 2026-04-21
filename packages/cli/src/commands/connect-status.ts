@@ -8,8 +8,8 @@
  */
 
 import { Command } from "commander";
-import { connectionStatus } from "agentlaunch-sdk";
-import type { ConnectionStatus } from "agentlaunch-sdk";
+import { connectionStatus } from '@fetchai/agent-launch-sdk';
+import type { ConnectionStatus } from '@fetchai/agent-launch-sdk';
 import { requireApiKey } from "../config.js";
 
 // ---------------------------------------------------------------------------

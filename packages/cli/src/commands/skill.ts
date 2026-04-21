@@ -91,7 +91,7 @@ Authentication:
   Get key:    https://agentverse.ai/profile/api-keys
 
 Tooling:
-  SDK:        npm install agentlaunch-sdk
+  SDK:        npm install @fetchai/agent-launch-sdk
   CLI:        npx agentlaunch
   MCP:        npx agent-launch-mcp (30+ tools)
 

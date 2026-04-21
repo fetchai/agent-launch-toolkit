@@ -61,8 +61,8 @@ function parseSkillToJson(markdown: string): object {
       "Tokenize any AI agent — deploy to Agentverse, create bonding curve tokens, build agent economies",
     phases,
     tools: {
-      sdk: "agentlaunch-sdk",
-      cli: "agentlaunch",
+      sdk: "@fetchai/agent-launch-sdk",
+      cli: "@fetchai/agent-launch-cli",
       mcp: "agent-launch-mcp",
     },
     auth: {

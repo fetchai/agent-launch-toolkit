@@ -1,5 +1,5 @@
-import { AgentLaunchClient, listTokens as sdkListTokens, getToken as sdkGetToken } from 'agentlaunch-sdk';
-import type { TokenListResponse, Token, PlatformStats } from 'agentlaunch-sdk';
+import { AgentLaunchClient, listTokens as sdkListTokens, getToken as sdkGetToken } from '@fetchai/agent-launch-sdk';
+import type { TokenListResponse, Token, PlatformStats } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient();
 

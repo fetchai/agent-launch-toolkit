@@ -15,7 +15,7 @@ import {
   checkAllowance,
   createSpendingLimitHandoff,
   getWallet,
-} from "agentlaunch-sdk";
+} from '@fetchai/agent-launch-sdk';
 
 async function runBalances(options: { address?: string; token?: string; chain: string; json?: boolean }): Promise<void> {
   const chainId = parseInt(options.chain, 10);

@@ -1,5 +1,5 @@
 {
-  "name": "agentlaunch-templates",
+  "name": "@fetchai/agent-launch-templates",
   "version": "1.0.0",
   "description": "Agent code templates for the AgentLaunch platform",
   "type": "module",

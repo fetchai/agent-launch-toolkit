@@ -11,8 +11,8 @@ import {
   calculateBuy,
   calculateSell,
   DEFAULT_SLIPPAGE_PERCENT,
-} from 'agentlaunch-sdk';
-import type { BuyResult, SellResult, WalletBalances, CalculateBuyResponse, CalculateSellResponse } from 'agentlaunch-sdk';
+} from '@fetchai/agent-launch-sdk';
+import type { BuyResult, SellResult, WalletBalances, CalculateBuyResponse, CalculateSellResponse } from '@fetchai/agent-launch-sdk';
 
 /** Buy tokens on a bonding curve. With dryRun=true, returns a preview only. */
 export async function buyTokensTool(args: {

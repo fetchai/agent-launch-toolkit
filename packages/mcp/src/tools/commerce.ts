@@ -1,5 +1,5 @@
-import { deployAgent, resolveApiKey, setSecret } from 'agentlaunch-sdk';
-import { generateFromTemplate } from 'agentlaunch-templates';
+import { deployAgent, resolveApiKey, setSecret } from '@fetchai/agent-launch-sdk';
+import { generateFromTemplate } from '@fetchai/agent-launch-templates';
 
 // ---------------------------------------------------------------------------
 // Marketing Team preset definitions (expected interface from agentlaunch-templates)
@@ -116,7 +116,7 @@ const FALLBACK_PRESETS: Record<string, Preset> = {
  */
 async function resolvePreset(presetName: string): Promise<Preset> {
   try {
-    const templates = await import('agentlaunch-templates') as unknown as Record<string, unknown>;
+    const templates = await import('@fetchai/agent-launch-templates') as unknown as Record<string, unknown>;
     if (typeof templates.getPreset === 'function') {
       const preset = (templates.getPreset as (name: string) => Preset | null)(presetName);
       if (preset) return preset;
@@ -208,7 +208,7 @@ export async function checkAgentCommerce(args: {
 
   // Try SDK first (may not exist yet)
   try {
-    const sdk = await import('agentlaunch-sdk') as unknown as Record<string, unknown>;
+    const sdk = await import('@fetchai/agent-launch-sdk') as unknown as Record<string, unknown>;
     if (typeof sdk.getAgentCommerceStatus === 'function') {
       return await (sdk.getAgentCommerceStatus as (addr: string) => Promise<Record<string, unknown>>)(args.address);
     }
@@ -255,7 +255,7 @@ export async function networkStatus(args: {
 
   // Try SDK first (may not exist yet)
   try {
-    const sdk = await import('agentlaunch-sdk') as unknown as Record<string, unknown>;
+    const sdk = await import('@fetchai/agent-launch-sdk') as unknown as Record<string, unknown>;
     if (typeof sdk.getNetworkGDP === 'function') {
       return await (sdk.getNetworkGDP as (addrs: string[]) => Promise<Record<string, unknown>>)(args.addresses);
     }

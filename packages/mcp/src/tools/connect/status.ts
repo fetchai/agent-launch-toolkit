@@ -5,7 +5,7 @@
  *                        for a given agent1q... address.
  */
 
-import { connectionStatus as sdkConnectionStatus } from 'agentlaunch-sdk';
+import { connectionStatus as sdkConnectionStatus } from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Return type

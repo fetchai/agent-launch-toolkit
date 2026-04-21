@@ -14,7 +14,7 @@ import {
   generateSwarmFromOrg,
   summarizeSwarm,
   EXAMPLE_ORGS,
-} from "agentlaunch-templates";
+} from '@fetchai/agent-launch-templates';
 import { scaffoldSwarm, deploySwarmAgents } from "../lib/deploy-swarm.js";
 
 interface MarketingOptions {
