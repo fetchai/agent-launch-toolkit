@@ -24,7 +24,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
-import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName, RULES, SKILLS, CURSOR_MCP_CONFIG, CURSOR_RULES } from "agentlaunch-templates";
+import { generateFromTemplate, listTemplates, getTemplate, getCanonicalName, RULES, SKILLS, CURSOR_MCP_CONFIG, CURSOR_RULES } from '@fetchai/agent-launch-templates';
 import { tryGetApiKey, buildMcpConfig } from "../config.js";
 
 /** Map legacy --type values to current template names. */

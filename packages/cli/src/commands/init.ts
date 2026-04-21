@@ -703,7 +703,7 @@ npx agentlaunch status <address> --json
 
 ### 3. SDK (TypeScript agents)
 \`\`\`ts
-import { tokenize, listTokens, getToken } from 'agentlaunch-sdk';
+import { tokenize, listTokens, getToken } from '@fetchai/agent-launch-sdk';
 const result = await tokenize({ agentAddress, name, symbol });
 \`\`\`
 
@@ -791,7 +791,7 @@ agentlaunch tokenize \\
 
 ### Path B — SDK
 \`\`\`ts
-import { tokenize } from 'agentlaunch-sdk';
+import { tokenize } from '@fetchai/agent-launch-sdk';
 const result = await tokenize({
   agentAddress: 'agent1q...',
   name: 'My Agent',
@@ -842,10 +842,10 @@ Token is live on BSC Testnet
 }
 
 function getSdkReferenceDoc(): string {
-  return `# SDK Reference — agentlaunch-sdk
+  return `# SDK Reference — @fetchai/agent-launch-sdk
 
 \`\`\`bash
-npm install agentlaunch-sdk
+npm install @fetchai/agent-launch-sdk
 # For on-chain trading (buy/sell):
 npm install ethers@^6
 \`\`\`
@@ -855,7 +855,7 @@ Node.js 18+ required.
 ## Configuration
 
 \`\`\`ts
-import { AgentLaunchClient } from 'agentlaunch-sdk';
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
 
 // Option 1: Environment variable (auto-read)
 // Set AGENTVERSE_API_KEY or AGENT_LAUNCH_API_KEY
@@ -871,7 +871,7 @@ const client = new AgentLaunchClient({
 
 ### tokenize(params) — Create token record
 \`\`\`ts
-import { tokenize } from 'agentlaunch-sdk';
+import { tokenize } from '@fetchai/agent-launch-sdk';
 const result = await tokenize({
   agentAddress: 'agent1q...',
   name: 'My Agent',    // max 32 chars
@@ -885,34 +885,34 @@ const result = await tokenize({
 
 ### listTokens(params?) — List tokens
 \`\`\`ts
-import { listTokens } from 'agentlaunch-sdk';
+import { listTokens } from '@fetchai/agent-launch-sdk';
 const tokens = await listTokens({ page: 1, limit: 20 });
 \`\`\`
 
 ### getToken(address) — Get token by address
 \`\`\`ts
-import { getToken } from 'agentlaunch-sdk';
+import { getToken } from '@fetchai/agent-launch-sdk';
 const token = await getToken('0x...');
 // token.price, token.marketCap, token.holders, token.progress
 \`\`\`
 
 ### calculateBuy(address, fetAmount, client?) — Preview buy
 \`\`\`ts
-import { calculateBuy } from 'agentlaunch-sdk';
+import { calculateBuy } from '@fetchai/agent-launch-sdk';
 const preview = await calculateBuy('0x...', '10');
 // preview.tokensReceived, preview.pricePerToken, preview.fee, preview.priceImpact
 \`\`\`
 
 ### calculateSell(address, tokenAmount, client?) — Preview sell
 \`\`\`ts
-import { calculateSell } from 'agentlaunch-sdk';
+import { calculateSell } from '@fetchai/agent-launch-sdk';
 const preview = await calculateSell('0x...', '1000000');
 // preview.fetReceived, preview.pricePerToken, preview.fee, preview.netFetReceived
 \`\`\`
 
 ### buyTokens(address, fetAmount, options) — Buy on-chain
 \`\`\`ts
-import { buyTokens } from 'agentlaunch-sdk';
+import { buyTokens } from '@fetchai/agent-launch-sdk';
 // Requires WALLET_PRIVATE_KEY env var
 const result = await buyTokens('0x...', '10', { chainId: 56, slippagePercent: 5 });
 // result.txHash, result.tokensReceived, result.fetSpent, result.fee
@@ -920,7 +920,7 @@ const result = await buyTokens('0x...', '10', { chainId: 56, slippagePercent: 5 
 
 ### sellTokens(address, tokenAmount, options) — Sell on-chain
 \`\`\`ts
-import { sellTokens } from 'agentlaunch-sdk';
+import { sellTokens } from '@fetchai/agent-launch-sdk';
 // Requires WALLET_PRIVATE_KEY env var
 const result = await sellTokens('0x...', '1000000', { chainId: 56 });
 // result.txHash, result.fetReceived, result.tokensSold, result.fee
@@ -928,7 +928,7 @@ const result = await sellTokens('0x...', '1000000', { chainId: 56 });
 
 ### deployAgent(params) — Deploy to Agentverse
 \`\`\`ts
-import { deployAgent } from 'agentlaunch-sdk';
+import { deployAgent } from '@fetchai/agent-launch-sdk';
 const deployed = await deployAgent({
   apiKey: 'av-...',
   agentName: 'My Agent',
@@ -939,7 +939,7 @@ const deployed = await deployAgent({
 
 ### getMultiTokenBalances(address, symbols?, chainId?) — Wallet balances
 \`\`\`ts
-import { getMultiTokenBalances } from 'agentlaunch-sdk';
+import { getMultiTokenBalances } from '@fetchai/agent-launch-sdk';
 // Requires WALLET_PRIVATE_KEY or pass address directly
 const balances = await getMultiTokenBalances('0x...', ['FET', 'BNB'], 56);
 // { FET: '150.0000', BNB: '0.0012' }
@@ -1193,7 +1193,7 @@ Humans can sign transactions. The Handoff Protocol bridges this gap.
 ## Code Example
 
 \`\`\`ts
-import { tokenize } from 'agentlaunch-sdk';
+import { tokenize } from '@fetchai/agent-launch-sdk';
 
 const result = await tokenize({
   agentAddress: 'agent1q...',
@@ -1289,7 +1289,7 @@ agentlaunch sell 0x<address> --amount 1000000 --dry-run
 
 \`\`\`ts
 // SDK preview
-import { calculateBuy, calculateSell } from 'agentlaunch-sdk';
+import { calculateBuy, calculateSell } from '@fetchai/agent-launch-sdk';
 const buy = await calculateBuy('0x...', '10');
 const sell = await calculateSell('0x...', '1000000');
 \`\`\`

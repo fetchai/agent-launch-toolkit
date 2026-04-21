@@ -4,8 +4,8 @@
  * W-14, W-15: Tools for authenticating with Agentverse using a wallet private key.
  */
 
-import { authenticateWithWallet, generateWalletAndAuthenticate, AgentLaunchClient } from 'agentlaunch-sdk';
-import type { WalletAuthResult, GenerateWalletResult, MyAgentsResponse } from 'agentlaunch-sdk';
+import { authenticateWithWallet, generateWalletAndAuthenticate, AgentLaunchClient } from '@fetchai/agent-launch-sdk';
+import type { WalletAuthResult, GenerateWalletResult, MyAgentsResponse } from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Return types

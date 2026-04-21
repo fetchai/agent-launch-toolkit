@@ -6,7 +6,7 @@
  * bearer-token auth which is a different auth domain.
  */
 
-import { AgentLaunchClient } from "agentlaunch-sdk";
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
 import { getBaseUrl, requireApiKey } from "./config.js";
 
 /**

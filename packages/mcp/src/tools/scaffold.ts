@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { generateFromTemplate, generateOrgTemplate, generateSwarmFromOrg, summarizeSwarm } from 'agentlaunch-templates';
-import type { OrgChart, SwarmConfig } from 'agentlaunch-templates';
+import { generateFromTemplate, generateOrgTemplate, generateSwarmFromOrg, summarizeSwarm } from '@fetchai/agent-launch-templates';
+import type { OrgChart, SwarmConfig } from '@fetchai/agent-launch-templates';
 
 /**
  * Validates that a directory path is within the current working directory.
@@ -191,7 +191,7 @@ export async function scaffoldSwarm(args: {
 
   if (presetName !== 'custom') {
     try {
-      const templates = await import('agentlaunch-templates') as unknown as Record<string, unknown>;
+      const templates = await import('@fetchai/agent-launch-templates') as unknown as Record<string, unknown>;
       if (typeof templates.getPreset === 'function') {
         const preset = (templates.getPreset as (name: string) => Preset | null)(presetName);
         if (preset) {
@@ -416,7 +416,7 @@ ${agentRows}
 
       let generated;
       try {
-        const templates = await import('agentlaunch-templates') as unknown as Record<string, unknown>;
+        const templates = await import('@fetchai/agent-launch-templates') as unknown as Record<string, unknown>;
         const preset = typeof templates.getPreset === 'function'
           ? (templates.getPreset as (name: string) => Preset | null)(agent.role)
           : null;

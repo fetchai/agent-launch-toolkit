@@ -24,7 +24,7 @@
  */
 
 import { Command } from "commander";
-import { updateConnection, type ConnectConfig } from "agentlaunch-sdk";
+import { updateConnection, type ConnectConfig } from '@fetchai/agent-launch-sdk';
 import { requireApiKey } from "../config.js";
 
 // ---------------------------------------------------------------------------

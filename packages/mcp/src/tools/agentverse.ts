@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { deployAgent, updateAgent, buildOptimizationChecklist } from 'agentlaunch-sdk';
-import type { AgentverseDeployResult, AgentMetadata, OptimizationCheckItem } from 'agentlaunch-sdk';
+import { deployAgent, updateAgent, buildOptimizationChecklist } from '@fetchai/agent-launch-sdk';
+import type { AgentverseDeployResult, AgentMetadata, OptimizationCheckItem } from '@fetchai/agent-launch-sdk';
 
 /**
  * Validates that a file path is within the current working directory.

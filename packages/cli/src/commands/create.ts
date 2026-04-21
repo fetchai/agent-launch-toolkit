@@ -23,9 +23,9 @@ import path from "node:path";
 import readline from "node:readline";
 import { spawn } from "node:child_process";
 import { Command } from "commander";
-import { deployAgent, getFrontendUrl } from "agentlaunch-sdk";
+import { deployAgent, getFrontendUrl } from '@fetchai/agent-launch-sdk';
 import { execSync } from "node:child_process";
-import { generateFromTemplate, generateSystemPrompt, generateWelcomeMessage, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from "agentlaunch-templates";
+import { generateFromTemplate, generateSystemPrompt, generateWelcomeMessage, listTemplates, RULES, SKILLS, DOCS, EXAMPLES, buildPackageJson, CURSOR_MCP_CONFIG, CURSOR_RULES, buildSwarmClaudeMd, buildSwarmConfig, buildSwarmPackageJson, buildProjectSkills, type SwarmContext } from '@fetchai/agent-launch-templates';
 import { getClient, agentverseRequest } from "../http.js";
 import { requireApiKey, buildMcpConfig } from "../config.js";
 

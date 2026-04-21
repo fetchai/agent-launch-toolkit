@@ -5,8 +5,8 @@
  * credentials) that a connected agent forwards requests to.
  */
 
-import { updateConnection as sdkUpdateConnection } from 'agentlaunch-sdk';
-import type { ConnectConfig } from 'agentlaunch-sdk';
+import { updateConnection as sdkUpdateConnection } from '@fetchai/agent-launch-sdk';
+import type { ConnectConfig } from '@fetchai/agent-launch-sdk';
 
 // ---------------------------------------------------------------------------
 // Return type

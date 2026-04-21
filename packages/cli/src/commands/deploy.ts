@@ -17,7 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Command } from "commander";
-import { deployAgent, type OptimizationCheckItem } from "agentlaunch-sdk";
+import { deployAgent, type OptimizationCheckItem } from '@fetchai/agent-launch-sdk';
 import { requireApiKey } from "../config.js";
 
 function printOptimizationChecklist(items: OptimizationCheckItem[]): void {

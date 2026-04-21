@@ -10,7 +10,7 @@
  */
 
 import { Command } from "commander";
-import { getFrontendUrl } from "agentlaunch-sdk";
+import { getFrontendUrl } from '@fetchai/agent-launch-sdk';
 import { getPublicClient } from "../http.js";
 
 interface Holder {

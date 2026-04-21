@@ -20,7 +20,7 @@
  */
 
 import { Command } from "commander";
-import { connectAgent, type ConnectResult } from "agentlaunch-sdk";
+import { connectAgent, type ConnectResult } from '@fetchai/agent-launch-sdk';
 import { requireApiKey } from "../config.js";
 
 // ---------------------------------------------------------------------------

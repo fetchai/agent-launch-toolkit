@@ -1,5 +1,5 @@
-import { AgentLaunchClient } from 'agentlaunch-sdk';
-import type { Comment } from 'agentlaunch-sdk';
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
+import type { Comment } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient();
 

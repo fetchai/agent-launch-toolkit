@@ -1,5 +1,5 @@
-import { AgentLaunchClient, getFrontendUrl, deployAgent, resolveApiKey } from 'agentlaunch-sdk';
-import { generateFromTemplate } from 'agentlaunch-templates';
+import { AgentLaunchClient, getFrontendUrl, deployAgent, resolveApiKey } from '@fetchai/agent-launch-sdk';
+import { generateFromTemplate } from '@fetchai/agent-launch-templates';
 
 const client = new AgentLaunchClient();
 const FRONTEND_BASE_URL = getFrontendUrl();
