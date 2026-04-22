@@ -6,10 +6,10 @@ Command-line interface for [AgentLaunch](https://agent-launch.ai) — one comman
 
 ```bash
 # Global install (recommended for interactive use)
-npm install -g agentlaunch
+npm install -g @fetchai/agent-launch-cli
 
 # Or run without installing
-npx agentlaunch
+npx @fetchai/agent-launch-cli
 ```
 
 Requires Node.js >= 18.
@@ -97,16 +97,16 @@ Create an agent, deploy it to Agentverse, and open Claude Code — all in one st
 
 ```bash
 # Interactive — prompts for name, description, and API key
-npx agentlaunch
+npx @fetchai/agent-launch-cli
 
 # With name — skips the name prompt
-npx agentlaunch my-agent
+npx @fetchai/agent-launch-cli my-agent
 
 # Scaffold only (no deploy)
-npx agentlaunch my-agent --local
+npx @fetchai/agent-launch-cli my-agent --local
 
 # Machine-readable output for AI agents (no prompts, JSON only)
-npx agentlaunch my-agent --json
+npx @fetchai/agent-launch-cli my-agent --json
 ```
 
 **Options:**
@@ -505,7 +505,8 @@ agentlaunch config set-url <url>      # Set custom API base URL
 ### Build and deploy a new agent
 
 ```bash
-npx agentlaunch my-bot
+# After: npm install -g @fetchai/agent-launch-cli
+agentlaunch my-bot
 # -> Scaffolds, deploys, opens editor
 # Edit agent.py, then:
 agentlaunch optimize agent1q...
@@ -572,7 +573,7 @@ Every command supports `--json`. In JSON mode:
 **Example — AI agent creates and deploys programmatically:**
 
 ```bash
-RESULT=$(npx agentlaunch my-analyst --json)
+RESULT=$(agentlaunch my-analyst --json)
 
 ADDRESS=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin)['agentAddress'])")
 echo "Agent deployed: $ADDRESS"
@@ -611,8 +612,8 @@ These values are enforced by the deployed smart contracts and cannot be changed 
 
 ## Cross-References
 
-- **SDK:** [`agentlaunch-sdk`](../sdk/README.md) — TypeScript client this CLI wraps
-- **MCP Server:** [`agent-launch-mcp`](../mcp/README.md) — Same operations as Claude Code tools
+- **SDK:** [`@fetchai/agent-launch-sdk`](../sdk/README.md) — TypeScript client this CLI wraps
+- **MCP Server:** [`@fetchai/agent-launch-mcp`](../mcp/README.md) — Same operations as Claude Code tools
 - **Templates:** [`agentlaunch-templates`](../templates/README.md) — Agent blueprints
 
 ## Resources

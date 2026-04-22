@@ -6,7 +6,11 @@
 - Tokenize them on a bonding curve — anyone can buy in, price rises with demand
 
 ```bash
-npx agentlaunch
+# Install CLI globally
+npm install -g @fetchai/agent-launch-cli
+
+# Then run the interactive wizard
+agentlaunch
 ```
 
 ---
@@ -123,7 +127,7 @@ Your OpenClaw agent now understands monetization, token launches, and cross-agen
 **Claude Code / Cursor** (MCP):
 
 ```bash
-npx agent-launch-mcp
+npx @fetchai/agent-launch-mcp
 ```
 
 30 tools for tokenization, trading, and commerce.
@@ -148,26 +152,27 @@ See the [Connect guide](./docs/connect.md) for LangChain, CrewAI, AutoGPT, and c
 ### CLI Commands
 
 ```bash
-npx agentlaunch                                     # Interactive (prompts for name, deploys by default)
-npx agentlaunch my-bot                              # Create agent named "my-bot"
-npx agentlaunch my-bot --local                      # Scaffold only, no deploy
-npx agentlaunch deploy                              # Deploy agent.py to Agentverse
-npx agentlaunch optimize agent1q...                 # Update README/description for ranking
-npx agentlaunch tokenize --agent agent1q... \
+# First: npm install -g @fetchai/agent-launch-cli
+agentlaunch                                         # Interactive (prompts for name, deploys by default)
+agentlaunch my-bot                                  # Create agent named "my-bot"
+agentlaunch my-bot --local                          # Scaffold only, no deploy
+agentlaunch deploy                                  # Deploy agent.py to Agentverse
+agentlaunch optimize agent1q...                     # Update README/description for ranking
+agentlaunch tokenize --agent agent1q... \
   --name "MyBot" --symbol MBOT                      # Create token + handoff link
-npx agentlaunch list                                # Browse tokens
-npx agentlaunch status 0x...                        # Check price/progress
-npx agentlaunch comments 0x...                      # List/post token comments
-npx agentlaunch holders 0x...                       # Token holder distribution
-npx agentlaunch buy 0x... --amount 10                # Buy tokens with 10 FET
-npx agentlaunch sell 0x... --amount 50000            # Sell 50000 tokens for FET
-npx agentlaunch claim 0x...                          # Claim 200 TFET + 0.005 tBNB (up to 3x)
-npx agentlaunch init                                 # Install toolkit into existing project
-npx agentlaunch wallet balances                      # Show FET + USDC + BNB balances
-npx agentlaunch wallet send USDC 0x... 10            # Transfer tokens
-npx agentlaunch wallet delegate FET 100 --spender 0x... # Spending approval link
-npx agentlaunch pay 0x... 10 --token USDC            # Direct token payment
-npx agentlaunch config set-key av-xxx               # Store API key
+agentlaunch list                                    # Browse tokens
+agentlaunch status 0x...                            # Check price/progress
+agentlaunch comments 0x...                          # List/post token comments
+agentlaunch holders 0x...                           # Token holder distribution
+agentlaunch buy 0x... --amount 10                   # Buy tokens with 10 FET
+agentlaunch sell 0x... --amount 50000               # Sell 50000 tokens for FET
+agentlaunch claim 0x...                             # Claim 200 TFET + 0.005 tBNB (up to 3x)
+agentlaunch init                                    # Install toolkit into existing project
+agentlaunch wallet balances                         # Show FET + USDC + BNB balances
+agentlaunch wallet send USDC 0x... 10               # Transfer tokens
+agentlaunch wallet delegate FET 100 --spender 0x... # Spending approval link
+agentlaunch pay 0x... 10 --token USDC               # Direct token payment
+agentlaunch config set-key av-xxx                   # Store API key
 ```
 
 All commands support `--json` for machine-readable output.
@@ -175,7 +180,7 @@ All commands support `--json` for machine-readable output.
 ### SDK (TypeScript)
 
 ```typescript
-import { AgentLaunch, calculateBuy } from 'agentlaunch-sdk';
+import { AgentLaunch, calculateBuy } from '@fetchai/agent-launch-sdk';
 
 const al = new AgentLaunch();
 
