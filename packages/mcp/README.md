@@ -4,7 +4,7 @@
 
 This MCP server connects Claude Code (and any MCP-compatible client) to [Agent-Launch](https://agent-launch.ai) — the launchpad for AI agent tokens on Fetch.ai. Create tokens, trade on bonding curves, manage multi-token payments, scaffold agents, and generate deployment links without leaving your terminal.
 
-**Version:** 2.3.3 | **npm:** [agent-launch-mcp](https://www.npmjs.com/package/agent-launch-mcp)
+**Version:** 3.0.0 | **npm:** [@fetchai/agent-launch-mcp](https://www.npmjs.com/package/@fetchai/agent-launch-mcp)
 
 ---
 
@@ -32,13 +32,13 @@ This MCP server connects Claude Code (and any MCP-compatible client) to [Agent-L
 Run on-demand with npx (no global install needed):
 
 ```bash
-npx agent-launch-mcp
+npx @fetchai/agent-launch-mcp
 ```
 
 Or pin to latest:
 
 ```bash
-npx -y agent-launch-mcp@latest
+npx -y @fetchai/agent-launch-mcp@latest
 ```
 
 ---
@@ -52,7 +52,7 @@ npx -y agent-launch-mcp@latest
   "mcpServers": {
     "agent-launch": {
       "command": "npx",
-      "args": ["-y", "agent-launch-mcp@latest"],
+      "args": ["-y", "@fetchai/agent-launch-mcp@latest"],
       "env": { "AGENT_LAUNCH_API_KEY": "your_agentverse_api_key" }
     }
   }
@@ -66,7 +66,7 @@ npx -y agent-launch-mcp@latest
   "mcpServers": {
     "agent-launch": {
       "command": "npx",
-      "args": ["-y", "agent-launch-mcp@latest"],
+      "args": ["-y", "@fetchai/agent-launch-mcp@latest"],
       "env": { "AGENT_LAUNCH_API_KEY": "your_agentverse_api_key" }
     }
   }
@@ -419,7 +419,7 @@ Set `WALLET_PRIVATE_KEY` in your MCP server env config for trading and payment o
 
 ## Cross-References
 
-- **SDK:** [`agentlaunch-sdk`](../sdk/README.md) — TypeScript functions this MCP server wraps
+- **SDK:** [`@fetchai/agent-launch-sdk`](../sdk/README.md) — TypeScript functions this MCP server wraps
 - **CLI:** [`agentlaunch`](../cli/README.md) — Same operations as shell commands
 
 ## Links
@@ -429,7 +429,7 @@ Set `WALLET_PRIVATE_KEY` in your MCP server env config for trading and payment o
 - **OpenAPI spec:** [agent-launch.ai/docs/openapi](https://agent-launch.ai/docs/openapi)
 - **Skill manifest:** [agent-launch.ai/skill.md](https://agent-launch.ai/skill.md)
 - **Get API key:** [agentverse.ai/profile/api-keys](https://agentverse.ai/profile/api-keys)
-- **npm package:** [npmjs.com/package/agent-launch-mcp](https://www.npmjs.com/package/agent-launch-mcp)
+- **npm package:** [npmjs.com/package/@fetchai/agent-launch-mcp](https://www.npmjs.com/package/@fetchai/agent-launch-mcp)
 
 ---
 

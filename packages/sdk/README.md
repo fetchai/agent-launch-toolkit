@@ -1,8 +1,8 @@
-# agentlaunch-sdk
+# @fetchai/agent-launch-sdk
 
-[![npm version](https://img.shields.io/npm/v/agentlaunch-sdk.svg)](https://www.npmjs.com/package/agentlaunch-sdk)
+[![npm version](https://img.shields.io/npm/v/@fetchai/agent-launch-sdk.svg)](https://www.npmjs.com/package/@fetchai/agent-launch-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/node/v/agentlaunch-sdk.svg)](https://nodejs.org)
+[![Node.js Version](https://img.shields.io/node/v/@fetchai/agent-launch-sdk.svg)](https://nodejs.org)
 
 TypeScript SDK for the [AgentLaunch](https://agent-launch.ai) platform — create AI agent tokens, trade on bonding curves, accept multi-token payments, manage invoices, and monitor agent economies.
 
@@ -11,7 +11,7 @@ No external runtime dependencies. Uses the global `fetch()` available in Node.js
 ## Install
 
 ```bash
-npm install agentlaunch-sdk
+npm install @fetchai/agent-launch-sdk
 
 # For on-chain trading and payments (optional)
 npm install ethers@^6
@@ -41,7 +41,7 @@ npm install ethers@^6
 ## Quick Start
 
 ```typescript
-import { tokenize, generateDeployLink } from 'agentlaunch-sdk';
+import { tokenize, generateDeployLink } from '@fetchai/agent-launch-sdk';
 
 // 1. Create a pending token record
 const { data } = await tokenize({
@@ -68,7 +68,7 @@ export AGENTVERSE_API_KEY=av-xxxxxxxxxxxxxxxx
 **Option 2 — Pass directly to the client:**
 
 ```typescript
-import { AgentLaunchClient } from 'agentlaunch-sdk';
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient({ apiKey: 'av-xxxxxxxxxxxxxxxx' });
 ```
@@ -84,7 +84,7 @@ const client = new AgentLaunchClient({ apiKey: 'av-xxxxxxxxxxxxxxxx' });
 Create a pending token record for an Agentverse agent.
 
 ```typescript
-import { tokenize } from 'agentlaunch-sdk';
+import { tokenize } from '@fetchai/agent-launch-sdk';
 
 const { data } = await tokenize({
   agentAddress: 'agent1qf8xfhsc8hg4g5l0nhtj...',  // required
@@ -124,7 +124,7 @@ console.log(data.status);        // 'pending_deployment'
 Fetch a single token by its deployed contract address.
 
 ```typescript
-import { getToken } from 'agentlaunch-sdk';
+import { getToken } from '@fetchai/agent-launch-sdk';
 
 const token = await getToken('0xAbCd...');
 console.log(token.price);       // '0.000012' (FET)
@@ -138,7 +138,7 @@ console.log(token.listed);      // false
 List tokens with optional filtering and pagination.
 
 ```typescript
-import { listTokens } from 'agentlaunch-sdk';
+import { listTokens } from '@fetchai/agent-launch-sdk';
 
 const { tokens, total } = await listTokens({
   page: 1,
@@ -161,7 +161,7 @@ Direct buy/sell execution on bonding curve contracts. Requires `ethers@^6` and `
 Buy tokens on the bonding curve. Handles FET approval automatically.
 
 ```typescript
-import { buyTokens } from 'agentlaunch-sdk';
+import { buyTokens } from '@fetchai/agent-launch-sdk';
 
 const result = await buyTokens('0xAbCd...', '10', {
   chainId: 56,        // BSC Mainnet (default) — use 97 for testnet
@@ -181,7 +181,7 @@ console.log(result.blockNumber);     // 12345678
 Sell tokens back to the bonding curve for FET.
 
 ```typescript
-import { sellTokens } from 'agentlaunch-sdk';
+import { sellTokens } from '@fetchai/agent-launch-sdk';
 
 const result = await sellTokens('0xAbCd...', '500000');
 
@@ -196,7 +196,7 @@ console.log(result.priceImpact);  // 1.2
 Query BNB, FET, and token balances for the configured wallet.
 
 ```typescript
-import { getWalletBalances } from 'agentlaunch-sdk';
+import { getWalletBalances } from '@fetchai/agent-launch-sdk';
 
 const balances = await getWalletBalances('0xAbCd...');
 
@@ -212,7 +212,7 @@ console.log(balances.chainId);       // 56
 Get the balance of any ERC-20 token for any wallet.
 
 ```typescript
-import { getERC20Balance } from 'agentlaunch-sdk';
+import { getERC20Balance } from '@fetchai/agent-launch-sdk';
 
 const balance = await getERC20Balance(
   '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7', // FET on BSC Testnet
@@ -226,7 +226,7 @@ console.log(balance); // '150.0'
 Approve an ERC-20 spender (for delegation or spending limits).
 
 ```typescript
-import { approveERC20 } from 'agentlaunch-sdk';
+import { approveERC20 } from '@fetchai/agent-launch-sdk';
 
 const txHash = await approveERC20(
   '0xFETAddress...',
@@ -240,7 +240,7 @@ const txHash = await approveERC20(
 Check how much a spender can spend on behalf of an owner.
 
 ```typescript
-import { getAllowance } from 'agentlaunch-sdk';
+import { getAllowance } from '@fetchai/agent-launch-sdk';
 
 const allowance = await getAllowance(
   '0xFETAddress...',
@@ -255,7 +255,7 @@ console.log(allowance); // '100.0'
 Transfer tokens from an owner to a recipient using prior approval.
 
 ```typescript
-import { transferFromERC20 } from 'agentlaunch-sdk';
+import { transferFromERC20 } from '@fetchai/agent-launch-sdk';
 
 const { txHash, blockNumber } = await transferFromERC20(
   '0xFETAddress...',
@@ -292,7 +292,7 @@ Token registry, balance queries, transfers, and invoice management. Supports FET
 Registry of well-known token addresses per chain.
 
 ```typescript
-import { KNOWN_TOKENS, getPaymentToken, getTokensForChain } from 'agentlaunch-sdk';
+import { KNOWN_TOKENS, getPaymentToken, getTokensForChain } from '@fetchai/agent-launch-sdk';
 
 // Look up a token by symbol
 const fet = getPaymentToken('FET', 56);
@@ -319,7 +319,7 @@ const bscMainnetTokens = getTokensForChain(56); // [FET, USDC]
 Get the balance of any ERC-20 token for a wallet.
 
 ```typescript
-import { getTokenBalance } from 'agentlaunch-sdk';
+import { getTokenBalance } from '@fetchai/agent-launch-sdk';
 
 const balance = await getTokenBalance(
   '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87', // FET on BSC Mainnet
@@ -334,7 +334,7 @@ console.log(balance); // '150.0'
 Get BNB + multiple token balances in a single call.
 
 ```typescript
-import { getMultiTokenBalances } from 'agentlaunch-sdk';
+import { getMultiTokenBalances } from '@fetchai/agent-launch-sdk';
 
 // All known tokens on BSC Testnet
 const balances = await getMultiTokenBalances('0xMyWallet...');
@@ -351,7 +351,7 @@ const fetOnly = await getMultiTokenBalances('0xMyWallet...', ['FET'], 56);
 Transfer any ERC-20 token to a recipient.
 
 ```typescript
-import { transferToken } from 'agentlaunch-sdk';
+import { transferToken } from '@fetchai/agent-launch-sdk';
 
 const { txHash, blockNumber } = await transferToken(
   '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', // USDC on BSC Mainnet
@@ -373,7 +373,7 @@ Create and manage payment invoices stored in Agentverse agent storage.
 Create an invoice in agent storage. Status starts as `pending`.
 
 ```typescript
-import { createInvoice } from 'agentlaunch-sdk';
+import { createInvoice } from '@fetchai/agent-launch-sdk';
 
 const invoice = await createInvoice('agent1q...', {
   id: 'inv-001',
@@ -392,7 +392,7 @@ console.log(invoice.createdAt); // '2026-03-04T...'
 Get a single invoice by ID.
 
 ```typescript
-import { getInvoice } from 'agentlaunch-sdk';
+import { getInvoice } from '@fetchai/agent-launch-sdk';
 
 const invoice = await getInvoice('agent1q...', 'inv-001');
 if (invoice) {
@@ -405,7 +405,7 @@ if (invoice) {
 List all invoices, optionally filtered by status.
 
 ```typescript
-import { listInvoices } from 'agentlaunch-sdk';
+import { listInvoices } from '@fetchai/agent-launch-sdk';
 
 const pending = await listInvoices('agent1q...', 'pending');
 console.log(`${pending.length} pending invoices`);
@@ -416,7 +416,7 @@ console.log(`${pending.length} pending invoices`);
 Update an invoice's status (e.g., mark as paid with a transaction hash).
 
 ```typescript
-import { updateInvoiceStatus } from 'agentlaunch-sdk';
+import { updateInvoiceStatus } from '@fetchai/agent-launch-sdk';
 
 const updated = await updateInvoiceStatus(
   'agent1q...',
@@ -439,7 +439,7 @@ Spending delegation via standard ERC-20 `approve()` / `transferFrom()`. No custo
 Check the on-chain ERC-20 allowance for a spender.
 
 ```typescript
-import { checkAllowance } from 'agentlaunch-sdk';
+import { checkAllowance } from '@fetchai/agent-launch-sdk';
 
 const limit = await checkAllowance(
   '0xBd5df99ABe0E2b1e86BE5eC0039d1e24de28Fe87', // FET on BSC Mainnet
@@ -457,7 +457,7 @@ console.log(limit.token);     // { symbol: 'FET', ... }
 Spend from a delegation using `transferFrom`. Requires prior `approve()`.
 
 ```typescript
-import { spendFromDelegation } from 'agentlaunch-sdk';
+import { spendFromDelegation } from '@fetchai/agent-launch-sdk';
 
 const { txHash, blockNumber } = await spendFromDelegation(
   '0x304ddf3eE068c53514f782e2341B71A80c8aE3C7', // FET
@@ -472,7 +472,7 @@ const { txHash, blockNumber } = await spendFromDelegation(
 Generate a handoff link for a human to approve a spending limit.
 
 ```typescript
-import { createSpendingLimitHandoff } from 'agentlaunch-sdk';
+import { createSpendingLimitHandoff } from '@fetchai/agent-launch-sdk';
 
 const link = createSpendingLimitHandoff(
   { tokenSymbol: 'FET', amount: '100', chainId: 56 },
@@ -486,7 +486,7 @@ const link = createSpendingLimitHandoff(
 Record a delegation in agent storage for tracking.
 
 ```typescript
-import { recordDelegation } from 'agentlaunch-sdk';
+import { recordDelegation } from '@fetchai/agent-launch-sdk';
 
 await recordDelegation('agent1q...', {
   owner: '0xOwner...',
@@ -503,7 +503,7 @@ await recordDelegation('agent1q...', {
 List all recorded delegations for an agent.
 
 ```typescript
-import { listDelegations } from 'agentlaunch-sdk';
+import { listDelegations } from '@fetchai/agent-launch-sdk';
 
 const delegations = await listDelegations('agent1q...');
 for (const d of delegations) {
@@ -522,7 +522,7 @@ Read commerce data (revenue, pricing, GDP) from agent storage. Works with swarm-
 Read revenue data for an agent.
 
 ```typescript
-import { getAgentRevenue } from 'agentlaunch-sdk';
+import { getAgentRevenue } from '@fetchai/agent-launch-sdk';
 
 const revenue = await getAgentRevenue('agent1q...');
 console.log(`Net revenue: ${revenue.netRevenue} atestfet`);
@@ -535,7 +535,7 @@ console.log(`Daily: ${JSON.stringify(revenue.dailySummary)}`);
 Read the per-service pricing table.
 
 ```typescript
-import { getPricingTable } from 'agentlaunch-sdk';
+import { getPricingTable } from '@fetchai/agent-launch-sdk';
 
 const pricing = await getPricingTable('agent1q...');
 for (const p of pricing) {
@@ -548,7 +548,7 @@ for (const p of pricing) {
 Full commerce dashboard for an agent — revenue, pricing, balance, tier, token data, invoices, and delegations combined.
 
 ```typescript
-import { getAgentCommerceStatus } from 'agentlaunch-sdk';
+import { getAgentCommerceStatus } from '@fetchai/agent-launch-sdk';
 
 const status = await getAgentCommerceStatus('agent1q...');
 console.log(`Revenue: ${status.revenue.netRevenue} atestfet`);
@@ -565,7 +565,7 @@ console.log(`Delegations: ${status.delegations}`);
 Aggregate GDP across a set of agents.
 
 ```typescript
-import { getNetworkGDP } from 'agentlaunch-sdk';
+import { getNetworkGDP } from '@fetchai/agent-launch-sdk';
 
 const gdp = await getNetworkGDP([
   'agent1qWriter...',
@@ -588,7 +588,7 @@ Read and write agent storage data via the Agentverse hosting API. Storage is key
 List all storage keys for an agent.
 
 ```typescript
-import { listStorage } from 'agentlaunch-sdk';
+import { listStorage } from '@fetchai/agent-launch-sdk';
 
 const entries = await listStorage('agent1q...');
 for (const entry of entries) {
@@ -601,7 +601,7 @@ for (const entry of entries) {
 Get a single storage value. Returns `null` if the key doesn't exist.
 
 ```typescript
-import { getStorage } from 'agentlaunch-sdk';
+import { getStorage } from '@fetchai/agent-launch-sdk';
 
 const value = await getStorage('agent1q...', 'revenue_summary');
 if (value) {
@@ -615,7 +615,7 @@ if (value) {
 Set a storage value. Creates or overwrites.
 
 ```typescript
-import { putStorage } from 'agentlaunch-sdk';
+import { putStorage } from '@fetchai/agent-launch-sdk';
 
 await putStorage('agent1q...', 'config', JSON.stringify({ mode: 'boost' }));
 ```
@@ -625,7 +625,7 @@ await putStorage('agent1q...', 'config', JSON.stringify({ mode: 'boost' }));
 Delete a storage key. No-op if the key doesn't exist.
 
 ```typescript
-import { deleteStorage } from 'agentlaunch-sdk';
+import { deleteStorage } from '@fetchai/agent-launch-sdk';
 
 await deleteStorage('agent1q...', 'old_config');
 ```
@@ -639,7 +639,7 @@ await deleteStorage('agent1q...', 'old_config');
 Get the current bonding-curve price of a token in FET.
 
 ```typescript
-import { getTokenPrice } from 'agentlaunch-sdk';
+import { getTokenPrice } from '@fetchai/agent-launch-sdk';
 
 const price = await getTokenPrice('0xAbCd...');
 console.log(`Current price: ${price} FET`);
@@ -650,7 +650,7 @@ console.log(`Current price: ${price} FET`);
 Simulate a buy and return the estimated token yield, price impact, and fee breakdown.
 
 ```typescript
-import { calculateBuy } from 'agentlaunch-sdk';
+import { calculateBuy } from '@fetchai/agent-launch-sdk';
 
 const result = await calculateBuy('0xAbCd...', '100');
 console.log(`Tokens received: ${result.tokensReceived}`);
@@ -664,7 +664,7 @@ console.log(`Protocol fee:    ${result.fee} FET`); // 2%, 100% to treasury
 Simulate a sell and return the estimated FET proceeds.
 
 ```typescript
-import { calculateSell } from 'agentlaunch-sdk';
+import { calculateSell } from '@fetchai/agent-launch-sdk';
 
 const result = await calculateSell('0xAbCd...', '500000');
 console.log(`FET received:  ${result.fetReceived}`);
@@ -677,7 +677,7 @@ console.log(`Protocol fee:  ${result.fee} FET`); // 2%, 100% to treasury
 Fetch aggregated platform-level statistics.
 
 ```typescript
-import { getPlatformStats } from 'agentlaunch-sdk';
+import { getPlatformStats } from '@fetchai/agent-launch-sdk';
 
 const stats = await getPlatformStats();
 console.log(`Total tokens:  ${stats.totalTokens}`);
@@ -690,7 +690,7 @@ console.log(`On bonding:    ${stats.totalBonding}`);
 Get the holder list for a token, or look up a specific wallet.
 
 ```typescript
-import { getTokenHolders } from 'agentlaunch-sdk';
+import { getTokenHolders } from '@fetchai/agent-launch-sdk';
 
 // Full holder list
 const { holders, total } = await getTokenHolders('0xAbCd...');
@@ -708,7 +708,7 @@ const holder = await getTokenHolders('0xAbCd...', '0xUserWallet...');
 Fetch all comments on a token's page. No authentication required.
 
 ```typescript
-import { getComments } from 'agentlaunch-sdk';
+import { getComments } from '@fetchai/agent-launch-sdk';
 
 const comments = await getComments('0xAbCd...');
 for (const c of comments) {
@@ -721,7 +721,7 @@ for (const c of comments) {
 Post a comment on a token page. Requires API key.
 
 ```typescript
-import { postComment } from 'agentlaunch-sdk';
+import { postComment } from '@fetchai/agent-launch-sdk';
 
 const result = await postComment({
   tokenAddress: '0xAbCd...',
@@ -739,7 +739,7 @@ Token deployment uses handoff links (irreversible, 120 FET). For autonomous trad
 #### `generateDeployLink(tokenId, baseUrl?)`
 
 ```typescript
-import { generateDeployLink } from 'agentlaunch-sdk';
+import { generateDeployLink } from '@fetchai/agent-launch-sdk';
 
 const link = generateDeployLink(42);
 // https://agent-launch.ai/deploy/42
@@ -748,7 +748,7 @@ const link = generateDeployLink(42);
 #### `generateTradeLink(address, opts?, baseUrl?)`
 
 ```typescript
-import { generateTradeLink } from 'agentlaunch-sdk';
+import { generateTradeLink } from '@fetchai/agent-launch-sdk';
 
 generateTradeLink('0xAbCd...');
 // https://agent-launch.ai/trade/0xAbCd...
@@ -760,7 +760,7 @@ generateTradeLink('0xAbCd...', { action: 'buy', amount: 100 });
 #### `generateBuyLink(address, amount?, baseUrl?)` / `generateSellLink(address, amount?, baseUrl?)`
 
 ```typescript
-import { generateBuyLink, generateSellLink } from 'agentlaunch-sdk';
+import { generateBuyLink, generateSellLink } from '@fetchai/agent-launch-sdk';
 
 const buyLink = generateBuyLink('0xAbCd...', 100);
 const sellLink = generateSellLink('0xAbCd...', 500);
@@ -769,7 +769,7 @@ const sellLink = generateSellLink('0xAbCd...', 500);
 #### `generateDelegationLink(tokenAddress, spenderAddress, amount, baseUrl?)`
 
 ```typescript
-import { generateDelegationLink } from 'agentlaunch-sdk';
+import { generateDelegationLink } from '@fetchai/agent-launch-sdk';
 
 const link = generateDelegationLink('0xFET...', '0xAgent...', '100');
 // https://agent-launch.ai/delegate?token=0xFET...&spender=0xAgent...&amount=100
@@ -780,7 +780,7 @@ const link = generateDelegationLink('0xFET...', '0xAgent...', '100');
 Generate a fiat onramp link (MoonPay or Transak). Handoff-only — never processes fiat directly.
 
 ```typescript
-import { generateFiatOnrampLink } from 'agentlaunch-sdk';
+import { generateFiatOnrampLink } from '@fetchai/agent-launch-sdk';
 
 const { provider, url } = generateFiatOnrampLink({
   fiatAmount: '50',
@@ -800,7 +800,7 @@ const { provider, url } = generateFiatOnrampLink({
 Exchange an Agentverse API key for a platform JWT.
 
 ```typescript
-import { authenticate } from 'agentlaunch-sdk';
+import { authenticate } from '@fetchai/agent-launch-sdk';
 
 const { data } = await authenticate('av-xxxxxxxxxxxxxxxx');
 console.log(data.token);      // JWT string
@@ -812,7 +812,7 @@ console.log(data.expires_in); // seconds until expiry
 List the Agentverse agents owned by the caller's API key.
 
 ```typescript
-import { getMyAgents } from 'agentlaunch-sdk';
+import { getMyAgents } from '@fetchai/agent-launch-sdk';
 
 const { data } = await getMyAgents();
 console.log(data.agents.map(a => a.address));
@@ -823,7 +823,7 @@ console.log(data.agents.map(a => a.address));
 Fetch all agents belonging to an Agentverse API key.
 
 ```typescript
-import { importFromAgentverse } from 'agentlaunch-sdk';
+import { importFromAgentverse } from '@fetchai/agent-launch-sdk';
 
 const { agents, count } = await importFromAgentverse('av-xxxxxxxxxxxxxxxx');
 ```
@@ -837,7 +837,7 @@ const { agents, count } = await importFromAgentverse('av-xxxxxxxxxxxxxxxx');
 Deploy an agent to Agentverse in a single call.
 
 ```typescript
-import { deployAgent } from 'agentlaunch-sdk';
+import { deployAgent } from '@fetchai/agent-launch-sdk';
 
 const result = await deployAgent({
   apiKey: 'av-xxxxxxxxxxxxxxxx',
@@ -858,7 +858,7 @@ console.log(result.optimization);  // 7-item checklist
 Update metadata on an existing Agentverse agent to improve ranking.
 
 ```typescript
-import { updateAgent } from 'agentlaunch-sdk';
+import { updateAgent } from '@fetchai/agent-launch-sdk';
 
 const result = await updateAgent({
   apiKey: 'av-xxxxxxxxxxxxxxxx',
@@ -879,7 +879,7 @@ console.log(result.optimization);   // 7-item checklist
 Build a 7-item checklist for an agent's Agentverse ranking factors.
 
 ```typescript
-import { buildOptimizationChecklist } from 'agentlaunch-sdk';
+import { buildOptimizationChecklist } from '@fetchai/agent-launch-sdk';
 
 const checklist = buildOptimizationChecklist({
   agentAddress: 'agent1q...',
@@ -898,7 +898,7 @@ const checklist = buildOptimizationChecklist({
 For a more ergonomic interface, use the `AgentLaunch` class with 8 namespaces:
 
 ```typescript
-import { AgentLaunch } from 'agentlaunch-sdk';
+import { AgentLaunch } from '@fetchai/agent-launch-sdk';
 
 const al = new AgentLaunch({ apiKey: 'av-xxxxxxxxxxxxxxxx' });
 
@@ -961,7 +961,7 @@ const gdp = await al.commerce.getNetworkGDP(['agent1q...', 'agent1q...']);
 The underlying HTTP client. Use directly for advanced scenarios.
 
 ```typescript
-import { AgentLaunchClient } from 'agentlaunch-sdk';
+import { AgentLaunchClient } from '@fetchai/agent-launch-sdk';
 
 const client = new AgentLaunchClient({
   apiKey: process.env.AGENTVERSE_API_KEY,
@@ -983,7 +983,7 @@ const result = await client.post<MyType>('/tokenize', body);
 All SDK methods throw `AgentLaunchError` on non-2xx responses.
 
 ```typescript
-import { tokenize, AgentLaunchError } from 'agentlaunch-sdk';
+import { tokenize, AgentLaunchError } from '@fetchai/agent-launch-sdk';
 
 try {
   const { data } = await tokenize({ agentAddress: 'agent1q...' });
@@ -1024,7 +1024,7 @@ On-chain functions throw standard `Error` with descriptive messages:
 ## Cross-References
 
 - **CLI equivalent:** [`agentlaunch`](../cli/README.md) — wraps this SDK with interactive prompts
-- **MCP tools:** [`agent-launch-mcp`](../mcp/README.md) — wraps this SDK as Claude Code tools
+- **MCP tools:** [`@fetchai/agent-launch-mcp`](../mcp/README.md) — wraps this SDK as Claude Code tools
 - **Templates:** [`agentlaunch-templates`](../templates/README.md) — agent code generation
 
 ## License

@@ -44,7 +44,7 @@ Created docs/TODO.md with 20 tasks across 5 phases.
 # Execute tasks one by one
 > /grow
 Executing L-1: Deploy the swarm...
-Running: npx agentlaunch create → Marketing Team
+Running: agentlaunch create → Marketing Team
 KPI: All 7 running ✓
 Task L-1 complete.
 
@@ -80,8 +80,9 @@ Dev URLs (Cloud Run) will be used when `AGENT_LAUNCH_ENV=dev` is set.
 
 1. **Claude Code** installed ([claude.ai/code](https://claude.ai/code))
 2. **Node.js 18+** installed
-3. **Agentverse API key** — get one free at [agentverse.ai/profile/api-keys](https://agentverse.ai/profile/api-keys)
-4. **BSC wallet with ~125 FET** — needed only at the final deploy step (MetaMask, Rainbow, etc.)
+3. **CLI installed globally** — `npm install -g @fetchai/agent-launch-cli`
+4. **Agentverse API key** — get one free at [agentverse.ai/profile/api-keys](https://agentverse.ai/profile/api-keys)
+5. **BSC wallet with ~125 FET** — needed only at the final deploy step (MetaMask, Rainbow, etc.)
 
 ---
 
@@ -196,7 +197,7 @@ and alerts when price moves more than 5%
 Or use the CLI directly:
 
 ```bash
-npx agentlaunch scaffold FETTracker --template price-monitor
+agentlaunch scaffold FETTracker --template price-monitor
 ```
 
 This creates `agent.py` with the Agentverse Chat Protocol boilerplate. Review and customize it.
@@ -214,7 +215,7 @@ Deploy my agent to Agentverse
 Or use the CLI:
 
 ```bash
-npx agentlaunch deploy agent.py --name "FET Tracker"
+agentlaunch deploy agent.py --name "FET Tracker"
 ```
 
 Claude uses the `deploy_to_agentverse` MCP tool. It will:
@@ -237,7 +238,7 @@ Tokenize my agent as $FTRK on BSC mainnet
 Or use the CLI:
 
 ```bash
-npx agentlaunch tokenize --agent agent1q... --name "FET Tracker" --symbol FTRK --chain 56
+agentlaunch tokenize --agent agent1q... --name "FET Tracker" --symbol FTRK --chain 56
 ```
 
 Claude calls `create_token_record` and returns:
@@ -332,21 +333,21 @@ You (in Claude Code)          Agentverse              AgentLaunch            Blo
 
 ```bash
 # Full interactive wizard
-npx agentlaunch create
+agentlaunch create
 
 # Or step by step
-npx agentlaunch scaffold MyAgent --template research
-npx agentlaunch deploy agent.py --name "My Agent"
-npx agentlaunch tokenize --agent agent1q... --name "My Agent" --symbol MAGNT
-npx agentlaunch list
-npx agentlaunch status 0x...
-npx agentlaunch holders 0x...
+agentlaunch scaffold MyAgent --template research
+agentlaunch deploy agent.py --name "My Agent"
+agentlaunch tokenize --agent agent1q... --name "My Agent" --symbol MAGNT
+agentlaunch list
+agentlaunch status 0x...
+agentlaunch holders 0x...
 ```
 
 ### Pure SDK (TypeScript)
 
 ```typescript
-import { AgentLaunch } from 'agentlaunch-sdk';
+import { AgentLaunch } from '@fetchai/agent-launch-sdk';
 
 const al = new AgentLaunch({ apiKey: process.env.AGENTVERSE_API_KEY });
 
