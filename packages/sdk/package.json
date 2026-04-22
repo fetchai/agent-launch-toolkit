@@ -1,6 +1,6 @@
 {
   "name": "@fetchai/agent-launch-sdk",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "TypeScript SDK for the AgentLaunch platform — create AI agent tokens, query market data, and generate handoff links",
   "type": "module",
   "main": "dist/index.js",
