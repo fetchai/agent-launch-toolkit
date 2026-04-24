@@ -5,6 +5,19 @@ All notable changes to `agentlaunch-sdk` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-04-24
+
+### Fixed
+
+- **`getWalletBalances` BAD_DATA crash (Issue #490)** — `balanceOf()` calls on a
+  non-ERC-20 address (or any contract that returns an empty `0x` response) no
+  longer crash the function. A new `safeBalanceOf` internal helper wraps every
+  `contract.balanceOf()` call and returns `0n` on `BAD_DATA`, `CALL_EXCEPTION`,
+  or `INVALID_ARGUMENT` errors from ethers v6, while still re-throwing
+  unexpected network errors.
+
+---
+
 ## [0.2.15] - 2026-04-03
 
 ### Added

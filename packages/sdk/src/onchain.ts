@@ -188,6 +188,40 @@ function resolveChain(config?: OnchainConfig): ChainConfig {
   return chain;
 }
 
+/**
+ * Safe wrapper around `contract.balanceOf(address)` that returns `0n` on any
+ * RPC failure, including the `BAD_DATA` / empty-`0x` response thrown by
+ * ethers v6 when the target address is not a real ERC-20 contract.
+ *
+ * @param contract - ethers Contract instance with a `balanceOf` method
+ * @param address  - Wallet address to query
+ * @returns Token balance, or `0n` if the call reverts / returns bad data
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function safeBalanceOf(contract: any, address: string): Promise<bigint> {
+  try {
+    const balance = await contract.balanceOf(address);
+    return balance;
+  } catch (err: unknown) {
+    // ethers v6 throws with code "BAD_DATA" when the response is "0x" (empty)
+    // which happens when calling balanceOf on a non-ERC-20 address.
+    // Any other RPC error (CALL_EXCEPTION, network issues) should also return 0
+    // rather than crashing the entire getWalletBalances call.
+    const code = (err as { code?: string })?.code;
+    const value = (err as { value?: string })?.value;
+    if (
+      code === 'BAD_DATA' ||
+      code === 'CALL_EXCEPTION' ||
+      code === 'INVALID_ARGUMENT' ||
+      value === '0x'
+    ) {
+      return 0n;
+    }
+    // Re-throw unexpected errors so they're not silently swallowed.
+    throw err;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // buyTokens
 // ---------------------------------------------------------------------------
@@ -398,11 +432,13 @@ export async function getWalletBalances(
 
   const fetContract = new ethers.Contract(fetAddress, ERC20_ABI, provider);
 
-  // Parallel balance queries
+  // Parallel balance queries — use safeBalanceOf so a non-ERC-20 address
+  // (or any contract returning empty "0x" data) returns 0n instead of
+  // throwing BAD_DATA and crashing the entire call (Issue #490).
   const [bnbBalance, fetBalance, tokenBalance] = await Promise.all([
     provider.getBalance(wallet.address),
-    fetContract.balanceOf(wallet.address),
-    tokenContract.balanceOf(wallet.address),
+    safeBalanceOf(fetContract, wallet.address),
+    safeBalanceOf(tokenContract, wallet.address),
   ]);
 
   return {
